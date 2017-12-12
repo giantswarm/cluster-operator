@@ -1,2 +1,4 @@
 # cluster-operator
-The cluster-operator is an in-cluster agent that handles Giant Swarm guest cluster specific resources.
+
+The cluster-operator is an in-cluster agent that handles Giant Swarm guest
+cluster specific resources.
