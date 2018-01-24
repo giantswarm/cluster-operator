@@ -1,0 +1,78 @@
+package service
+
+import (
+	"time"
+
+	"github.com/giantswarm/versionbundle"
+)
+
+func newVersionBundles() []versionbundle.Bundle {
+	return []versionbundle.Bundle{
+		{
+			Changelogs: []versionbundle.Changelog{
+				{
+					Component:   "kubernetes",
+					Description: "Enabled encryption at rest.",
+					Kind:        versionbundle.KindAdded,
+				},
+				{
+					Component:   "kubernetes",
+					Description: "Updated to version 1.9.0.",
+					Kind:        versionbundle.KindChanged,
+				},
+				{
+					Component:   "kubernetes",
+					Description: "Switched vanilla (previously coreos) hyperkube image.",
+					Kind:        versionbundle.KindChanged,
+				},
+				{
+					Component:   "calico",
+					Description: "Updated to version 3.0.1.",
+					Kind:        versionbundle.KindChanged,
+				},
+				{
+					Component:   "calico",
+					Description: "Removed calico-ipip-pinger.",
+					Kind:        versionbundle.KindRemoved,
+				},
+				{
+					Component:   "calico",
+					Description: "Removed calico-node-controller.",
+					Kind:        versionbundle.KindRemoved,
+				},
+			},
+			Components: []versionbundle.Component{
+				{
+					Name:    "calico",
+					Version: "3.0.1",
+				},
+				{
+					Name:    "docker",
+					Version: "1.12.6",
+				},
+				{
+					Name:    "etcd",
+					Version: "3.2.7",
+				},
+				{
+					Name:    "kubedns",
+					Version: "1.14.5",
+				},
+				{
+					Name:    "kubernetes",
+					Version: "1.9.0",
+				},
+				{
+					Name:    "nginx-ingress-controller",
+					Version: "0.9.0",
+				},
+			},
+			Dependencies: []versionbundle.Dependency{},
+			Deprecated:   false,
+			Name:         "cluster-operator",
+			Time:         time.Date(2018, time.January, 23, 13, 25, 0, 0, time.UTC),
+			Version:      "0.0.1",
+			WIP:          true,
+		},
+	}
+}

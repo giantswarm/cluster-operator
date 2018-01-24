@@ -1,0 +1,6 @@
+# ignore vim swap files
+*.swp
+
+# build result
+cluster-operator
+
