@@ -39,7 +39,7 @@ func main() {
 
 func mainWithError() (err error) {
 
-	// Create a new logger that is used by all packages
+	// Create a new logger that is used by all packages.
 	var newLogger micrologger.Logger
 	{
 		loggerConfig := micrologger.DefaultConfig()
@@ -51,9 +51,9 @@ func mainWithError() (err error) {
 	}
 
 	// Define server factory to create the custom server once all command line
-	// flags are parsed and all microservice configuration is processed
+	// flags are parsed and all microservice configuration is processed.
 	newServerFactory := func(v *viper.Viper) microserver.Server {
-		// New custom service implements the business logic
+		// New custom service implements the business logic.
 		var newService *service.Service
 		{
 			serviceConfig := service.DefaultConfig()
@@ -95,7 +95,7 @@ func mainWithError() (err error) {
 			}
 		}
 
-		// New custom server that bundles microkit endpoints
+		// New custom server that bundles microkit endpoints.
 		var newServer microserver.Server
 		{
 			serverConfig := server.DefaultConfig()
@@ -115,7 +115,7 @@ func mainWithError() (err error) {
 		return newServer
 	}
 
-	// Create a new microkit command that manages operator daemon
+	// Create a new microkit command that manages operator daemon.
 	var newCommand command.Command
 	{
 		commandConfig := command.DefaultConfig()

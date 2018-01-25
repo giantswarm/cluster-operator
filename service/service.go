@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/cluster-operator/flag"
 )
 
-// Config represents the configuration used to create a new service
+// Config represents the configuration used to create a new service.
 type Config struct {
 	// Dependencies
 	Logger micrologger.Logger
@@ -26,12 +26,12 @@ type Config struct {
 	Source      string
 }
 
-// DefaultConfig provides a default configuration to create a new service
+// DefaultConfig provides a default configuration to create a new service.
 func DefaultConfig() Config {
 	return Config{}
 }
 
-// New creates a new service with given configuration
+// New creates a new service with given configuration.
 func New(config Config) (*Service, error) {
 	// Dependencies
 	if config.Logger == nil {
@@ -58,7 +58,7 @@ func New(config Config) (*Service, error) {
 	return newService, nil
 }
 
-// Service is a type providing implementation of microkit service interface
+// Service is a type providing implementation of microkit service interface.
 type Service struct {
 	// Dependencies
 
@@ -66,9 +66,9 @@ type Service struct {
 	bootOnce sync.Once
 }
 
-// Boot starts top level service implementation
+// Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		// Insert here service startup logic
+		// Insert here service startup logic.
 	})
 }

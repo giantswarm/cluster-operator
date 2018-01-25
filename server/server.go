@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service"
 )
 
-// Config represents the configuration used to construct server object
+// Config represents the configuration used to construct server object.
 type Config struct {
 	// Dependencies
 	Service *service.Service
@@ -21,7 +21,7 @@ type Config struct {
 	MicroServerConfig microserver.Config
 }
 
-// DefaultConfig provides a default configuration to create a new server object
+// DefaultConfig provides a default configuration to create a new server object.
 func DefaultConfig() Config {
 	return Config{
 		// Dependencies
@@ -32,7 +32,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// New creates a new server object with given configuration
+// New creates a new server object with given configuration.
 func New(config Config) (microserver.Server, error) {
 	newServer := &server{
 		// Dependencies
@@ -45,7 +45,7 @@ func New(config Config) (microserver.Server, error) {
 		shutdownOnce: sync.Once{},
 	}
 
-	// Apply internals to the micro server config
+	// Apply internals to the micro server config.
 	newServer.config.Endpoints = []microserver.Endpoint{}
 	newServer.config.ErrorEncoder = newServer.newErrorEncoder()
 
@@ -65,7 +65,7 @@ type server struct {
 
 func (s *server) Boot() {
 	s.bootOnce.Do(func() {
-		// Insert here custom boot logic for server/endpoint/middleware if needed
+		// Insert here custom boot logic for server/endpoint/middleware if needed.
 	})
 }
 
@@ -75,7 +75,7 @@ func (s *server) Config() microserver.Config {
 
 func (s *server) Shutdown() {
 	s.shutdownOnce.Do(func() {
-		// Insert here custom shutdown logic for server/endpoint/middleware if needed
+		// Insert here custom shutdown logic for server/endpoint/middleware if needed.
 	})
 }
 

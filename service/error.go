@@ -6,7 +6,7 @@ import (
 
 var invalidConfigError = microerror.New("invalid config")
 
-// IsInvalidConfig asserts invalidConfigError
+// IsInvalidConfig asserts invalidConfigError.
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
