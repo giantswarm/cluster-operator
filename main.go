@@ -38,7 +38,6 @@ func main() {
 }
 
 func mainWithError() (err error) {
-
 	// Create a new logger that is used by all packages.
 	var newLogger micrologger.Logger
 	{
