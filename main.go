@@ -23,11 +23,11 @@ const (
 )
 
 var (
-	description            = "The cluster-operator is an in-cluster agent that handles Giant Swarm guest cluster specific resources."
-	f           *flag.Flag = flag.New()
-	gitCommit              = notAvailable
-	name                   = "cluster-operator"
-	source                 = "https://github.com/giantswarm/cluster-operator"
+	description = "The cluster-operator is an in-cluster agent that handles Giant Swarm guest cluster specific resources."
+	f           = flag.New()
+	gitCommit   = notAvailable
+	name        = "cluster-operator"
+	source      = "https://github.com/giantswarm/cluster-operator"
 )
 
 func main() {
