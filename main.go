@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	description = "The cluster-operator is an in-cluster agent that handles Giant Swarm guest cluster specific resources."
+	description = "The cluster-operator manages Kubernetes guest cluster resources."
 	f           = flag.New()
 	gitCommit   = notAvailable
 	name        = "cluster-operator"
