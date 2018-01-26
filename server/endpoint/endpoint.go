@@ -1,6 +1,9 @@
 package endpoint
 
 import (
+	"github.com/giantswarm/microendpoint/endpoint/healthz"
+	healthzservice "github.com/giantswarm/microendpoint/service/healthz"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
 	"github.com/giantswarm/cluster-operator/server/middleware"
@@ -16,9 +19,35 @@ type Config struct {
 
 // New creates a new endpoint with given configuration.
 func New(config Config) (*Endpoint, error) {
-	return &Endpoint{}, nil
+	var err error
+
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+	}
+
+	if config.Service == nil || config.Service.Healthz == nil || config.Service.Healthz.K8s == nil {
+		return nil, microerror.Maskf(invalidConfigError,
+			"config.Service or it's Healthz descendents must not be empty")
+	}
+
+	var healthzEndpoint *healthz.Endpoint
+	{
+		healthzConfig := healthz.DefaultConfig()
+		healthzConfig.Logger = config.Logger
+		healthzConfig.Services = []healthzservice.Service{
+			config.Service.Healthz.K8s,
+		}
+
+		healthzEndpoint, err = healthz.New(healthzConfig)
+		if err != nil {
+			return nil, microerror.Maskf(err, "healthz.New")
+		}
+	}
+
+	return &Endpoint{healthzEndpoint}, nil
 }
 
 // Endpoint is the endpoint collection.
 type Endpoint struct {
+	Healthz *healthz.Endpoint
 }
