@@ -14,31 +14,14 @@ import (
 
 // Config represents the configuration used to construct server object.
 type Config struct {
-	// Dependencies
-	Service *service.Service
-
-	//Settings
+	Service           *service.Service
 	MicroServerConfig microserver.Config
-}
-
-// DefaultConfig provides a default configuration to create a new server object.
-func DefaultConfig() Config {
-	return Config{
-		// Dependencies
-		Service: nil,
-
-		// Settings
-		MicroServerConfig: microserver.DefaultConfig(),
-	}
 }
 
 // New creates a new server object with given configuration.
 func New(config Config) (microserver.Server, error) {
 	newServer := &server{
-		// Dependencies
-		logger: config.MicroServerConfig.Logger,
-
-		// Internals
+		logger:       config.MicroServerConfig.Logger,
 		bootOnce:     sync.Once{},
 		config:       config.MicroServerConfig,
 		serviceName:  config.MicroServerConfig.ServiceName,
@@ -53,10 +36,7 @@ func New(config Config) (microserver.Server, error) {
 }
 
 type server struct {
-	// Dependencies
-	logger micrologger.Logger
-
-	// Internals
+	logger       micrologger.Logger
 	bootOnce     sync.Once
 	config       microserver.Config
 	serviceName  string

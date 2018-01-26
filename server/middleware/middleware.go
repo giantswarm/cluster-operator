@@ -8,14 +8,8 @@ import (
 
 // Config represents the configuration used to construct middleware.
 type Config struct {
-	// Dependencies
 	Logger  micrologger.Logger
 	Service *service.Service
-}
-
-// DefaultConfig provides a default configuration to construct a new middleware.
-func DefaultConfig() Config {
-	return Config{}
 }
 
 // New creates a new configured middleware.
