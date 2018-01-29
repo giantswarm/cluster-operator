@@ -28,10 +28,11 @@ func New(config Config) (*Service, error) {
 
 	var k8sService healthz.Service
 	{
-		k8sConfig := k8shealthz.DefaultConfig()
-		k8sConfig.K8sClient = config.K8sClient
-		k8sConfig.Logger = config.Logger
-		k8sService, err = k8shealthz.New(k8sConfig)
+		c := k8shealthz.DefaultConfig()
+		c.K8sClient = config.K8sClient
+		c.Logger = config.Logger
+
+		k8sService, err = k8shealthz.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

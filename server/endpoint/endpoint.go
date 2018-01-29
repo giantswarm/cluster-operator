@@ -31,13 +31,13 @@ func New(config Config) (*Endpoint, error) {
 
 	var healthzEndpoint *healthz.Endpoint
 	{
-		healthzConfig := healthz.DefaultConfig()
-		healthzConfig.Logger = config.Logger
-		healthzConfig.Services = []healthzservice.Service{
+		c := healthz.DefaultConfig()
+		c.Logger = config.Logger
+		c.Services = []healthzservice.Service{
 			config.Service.Healthz.K8s,
 		}
 
-		healthzEndpoint, err = healthz.New(healthzConfig)
+		healthzEndpoint, err = healthz.New(c)
 		if err != nil {
 			return nil, microerror.Maskf(err, "healthz.New")
 		}
