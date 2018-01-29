@@ -43,7 +43,9 @@ func New(config Config) (*Endpoint, error) {
 		}
 	}
 
-	return &Endpoint{healthzEndpoint}, nil
+	return &Endpoint{
+		Healthz: healthzEndpoint,
+	}, nil
 }
 
 // Endpoint is the endpoint collection.
