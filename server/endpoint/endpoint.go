@@ -25,7 +25,7 @@ func New(config Config) (*Endpoint, error) {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
 
-	if config.Service == nil || config.Service.Healthz == nil || config.Service.Healthz.K8s == nil {
+	if config.Service == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Service or it's Healthz descendents must not be empty")
 	}
 
