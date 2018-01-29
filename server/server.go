@@ -25,11 +25,7 @@ type Config struct {
 func New(config Config) (microserver.Server, error) {
 	var err error
 
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
-	}
-
-	if config.MicroServerConfig == nil || config.MicroServerConfig.Logger == nil {
+	if config.MicroServerConfig.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError,
 			"config.MicroServerConfig or it's Logger must not be empty")
 	}
