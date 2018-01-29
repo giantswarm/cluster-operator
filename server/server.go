@@ -26,13 +26,11 @@ func New(config Config) (microserver.Server, error) {
 	var err error
 
 	if config.MicroServerConfig.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError,
-			"config.MicroServerConfig or it's Logger must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "config.MicroServerConfig or it's Logger must not be empty")
 	}
 
 	if config.Service == nil {
-		return nil, microerror.Maskf(invalidConfigError,
-			"config.Service must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "config.Service must not be empty")
 	}
 
 	var middlewareCollection *middleware.Middleware
