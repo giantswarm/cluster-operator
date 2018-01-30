@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cluster-operator
+  namespace: giantswarm
+  labels:
+    app: cluster-operator
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cluster-operator
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - cluster-operator
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      volumes:
+      - name: cluster-operator-configmap
+        configMap:
+          name: cluster-operator-configmap
+          items:
+          - key: config.yml
+            path: config.yml
+      serviceAccountName: cluster-operator
+      containers:
+      - name: cluster-operator
+        image: quay.io/giantswarm/cluster-operator:[[ .SHA ]]
+        args:
+        - daemon
+        - --config.dirs=/var/run/cluster-operator/configmap/
+        - --config.files=config
+        volumeMounts:
+        - name: cluster-operator-configmap
+          mountPath: /var/run/cluster-operator/configmap/
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 150Mi
+          limits:
+            cpu: 100m
+            memory: 150Mi
+      imagePullSecrets:
+      - name: cluster-operator-pull-secret
