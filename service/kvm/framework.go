@@ -24,14 +24,15 @@ type FrameworkConfig struct {
 }
 
 func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "config.G8sClient must not be empty")
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
 	}
-
 	if config.K8sExtClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.K8sExtClient must not be empty")
 	}
-
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
