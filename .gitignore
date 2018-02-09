@@ -4,3 +4,5 @@
 # build result
 cluster-operator
 
+# don't apply earlier restrictions under vendor
+!vendor/**
