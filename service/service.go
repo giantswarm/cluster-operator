@@ -42,7 +42,9 @@ func New(config Config) (*Service, error) {
 	if config.Flag == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Flag must not be empty")
 	}
-
+	if config.Name == "" {
+		return nil, microerror.Maskf(invalidConfigError, "config.Name must not be empty")
+	}
 	if config.Viper == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Viper must not be empty")
 	}
@@ -90,6 +92,7 @@ func New(config Config) (*Service, error) {
 			K8sExtClient: k8sExtClient,
 
 			Logger: config.Logger,
+			Name:   config.Name,
 		}
 
 		kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
