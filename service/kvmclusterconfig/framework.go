@@ -72,7 +72,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 			Logger:    config.Logger,
 
 			HandledVersionBundles: []string{
-				"1.0.0",
+				"0.1.0",
 			},
 			Name: config.Name,
 		}
