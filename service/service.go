@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8sclient"
+	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/operatorkit/framework"
 	"github.com/spf13/viper"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/service/healthz"
+	"github.com/giantswarm/cluster-operator/service/kvm"
 )
 
 // Config represents the configuration used to create a new service.
@@ -44,20 +49,52 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	var k8sClient kubernetes.Interface
+	var restConfig *rest.Config
 	{
-		c := k8sclient.DefaultConfig()
+		c := k8srestconfig.DefaultConfig()
+
+		c.Logger = config.Logger
 
 		c.Address = config.Viper.GetString(config.Flag.Service.Kubernetes.Address)
-		c.Logger = config.Logger
 		c.InCluster = config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster)
 		c.TLS.CAFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile)
 		c.TLS.CrtFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile)
 		c.TLS.KeyFile = config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.KeyFile)
 
-		k8sClient, err = k8sclient.New(c)
+		restConfig, err = k8srestconfig.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "k8sclient.New")
+			return nil, microerror.Maskf(err, "k8srestclient.New")
+		}
+	}
+
+	g8sClient, err := versioned.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	k8sClient, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Maskf(err, "kubernetes.NewForConfig")
+	}
+
+	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Maskf(err, "apiextensionsclient.NewForConfig")
+	}
+
+	var kvmFramework *framework.Framework
+	{
+		c := kvm.FrameworkConfig{
+			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
+			K8sExtClient: k8sExtClient,
+
+			Logger: config.Logger,
+		}
+
+		kvmFramework, err = kvm.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Maskf(err, "kvm.NewFramework")
 		}
 	}
 
@@ -75,7 +112,8 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		Healthz: healthzService,
+		Healthz:      healthzService,
+		KVMFramework: kvmFramework,
 
 		bootOnce: sync.Once{},
 	}
@@ -85,7 +123,8 @@ func New(config Config) (*Service, error) {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
-	Healthz *healthz.Service
+	Healthz      *healthz.Service
+	KVMFramework *framework.Framework
 
 	bootOnce sync.Once
 }
@@ -93,6 +132,6 @@ type Service struct {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		// Insert here service startup logic.
+		go s.KVMFramework.Boot()
 	})
 }
