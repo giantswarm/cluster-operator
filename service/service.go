@@ -16,7 +16,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/service/healthz"
-	"github.com/giantswarm/cluster-operator/service/kvm"
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig"
 )
 
 // Config represents the configuration used to create a new service.
@@ -82,9 +82,9 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(err, "apiextensionsclient.NewForConfig")
 	}
 
-	var kvmFramework *framework.Framework
+	var kvmClusterConfigFramework *framework.Framework
 	{
-		c := kvm.FrameworkConfig{
+		c := kvmclusterconfig.FrameworkConfig{
 			G8sClient:    g8sClient,
 			K8sClient:    k8sClient,
 			K8sExtClient: k8sExtClient,
@@ -92,9 +92,9 @@ func New(config Config) (*Service, error) {
 			Logger: config.Logger,
 		}
 
-		kvmFramework, err = kvm.NewFramework(c)
+		kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "kvm.NewFramework")
+			return nil, microerror.Maskf(err, "kvmclusterconfig.NewFramework")
 		}
 	}
 
@@ -112,8 +112,8 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		Healthz:      healthzService,
-		KVMFramework: kvmFramework,
+		Healthz:                   healthzService,
+		KVMClusterConfigFramework: kvmClusterConfigFramework,
 
 		bootOnce: sync.Once{},
 	}
@@ -123,8 +123,8 @@ func New(config Config) (*Service, error) {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
-	Healthz      *healthz.Service
-	KVMFramework *framework.Framework
+	Healthz                   *healthz.Service
+	KVMClusterConfigFramework *framework.Framework
 
 	bootOnce sync.Once
 }
@@ -132,6 +132,6 @@ type Service struct {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.KVMFramework.Boot()
+		go s.KVMClusterConfigFramework.Boot()
 	})
 }

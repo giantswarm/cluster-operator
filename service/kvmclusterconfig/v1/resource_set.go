@@ -4,14 +4,15 @@ import (
 	"context"
 
 	"github.com/cenkalti/backoff"
-	"github.com/giantswarm/cluster-operator/service/kvm/v1/key"
-	"github.com/giantswarm/cluster-operator/service/kvm/v1/resource/kvmclusterconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
 	"github.com/giantswarm/operatorkit/framework/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmclusterconfig"
 )
 
 const (

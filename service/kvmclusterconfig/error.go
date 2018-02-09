@@ -1,4 +1,4 @@
-package kvm
+package kvmclusterconfig
 
 import (
 	"github.com/giantswarm/microerror"

@@ -1,9 +1,8 @@
-package kvm
+package kvmclusterconfig
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/cluster-operator/service/kvm/v1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
@@ -11,6 +10,8 @@ import (
 	"github.com/giantswarm/operatorkit/informer"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
 )
 
 type FrameworkConfig struct {
