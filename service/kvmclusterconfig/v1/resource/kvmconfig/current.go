@@ -1,4 +1,4 @@
-package kvmclusterconfig
+package kvmconfig
 
 import (
 	"context"

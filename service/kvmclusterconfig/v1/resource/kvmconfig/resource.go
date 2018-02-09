@@ -1,7 +1,7 @@
-package kvmclusterconfig
+package kvmconfig
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -10,7 +10,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "kvmclusterconfigv1"
+	Name = "kvmconfigv4"
 )
 
 // Config represents the configuration used to create a new cloud config resource.
@@ -53,15 +53,15 @@ func (r *Resource) Underlying() framework.Resource {
 	return r
 }
 
-func toKvmClusterConfig(v interface{}) (*v1alpha1.KVMClusterConfig, error) {
+func toKvmConfig(v interface{}) (*v1alpha1.KVMConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
 
-	kvmClusterConfig, ok := v.(*v1alpha1.KVMClusterConfig)
+	kvmConfig, ok := v.(*v1alpha1.KVMConfig)
 	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.KVMClusterConfig{}, v)
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.KVMConfig{}, v)
 	}
 
-	return kvmClusterConfig, nil
+	return kvmConfig, nil
 }

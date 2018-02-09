@@ -12,7 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmconfig"
 )
 
 const (
@@ -38,21 +38,21 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
 
-	var kvmClusterConfigResource framework.Resource
+	var kvmConfigResource framework.Resource
 	{
-		c := kvmclusterconfig.Config{
+		c := kvmconfig.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		kvmClusterConfigResource, err = kvmclusterconfig.New(c)
+		kvmConfigResource, err = kvmconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []framework.Resource{
-		kvmClusterConfigResource,
+		kvmConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
