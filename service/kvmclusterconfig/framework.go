@@ -49,7 +49,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 		crdClient, err = k8scrdclient.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "k8scrdclient.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -61,7 +61,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 		newInformer, err = informer.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "informer.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 		v1ResourceSet, err = v1.NewResourceSet(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "v1.NewResourceSet")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -109,7 +109,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 		crdFramework, err = framework.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "framework.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 

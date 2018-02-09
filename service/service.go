@@ -63,7 +63,7 @@ func New(config Config) (*Service, error) {
 
 		restConfig, err = k8srestconfig.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "k8srestclient.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -74,12 +74,12 @@ func New(config Config) (*Service, error) {
 
 	k8sClient, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
-		return nil, microerror.Maskf(err, "kubernetes.NewForConfig")
+		return nil, microerror.Mask(err)
 	}
 
 	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
 	if err != nil {
-		return nil, microerror.Maskf(err, "apiextensionsclient.NewForConfig")
+		return nil, microerror.Mask(err)
 	}
 
 	var kvmClusterConfigFramework *framework.Framework
@@ -94,7 +94,7 @@ func New(config Config) (*Service, error) {
 
 		kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "kvmclusterconfig.NewFramework")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -107,7 +107,7 @@ func New(config Config) (*Service, error) {
 
 		healthzService, err = healthz.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "healthz.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 

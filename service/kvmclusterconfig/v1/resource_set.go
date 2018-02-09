@@ -47,7 +47,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 		kvmClusterConfigResource, err = kvmclusterconfig.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "kvmclusterconfig.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -64,7 +64,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 		resources, err = retryresource.Wrap(resources, retryWrapConfig)
 		if err != nil {
-			return nil, microerror.Maskf(err, "retryresource.Wrap")
+			return nil, microerror.Mask(err)
 		}
 
 		metricsWrapConfig := metricsresource.WrapConfig{}
@@ -73,7 +73,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 		resources, err = metricsresource.Wrap(resources, metricsWrapConfig)
 		if err != nil {
-			return nil, microerror.Maskf(err, "metricsresource.Wrap")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -104,7 +104,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 		resourceSet, err = framework.NewResourceSet(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "framework.NewResourceSet")
+			return nil, microerror.Mask(err)
 		}
 	}
 

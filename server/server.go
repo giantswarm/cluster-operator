@@ -42,7 +42,7 @@ func New(config Config) (microserver.Server, error) {
 
 		middlewareCollection, err = middleware.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "middleware.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -56,7 +56,7 @@ func New(config Config) (microserver.Server, error) {
 
 		endpointCollection, err = endpoint.New(c)
 		if err != nil {
-			return nil, microerror.Maskf(err, "endpoint.New")
+			return nil, microerror.Mask(err)
 		}
 	}
 
