@@ -14,8 +14,3 @@ func ToCustomObject(v interface{}) (v1alpha1.KVMClusterConfig, error) {
 
 	return customObject, nil
 }
-
-func VersionBundleVersion(customObject v1alpha1.KVMClusterConfig) string {
-	// return customObject.Spec.Guest.VersionBundles.Version
-	return "unknown"
-}
