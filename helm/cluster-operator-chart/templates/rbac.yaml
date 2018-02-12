@@ -19,6 +19,20 @@ rules:
       - cluster-operator-configmap
     verbs:
       - get
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - "*"
+  - apiGroups:
+      - core.giantswarm.io
+    resources:
+      - awsclusterconfigs
+      - azureclusterconfigs
+      - kvmclusterconfigs
+    verbs:
+      - "*"
   - nonResourceURLs:
       - "/"
       - "/healthz"
