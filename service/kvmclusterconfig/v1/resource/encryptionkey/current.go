@@ -17,7 +17,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	secretName := getSecretName(customObject.Spec.Guest.ID)
+	secretName := key.EncryptionKeySecretName(customObject)
 
 	r.logger.LogCtx(ctx, "debug", "looking for encryptionkey secret in the Kubernetes API", "secretName", secretName)
 

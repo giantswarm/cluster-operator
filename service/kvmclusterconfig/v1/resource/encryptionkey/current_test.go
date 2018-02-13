@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/randomkeytpr"
@@ -29,15 +30,7 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 		// Cluster exists: Success case when there are three cluster secrets
 		// present and one of them is correct
 		{
-			CustomObject: &v1alpha1.KVMClusterConfig{
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							ID: "cluster-2",
-						},
-					},
-				},
-			},
+			CustomObject: createCustomObject("cluster-2"),
 			PresentSecrets: []*v1.Secret{
 				createEncryptionSecret(t, "cluster-1", make(map[string]string)),
 				createEncryptionSecret(t, "cluster-2", make(map[string]string)),
@@ -51,15 +44,7 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 		// First cluster: Success case when there are no cluster secrets
 		// present but new cluster is about to be created
 		{
-			CustomObject: &v1alpha1.KVMClusterConfig{
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							ID: "cluster-1",
-						},
-					},
-				},
-			},
+			CustomObject:   createCustomObject("cluster-1"),
 			PresentSecrets: []*v1.Secret{},
 			APIReactors:    []k8stesting.Reactor{},
 			ExpectedSecret: nil,
@@ -69,15 +54,7 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 		// New cluster: Success case when there are three cluster secrets
 		// present but expected secret doesn't exist (yet)
 		{
-			CustomObject: &v1alpha1.KVMClusterConfig{
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							ID: "cluster-4",
-						},
-					},
-				},
-			},
+			CustomObject: createCustomObject("cluster-4"),
 			PresentSecrets: []*v1.Secret{
 				createEncryptionSecret(t, "cluster-1", make(map[string]string)),
 				createEncryptionSecret(t, "cluster-2", make(map[string]string)),
@@ -90,15 +67,7 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 
 		// API Error: Kubernetes API client returns unknown error
 		{
-			CustomObject: &v1alpha1.KVMClusterConfig{
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							ID: "cluster-4",
-						},
-					},
-				},
-			},
+			CustomObject:   createCustomObject("cluster-4"),
 			PresentSecrets: []*v1.Secret{},
 			APIReactors: []k8stesting.Reactor{
 				alwaysReactWithError(unknownAPIError),
@@ -157,15 +126,27 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 	}
 }
 
+func createCustomObject(clusterID string) *v1alpha1.KVMClusterConfig {
+	return &v1alpha1.KVMClusterConfig{
+		Spec: v1alpha1.KVMClusterConfigSpec{
+			Guest: v1alpha1.KVMClusterConfigSpecGuest{
+				ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+					ID: clusterID,
+				},
+			},
+		},
+	}
+}
+
 func createEncryptionSecret(t *testing.T, clusterID string, data map[string]string) *v1.Secret {
 	t.Helper()
-	return createSecret(t, clusterID, map[string]string{
+	return createSecret(t, createCustomObject(clusterID), map[string]string{
 		randomkeytpr.ClusterIDLabel: clusterID,
 		randomkeytpr.KeyLabel:       randomkeytpr.EncryptionKey.String(),
 	}, data)
 }
 
-func createSecret(t *testing.T, clusterID string, labels, data map[string]string) *v1.Secret {
+func createSecret(t *testing.T, customObject *v1alpha1.KVMClusterConfig, labels, data map[string]string) *v1.Secret {
 	t.Helper()
 	return &v1.Secret{
 		TypeMeta: apismetav1.TypeMeta{
@@ -173,7 +154,7 @@ func createSecret(t *testing.T, clusterID string, labels, data map[string]string
 			APIVersion: "v1",
 		},
 		ObjectMeta: apismetav1.ObjectMeta{
-			Name:      getSecretName(clusterID),
+			Name:      key.EncryptionKeySecretName(*customObject),
 			Namespace: v1.NamespaceDefault,
 			Labels:    labels,
 		},

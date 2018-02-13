@@ -1,12 +1,9 @@
 package encryptionkey
 
 import (
-	"fmt"
-
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -53,8 +50,4 @@ func (r *Resource) Name() string {
 
 func (r *Resource) Underlying() framework.Resource {
 	return r
-}
-
-func getSecretName(clusterID string) string {
-	return fmt.Sprintf("%s-%s", clusterID, randomkeytpr.EncryptionKey.String())
 }
