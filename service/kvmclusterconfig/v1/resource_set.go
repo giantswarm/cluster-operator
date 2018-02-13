@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmconfig"
 )
 
@@ -38,6 +39,19 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
 
+	var encryptionKeyResource framework.Resource
+	{
+		c := encryptionkey.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		encryptionKeyResource, err = encryptionkey.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmConfigResource framework.Resource
 	{
 		c := kvmconfig.Config{
@@ -52,6 +66,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	resources := []framework.Resource{
+		encryptionKeyResource,
 		kvmConfigResource,
 	}
 
