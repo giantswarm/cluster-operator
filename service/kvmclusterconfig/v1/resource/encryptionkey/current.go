@@ -11,6 +11,9 @@ import (
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
 )
 
+// GetCurrentState takes observed custom object as an input and based on that
+// information looks for current state of cluster encryption key secret and
+// returns it. Return value is of type *v1.Secret.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	customObject, err := key.ToCustomObject(obj)
 	if err != nil {

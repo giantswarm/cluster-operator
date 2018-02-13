@@ -45,10 +45,12 @@ func New(config Config) (*Resource, error) {
 	return newService, nil
 }
 
+// Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
 }
 
+// Underlying returns underlying framework.Resource.
 func (r *Resource) Underlying() framework.Resource {
 	return r
 }

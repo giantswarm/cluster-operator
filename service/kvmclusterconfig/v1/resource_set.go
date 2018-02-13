@@ -17,9 +17,13 @@ import (
 )
 
 const (
+	// ResourceRetries presents number of retries for failed Resource
+	// operation before giving up.
 	ResourceRetries uint64 = 3
 )
 
+// ResourceSetConfig contains necessary dependencies and settings for
+// KVMClusterConfig framework ResourceSet configuration.
 type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -29,6 +33,7 @@ type ResourceSetConfig struct {
 	Name string
 }
 
+// NewResourceSet returns a configured KVMClusterConfig framework ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	var err error
 
