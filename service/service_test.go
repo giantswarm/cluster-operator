@@ -34,7 +34,7 @@ func Test_Service_New(t *testing.T) {
 
 				config.Description = "test"
 				config.GitCommit = "test"
-				config.Name = "test"
+				config.ProjectName = "test"
 				config.Source = "test"
 
 				config.Viper.Set(config.Flag.Service.Kubernetes.Address, "http://127.0.0.1:6443")

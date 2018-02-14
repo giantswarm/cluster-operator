@@ -22,8 +22,7 @@ type FrameworkConfig struct {
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
 
-	// Name is the name of the project.
-	Name string
+	ProjectName string
 }
 
 // NewFramework returns a configured KVMClusterConfig framework implementation.
@@ -39,6 +38,9 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+	}
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
 	}
 
 	var err error
@@ -77,7 +79,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 			HandledVersionBundles: []string{
 				"0.1.0",
 			},
-			Name: config.Name,
+			ProjectName: config.ProjectName,
 		}
 
 		v1ResourceSet, err = v1.NewResourceSet(c)

@@ -29,8 +29,7 @@ type ResourceSetConfig struct {
 	Logger    micrologger.Logger
 
 	HandledVersionBundles []string
-	// Name is the project name.
-	Name string
+	ProjectName           string
 }
 
 // NewResourceSet returns a configured KVMClusterConfig framework ResourceSet.
@@ -42,6 +41,9 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+	}
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
 	}
 
 	var encryptionKeyResource framework.Resource
@@ -89,7 +91,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 		metricsWrapConfig := metricsresource.WrapConfig{}
 
-		metricsWrapConfig.Name = config.Name
+		metricsWrapConfig.Name = config.ProjectName
 
 		resources, err = metricsresource.Wrap(resources, metricsWrapConfig)
 		if err != nil {

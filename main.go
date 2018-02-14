@@ -62,7 +62,7 @@ func mainWithError() (err error) {
 
 				Description: description,
 				GitCommit:   gitCommit,
-				Name:        name,
+				ProjectName: name,
 				Source:      source,
 			}
 
