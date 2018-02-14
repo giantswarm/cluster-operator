@@ -14,6 +14,8 @@ import (
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
 )
 
+// FrameworkConfig contains necessary dependencies and settings for
+// KVMClusterConfig CRD framework implementation.
 type FrameworkConfig struct {
 	G8sClient    versioned.Interface
 	K8sClient    kubernetes.Interface
@@ -24,6 +26,7 @@ type FrameworkConfig struct {
 	Name string
 }
 
+// NewFramework returns a configured KVMClusterConfig framework implementation.
 func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.G8sClient must not be empty")
