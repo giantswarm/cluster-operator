@@ -26,7 +26,11 @@ func ToCustomObject(v interface{}) (v1alpha1.KVMClusterConfig, error) {
 	if !ok {
 		return v1alpha1.KVMClusterConfig{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.KVMClusterConfig{}, v)
 	}
-	customObject := *customObjectPointer
 
-	return customObject, nil
+	if customObjectPointer == nil {
+		return v1alpha1.KVMClusterConfig{}, microerror.Maskf(emptyValueError,
+			"empty value cannot be converted to CustomObject")
+	}
+
+	return *customObjectPointer, nil
 }
