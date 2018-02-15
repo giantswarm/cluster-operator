@@ -12,7 +12,7 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func createCustomObject(clusterID string) *v1alpha1.KVMClusterConfig {
+func newCustomObject(clusterID string) *v1alpha1.KVMClusterConfig {
 	return &v1alpha1.KVMClusterConfig{
 		Spec: v1alpha1.KVMClusterConfigSpec{
 			Guest: v1alpha1.KVMClusterConfigSpecGuest{
@@ -24,15 +24,15 @@ func createCustomObject(clusterID string) *v1alpha1.KVMClusterConfig {
 	}
 }
 
-func createEncryptionSecret(t *testing.T, clusterID string, data map[string]string) *v1.Secret {
+func newEncryptionSecret(t *testing.T, clusterID string, data map[string]string) *v1.Secret {
 	t.Helper()
-	return createSecret(t, createCustomObject(clusterID), map[string]string{
+	return newSecret(t, newCustomObject(clusterID), map[string]string{
 		randomkeytpr.ClusterIDLabel: clusterID,
 		randomkeytpr.KeyLabel:       randomkeytpr.EncryptionKey.String(),
 	}, data)
 }
 
-func createSecret(t *testing.T, customObject *v1alpha1.KVMClusterConfig, labels, data map[string]string) *v1.Secret {
+func newSecret(t *testing.T, customObject *v1alpha1.KVMClusterConfig, labels, data map[string]string) *v1.Secret {
 	t.Helper()
 	return &v1.Secret{
 		TypeMeta: apismetav1.TypeMeta{

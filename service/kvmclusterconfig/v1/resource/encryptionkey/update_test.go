@@ -23,12 +23,12 @@ func Test_NewUpdatePatch_Computes_Patch_Correctly(t *testing.T) {
 		// Encryption key secret doesn't exist yet.
 		// Patch should create it.
 		{
-			CustomObject: createCustomObject("cluster-1"),
+			CustomObject: newCustomObject("cluster-1"),
 			CurrentState: nil,
-			DesiredState: createEncryptionSecret(t, "cluster-1", map[string]string{}),
+			DesiredState: newEncryptionSecret(t, "cluster-1", map[string]string{}),
 			ExpectedPatch: func() *framework.Patch {
 				p := framework.NewPatch()
-				p.SetCreateChange(createEncryptionSecret(t, "cluster-1", map[string]string{}))
+				p.SetCreateChange(newEncryptionSecret(t, "cluster-1", map[string]string{}))
 				return p
 			}(),
 			ExpectedError: nil,
@@ -36,23 +36,23 @@ func Test_NewUpdatePatch_Computes_Patch_Correctly(t *testing.T) {
 		// Encryption key secret already exists.
 		// Patch must not create it.
 		{
-			CustomObject:  createCustomObject("cluster-1"),
-			CurrentState:  createEncryptionSecret(t, "cluster-1", map[string]string{}),
-			DesiredState:  createEncryptionSecret(t, "cluster-1", map[string]string{}),
+			CustomObject:  newCustomObject("cluster-1"),
+			CurrentState:  newEncryptionSecret(t, "cluster-1", map[string]string{}),
+			DesiredState:  newEncryptionSecret(t, "cluster-1", map[string]string{}),
 			ExpectedPatch: framework.NewPatch(),
 			ExpectedError: nil,
 		},
 		// Verify currentState type verification error handling
 		{
-			CustomObject:  createCustomObject("cluster-1"),
+			CustomObject:  newCustomObject("cluster-1"),
 			CurrentState:  &v1.Pod{},
-			DesiredState:  createEncryptionSecret(t, "cluster-1", map[string]string{}),
+			DesiredState:  newEncryptionSecret(t, "cluster-1", map[string]string{}),
 			ExpectedPatch: nil,
 			ExpectedError: wrongTypeError,
 		},
 		// Verify desiredState type verification error handling
 		{
-			CustomObject:  createCustomObject("cluster-1"),
+			CustomObject:  newCustomObject("cluster-1"),
 			CurrentState:  nil,
 			DesiredState:  &v1.Pod{},
 			ExpectedPatch: nil,

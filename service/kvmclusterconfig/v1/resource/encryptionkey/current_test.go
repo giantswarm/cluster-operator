@@ -28,21 +28,21 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 		// Cluster exists: Success case when there are three cluster secrets
 		// present and one of them is correct
 		{
-			CustomObject: createCustomObject("cluster-2"),
+			CustomObject: newCustomObject("cluster-2"),
 			PresentSecrets: []*v1.Secret{
-				createEncryptionSecret(t, "cluster-1", make(map[string]string)),
-				createEncryptionSecret(t, "cluster-2", make(map[string]string)),
-				createEncryptionSecret(t, "cluster-3", make(map[string]string)),
+				newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+				newEncryptionSecret(t, "cluster-2", make(map[string]string)),
+				newEncryptionSecret(t, "cluster-3", make(map[string]string)),
 			},
 			APIReactors:    []k8stesting.Reactor{},
-			ExpectedSecret: createEncryptionSecret(t, "cluster-2", make(map[string]string)),
+			ExpectedSecret: newEncryptionSecret(t, "cluster-2", make(map[string]string)),
 			ExpectedError:  nil,
 		},
 
 		// First cluster: Success case when there are no cluster secrets
 		// present but new cluster is about to be created
 		{
-			CustomObject:   createCustomObject("cluster-1"),
+			CustomObject:   newCustomObject("cluster-1"),
 			PresentSecrets: []*v1.Secret{},
 			APIReactors:    []k8stesting.Reactor{},
 			ExpectedSecret: nil,
@@ -52,11 +52,11 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 		// New cluster: Success case when there are three cluster secrets
 		// present but expected secret doesn't exist (yet)
 		{
-			CustomObject: createCustomObject("cluster-4"),
+			CustomObject: newCustomObject("cluster-4"),
 			PresentSecrets: []*v1.Secret{
-				createEncryptionSecret(t, "cluster-1", make(map[string]string)),
-				createEncryptionSecret(t, "cluster-2", make(map[string]string)),
-				createEncryptionSecret(t, "cluster-3", make(map[string]string)),
+				newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+				newEncryptionSecret(t, "cluster-2", make(map[string]string)),
+				newEncryptionSecret(t, "cluster-3", make(map[string]string)),
 			},
 			APIReactors:    []k8stesting.Reactor{},
 			ExpectedSecret: nil,
@@ -65,7 +65,7 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 
 		// API Error: Kubernetes API client returns unknown error
 		{
-			CustomObject:   createCustomObject("cluster-4"),
+			CustomObject:   newCustomObject("cluster-4"),
 			PresentSecrets: []*v1.Secret{},
 			APIReactors: []k8stesting.Reactor{
 				alwaysReactWithError(unknownAPIError),
