@@ -17,25 +17,30 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 // NewUpdatePatch computes appropriate Patch based on difference in current
 // state and desired state.
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
-	r.logger.LogCtx(ctx, "debug", "computing update patch for encryption key")
-
-	currentSecret, err := toSecret(currentState)
+	create, err := r.newCreateChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	desiredSecret, err := toSecret(desiredState)
+	update, err := r.newUpdateChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	patch := framework.NewPatch()
 
-	if currentSecret == nil && desiredSecret != nil {
-		patch.SetCreateChange(desiredSecret)
+	if create != nil {
+		patch.SetCreateChange(create)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "update patch for encryption key computed")
+	if update != nil {
+		patch.SetUpdateChange(update)
+	}
 
 	return patch, nil
+}
+
+func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
+	// for now encryption key should not be updated when one already exists
+	return nil, nil
 }
