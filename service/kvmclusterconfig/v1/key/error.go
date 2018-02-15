@@ -8,3 +8,10 @@ var wrongTypeError = microerror.New("wrong type")
 func IsWrongTypeError(err error) bool {
 	return microerror.Cause(err) == wrongTypeError
 }
+
+var emptyValueError = microerror.New("empty value")
+
+// IsEmptyValueError asserts emptyValueError.
+func IsEmptyValueError(err error) bool {
+	return microerror.Cause(err) == emptyValueError
+}
