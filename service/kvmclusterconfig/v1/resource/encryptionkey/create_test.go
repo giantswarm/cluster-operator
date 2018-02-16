@@ -68,8 +68,7 @@ func Test_newCreateChange(t *testing.T) {
 
 			secret, err := r.newCreateChange(context.TODO(), tc.CustomObject, tc.CurrentState, tc.DesiredState)
 			if microerror.Cause(err) != tc.ExpectedError {
-				t.Errorf("Unexpected error returned: %#v, expected %#v", err, tc.ExpectedError)
-				return
+				t.Fatalf("Unexpected error returned: %#v, expected %#v", err, tc.ExpectedError)
 			}
 
 			assertSecret(t, secret, tc.ExpectedSecret)
