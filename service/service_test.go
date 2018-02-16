@@ -10,20 +10,20 @@ import (
 )
 
 func Test_Service_New(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
+		description          string
 		config               func() Config
 		expectedErrorHandler func(error) bool
 	}{
-		// Test that the default config is invalid.
 		{
+			description: "empty value config must return invalidConfigError",
 			config: func() Config {
 				return Config{}
 			},
 			expectedErrorHandler: IsInvalidConfig,
 		},
-
-		// Test a production-like config is valid.
 		{
+			description: "production-like config must be valid",
 			config: func() Config {
 				config := Config{}
 
@@ -46,16 +46,18 @@ func Test_Service_New(t *testing.T) {
 		},
 	}
 
-	for index, test := range tests {
-		_, err := New(test.config())
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			_, err := New(tc.config())
 
-		if err != nil {
-			if test.expectedErrorHandler == nil {
-				t.Fatalf("%v: unexpected error returned: %#v", index, err)
+			if err != nil {
+				if tc.expectedErrorHandler == nil {
+					t.Fatalf("unexpected error returned: %#v", err)
+				}
+				if !tc.expectedErrorHandler(err) {
+					t.Fatalf("incorrect error returned: %#v", err)
+				}
 			}
-			if !test.expectedErrorHandler(err) {
-				t.Fatalf("%v: incorrect error returned: %#v", index, err)
-			}
-		}
+		})
 	}
 }
