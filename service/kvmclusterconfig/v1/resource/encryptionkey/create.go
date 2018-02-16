@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
+	"k8s.io/api/core/v1"
 )
 
 // ApplyCreateChange takes observed custom object and create portion of the
@@ -13,7 +14,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	return nil
 }
 
-func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
+func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {
 	currentSecret, err := toSecret(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -25,9 +26,7 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 
 	r.logger.LogCtx(ctx, "debug", "finding out if the secret has to be created")
 
-	// secretToCreate must be an empty interface instead of *v1.Secret because
-	// that makes a difference when comparing return value for nil.
-	var secretToCreate interface{}
+	var secretToCreate *v1.Secret
 	if currentSecret == nil {
 		secretToCreate = desiredSecret
 	}
@@ -35,5 +34,4 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 	r.logger.LogCtx(ctx, "debug", "found out if the secret has to be created")
 
 	return secretToCreate, nil
-
 }

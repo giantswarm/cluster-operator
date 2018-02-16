@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
+	"k8s.io/api/core/v1"
 )
 
 // ApplyUpdateChange takes observed custom object and update portion of the
@@ -28,19 +29,13 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 	}
 
 	patch := framework.NewPatch()
-
-	if create != nil {
-		patch.SetCreateChange(create)
-	}
-
-	if update != nil {
-		patch.SetUpdateChange(update)
-	}
+	patch.SetCreateChange(create)
+	patch.SetUpdateChange(update)
 
 	return patch, nil
 }
 
-func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
+func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {
 	// for now encryption key should not be updated when one already exists
 	return nil, nil
 }
