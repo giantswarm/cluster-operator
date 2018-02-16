@@ -48,6 +48,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
+	r.logger.LogCtx(ctx, "debug", "computed desired encryption key secret")
+
 	return secret, nil
 }
 

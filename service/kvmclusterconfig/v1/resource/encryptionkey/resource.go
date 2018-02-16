@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
+	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -52,4 +53,17 @@ func (r *Resource) Name() string {
 // Underlying returns underlying framework.Resource.
 func (r *Resource) Underlying() framework.Resource {
 	return r
+}
+
+func toSecret(v interface{}) (*v1.Secret, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	secret, ok := v.(*v1.Secret)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", secret, v)
+	}
+
+	return secret, nil
 }
