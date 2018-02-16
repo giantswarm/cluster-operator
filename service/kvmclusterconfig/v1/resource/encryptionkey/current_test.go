@@ -19,54 +19,54 @@ var unknownAPIError = errors.New("Unknown error from k8s API")
 
 func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 	testCases := []struct {
-		Description    string
-		CustomObject   *v1alpha1.KVMClusterConfig
-		PresentSecrets []*v1.Secret
-		APIReactors    []k8stesting.Reactor
-		ExpectedSecret *v1.Secret
-		ExpectedError  error
+		description    string
+		customObject   *v1alpha1.KVMClusterConfig
+		presentSecrets []*v1.Secret
+		apiReactors    []k8stesting.Reactor
+		expectedSecret *v1.Secret
+		expectedError  error
 	}{
 		{
-			Description:  "three clusters exist - return secret for the one where custom object belongs",
-			CustomObject: newCustomObject("cluster-2"),
-			PresentSecrets: []*v1.Secret{
+			description:  "three clusters exist - return secret for the one where custom object belongs",
+			customObject: newCustomObject("cluster-2"),
+			presentSecrets: []*v1.Secret{
 				newEncryptionSecret(t, "cluster-1", make(map[string]string)),
 				newEncryptionSecret(t, "cluster-2", make(map[string]string)),
 				newEncryptionSecret(t, "cluster-3", make(map[string]string)),
 			},
-			APIReactors:    []k8stesting.Reactor{},
-			ExpectedSecret: newEncryptionSecret(t, "cluster-2", make(map[string]string)),
-			ExpectedError:  nil,
+			apiReactors:    []k8stesting.Reactor{},
+			expectedSecret: newEncryptionSecret(t, "cluster-2", make(map[string]string)),
+			expectedError:  nil,
 		},
 		{
-			Description:    "no clusters exist - return empty list of secrets",
-			CustomObject:   newCustomObject("cluster-1"),
-			PresentSecrets: []*v1.Secret{},
-			APIReactors:    []k8stesting.Reactor{},
-			ExpectedSecret: nil,
-			ExpectedError:  nil,
+			description:    "no clusters exist - return empty list of secrets",
+			customObject:   newCustomObject("cluster-1"),
+			presentSecrets: []*v1.Secret{},
+			apiReactors:    []k8stesting.Reactor{},
+			expectedSecret: nil,
+			expectedError:  nil,
 		},
 		{
-			Description:  "three clusters exist - return secrets for them despite custom object referring to new one",
-			CustomObject: newCustomObject("cluster-4"),
-			PresentSecrets: []*v1.Secret{
+			description:  "three clusters exist - return secrets for them despite custom object referring to new one",
+			customObject: newCustomObject("cluster-4"),
+			presentSecrets: []*v1.Secret{
 				newEncryptionSecret(t, "cluster-1", make(map[string]string)),
 				newEncryptionSecret(t, "cluster-2", make(map[string]string)),
 				newEncryptionSecret(t, "cluster-3", make(map[string]string)),
 			},
-			APIReactors:    []k8stesting.Reactor{},
-			ExpectedSecret: nil,
-			ExpectedError:  nil,
+			apiReactors:    []k8stesting.Reactor{},
+			expectedSecret: nil,
+			expectedError:  nil,
 		},
 		{
-			Description:    "handle unknown error returned from Kubernetes API client",
-			CustomObject:   newCustomObject("cluster-4"),
-			PresentSecrets: []*v1.Secret{},
-			APIReactors: []k8stesting.Reactor{
+			description:    "handle unknown error returned from Kubernetes API client",
+			customObject:   newCustomObject("cluster-4"),
+			presentSecrets: []*v1.Secret{},
+			apiReactors: []k8stesting.Reactor{
 				alwaysReactWithError(unknownAPIError),
 			},
-			ExpectedSecret: nil,
-			ExpectedError:  unknownAPIError,
+			expectedSecret: nil,
+			expectedError:  unknownAPIError,
 		},
 	}
 
@@ -76,14 +76,14 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.Description, func(t *testing.T) {
-			objs := make([]runtime.Object, 0, len(tc.PresentSecrets))
-			for _, s := range tc.PresentSecrets {
+		t.Run(tc.description, func(t *testing.T) {
+			objs := make([]runtime.Object, 0, len(tc.presentSecrets))
+			for _, s := range tc.presentSecrets {
 				objs = append(objs, s)
 			}
 
 			client := fake.NewSimpleClientset(objs...)
-			client.ReactionChain = append(tc.APIReactors, client.ReactionChain...)
+			client.ReactionChain = append(tc.apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
 				K8sClient: client,
@@ -94,24 +94,24 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 				t.Fatalf("Resource construction failed: %#v", err)
 			}
 
-			state, err := r.GetCurrentState(context.TODO(), tc.CustomObject)
-			if microerror.Cause(err) != tc.ExpectedError {
-				t.Fatalf("GetCurrentState() returned error %#v - expected: %#v", err, tc.ExpectedError)
+			state, err := r.GetCurrentState(context.TODO(), tc.customObject)
+			if microerror.Cause(err) != tc.expectedError {
+				t.Fatalf("GetCurrentState() returned error %#v - expected: %#v", err, tc.expectedError)
 			}
 
-			if state == nil && tc.ExpectedSecret == nil {
+			if state == nil && tc.expectedSecret == nil {
 				// Ok
 				return
 			}
 
 			secret, ok := state.(*v1.Secret)
 			if !ok {
-				t.Fatalf("GetCurrentState() returned wrong type %T for current state. Expected %T", state, secret)
+				t.Fatalf("GetCurrentState() returned wrong type %T for current state. expected %T", state, secret)
 			}
 
-			if tc.ExpectedSecret.Labels[randomkeytpr.ClusterIDLabel] != secret.Labels[randomkeytpr.ClusterIDLabel] {
-				t.Fatalf("Expected secret with cluster ID label %s, found %s",
-					tc.ExpectedSecret.Labels[randomkeytpr.ClusterIDLabel],
+			if tc.expectedSecret.Labels[randomkeytpr.ClusterIDLabel] != secret.Labels[randomkeytpr.ClusterIDLabel] {
+				t.Fatalf("expected secret with cluster ID label %s, found %s",
+					tc.expectedSecret.Labels[randomkeytpr.ClusterIDLabel],
 					secret.Labels[randomkeytpr.ClusterIDLabel],
 				)
 			}

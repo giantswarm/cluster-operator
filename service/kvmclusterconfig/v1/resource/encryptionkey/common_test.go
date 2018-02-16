@@ -51,10 +51,10 @@ func assertSecret(t *testing.T, computedSecret, expectedSecret *v1.Secret) {
 	t.Helper()
 
 	if expectedSecret == nil && computedSecret != nil {
-		t.Errorf("Expected nil secret. Received %#v", computedSecret)
+		t.Errorf("expected nil secret. Received %#v", computedSecret)
 		return
 	} else if expectedSecret != nil && computedSecret == nil {
-		t.Error("Expected non-nil secret. Received nil.")
+		t.Error("expected non-nil secret. Received nil.")
 		return
 	}
 
