@@ -10,15 +10,18 @@ import (
 
 func Test_ClusterID(t *testing.T) {
 	testCases := []struct {
-		CustomObject v1alpha1.KVMClusterConfig
-		ExpectedID   string
+		description  string
+		customObject v1alpha1.KVMClusterConfig
+		expectedID   string
 	}{
 		{
-			CustomObject: v1alpha1.KVMClusterConfig{},
-			ExpectedID:   "",
+			description:  "empty value KVMClusterConfig produces empty ID",
+			customObject: v1alpha1.KVMClusterConfig{},
+			expectedID:   "",
 		},
 		{
-			CustomObject: v1alpha1.KVMClusterConfig{
+			description: "present ID value returned as ClusterID",
+			customObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
@@ -27,10 +30,11 @@ func Test_ClusterID(t *testing.T) {
 					},
 				},
 			},
-			ExpectedID: "cluster-1",
+			expectedID: "cluster-1",
 		},
 		{
-			CustomObject: v1alpha1.KVMClusterConfig{
+			description: "only present ID value returned as ClusterID",
+			customObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
@@ -40,29 +44,34 @@ func Test_ClusterID(t *testing.T) {
 					},
 				},
 			},
-			ExpectedID: "cluster-123",
+			expectedID: "cluster-123",
 		},
 	}
 
-	for i, tc := range testCases {
-		clusterID := ClusterID(tc.CustomObject)
-		if clusterID != tc.ExpectedID {
-			t.Errorf("TestCase %d: ClusterID %s doesn't match. Expected: %s", (i + 1), clusterID, tc.ExpectedID)
-		}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			clusterID := ClusterID(tc.customObject)
+			if clusterID != tc.expectedID {
+				t.Fatalf("ClusterID %s doesn't match. expected: %s", clusterID, tc.expectedID)
+			}
+		})
 	}
 }
 
 func Test_EncryptionKeySecretName(t *testing.T) {
 	testCases := []struct {
-		CustomObject       v1alpha1.KVMClusterConfig
-		ExpectedSecretName string
+		description        string
+		customObject       v1alpha1.KVMClusterConfig
+		expectedSecretName string
 	}{
 		{
-			CustomObject:       v1alpha1.KVMClusterConfig{},
-			ExpectedSecretName: "-encryption",
+			description:        "empty value KVMClusterConfig returns only static part of secret name",
+			customObject:       v1alpha1.KVMClusterConfig{},
+			expectedSecretName: "-encryption",
 		},
 		{
-			CustomObject: v1alpha1.KVMClusterConfig{
+			description: "composed secret name returned when cluster ID defined in KVMClusterConfig",
+			customObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
@@ -71,10 +80,11 @@ func Test_EncryptionKeySecretName(t *testing.T) {
 					},
 				},
 			},
-			ExpectedSecretName: "cluster-1-encryption",
+			expectedSecretName: "cluster-1-encryption",
 		},
 		{
-			CustomObject: v1alpha1.KVMClusterConfig{
+			description: "only cluster ID used to compose secret name",
+			customObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
@@ -84,16 +94,18 @@ func Test_EncryptionKeySecretName(t *testing.T) {
 					},
 				},
 			},
-			ExpectedSecretName: "cluster-123-encryption",
+			expectedSecretName: "cluster-123-encryption",
 		},
 	}
 
-	for i, tc := range testCases {
-		encryptionKeySecretName := EncryptionKeySecretName(tc.CustomObject)
-		if encryptionKeySecretName != tc.ExpectedSecretName {
-			t.Errorf("TestCase %d: EncryptionKeySecretName %s doesn't match. Expected: %s",
-				(i + 1), encryptionKeySecretName, tc.ExpectedSecretName)
-		}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			encryptionKeySecretName := EncryptionKeySecretName(tc.customObject)
+			if encryptionKeySecretName != tc.expectedSecretName {
+				t.Fatalf("EncryptionKeySecretName %s doesn't match. expected: %s",
+					encryptionKeySecretName, tc.expectedSecretName)
+			}
+		})
 	}
 
 }
@@ -102,19 +114,20 @@ func Test_ToCustomObject(t *testing.T) {
 	var emptyKVMClusterConfigPtr *v1alpha1.KVMClusterConfig
 
 	testCases := []struct {
-		InputObject          interface{}
-		ExpectedCustomObject v1alpha1.KVMClusterConfig
-		ExpectedError        error
+		description          string
+		inputObject          interface{}
+		expectedCustomObject v1alpha1.KVMClusterConfig
+		expectedError        error
 	}{
-		// Success case - pass empty KVMClusterConfig reference
 		{
-			InputObject:          &v1alpha1.KVMClusterConfig{},
-			ExpectedCustomObject: v1alpha1.KVMClusterConfig{},
-			ExpectedError:        nil,
+			description:          "reference to empty value KVMClusterConfig returns empty KVMClusterConfig",
+			inputObject:          &v1alpha1.KVMClusterConfig{},
+			expectedCustomObject: v1alpha1.KVMClusterConfig{},
+			expectedError:        nil,
 		},
-		// Success case - verify that internal fields are transferred as well
 		{
-			InputObject: &v1alpha1.KVMClusterConfig{
+			description: "verify that internal KVMClusterConfig fields are returned as well",
+			inputObject: &v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
@@ -124,7 +137,7 @@ func Test_ToCustomObject(t *testing.T) {
 					},
 				},
 			},
-			ExpectedCustomObject: v1alpha1.KVMClusterConfig{
+			expectedCustomObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
@@ -134,44 +147,46 @@ func Test_ToCustomObject(t *testing.T) {
 					},
 				},
 			},
-			ExpectedError: nil,
+			expectedError: nil,
 		},
-		// Failure : Nil *v1alpha1.KVMClusterConfig is not accepted.
 		{
-			InputObject:          emptyKVMClusterConfigPtr,
-			ExpectedCustomObject: v1alpha1.KVMClusterConfig{},
-			ExpectedError:        emptyValueError,
+			description:          "nil pointer to KVMClusterConfig must return emptyValueError",
+			inputObject:          emptyKVMClusterConfigPtr,
+			expectedCustomObject: v1alpha1.KVMClusterConfig{},
+			expectedError:        emptyValueError,
 		},
-		// Failure: Non-reference value of KVMClusterConfig is not accepted.
 		{
-			InputObject:          v1alpha1.KVMClusterConfig{},
-			ExpectedCustomObject: v1alpha1.KVMClusterConfig{},
-			ExpectedError:        wrongTypeError,
+			description:          "non-pointer value of KVMClusterConfig must return wrontTypeError",
+			inputObject:          v1alpha1.KVMClusterConfig{},
+			expectedCustomObject: v1alpha1.KVMClusterConfig{},
+			expectedError:        wrongTypeError,
 		},
-		// Failure: Wrong type must not be accepted
 		{
-			InputObject:          &v1alpha1.AzureClusterConfig{},
-			ExpectedCustomObject: v1alpha1.KVMClusterConfig{},
-			ExpectedError:        wrongTypeError,
+			description:          "wrong type must return wrongTypeError",
+			inputObject:          &v1alpha1.AzureClusterConfig{},
+			expectedCustomObject: v1alpha1.KVMClusterConfig{},
+			expectedError:        wrongTypeError,
 		},
-		// Failure: Nil interface{} must fail
 		{
-			InputObject:          nil,
-			ExpectedCustomObject: v1alpha1.KVMClusterConfig{},
-			ExpectedError:        wrongTypeError,
+			description:          "nil interface{} must return wrongTypeError",
+			inputObject:          nil,
+			expectedCustomObject: v1alpha1.KVMClusterConfig{},
+			expectedError:        wrongTypeError,
 		},
 	}
 
-	for i, tc := range testCases {
-		customObject, err := ToCustomObject(tc.InputObject)
-		if microerror.Cause(err) != tc.ExpectedError {
-			t.Errorf("TestCase %d: Received error %#v doesn't match expected %#v",
-				(i + 1), err, tc.ExpectedError)
-		}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			customObject, err := ToCustomObject(tc.inputObject)
+			if microerror.Cause(err) != tc.expectedError {
+				t.Errorf("Received error %#v doesn't match expected %#v",
+					err, tc.expectedError)
+			}
 
-		if !reflect.DeepEqual(customObject, tc.ExpectedCustomObject) {
-			t.Errorf("TestCase %d: CustomObject %#v doesn't match expected %#v",
-				(i + 1), customObject, tc.ExpectedCustomObject)
-		}
+			if !reflect.DeepEqual(customObject, tc.expectedCustomObject) {
+				t.Fatalf("customObject %#v doesn't match expected %#v",
+					customObject, tc.expectedCustomObject)
+			}
+		})
 	}
 }

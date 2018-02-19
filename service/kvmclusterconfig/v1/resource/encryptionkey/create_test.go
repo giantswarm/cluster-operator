@@ -13,44 +13,44 @@ import (
 
 func Test_newCreateChange(t *testing.T) {
 	testCases := []struct {
-		Description    string
-		CustomObject   *v1alpha1.KVMClusterConfig
-		CurrentState   interface{}
-		DesiredState   interface{}
-		ExpectedSecret *v1.Secret
-		ExpectedError  error
+		description    string
+		customObject   *v1alpha1.KVMClusterConfig
+		currentState   interface{}
+		desiredState   interface{}
+		expectedSecret *v1.Secret
+		expectedError  error
 	}{
 		{
-			Description:    "encryption key secret doesn't exist yet - secret should create it",
-			CustomObject:   newCustomObject("cluster-1"),
-			CurrentState:   nil,
-			DesiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			ExpectedSecret: newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			ExpectedError:  nil,
+			description:    "encryption key secret doesn't exist yet - secret should create it",
+			customObject:   newCustomObject("cluster-1"),
+			currentState:   nil,
+			desiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
+			expectedSecret: newEncryptionSecret(t, "cluster-1", map[string]string{}),
+			expectedError:  nil,
 		},
 		{
-			Description:    "encryption key secret already exists - secret must not be created",
-			CustomObject:   newCustomObject("cluster-1"),
-			CurrentState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			DesiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			ExpectedSecret: nil,
-			ExpectedError:  nil,
+			description:    "encryption key secret already exists - secret must not be created",
+			customObject:   newCustomObject("cluster-1"),
+			currentState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
+			desiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
+			expectedSecret: nil,
+			expectedError:  nil,
 		},
 		{
-			Description:    "verify currentState type verification error handling",
-			CustomObject:   newCustomObject("cluster-1"),
-			CurrentState:   &v1.Pod{},
-			DesiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			ExpectedSecret: nil,
-			ExpectedError:  wrongTypeError,
+			description:    "verify currentState type verification error handling",
+			customObject:   newCustomObject("cluster-1"),
+			currentState:   &v1.Pod{},
+			desiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
+			expectedSecret: nil,
+			expectedError:  wrongTypeError,
 		},
 		{
-			Description:    "verify desiredState type verification error handling",
-			CustomObject:   newCustomObject("cluster-1"),
-			CurrentState:   nil,
-			DesiredState:   &v1.Pod{},
-			ExpectedSecret: nil,
-			ExpectedError:  wrongTypeError,
+			description:    "verify desiredState type verification error handling",
+			customObject:   newCustomObject("cluster-1"),
+			currentState:   nil,
+			desiredState:   &v1.Pod{},
+			expectedSecret: nil,
+			expectedError:  wrongTypeError,
 		},
 	}
 
@@ -60,18 +60,18 @@ func Test_newCreateChange(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.Description, func(t *testing.T) {
+		t.Run(tc.description, func(t *testing.T) {
 			r, err := New(Config{
 				K8sClient: fake.NewSimpleClientset(),
 				Logger:    logger,
 			})
 
-			secret, err := r.newCreateChange(context.TODO(), tc.CustomObject, tc.CurrentState, tc.DesiredState)
-			if microerror.Cause(err) != tc.ExpectedError {
-				t.Fatalf("Unexpected error returned: %#v, expected %#v", err, tc.ExpectedError)
+			secret, err := r.newCreateChange(context.TODO(), tc.customObject, tc.currentState, tc.desiredState)
+			if microerror.Cause(err) != tc.expectedError {
+				t.Fatalf("Unexpected error returned: %#v, expected %#v", err, tc.expectedError)
 			}
 
-			assertSecret(t, secret, tc.ExpectedSecret)
+			assertSecret(t, secret, tc.expectedSecret)
 		})
 	}
 }
