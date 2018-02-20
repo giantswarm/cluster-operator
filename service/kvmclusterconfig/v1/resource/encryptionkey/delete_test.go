@@ -62,7 +62,7 @@ func Test_NewDeletePatch_Computes_Patch_Correctly(t *testing.T) {
 				t.Fatalf("Resource construction failed: %#v", err)
 			}
 
-			secret, err := r.newDeleteChangeForDeletePatch(context.TODO(), tc.customObject, tc.currentState, tc.desiredState)
+			secret, err := r.newDeleteChange(context.TODO(), tc.customObject, tc.currentState, tc.desiredState)
 			if microerror.Cause(err) != tc.expectedError {
 				t.Fatalf("Unexpected error returned: %#v, expected %#v", err, tc.expectedError)
 			}

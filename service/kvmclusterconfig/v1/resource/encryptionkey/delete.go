@@ -21,7 +21,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 // analyses the current and desired state and returns the patch to be applied by
 // Create, Delete, and Update functions.
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
-	delete, err := r.newDeleteChangeForDeletePatch(ctx, obj, currentState, desiredState)
+	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -32,7 +32,7 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 	return patch, nil
 }
 
-func (r *Resource) newDeleteChangeForDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {
+func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {
 	currentSecret, err := toSecret(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
