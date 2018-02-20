@@ -2,7 +2,6 @@ package encryptionkey
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -14,8 +13,6 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
 )
-
-var unknownAPIError = errors.New("Unknown error from k8s API")
 
 func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 	testCases := []struct {
@@ -63,7 +60,7 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 			customObject:   newCustomObject("cluster-4"),
 			presentSecrets: []*v1.Secret{},
 			apiReactors: []k8stesting.Reactor{
-				alwaysReactWithError(unknownAPIError),
+				alwaysReturnErrorReactor(unknownAPIError),
 			},
 			expectedSecret: nil,
 			expectedError:  unknownAPIError,
@@ -116,23 +113,5 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 				)
 			}
 		})
-	}
-}
-
-type errorReactor struct {
-	err error
-}
-
-func (e *errorReactor) Handles(_ k8stesting.Action) bool {
-	return true
-}
-
-func (e *errorReactor) React(_ k8stesting.Action) (bool, runtime.Object, error) {
-	return true, nil, e.err
-}
-
-func alwaysReactWithError(err error) k8stesting.Reactor {
-	return &errorReactor{
-		err: err,
 	}
 }

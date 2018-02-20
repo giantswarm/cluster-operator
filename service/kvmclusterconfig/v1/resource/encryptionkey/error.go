@@ -9,6 +9,13 @@ func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
+var invalidValueError = microerror.New("invalid value")
+
+// IsInvalidValue asserts invalidValueError.
+func IsInvalidValue(err error) bool {
+	return microerror.Cause(err) == invalidValueError
+}
+
 var wrongTypeError = microerror.New("wrong type")
 
 // IsWrongTypeError asserts wrongTypeError.

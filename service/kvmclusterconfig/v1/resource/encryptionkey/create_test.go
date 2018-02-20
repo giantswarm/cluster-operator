@@ -9,7 +9,96 @@ import (
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	k8stesting "k8s.io/client-go/testing"
 )
+
+func Test_ApplyCreateChange(t *testing.T) {
+	testCases := []struct {
+		description         string
+		customObject        *v1alpha1.KVMClusterConfig
+		createChange        interface{}
+		apiReactorFactories []apiReactorFactory
+		expectedError       error
+	}{
+		{
+			description:  "create given secret",
+			customObject: newCustomObject("cluster-1"),
+			createChange: newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return verifySecretCreatedReactor(t, newEncryptionSecret(t, "cluster-1", make(map[string]string)))
+			}},
+			expectedError: nil,
+		},
+		{
+			description:  "handle error returned by Kubernetes API client while creating given secret",
+			customObject: newCustomObject("cluster-1"),
+			createChange: newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(unknownAPIError)
+			}},
+			expectedError: unknownAPIError,
+		},
+		{
+			description:         "handle nil passed as createChange",
+			customObject:        newCustomObject("cluster-1"),
+			createChange:        nil,
+			apiReactorFactories: []apiReactorFactory{},
+			expectedError:       invalidValueError,
+		},
+		{
+			description:         "handle nil *v1.Secret passed as createChange",
+			customObject:        newCustomObject("cluster-1"),
+			createChange:        emptySecretPointer,
+			apiReactorFactories: []apiReactorFactory{},
+			expectedError:       invalidValueError,
+		},
+		{
+			description:         "handle wrong type value passed as createChange",
+			customObject:        newCustomObject("cluster-1"),
+			createChange:        &v1.Pod{},
+			apiReactorFactories: []apiReactorFactory{},
+			expectedError:       wrongTypeError,
+		},
+	}
+
+	logger, err := micrologger.New(micrologger.DefaultConfig())
+	if err != nil {
+		t.Fatalf("micrologger.New() failed: %#v", err)
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			client := fake.NewSimpleClientset()
+
+			// Reactor order matters - hence construction to intermediate slice.
+			apiReactors := make([]k8stesting.Reactor, 0, len(tc.apiReactorFactories))
+			for _, factory := range tc.apiReactorFactories {
+				apiReactors = append(apiReactors, factory(t))
+			}
+
+			// Prepend test reactors before existing ones because reactors are executed in order
+			client.ReactionChain = append(apiReactors, client.ReactionChain...)
+
+			r, err := New(Config{
+				K8sClient: client,
+				Logger:    logger,
+			})
+
+			if err != nil {
+				t.Fatalf("Resource construction failed: %#v", err)
+			}
+
+			err = r.ApplyCreateChange(context.TODO(), tc.customObject, tc.createChange)
+
+			if microerror.Cause(err) != tc.expectedError {
+				t.Fatalf("Unexpected error returned %#v - expected: %#v", err, tc.expectedError)
+			}
+
+			// Created value verification is implemented in k8stesting.Reactor
+			// implementation.
+		})
+	}
+}
 
 func Test_newCreateChange(t *testing.T) {
 	testCases := []struct {

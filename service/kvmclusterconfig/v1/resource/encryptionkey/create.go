@@ -11,7 +11,21 @@ import (
 // Patch provided by NewUpdatePatch or NewDeletePatch. It creates k8s secret
 // for encryption key if needed.
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	return nil
+	secret, err := toSecret(createChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if secret == nil {
+		return microerror.Maskf(invalidValueError, "createChange (*v1.Secret) must not be nil")
+	}
+
+	_, err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Create(secret)
+	if err != nil {
+		err = microerror.Mask(err)
+	}
+
+	return err
 }
 
 func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {

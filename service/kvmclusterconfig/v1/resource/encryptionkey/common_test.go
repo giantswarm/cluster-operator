@@ -1,15 +1,30 @@
 package encryptionkey
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	k8stesting "k8s.io/client-go/testing"
 )
+
+var (
+	// Empty value pointer to v1.Secret for value check testing.
+	emptySecretPointer *v1.Secret
+
+	// Error to return when simulating unknown error returned from Kubernetes
+	// API client.
+	unknownAPIError = errors.New("Unknown error from k8s API")
+)
+
+type apiReactorFactory func(t *testing.T) k8stesting.Reactor
 
 func newCustomObject(clusterID string) *v1alpha1.KVMClusterConfig {
 	return &v1alpha1.KVMClusterConfig{
@@ -61,5 +76,38 @@ func assertSecret(t *testing.T, computedSecret, expectedSecret *v1.Secret) {
 	if !reflect.DeepEqual(computedSecret, expectedSecret) {
 		t.Errorf("Computed secret %#v doesn't match expected: %#v",
 			computedSecret, expectedSecret)
+	}
+}
+
+func verifySecretCreatedReactor(t *testing.T, v *v1.Secret) k8stesting.Reactor {
+	return &k8stesting.SimpleReactor{
+		Verb:     "create",
+		Resource: "secrets",
+		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
+			t.Helper()
+			createAction, ok := action.(k8stesting.CreateActionImpl)
+			if !ok {
+				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.CreateActionImpl")
+			}
+
+			createdSecret, err := toSecret(createAction.GetObject())
+			if err != nil {
+				return false, nil, microerror.Maskf(wrongTypeError, "CreateAction did not contain *v1.Secret")
+			}
+
+			assertSecret(t, createdSecret, v)
+
+			return true, createdSecret, nil
+		},
+	}
+}
+
+func alwaysReturnErrorReactor(err error) k8stesting.Reactor {
+	return &k8stesting.SimpleReactor{
+		Verb:     "*",
+		Resource: "*",
+		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
+			return true, nil, err
+		},
 	}
 }
