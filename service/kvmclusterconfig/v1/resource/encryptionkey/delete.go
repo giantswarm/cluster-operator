@@ -3,7 +3,9 @@ package encryptionkey
 import (
 	"context"
 
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
+	"k8s.io/api/core/v1"
 )
 
 // ApplyDeleteChange takes observed custom object and delete portion of the
@@ -19,5 +21,31 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 // analyses the current and desired state and returns the patch to be applied by
 // Create, Delete, and Update functions.
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
+	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch := framework.NewPatch()
+	patch.SetDeleteChange(delete)
+
+	return patch, nil
+}
+
+func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {
+	currentSecret, err := toSecret(currentState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "debug", "finding out if a secret have to be deleted")
+
+	if currentSecret != nil {
+		r.logger.LogCtx(ctx, "debug", "found a secret to be deleted")
+		return currentSecret, nil
+	}
+
+	r.logger.LogCtx(ctx, "debug", "no secret found to be deleted")
+
 	return nil, nil
 }
