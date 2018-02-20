@@ -9,40 +9,59 @@ import (
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	k8stesting "k8s.io/client-go/testing"
 )
 
-func Test_NewDeletePatch_Computes_Patch_Correctly(t *testing.T) {
+func Test_ApplyDeleteChange(t *testing.T) {
 	testCases := []struct {
-		description    string
-		customObject   *v1alpha1.KVMClusterConfig
-		currentState   interface{}
-		desiredState   interface{}
-		expectedSecret *v1.Secret
-		expectedError  error
+		description         string
+		customObject        *v1alpha1.KVMClusterConfig
+		deleteChange        interface{}
+		apiReactorFactories []apiReactorFactory
+		expectedError       error
 	}{
 		{
-			description:    "delete existing secret when encryption key custom object is deleted",
-			customObject:   newCustomObject("cluster-1"),
-			currentState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			desiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			expectedSecret: newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			expectedError:  nil,
+			description:  "delete given secret",
+			customObject: newCustomObject("cluster-1"),
+			deleteChange: newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return verifySecretDeletedReactor(t, newEncryptionSecret(t, "cluster-1", make(map[string]string)))
+			}},
+			expectedError: nil,
 		},
 		{
-			description:    "nothing to delete when encryption key custom object get's deleted",
-			customObject:   newCustomObject("cluster-1"),
-			currentState:   nil,
-			desiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			expectedSecret: nil,
-			expectedError:  nil,
+			description:  "handle error returned by Kubernetes API client while deleting given secret",
+			customObject: newCustomObject("cluster-1"),
+			deleteChange: newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(unknownAPIError)
+			}},
+			expectedError: unknownAPIError,
 		},
 		{
-			description:    "verify currentState type verification error handling",
-			customObject:   newCustomObject("cluster-1"),
-			currentState:   &v1.Pod{},
-			desiredState:   newEncryptionSecret(t, "cluster-1", map[string]string{}),
-			expectedSecret: nil,
-			expectedError:  wrongTypeError,
+			description:  "handle nil passed as deleteChange",
+			customObject: newCustomObject("cluster-1"),
+			deleteChange: nil,
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(forbiddenAPICall)
+			}},
+			expectedError: nil,
+		},
+		{
+			description:  "handle nil *v1.Secret passed as deleteChange",
+			customObject: newCustomObject("cluster-1"),
+			deleteChange: emptySecretPointer,
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(forbiddenAPICall)
+			}},
+			expectedError: nil,
+		},
+		{
+			description:         "handle wrong type value passed as deleteChange",
+			customObject:        newCustomObject("cluster-1"),
+			deleteChange:        &v1.Pod{},
+			apiReactorFactories: []apiReactorFactory{},
+			expectedError:       wrongTypeError,
 		},
 	}
 
@@ -53,8 +72,19 @@ func Test_NewDeletePatch_Computes_Patch_Correctly(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
+			client := fake.NewSimpleClientset()
+
+			// Reactor order matters - hence construction to intermediate slice.
+			apiReactors := make([]k8stesting.Reactor, 0, len(tc.apiReactorFactories))
+			for _, factory := range tc.apiReactorFactories {
+				apiReactors = append(apiReactors, factory(t))
+			}
+
+			// Prepend test reactors before existing ones because reactors are executed in order
+			client.ReactionChain = append(apiReactors, client.ReactionChain...)
+
 			r, err := New(Config{
-				K8sClient: fake.NewSimpleClientset(),
+				K8sClient: client,
 				Logger:    logger,
 			})
 
@@ -62,12 +92,14 @@ func Test_NewDeletePatch_Computes_Patch_Correctly(t *testing.T) {
 				t.Fatalf("Resource construction failed: %#v", err)
 			}
 
-			secret, err := r.newDeleteChange(context.TODO(), tc.customObject, tc.currentState, tc.desiredState)
+			err = r.ApplyDeleteChange(context.TODO(), tc.customObject, tc.deleteChange)
+
 			if microerror.Cause(err) != tc.expectedError {
-				t.Fatalf("Unexpected error returned: %#v, expected %#v", err, tc.expectedError)
+				t.Fatalf("Unexpected error returned %#v - expected: %#v", err, tc.expectedError)
 			}
 
-			assertSecret(t, secret, tc.expectedSecret)
+			// Verification of value delting is implemented in
+			// verifySecretDeletedReactor implementation.
 		})
 	}
 }
