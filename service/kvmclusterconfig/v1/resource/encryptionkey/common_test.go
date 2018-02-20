@@ -84,7 +84,6 @@ func verifySecretCreatedReactor(t *testing.T, v *v1.Secret) k8stesting.Reactor {
 		Verb:     "create",
 		Resource: "secrets",
 		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
-			t.Helper()
 			createAction, ok := action.(k8stesting.CreateActionImpl)
 			if !ok {
 				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.CreateActionImpl")
