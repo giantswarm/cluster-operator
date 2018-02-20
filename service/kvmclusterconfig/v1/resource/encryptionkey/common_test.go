@@ -104,6 +104,25 @@ func verifySecretCreatedReactor(t *testing.T, v *v1.Secret) k8stesting.Reactor {
 	}
 }
 
+func verifySecretDeletedReactor(t *testing.T, v *v1.Secret) k8stesting.Reactor {
+	return &k8stesting.SimpleReactor{
+		Verb:     "delete",
+		Resource: "secrets",
+		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
+			deleteAction, ok := action.(k8stesting.DeleteActionImpl)
+			if !ok {
+				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.DeleteActionImpl")
+			}
+
+			if v.Name != deleteAction.GetName() {
+				t.Errorf("Deleted secret name '%s' doesn't match expected '%s'", deleteAction.GetName(), v.Name)
+			}
+
+			return true, nil, nil
+		},
+	}
+}
+
 func alwaysReturnErrorReactor(err error) k8stesting.Reactor {
 	return &k8stesting.SimpleReactor{
 		Verb:     "*",

@@ -50,10 +50,6 @@ func Test_newUpdateChange_Does_Not_Return_Change(t *testing.T) {
 				Logger:    logger,
 			})
 
-			if err != nil {
-				t.Fatalf("Resource construction failed: %#v", err)
-			}
-
 			secret, err := r.newUpdateChange(context.TODO(), tc.customObject, tc.currentState, tc.desiredState)
 			if microerror.Cause(err) != tc.expectedError {
 				t.Fatalf("Unexpected error returned: %#v, expected %#v", err, tc.expectedError)
