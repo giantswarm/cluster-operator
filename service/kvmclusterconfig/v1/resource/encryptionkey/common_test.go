@@ -19,6 +19,9 @@ var (
 	// Empty value pointer to v1.Secret for value check testing.
 	emptySecretPointer *v1.Secret
 
+	// Forbidden Kubernetes API call
+	forbiddenAPICall = errors.New("Forbidden API call")
+
 	// Error to return when simulating unknown error returned from Kubernetes
 	// API client.
 	unknownAPIError = errors.New("Unknown error from k8s API")

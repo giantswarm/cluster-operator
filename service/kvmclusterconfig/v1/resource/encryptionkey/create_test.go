@@ -39,18 +39,22 @@ func Test_ApplyCreateChange(t *testing.T) {
 			expectedError: unknownAPIError,
 		},
 		{
-			description:         "handle nil passed as createChange",
-			customObject:        newCustomObject("cluster-1"),
-			createChange:        nil,
-			apiReactorFactories: []apiReactorFactory{},
-			expectedError:       invalidValueError,
+			description:  "handle nil passed as createChange",
+			customObject: newCustomObject("cluster-1"),
+			createChange: nil,
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(forbiddenAPICall)
+			}},
+			expectedError: nil,
 		},
 		{
-			description:         "handle nil *v1.Secret passed as createChange",
-			customObject:        newCustomObject("cluster-1"),
-			createChange:        emptySecretPointer,
-			apiReactorFactories: []apiReactorFactory{},
-			expectedError:       invalidValueError,
+			description:  "handle nil *v1.Secret passed as createChange",
+			customObject: newCustomObject("cluster-1"),
+			createChange: emptySecretPointer,
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(forbiddenAPICall)
+			}},
+			expectedError: nil,
 		},
 		{
 			description:         "handle wrong type value passed as createChange",

@@ -16,13 +16,11 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	if secret == nil {
-		return microerror.Maskf(invalidValueError, "createChange (*v1.Secret) must not be nil")
-	}
-
-	_, err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Create(secret)
-	if err != nil {
-		err = microerror.Mask(err)
+	if secret != nil {
+		_, err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Create(secret)
+		if err != nil {
+			err = microerror.Mask(err)
+		}
 	}
 
 	return err
