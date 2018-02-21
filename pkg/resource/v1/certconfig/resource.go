@@ -14,16 +14,16 @@ const (
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
-	K8sClient kubernetes.Interface
-	Key       Key
-	Logger    micrologger.Logger
+	K8sClient           kubernetes.Interface
+	Logger              micrologger.Logger
+	ToClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterConfig, error)
 }
 
 // Resource implements the cloud config resource.
 type Resource struct {
-	k8sClient kubernetes.Interface
-	key       Key
-	logger    micrologger.Logger
+	k8sClient           kubernetes.Interface
+	logger              micrologger.Logger
+	toClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterConfig, error)
 }
 
 // New creates a new configured cloud config resource.
@@ -31,16 +31,16 @@ func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
 	}
-	if config.Key == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Key must not be empty")
+	if config.ToClusterConfigFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "config.ToClusterConfigFunc must not be empty")
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
 
 	newService := &Resource{
-		k8sClient: config.K8sClient,
-		key:       config.Key,
+		k8sClient:           config.K8sClient,
+		toClusterConfigFunc: config.ToClusterConfigFunc,
 		logger: config.Logger.With(
 			"resource", Name,
 		),
