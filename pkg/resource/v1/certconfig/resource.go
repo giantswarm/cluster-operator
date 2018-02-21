@@ -1,6 +1,7 @@
 package certconfig
 
 import (
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -16,14 +17,14 @@ const (
 type Config struct {
 	K8sClient           kubernetes.Interface
 	Logger              micrologger.Logger
-	ToClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterConfig, error)
+	ToClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
 }
 
 // Resource implements the cloud config resource.
 type Resource struct {
 	k8sClient           kubernetes.Interface
 	logger              micrologger.Logger
-	toClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterConfig, error)
+	toClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
 }
 
 // New creates a new configured cloud config resource.
