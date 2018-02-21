@@ -15,16 +15,16 @@ const (
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
-	K8sClient           kubernetes.Interface
-	Logger              micrologger.Logger
-	ToClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	K8sClient                kubernetes.Interface
+	Logger                   micrologger.Logger
+	ToClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
 }
 
 // Resource implements the cloud config resource.
 type Resource struct {
-	k8sClient           kubernetes.Interface
-	logger              micrologger.Logger
-	toClusterConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	k8sClient                kubernetes.Interface
+	logger                   micrologger.Logger
+	toClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
 }
 
 // New creates a new configured cloud config resource.
