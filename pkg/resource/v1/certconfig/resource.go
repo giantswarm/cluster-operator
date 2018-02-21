@@ -32,16 +32,16 @@ func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
 	}
-	if config.ToClusterConfigFunc == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.ToClusterConfigFunc must not be empty")
+	if config.ToClusterGuestConfigFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "config.ToClusterGuestConfigFunc must not be empty")
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
 
 	newService := &Resource{
-		k8sClient:           config.K8sClient,
-		toClusterConfigFunc: config.ToClusterConfigFunc,
+		k8sClient:                config.K8sClient,
+		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		logger: config.Logger.With(
 			"resource", Name,
 		),
