@@ -14,18 +14,18 @@ const (
 	// Name is the identifier of the resource.
 	Name = "certconfigv1"
 
-	// Suggested maximum number of CertConfigs returned in one List() call to
-	// K8s API. Server may choose to not support this so this is not strict
-	// maximum.
+	// listCertConfigLimit is the suggested maximum number of CertConfigs
+	// returned in one List() call to K8s API. Server may choose to not support
+	// this so this is not strict maximum.
 	listCertConfigLimit = 25
 )
 
 type certificate struct {
-	name              certs.Cert
 	certConfigFactory func() (*v1alpha1.CertConfig, error)
+	name              certs.Cert
 }
 
-// This is a list of certificates managed by this resource.
+// managedCertificates is a list of certificates managed by this resource.
 var managedCertificates = []certificate{
 	{
 		name: certs.APICert,

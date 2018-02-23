@@ -50,7 +50,7 @@ func Test_GetCurrentState(t *testing.T) {
 			presentCertConfigs:  []*v1alpha1.CertConfig{},
 			apiReactors:         []k8stesting.Reactor{},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
-			expectedError:       nil,
+			expectedError:       unknownAPIError,
 		},
 		{
 			description: "return all certconfigs that match clusterID despite of having uknonwn Cert name",
