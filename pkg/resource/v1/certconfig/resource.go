@@ -14,7 +14,9 @@ const (
 	// Name is the identifier of the resource.
 	Name = "certconfigv1"
 
-	// Maximum number of CertConfigs returned in one List() call to K8s API
+	// Suggested maximum number of CertConfigs returned in one List() call to
+	// K8s API. Server may choose to not support this so this is not strict
+	// maximum.
 	listCertConfigLimit = 25
 )
 
