@@ -79,6 +79,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/certs"
+  packages = ["."]
+  revision = "9aa7011ea95ba44609752bbcd4b07cf94cc8e95a"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/k8shealthz"
   packages = ["."]
   revision = "9abe467ab9085610b261319dfe875c6d13537b06"
@@ -703,6 +709,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1ff774352818665970754d95a4a082b4571baa1698c1d26d948db99a7378e5ac"
+  inputs-digest = "9d449b91754e52914af133158f69bac313b0f72591202a31826f9522ab31f089"
   solver-name = "gps-cdcl"
   solver-version = 1
