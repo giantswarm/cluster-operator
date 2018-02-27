@@ -31,8 +31,8 @@ func newCertConfig(clusterID string, cert certs.Cert) *v1alpha1.CertConfig {
 		randomkeytpr.ClusterIDLabel: clusterID,
 
 		// Current
-		label.ClusterIDLabel: clusterID,
-		label.ManagedByLabel: "cluster-operator",
+		label.ClusterID: clusterID,
+		label.ManagedBy: "cluster-operator",
 	}
 
 	return &v1alpha1.CertConfig{

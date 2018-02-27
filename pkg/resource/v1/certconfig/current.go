@@ -26,7 +26,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	var certConfigs []*v1alpha1.CertConfig
 	{
 		labelSelector := &metav1.LabelSelector{}
-		labelSelector = metav1.AddLabelToSelector(labelSelector, label.LegacyClusterIDLabel, key.ClusterID(*clusterGuestConfig))
+		labelSelector = metav1.AddLabelToSelector(labelSelector, label.LegacyClusterID, key.ClusterID(*clusterGuestConfig))
 
 		selector, err := metav1.LabelSelectorAsSelector(labelSelector)
 		if err != nil {
