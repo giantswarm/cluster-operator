@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -26,7 +26,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	var certConfigs []*v1alpha1.CertConfig
 	{
 		labelSelector := &metav1.LabelSelector{}
-		labelSelector = metav1.AddLabelToSelector(labelSelector, randomkeytpr.ClusterIDLabel, key.ClusterID(*clusterGuestConfig))
+		labelSelector = metav1.AddLabelToSelector(labelSelector, label.LegacyClusterIDLabel, key.ClusterID(*clusterGuestConfig))
 
 		selector, err := metav1.LabelSelectorAsSelector(labelSelector)
 		if err != nil {

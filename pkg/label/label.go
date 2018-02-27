@@ -3,6 +3,7 @@
 package label
 
 const (
-	ClusterIDLabel = "giantswarm.io/cluster-id"
-	ManagedByLabel = "giantswarm.io/managed-by"
+	ClusterIDLabel       = "giantswarm.io/cluster-id"
+	LegacyClusterIDLabel = "clusterID"
+	ManagedByLabel       = "giantswarm.io/managed-by"
 )
