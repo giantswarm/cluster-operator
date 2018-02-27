@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	// Error to return when simulating unknown error returned from Kubernetes
+	// unknownAPIError for simulating unknown error returned from Kubernetes
 	// API client.
 	unknownAPIError = errors.New("Unknown error from k8s API")
 )
