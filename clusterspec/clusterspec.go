@@ -8,20 +8,18 @@ import (
 	v1alpha1provider "github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/cluster-operator/flag"
 )
 
 // Factory type acts as a state holder for supplemental v1alphaprovider.Cluster
 // info.
 type Factory struct {
-	flag *flag.Flag
+	baseCluster *v1alpha1provider.Cluster
 }
 
 // NewFactory constructs new Factory
-func NewFactory(f *flag.Flag) (*Factory, error) {
-	// TODO: Validate Config fields to not be empty
-	return &Factory{f}, nil
+func NewFactory(baseCluster *v1alpha1provider.Cluster) (*Factory, error) {
+	// TODO: Validate relevant Cluster fields to not be empty
+	return &Factory{baseCluster}, nil
 }
 
 // New constructs an instance of provider/v1alpha1.Cluster filled with
@@ -29,16 +27,17 @@ func NewFactory(f *flag.Flag) (*Factory, error) {
 func (f *Factory) New(clusterGuestConfig v1alpha1core.ClusterGuestConfig) (*v1alpha1provider.Cluster, error) {
 	cluster := &v1alpha1provider.Cluster{}
 
+	// Deep copy base information
+	f.baseCluster.DeepCopyInto(cluster)
+
 	{
 		calicoDomain, err := newCalicoDomain(clusterGuestConfig)
 		if err != nil {
 			return &v1alpha1provider.Cluster{}, microerror.Mask(err)
 		}
 
-		cluster.Calico.CIDR = f.flag.Guest.Cluster.Calico.CIDR
+		// NOTE: CIDR, MTU & Subnet are copied from pre-configured baseCluster.
 		cluster.Calico.Domain = calicoDomain
-		cluster.Calico.MTU = f.flag.Guest.Cluster.Calico.MTU
-		cluster.Calico.Subnet = f.flag.Guest.Cluster.Calico.Subnet
 	}
 
 	// TODO: Implement rest of New() - mostly along the lines of

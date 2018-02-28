@@ -17,8 +17,8 @@ type Kubernetes struct {
 type API struct {
 	AltNames       string
 	ClusterIPRange string
-	InsecurePort   int
-	SecurePort     int
+	InsecurePort   string
+	SecurePort     string
 }
 
 // Hyperkube is a data structure to hold guest cluster Kubernetes Hyperkube
@@ -38,7 +38,7 @@ type IngressController struct {
 type Kubelet struct {
 	AltNames string
 	Labels   string
-	Port     int
+	Port     string
 }
 
 // NetworkSetup is a data structure to hold guest cluster network setup
@@ -55,7 +55,7 @@ type Docker struct {
 // SSH is a data structure to hold guest cluster SSH specific configuration
 // flags.
 type SSH struct {
-	UserList []SSHUser
+	UserList SSHUser
 }
 
 // SSHUser is a data structure to represent username and public key pair.

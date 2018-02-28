@@ -6,20 +6,18 @@ import (
 
 	v1alpha1core "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	v1alpha1provider "github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
-
-	"github.com/giantswarm/cluster-operator/flag"
 )
 
 func Test_ClusterSpec_Factory_Construction(t *testing.T) {
 	testCases := []struct {
 		description  string
-		flag         *flag.Flag
+		baseCluster  *v1alpha1provider.Cluster
 		errorMatcher func(error) bool
 	}{}
 
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
-			_, err := NewFactory(tt.flag)
+			_, err := NewFactory(tt.baseCluster)
 
 			switch {
 			case err == nil && tt.errorMatcher == nil: // correct; carry on
@@ -39,19 +37,19 @@ func Test_ClusterSpec_Factory_Construction(t *testing.T) {
 func Test_ClusterSpec_Construction(t *testing.T) {
 	testCases := []struct {
 		description        string
+		baseCluster        *v1alpha1provider.Cluster
 		clusterGuestConfig v1alpha1core.ClusterGuestConfig
 		expectedCluster    v1alpha1provider.Cluster
 		errorMatcher       func(error) bool
 	}{}
 
-	flag := &flag.Flag{}
-	factory, err := NewFactory(flag)
-	if err != nil {
-		t.Fatalf("ClusterSpecFactory construction failed: %#v", err)
-	}
-
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
+			factory, err := NewFactory(tt.baseCluster)
+			if err != nil {
+				t.Fatalf("ClusterSpecFactory construction failed: %#v", err)
+			}
+
 			clusterSpec, err := factory.New(tt.clusterGuestConfig)
 
 			switch {

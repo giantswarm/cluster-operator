@@ -4,6 +4,6 @@ package etcd
 // flags.
 type Etcd struct {
 	AltNames string
-	Port     int
+	Port     string
 	Prefix   string
 }
