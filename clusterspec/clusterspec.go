@@ -8,98 +8,25 @@ import (
 	v1alpha1provider "github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
+
+	"github.com/giantswarm/cluster-operator/flag"
 )
 
-// Config holds required configuration values for factory to be able to
-// construct provider independent Cluster configuration based on
-// ClusterGuestConfig.
-type Config struct {
-	Calico struct {
-		CIDR   int
-		MTU    int
-		Subnet string
-	}
-
-	Docker struct {
-		Daemon struct {
-			CIDR      string
-			ExtraArgs string
-		}
-	}
-
-	Etcd struct {
-		AltNames string
-		Port     int
-		Prefix   string
-	}
-
-	Kubernetes struct {
-		API struct {
-			AltNames       string
-			ClusterIPRange string
-			InsecurePort   int
-			SecurePort     int
-		}
-
-		Domain string
-
-		Hyperkube struct {
-			Docker struct {
-				Image string
-			}
-		}
-
-		IngressController struct {
-			BaseDomain string
-			Docker     struct {
-				Image string
-			}
-			InsecurePort int
-			SecurePort   int
-		}
-
-		Kubelet struct {
-			AltNames string
-			Labels   string
-			Port     int
-		}
-
-		NetworkSetup struct {
-			Docker struct {
-				Image string
-			}
-		}
-
-		SSH struct {
-			UserList []struct {
-				Name      string
-				PublicKey string
-			}
-		}
-	}
-
-	Provider struct {
-		Kind string
-	}
-}
-
-// Factory to construct provider independent cluster specifications
-type Factory interface {
-	// New constructs provider/v1alpha1.Cluster
-	New(clusterGuestConfig v1alpha1core.ClusterGuestConfig) (*v1alpha1provider.Cluster, error)
-}
-
-type factory struct {
-	config *Config
+// Factory type acts as a state holder for supplemental v1alphaprovider.Cluster
+// info.
+type Factory struct {
+	flag *flag.Flag
 }
 
 // NewFactory constructs new Factory
-func NewFactory(c *Config) (Factory, error) {
+func NewFactory(f *flag.Flag) (*Factory, error) {
 	// TODO: Validate Config fields to not be empty
-	return &factory{c}, nil
+	return &Factory{f}, nil
 }
 
-func (f *factory) New(clusterGuestConfig v1alpha1core.ClusterGuestConfig) (*v1alpha1provider.Cluster, error) {
+// New constructs an instance of provider/v1alpha1.Cluster filled with
+// configured information.
+func (f *Factory) New(clusterGuestConfig v1alpha1core.ClusterGuestConfig) (*v1alpha1provider.Cluster, error) {
 	cluster := &v1alpha1provider.Cluster{}
 
 	{
@@ -108,10 +35,10 @@ func (f *factory) New(clusterGuestConfig v1alpha1core.ClusterGuestConfig) (*v1al
 			return &v1alpha1provider.Cluster{}, microerror.Mask(err)
 		}
 
-		cluster.Calico.CIDR = f.config.Calico.CIDR
+		cluster.Calico.CIDR = f.flag.Guest.Cluster.Calico.CIDR
 		cluster.Calico.Domain = calicoDomain
-		cluster.Calico.MTU = f.config.Calico.MTU
-		cluster.Calico.Subnet = f.config.Calico.Subnet
+		cluster.Calico.MTU = f.flag.Guest.Cluster.Calico.MTU
+		cluster.Calico.Subnet = f.flag.Guest.Cluster.Calico.Subnet
 	}
 
 	// TODO: Implement rest of New() - mostly along the lines of
