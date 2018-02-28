@@ -71,11 +71,20 @@
     "pkg/apis/core/v1alpha1",
     "pkg/apis/provider/v1alpha1",
     "pkg/clientset/versioned",
+    "pkg/clientset/versioned/fake",
     "pkg/clientset/versioned/scheme",
     "pkg/clientset/versioned/typed/core/v1alpha1",
-    "pkg/clientset/versioned/typed/provider/v1alpha1"
+    "pkg/clientset/versioned/typed/core/v1alpha1/fake",
+    "pkg/clientset/versioned/typed/provider/v1alpha1",
+    "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
   revision = "a792d7fbe4545e40743fd76a377170a8a89a6c94"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/cert-operator"
+  packages = ["service/certconfig/v2/key"]
+  revision = "f0ba3d73b92010ba727bd4da7d1019119a2b0916"
 
 [[projects]]
   branch = "master"
@@ -709,6 +718,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9d449b91754e52914af133158f69bac313b0f72591202a31826f9522ab31f089"
+  inputs-digest = "8717cbb234846721e362ed59eb945bd386a5447741b2c9150818c19974818ff6"
   solver-name = "gps-cdcl"
   solver-version = 1
