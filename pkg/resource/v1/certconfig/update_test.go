@@ -170,6 +170,9 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 				t.Fatalf("error == nil, want non-nil")
 			}
 
+			// Verify that certconfigs that are expected to be updated, are the
+			// only ones in the returned list of certconfigs that are to be
+			// updated.  Order doesn't matter here.
 			for _, c := range tt.expectedCertConfigs {
 				found := false
 				for i := 0; i < len(certConfigs); i++ {
@@ -185,6 +188,8 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 				}
 			}
 
+			// Verify that there aren't any unexpected extra certconfigs going
+			// to be updated.
 			if len(certConfigs) > 0 {
 				for _, c := range certConfigs {
 					t.Errorf("unwanted certconfig present: %#v", c)
