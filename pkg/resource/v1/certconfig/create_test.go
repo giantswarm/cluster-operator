@@ -64,6 +64,8 @@ func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
 	}
 
 	for k, v := range verificationTable {
+		// Was CoreV1alpha1().CertConfigs(...).Create() called for given
+		// CertConfig?
 		if !v {
 			t.Fatalf("ApplyCreateChange(...) didn't create CertConfig(%s)", k)
 		}
