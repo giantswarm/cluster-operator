@@ -177,6 +177,10 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 				found := false
 				for i := 0; i < len(certConfigs); i++ {
 					if reflect.DeepEqual(certConfigs[i], c) {
+						// When matching certconfig is found, remove from list
+						// returned by newUpdateChange(). When all expected
+						// certconfigs are iterated, returned list must be
+						// empty.
 						certConfigs = append(certConfigs[:i], certConfigs[i+1:]...)
 						found = true
 						break
