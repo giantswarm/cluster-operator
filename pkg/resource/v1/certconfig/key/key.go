@@ -11,6 +11,10 @@ func CertConfigName(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.C
 	return fmt.Sprintf("%s-%s", ClusterID(clusterGuestConfig), cert)
 }
 
+func CertConfigVersionBundleVersion(customObject v1alpha1.CertConfig) string {
+	return customObject.Spec.VersionBundle.Version
+}
+
 func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.ID
 }

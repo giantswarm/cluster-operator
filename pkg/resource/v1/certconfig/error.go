@@ -8,3 +8,17 @@ var invalidConfigError = microerror.New("invalid config")
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
+
+var notFoundError = microerror.New("not found")
+
+// IsNotFound asserts notFoundError.
+func IsNotFound(err error) bool {
+	return microerror.Cause(err) == notFoundError
+}
+
+var wrongTypeError = microerror.New("wrong type")
+
+// IsWrongTypeError asserts wrongTypeError.
+func IsWrongType(err error) bool {
+	return microerror.Cause(err) == wrongTypeError
+}
