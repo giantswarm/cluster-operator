@@ -17,7 +17,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 // the deleted custom object, the current state as provided by GetCurrentState
 // and the desired state as provided by GetDesiredState. NewDeletePatch
 // analyses the current and desired state and returns the patch to be applied by
-// Create, Delete, and Update functions.
+// Create, Update and Delete functions.
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
 	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
 	if err != nil {
