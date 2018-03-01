@@ -82,12 +82,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/giantswarm/cert-operator"
-  packages = ["service/certconfig/v2/key"]
-  revision = "f0ba3d73b92010ba727bd4da7d1019119a2b0916"
-
-[[projects]]
-  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "9aa7011ea95ba44609752bbcd4b07cf94cc8e95a"
@@ -718,6 +712,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8717cbb234846721e362ed59eb945bd386a5447741b2c9150818c19974818ff6"
+  inputs-digest = "ac6fd5383475390f518d8be42034b4af623254a239059e7af5a718b78a5c8b8d"
   solver-name = "gps-cdcl"
   solver-version = 1

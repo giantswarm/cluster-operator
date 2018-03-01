@@ -1,4 +1,0 @@
-commonDomain: "aws.gigantic.io"
-vaultToken: "myToken"
-vaultHost: "vault"
-imageTag: "local-lab"

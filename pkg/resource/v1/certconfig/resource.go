@@ -3,8 +3,8 @@ package certconfig
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	certconfigkey "github.com/giantswarm/cert-operator/service/certconfig/v2/key"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -132,8 +132,8 @@ func getCertConfigByName(list []*v1alpha1.CertConfig, name string) (*v1alpha1.Ce
 }
 
 func isCertConfigModified(a, b *v1alpha1.CertConfig) bool {
-	aVersion := certconfigkey.VersionBundleVersion(*a)
-	bVersion := certconfigkey.VersionBundleVersion(*b)
+	aVersion := key.CertConfigVersionBundleVersion(*a)
+	bVersion := key.CertConfigVersionBundleVersion(*b)
 	return aVersion != bVersion
 }
 
