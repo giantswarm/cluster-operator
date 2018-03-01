@@ -1,6 +1,6 @@
 package networksetup
 
-import "github.com/giantswarm/kubernetesd/flag/service/cluster/kubernetes/networksetup/docker"
+import "github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/networksetup/docker"
 
 // NetworkSetup is a data structure to hold guest cluster network setup
 // configuration flags.
