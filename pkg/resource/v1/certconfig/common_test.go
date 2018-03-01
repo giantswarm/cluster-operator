@@ -2,9 +2,11 @@ package certconfig
 
 import (
 	"errors"
+	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -61,6 +63,33 @@ func alwaysReturnErrorReactor(err error) k8stesting.Reactor {
 		Resource: "*",
 		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
 			return true, nil, err
+		},
+	}
+}
+
+func verifyCertConfigCreatedReactor(t *testing.T, certConfigSeen map[string]bool) k8stesting.Reactor {
+	return &k8stesting.SimpleReactor{
+		Verb:     "create",
+		Resource: "certconfigs",
+		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
+			createAction, ok := action.(k8stesting.CreateActionImpl)
+			if !ok {
+				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.CreateActionImpl")
+			}
+
+			createdCertConfig, err := toCertConfig(createAction.GetObject())
+			if err != nil {
+				return false, nil, microerror.Maskf(wrongTypeError, "CreateAction did not contain *v1alpha1.CertConfig")
+			}
+
+			_, exists := certConfigSeen[createdCertConfig.Name]
+			if exists {
+				certConfigSeen[createdCertConfig.Name] = true
+			} else {
+				t.Fatalf("create(certconfig) that doesn't exist in verification table; name %s", createdCertConfig.Name)
+			}
+
+			return true, createdCertConfig, nil
 		},
 	}
 }
