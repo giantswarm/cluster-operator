@@ -5,7 +5,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,13 +21,17 @@ var (
 )
 
 func newCertConfig(clusterID string, cert certs.Cert) *v1alpha1.CertConfig {
+	return newCertConfigWithVersion(clusterID, cert, "1.0.0")
+}
+
+func newCertConfigWithVersion(clusterID string, cert certs.Cert, version string) *v1alpha1.CertConfig {
 	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
 		ID: clusterID,
 	}
 
 	labels := map[string]string{
 		// Legacy
-		randomkeytpr.ClusterIDLabel: clusterID,
+		label.LegacyClusterID: clusterID,
 
 		// Current
 		label.ClusterID: clusterID,
@@ -44,6 +47,9 @@ func newCertConfig(clusterID string, cert certs.Cert) *v1alpha1.CertConfig {
 		Spec: v1alpha1.CertConfigSpec{
 			Cert: v1alpha1.CertConfigSpecCert{
 				ClusterID: clusterID,
+			},
+			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
+				Version: version,
 			},
 		},
 	}

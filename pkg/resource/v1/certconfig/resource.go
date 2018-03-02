@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -108,4 +109,43 @@ func (r *Resource) Name() string {
 
 func (r *Resource) Underlying() framework.Resource {
 	return r
+}
+
+func containsCertConfig(list []*v1alpha1.CertConfig, item *v1alpha1.CertConfig) bool {
+	for _, l := range list {
+		if l.Name == item.Name {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getCertConfigByName(list []*v1alpha1.CertConfig, name string) (*v1alpha1.CertConfig, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return nil, microerror.Mask(notFoundError)
+}
+
+func isCertConfigModified(a, b *v1alpha1.CertConfig) bool {
+	aVersion := key.CertConfigVersionBundleVersion(*a)
+	bVersion := key.CertConfigVersionBundleVersion(*b)
+	return aVersion != bVersion
+}
+
+func toCertConfigs(v interface{}) ([]*v1alpha1.CertConfig, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	certConfigs, ok := v.([]*v1alpha1.CertConfig)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", certConfigs, v)
+	}
+
+	return certConfigs, nil
 }

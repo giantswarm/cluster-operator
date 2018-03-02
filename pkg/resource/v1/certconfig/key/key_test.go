@@ -51,6 +51,40 @@ func Test_CertConfigName(t *testing.T) {
 	}
 }
 
+func Test_CertConfigVersionBundleVersion(t *testing.T) {
+	testCases := []struct {
+		description     string
+		certConfig      v1alpha1.CertConfig
+		expectedVersion string
+	}{
+		{
+			description:     "empty value",
+			certConfig:      v1alpha1.CertConfig{},
+			expectedVersion: "",
+		},
+		{
+			description: "CertConfig with version",
+			certConfig: v1alpha1.CertConfig{
+				Spec: v1alpha1.CertConfigSpec{
+					VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
+						Version: "1.0.1",
+					},
+				},
+			},
+			expectedVersion: "1.0.1",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			version := CertConfigVersionBundleVersion(tc.certConfig)
+			if version != tc.expectedVersion {
+				t.Fatalf("version '%s' doesn't match expected '%s'", version, tc.expectedVersion)
+			}
+		})
+	}
+}
+
 func Test_ClusterID(t *testing.T) {
 	testCases := []struct {
 		description   string
