@@ -24,9 +24,15 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 		return nil, microerror.Mask(err)
 	}
 
+	delete, err := r.newDeleteChangeForUpdatePatch(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	patch := framework.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
@@ -47,9 +53,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 	for _, currentCertConfig := range currentCertConfigs {
 		desiredCertConfig, err := getCertConfigByName(desiredCertConfigs, currentCertConfig.Name)
 		if IsNotFound(err) {
-			// NOTE that this case indicates we should remove the current
-			// certconfig eventually.
-			r.logger.LogCtx(ctx, "warning", fmt.Sprintf("not updating certconfig '%s': no desired certconfig found", currentCertConfig.GetName()))
+			// Ignore here. These are handled by newDeleteChangeForUpdatePatch().
 			continue
 		} else if err != nil {
 			return nil, microerror.Mask(err)
