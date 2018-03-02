@@ -77,9 +77,12 @@ func verifyCertConfigCreatedReactor(t *testing.T, certConfigSeen map[string]bool
 				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.CreateActionImpl")
 			}
 
-			createdCertConfig, err := toCertConfig(createAction.GetObject())
-			if err != nil {
-				return false, nil, microerror.Maskf(wrongTypeError, "CreateAction did not contain *v1alpha1.CertConfig")
+			var createdCertConfig *v1alpha1.CertConfig
+			if createActionObj := createAction.GetObject(); createActionObj != nil {
+				createdCertConfig, ok = createActionObj.(*v1alpha1.CertConfig)
+				if !ok {
+					return false, nil, microerror.Maskf(wrongTypeError, "CreateAction did not contain *v1alpha1.CertConfig")
+				}
 			}
 
 			_, exists := certConfigSeen[createdCertConfig.Name]

@@ -137,19 +137,6 @@ func isCertConfigModified(a, b *v1alpha1.CertConfig) bool {
 	return aVersion != bVersion
 }
 
-func toCertConfig(v interface{}) (*v1alpha1.CertConfig, error) {
-	if v == nil {
-		return nil, nil
-	}
-
-	certConfig, ok := v.(*v1alpha1.CertConfig)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", certConfig, v)
-	}
-
-	return certConfig, nil
-}
-
 func toCertConfigs(v interface{}) ([]*v1alpha1.CertConfig, error) {
 	if v == nil {
 		return nil, nil
