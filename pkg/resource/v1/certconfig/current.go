@@ -21,7 +21,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "looking for a list of certconfigs in the Kubernetes API")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for a list of certconfigs in the Kubernetes API")
 
 	var certConfigs []*v1alpha1.CertConfig
 	{
@@ -62,7 +62,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 	}
 
-	r.logger.LogCtx(ctx, "debug", fmt.Sprintf("found a list of %d certconfigs in the Kubernetes API", len(certConfigs)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a list of %d certconfigs in the Kubernetes API", len(certConfigs)))
 
 	return certConfigs, nil
 }
