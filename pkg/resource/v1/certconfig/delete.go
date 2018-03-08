@@ -36,9 +36,9 @@ func (r *Resource) newDeleteChangeForDeletePatch(ctx context.Context, obj, curre
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "finding out which certconfigs have to be deleted")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be deleted")
 
-	r.logger.LogCtx(ctx, "debug", fmt.Sprintf("found %d certconfigs that have to be deleted", len(currentCertConfigs)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs that have to be deleted", len(currentCertConfigs)))
 
 	return currentCertConfigs, nil
 }
@@ -53,7 +53,7 @@ func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, curre
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "finding out which certconfigs have to be deleted")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be deleted")
 
 	var certConfigsToDelete []*v1alpha1.CertConfig
 	for _, currentCertConfig := range currentCertConfigs {
@@ -64,7 +64,7 @@ func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, curre
 		}
 	}
 
-	r.logger.LogCtx(ctx, "debug", fmt.Sprintf("found %d certconfigs that have to be deleted", len(certConfigsToDelete)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs that have to be deleted", len(certConfigsToDelete)))
 
 	return certConfigsToDelete, nil
 }

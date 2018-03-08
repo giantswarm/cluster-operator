@@ -26,7 +26,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "computing desired encryption key secret")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "computing desired encryption key secret")
 	secretName := key.EncryptionKeySecretName(customObject)
 
 	keyBytes, err := newRandomKey(AESCBCKeyLength)
@@ -48,7 +48,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 	}
 
-	r.logger.LogCtx(ctx, "debug", "computed desired encryption key secret")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "computed desired encryption key secret")
 
 	return secret, nil
 }

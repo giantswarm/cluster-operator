@@ -47,7 +47,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "finding out which certconfigs have to be updated")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be updated")
 
 	var certConfigsToUpdate []*v1alpha1.CertConfig
 	for _, currentCertConfig := range currentCertConfigs {
@@ -60,10 +60,10 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		}
 
 		if isCertConfigModified(desiredCertConfig, currentCertConfig) {
-			r.logger.LogCtx(ctx, "debug", fmt.Sprintf("found certconfig '%s' that has to be updated", desiredCertConfig.GetName()))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found certconfig '%s' that has to be updated", desiredCertConfig.GetName()))
 			certConfigsToUpdate = append(certConfigsToUpdate, desiredCertConfig)
 		} else {
-			r.logger.LogCtx(ctx, "debug", fmt.Sprintf("not updating certconfig '%s': no changes found", currentCertConfig.GetName()))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not updating certconfig '%s': no changes found", currentCertConfig.GetName()))
 		}
 	}
 
