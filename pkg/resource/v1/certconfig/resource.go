@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/framework"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -91,11 +90,9 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newService := &Resource{
-		g8sClient: config.G8sClient,
-		k8sClient: config.K8sClient,
-		logger: config.Logger.With(
-			"resource", Name,
-		),
+		g8sClient:                config.G8sClient,
+		k8sClient:                config.K8sClient,
+		logger:                   config.Logger,
 		projectName:              config.ProjectName,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
@@ -105,10 +102,6 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
-}
-
-func (r *Resource) Underlying() framework.Resource {
-	return r
 }
 
 func containsCertConfig(list []*v1alpha1.CertConfig, item *v1alpha1.CertConfig) bool {

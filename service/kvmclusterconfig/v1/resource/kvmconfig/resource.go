@@ -4,7 +4,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/framework"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -37,9 +36,7 @@ func New(config Config) (*Resource, error) {
 	newService := &Resource{
 		// Dependencies.
 		k8sClient: config.K8sClient,
-		logger: config.Logger.With(
-			"resource", Name,
-		),
+		logger:    config.Logger,
 	}
 
 	return newService, nil
@@ -48,11 +45,6 @@ func New(config Config) (*Resource, error) {
 // Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
-}
-
-// Underlying returns underlying framework.Resource.
-func (r *Resource) Underlying() framework.Resource {
-	return r
 }
 
 func toKvmConfig(v interface{}) (*v1alpha1.KVMConfig, error) {
