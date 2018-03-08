@@ -16,7 +16,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "creating encryptionkey secret")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret")
 
 	if secret != nil {
 		_, err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Create(secret)
@@ -24,9 +24,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			err = microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "debug", "creating encryptionkey secret: created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret: created")
 	} else {
-		r.logger.LogCtx(ctx, "debug", "creating encryptionkey secret: already created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret: already created")
 	}
 
 	return err
@@ -42,14 +42,14 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "finding out if the secret has to be created")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the secret has to be created")
 
 	var secretToCreate *v1.Secret
 	if currentSecret == nil {
 		secretToCreate = desiredSecret
 	}
 
-	r.logger.LogCtx(ctx, "debug", "found out if the secret has to be created")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "found out if the secret has to be created")
 
 	return secretToCreate, nil
 }

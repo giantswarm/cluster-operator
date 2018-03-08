@@ -37,7 +37,7 @@ func New(config Config) (*Service, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
-	config.Logger.Log("debug", fmt.Sprintf("creating cluster-operator gitCommit:%s", config.GitCommit))
+	config.Logger.Log("level", "debug", "message", fmt.Sprintf("creating cluster-operator gitCommit:%s", config.GitCommit))
 
 	if config.Flag == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.Flag must not be empty")

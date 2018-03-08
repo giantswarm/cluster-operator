@@ -20,7 +20,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	if len(certConfigsToCreate) > 0 {
-		r.logger.LogCtx(ctx, "debug", "creating certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating certconfigs")
 
 		for _, certConfigToCreate := range certConfigsToCreate {
 			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).Create(certConfigToCreate)
@@ -31,9 +31,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			}
 		}
 
-		r.logger.LogCtx(ctx, "debug", "created certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "created certconfigs")
 	} else {
-		r.logger.LogCtx(ctx, "debug", "no need to create certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to create certconfigs")
 	}
 
 	return nil
@@ -49,7 +49,7 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "debug", "finding out which certconfigs have to be created")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be created")
 
 	var certConfigsToCreate []*v1alpha1.CertConfig
 
@@ -59,7 +59,7 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 		}
 	}
 
-	r.logger.LogCtx(ctx, "debug", fmt.Sprintf("found %d certconfigs that have to be created", len(certConfigsToCreate)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs that have to be created", len(certConfigsToCreate)))
 
 	return certConfigsToCreate, nil
 }
