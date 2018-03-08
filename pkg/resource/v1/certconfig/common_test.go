@@ -96,3 +96,25 @@ func verifyCertConfigCreatedReactor(t *testing.T, certConfigSeen map[string]bool
 		},
 	}
 }
+
+func verifyCertConfigDeletedReactor(t *testing.T, certConfigSeen map[string]bool) k8stesting.Reactor {
+	return &k8stesting.SimpleReactor{
+		Verb:     "delete",
+		Resource: "certconfigs",
+		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
+			deleteAction, ok := action.(k8stesting.DeleteActionImpl)
+			if !ok {
+				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.DeleteActionImpl")
+			}
+
+			_, exists := certConfigSeen[deleteAction.Name]
+			if exists {
+				certConfigSeen[deleteAction.Name] = true
+			} else {
+				t.Fatalf("delete(certconfig) that doesn't exist in verification table; name %s", deleteAction.Name)
+			}
+
+			return true, nil, nil
+		},
+	}
+}

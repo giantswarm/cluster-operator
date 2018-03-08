@@ -8,9 +8,145 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+	k8stesting "k8s.io/client-go/testing"
 )
+
+func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
+	logger, err := micrologger.New(micrologger.DefaultConfig())
+	if err != nil {
+		t.Fatalf("micrologger.New() failed: %#v", err)
+	}
+
+	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
+		ID: "cluster-1",
+	}
+
+	deleteChange := []*v1alpha1.CertConfig{
+		newCertConfig("cluster-1", certs.APICert),
+		newCertConfig("cluster-1", certs.EtcdCert),
+		newCertConfig("cluster-1", certs.PrometheusCert),
+		newCertConfig("cluster-1", certs.WorkerCert),
+	}
+
+	verificationTable := map[string]bool{
+		key.CertConfigName(clusterGuestConfig, certs.APICert):        false,
+		key.CertConfigName(clusterGuestConfig, certs.EtcdCert):       false,
+		key.CertConfigName(clusterGuestConfig, certs.PrometheusCert): false,
+		key.CertConfigName(clusterGuestConfig, certs.WorkerCert):     false,
+	}
+
+	client := fake.NewSimpleClientset()
+	client.ReactionChain = append([]k8stesting.Reactor{
+		verifyCertConfigDeletedReactor(t, verificationTable),
+	}, client.ReactionChain...)
+
+	r, err := New(Config{
+		G8sClient:   client,
+		K8sClient:   clientgofake.NewSimpleClientset(),
+		Logger:      logger,
+		ProjectName: "cluster-operator",
+		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+			return v.(*v1alpha1.ClusterGuestConfig), nil
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("Resource construction failed: %#v", err)
+	}
+
+	err = r.ApplyDeleteChange(context.TODO(), clusterGuestConfig, deleteChange)
+	if err != nil {
+		t.Fatalf("ApplyDeleteChange(...) == %#v, want nil", err)
+	}
+
+	for k, v := range verificationTable {
+		// Was CoreV1alpha1().CertConfigs(...).Delete(...) called for given
+		// CertConfig?
+		if !v {
+			t.Fatalf("ApplyDeleteChange(...) didn't create CertConfig(%s)", k)
+		}
+	}
+}
+
+func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *testing.T) {
+	logger, err := micrologger.New(micrologger.DefaultConfig())
+	if err != nil {
+		t.Fatalf("micrologger.New() failed: %#v", err)
+	}
+
+	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
+		ID: "cluster-1",
+	}
+
+	deleteChange := []*v1alpha1.CertConfig{}
+
+	client := fake.NewSimpleClientset()
+	client.ReactionChain = append([]k8stesting.Reactor{
+		alwaysReturnErrorReactor(unknownAPIError),
+	}, client.ReactionChain...)
+
+	r, err := New(Config{
+		G8sClient:   client,
+		K8sClient:   clientgofake.NewSimpleClientset(),
+		Logger:      logger,
+		ProjectName: "cluster-operator",
+		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+			return v.(*v1alpha1.ClusterGuestConfig), nil
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("Resource construction failed: %#v", err)
+	}
+
+	err = r.ApplyDeleteChange(context.TODO(), clusterGuestConfig, deleteChange)
+	if err != nil {
+		t.Fatalf("ApplyDeleteChange(...) == %#v, want nil", err)
+	}
+}
+
+func Test_ApplyDeleteChange_Handles_K8S_API_Error(t *testing.T) {
+	logger, err := micrologger.New(micrologger.DefaultConfig())
+	if err != nil {
+		t.Fatalf("micrologger.New() failed: %#v", err)
+	}
+
+	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
+		ID: "cluster-1",
+	}
+
+	deleteChange := []*v1alpha1.CertConfig{
+		newCertConfig("cluster-1", certs.APICert),
+	}
+
+	client := fake.NewSimpleClientset()
+	client.ReactionChain = append([]k8stesting.Reactor{
+		alwaysReturnErrorReactor(unknownAPIError),
+	}, client.ReactionChain...)
+
+	r, err := New(Config{
+		G8sClient:   client,
+		K8sClient:   clientgofake.NewSimpleClientset(),
+		Logger:      logger,
+		ProjectName: "cluster-operator",
+		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+			return v.(*v1alpha1.ClusterGuestConfig), nil
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("Resource construction failed: %#v", err)
+	}
+
+	err = r.ApplyDeleteChange(context.TODO(), clusterGuestConfig, deleteChange)
+	if microerror.Cause(err) != unknownAPIError {
+		t.Fatalf("ApplyDeleteChange(...) == %#v, want %#v", err, unknownAPIError)
+	}
+}
 
 func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.T) {
 	testCases := []struct {
