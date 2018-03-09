@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/framework"
 	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
@@ -22,7 +22,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting the certconfigs in the Kubernetes API")
 
 		for _, certConfig := range certConfigsToDelete {
-			err := r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).Delete(certConfig.Name, newDeleteOptions())
+			err := r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).Delete(certConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {
@@ -92,14 +92,4 @@ func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, curre
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs that have to be deleted", len(certConfigsToDelete)))
 
 	return certConfigsToDelete, nil
-}
-
-func newDeleteOptions() *apismetav1.DeleteOptions {
-	propagation := apismetav1.DeletePropagationForeground
-
-	options := &apismetav1.DeleteOptions{
-		PropagationPolicy: &propagation,
-	}
-
-	return options
 }
