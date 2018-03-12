@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/giantswarm/cluster-operator.svg?&style=shield&circle-token=373dcae33aecb47a0a53c51105e9381dff5b0b88)](https://circleci.com/gh/giantswarm/cluster-operator)
+[![CircleCI](https://circleci.com/gh/giantswarm/cluster-operator.svg?&style=shield)](https://circleci.com/gh/giantswarm/cluster-operator)
 
 # cluster-operator
 
