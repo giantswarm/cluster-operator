@@ -11,22 +11,27 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
 )
 
 // FrameworkConfig contains necessary dependencies and settings for
 // KVMClusterConfig CRD framework implementation.
 type FrameworkConfig struct {
-	G8sClient    versioned.Interface
-	K8sClient    kubernetes.Interface
-	K8sExtClient apiextensionsclient.Interface
-	Logger       micrologger.Logger
+	BaseClusterConfig *cluster.Config
+	G8sClient         versioned.Interface
+	K8sClient         kubernetes.Interface
+	K8sExtClient      apiextensionsclient.Interface
+	Logger            micrologger.Logger
 
 	ProjectName string
 }
 
 // NewFramework returns a configured KVMClusterConfig framework implementation.
 func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
+	if config.BaseClusterConfig == nil {
+		return nil, microerror.Maskf(invalidConfigError, "config.BaseClusterConfig must not be empty")
+	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.G8sClient must not be empty")
 	}

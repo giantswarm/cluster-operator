@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -100,10 +101,11 @@ func Test_GetCurrentState(t *testing.T) {
 			client.ReactionChain = append(tc.apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				G8sClient:   client,
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				BaseClusterConfig: &cluster.Config{},
+				G8sClient:         client,
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            logger,
+				ProjectName:       "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 					return v.(*v1alpha1.ClusterGuestConfig), nil
 				},

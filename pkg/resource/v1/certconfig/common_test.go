@@ -42,7 +42,7 @@ func newCertConfigWithVersion(clusterID string, cert certs.Cert, version string)
 
 	return &v1alpha1.CertConfig{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterGuestConfig, cert),
+			Name:      key.CertConfigName(key.ClusterID(clusterGuestConfig), cert),
 			Namespace: v1.NamespaceDefault,
 			Labels:    labels,
 		},

@@ -43,7 +43,7 @@ func Test_CertConfigName(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			name := CertConfigName(tc.clusterConfig, tc.cert)
+			name := CertConfigName(ClusterID(tc.clusterConfig), tc.cert)
 			if name != tc.expectedCertConfigName {
 				t.Fatalf("CertConfigName '%s' doesn't match expected '%s'", name, tc.expectedCertConfigName)
 			}

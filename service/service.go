@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net"
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -15,8 +16,13 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/healthz"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig"
+)
+
+const (
+	apiServerIPLastOctet = 1
 )
 
 // Config represents the configuration used to create a new service.
@@ -86,10 +92,16 @@ func New(config Config) (*Service, error) {
 
 	var kvmClusterConfigFramework *framework.Framework
 	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		c := kvmclusterconfig.FrameworkConfig{
-			G8sClient:    g8sClient,
-			K8sClient:    k8sClient,
-			K8sExtClient: k8sExtClient,
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
 
 			Logger:      config.Logger,
 			ProjectName: config.ProjectName,
@@ -137,4 +149,38 @@ func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.KVMClusterConfigFramework.Boot()
 	})
+}
+
+func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
+	guestClusterCIDR, _, err := net.ParseCIDR(v.GetString(f.Guest.Cluster.Kubernetes.API.ClusterIPRange))
+	if err != nil {
+		return nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange")
+	}
+
+	guestClusterAPIServerIP, err := newAPIServerIP(guestClusterCIDR)
+
+	clusterConfig := &cluster.Config{
+		CertTTL: v.GetString(f.Guest.Cluster.Vault.Certificate.TTL),
+		IP: cluster.IP{
+			API:   guestClusterAPIServerIP,
+			Range: guestClusterCIDR,
+		},
+	}
+
+	return clusterConfig, nil
+}
+
+func newAPIServerIP(ip net.IP) (net.IP, error) {
+	ip = ip.To4()
+	if ip != nil {
+		return nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR must be an IPv4 range")
+	}
+
+	// IP must be a network address
+	if ip[3] != 0 {
+		return nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR must be a network address")
+	}
+
+	ip[3] = apiServerIPLastOctet
+	return ip, nil
 }

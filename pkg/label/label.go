@@ -3,7 +3,16 @@
 package label
 
 const (
-	ClusterID       = "giantswarm.io/cluster-id"
+	// ClusterID label for kubernetes metadata
+	ClusterID = "giantswarm.io/cluster-id"
+
+	// LegacyClusterID is an old style label for ClusterID
 	LegacyClusterID = "clusterID"
-	ManagedBy       = "giantswarm.io/managed-by"
+
+	// LegacyComponent is an old style label to identify which component a
+	// specific CertConfig belongs to.
+	LegacyComponent = "clusterComponent"
+
+	// ManagedBy label denotes which operator manages corresponding resource.
+	ManagedBy = "giantswarm.io/managed-by"
 )

@@ -18,7 +18,7 @@ func IsNotFound(err error) bool {
 
 var wrongTypeError = microerror.New("wrong type")
 
-// IsWrongTypeError asserts wrongTypeError.
+// IsWrongType asserts wrongTypeError.
 func IsWrongType(err error) bool {
 	return microerror.Cause(err) == wrongTypeError
 }

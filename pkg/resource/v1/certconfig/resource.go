@@ -4,10 +4,12 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 )
 
 const (
@@ -21,40 +23,45 @@ const (
 )
 
 type certificate struct {
-	certConfigFactory func() (*v1alpha1.CertConfig, error)
-	name              certs.Cert
+	certConfigFactoryFunc func(cfg *cluster.Config, cert certs.Cert, projName string) *v1alpha1.CertConfig
+	name                  certs.Cert
 }
 
 // managedCertificates is a list of certificates managed by this resource.
 var managedCertificates = []certificate{
 	{
+		certConfigFactoryFunc: newAPICertConfig,
 		name: certs.APICert,
 	},
 	{
+		certConfigFactoryFunc: newCalicoCertConfig,
 		name: certs.CalicoCert,
 	},
 	{
+		certConfigFactoryFunc: newEtcdCertConfig,
 		name: certs.EtcdCert,
 	},
 	{
-		name: certs.FlanneldCert,
-	},
-	{
+		certConfigFactoryFunc: newNodeOperatorCertConfig,
 		name: certs.NodeOperatorCert,
 	},
 	{
+		certConfigFactoryFunc: newPrometheusCertConfig,
 		name: certs.PrometheusCert,
 	},
 	{
+		certConfigFactoryFunc: newServiceAccountCertConfig,
 		name: certs.ServiceAccountCert,
 	},
 	{
+		certConfigFactoryFunc: newWorkerCertConfig,
 		name: certs.WorkerCert,
 	},
 }
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
+	BaseClusterConfig        *cluster.Config
 	G8sClient                versioned.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
@@ -64,6 +71,7 @@ type Config struct {
 
 // Resource implements the cloud config resource.
 type Resource struct {
+	baseClusterConfig        *cluster.Config
 	g8sClient                versioned.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
@@ -73,6 +81,9 @@ type Resource struct {
 
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
+	if config.BaseClusterConfig == nil {
+		return nil, microerror.Maskf(invalidConfigError, "config.BaseClusterConfig must not be empty")
+	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.G8sClient must not be empty")
 	}
@@ -90,6 +101,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newService := &Resource{
+		baseClusterConfig:        config.BaseClusterConfig,
 		g8sClient:                config.G8sClient,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
@@ -100,6 +112,7 @@ func New(config Config) (*Resource, error) {
 	return newService, nil
 }
 
+// Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
 }

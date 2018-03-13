@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/micrologger"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 )
@@ -143,10 +144,11 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			r, err := New(Config{
-				G8sClient:   fake.NewSimpleClientset(),
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				BaseClusterConfig: &cluster.Config{},
+				G8sClient:         fake.NewSimpleClientset(),
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            logger,
+				ProjectName:       "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 					return v.(*v1alpha1.ClusterGuestConfig), nil
 				},
