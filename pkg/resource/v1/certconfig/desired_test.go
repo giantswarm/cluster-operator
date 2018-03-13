@@ -2,7 +2,6 @@ package certconfig
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"testing"
 
@@ -67,17 +66,13 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		t.Fatalf("GetDesiredState() == %#v, wrong type %T, want %T", desiredState, desiredState, certConfigs)
 	}
 
-	fmt.Printf("len(managedCertificates): %d, len(certConfigs): %d\n", len(managedCertificates), len(certConfigs))
-
 	for _, mc := range managedCertificates {
 		certConfigName := key.CertConfigName(key.ClusterID(clusterGuestConfig), mc.name)
 		found := false
 		for i := 0; i < len(certConfigs); i++ {
 			cc := certConfigs[i]
-			fmt.Printf("cc.Name: %s\n", cc.Name)
 			if cc.Name == certConfigName {
 				found = true
-				fmt.Printf("found %s\n", cc.Name)
 				certConfigs = append(certConfigs[:i], certConfigs[i+1:]...)
 				break
 			}
