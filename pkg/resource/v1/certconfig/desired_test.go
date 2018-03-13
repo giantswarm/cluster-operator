@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
-	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/micrologger/microloggertest"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -15,11 +15,6 @@ import (
 )
 
 func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
-	if err != nil {
-		t.Fatalf("micrologger.New() failed: %#v", err)
-	}
-
 	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
 		ID: "cluster-1",
 		VersionBundles: []v1alpha1.ClusterGuestConfigVersionBundle{
@@ -45,7 +40,7 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		},
 		G8sClient:   fake.NewSimpleClientset(),
 		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
+		Logger:      microloggertest.New(),
 		ProjectName: "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
