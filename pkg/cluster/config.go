@@ -8,6 +8,7 @@ type Config struct {
 	CertTTL              string
 	Domain               Domain
 	IP                   IP
+	Organization         string
 	VersionBundleVersion string
 }
 

@@ -34,10 +34,12 @@ func newCertConfigWithVersion(clusterID string, cert certs.Cert, version string)
 	labels := map[string]string{
 		// Legacy
 		label.LegacyClusterID: clusterID,
+		label.LegacyComponent: string(cert),
 
 		// Current
-		label.ClusterID: clusterID,
-		label.ManagedBy: "cluster-operator",
+		label.Cluster:      clusterID,
+		label.ManagedBy:    "cluster-operator",
+		label.Organization: "ACME Inc.",
 	}
 
 	return &v1alpha1.CertConfig{

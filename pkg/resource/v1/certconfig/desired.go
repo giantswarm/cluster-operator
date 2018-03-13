@@ -95,6 +95,8 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 		return nil, microerror.Mask(err)
 	}
 
+	clusterConfig.Organization = clusterGuestConfig.Owner
+
 	versionBundle, err := versionbundle.GetBundleByName(key.VersionBundles(clusterGuestConfig), certOperatorID)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -115,10 +117,11 @@ func newAPICertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectNam
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -150,10 +153,11 @@ func newCalicoCertConfig(clusterConfig *cluster.Config, cert certs.Cert, project
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -182,10 +186,11 @@ func newEtcdCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectNa
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -215,10 +220,11 @@ func newNodeOperatorCertConfig(clusterConfig *cluster.Config, cert certs.Cert, p
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -247,10 +253,11 @@ func newPrometheusCertConfig(clusterConfig *cluster.Config, cert certs.Cert, pro
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -279,10 +286,11 @@ func newServiceAccountCertConfig(clusterConfig *cluster.Config, cert certs.Cert,
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -311,10 +319,11 @@ func newWorkerCertConfig(clusterConfig *cluster.Config, cert certs.Cert, project
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.ClusterID:       clusterConfig.ClusterID,
+				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
 				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{

@@ -3,8 +3,8 @@
 package label
 
 const (
-	// ClusterID label for kubernetes metadata
-	ClusterID = "giantswarm.io/cluster-id"
+	// Cluster label is a new style label for ClusterID
+	Cluster = "giantswarm.io/cluster"
 
 	// LegacyClusterID is an old style label for ClusterID
 	LegacyClusterID = "clusterID"
@@ -15,4 +15,8 @@ const (
 
 	// ManagedBy label denotes which operator manages corresponding resource.
 	ManagedBy = "giantswarm.io/managed-by"
+
+	// Organization label denotes guest cluster's organization ID as displayed
+	// in the front-end.
+	Organization = "giantswarm.io/organization"
 )
