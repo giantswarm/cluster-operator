@@ -8,11 +8,6 @@ import (
 	"github.com/giantswarm/versionbundle"
 )
 
-// APIEndpoint returns guest cluster Kubernetes API endpoint.
-func APIEndpoint(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
-	return clusterGuestConfig.API.Endpoint
-}
-
 // CertConfigName constructs a name for CertConfig CR using ClusterID and Cert.
 func CertConfigName(clusterID string, cert certs.Cert) string {
 	return fmt.Sprintf("%s-%s", clusterID, cert)
@@ -27,6 +22,11 @@ func CertConfigVersionBundleVersion(customObject v1alpha1.CertConfig) string {
 // ClusterID returns cluster ID for given guest cluster config.
 func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.ID
+}
+
+// CommonDomain returns common domain for guest cluster.
+func CommonDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return clusterGuestConfig.CommonDomain
 }
 
 // VersionBundles returns slice of versionbundle.Bundles for given guest

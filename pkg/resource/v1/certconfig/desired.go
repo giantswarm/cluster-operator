@@ -2,7 +2,6 @@ package certconfig
 
 import (
 	"context"
-	"net/url"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -91,31 +90,31 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 
 	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
 
-	clusterConfig.Domain.API, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.APICert)
+	clusterConfig.Domain.API, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.APICert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Calico, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.CalicoCert)
+	clusterConfig.Domain.Calico, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.CalicoCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Etcd, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.EtcdCert)
+	clusterConfig.Domain.Etcd, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.EtcdCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.NodeOperatorCert)
+	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.NodeOperatorCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Prometheus, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.PrometheusCert)
+	clusterConfig.Domain.Prometheus, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.PrometheusCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.ServiceAccount, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.ServiceAccountCert)
+	clusterConfig.Domain.ServiceAccount, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.ServiceAccountCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Worker, err = newServerDomain(key.APIEndpoint(clusterGuestConfig), certs.WorkerCert)
+	clusterConfig.Domain.Worker, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.WorkerCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -368,17 +367,10 @@ func newWorkerCertConfig(clusterConfig *cluster.Config, cert certs.Cert, project
 	}
 }
 
-func newServerDomain(apiEndpoint string, cert certs.Cert) (string, error) {
-	u, err := url.Parse(apiEndpoint)
-	if err != nil {
-		return "", microerror.Mask(err)
+func newServerDomain(commonDomain string, cert certs.Cert) (string, error) {
+	if !strings.Contains(commonDomain, ".") {
+		return "", microerror.Maskf(invalidConfigError, "commonDomain must be a valid domain")
 	}
 
-	splitted := strings.Split(u.Host, ".")
-
-	// This is the subdomain part.
-	splitted[0] = string(cert)
-	serverDomain := strings.Join(splitted, ".")
-
-	return serverDomain, nil
+	return string(cert) + "." + strings.TrimLeft(commonDomain, "\t ."), nil
 }

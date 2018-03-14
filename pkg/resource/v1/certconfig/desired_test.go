@@ -27,7 +27,8 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 	}
 
 	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
-		ID: "cluster-1",
+		CommonDomain: "foo.bar.example.com",
+		ID:           "cluster-1",
 		VersionBundles: []v1alpha1.ClusterGuestConfigVersionBundle{
 			{
 				Name:    certOperatorID,
@@ -93,5 +94,87 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		for _, cc := range certConfigs {
 			t.Errorf("GetDesiredState() returns unwanted CertConfig: %#v", cc)
 		}
+	}
+}
+
+func Test_newServerDomain(t *testing.T) {
+	testCases := []struct {
+		name                 string
+		inputCommonDomain    string
+		inputCert            certs.Cert
+		expectedServerDomain string
+		errorMatcher         func(error) bool
+	}{
+		{
+			name:                 "case 0: valid common domain foo.bar with APICert",
+			inputCommonDomain:    "foo.bar",
+			inputCert:            certs.APICert,
+			expectedServerDomain: "api.foo.bar",
+			errorMatcher:         nil,
+		},
+		{
+			name:                 "case 1: valid common domain .bar with ServiceAccountCert",
+			inputCommonDomain:    ".bar",
+			inputCert:            certs.ServiceAccountCert,
+			expectedServerDomain: "service-account.bar",
+			errorMatcher:         nil,
+		},
+		{
+			name:                 "case 2: valid hypothetical root domain '.' with EtcdCert",
+			inputCommonDomain:    ".",
+			inputCert:            certs.EtcdCert,
+			expectedServerDomain: "etcd.",
+			errorMatcher:         nil,
+		},
+		{
+			name:                 "case 3: valid common domain with prefixing space ' foo.bar' with EtcdCert",
+			inputCommonDomain:    " foo.bar",
+			inputCert:            certs.EtcdCert,
+			expectedServerDomain: "etcd.foo.bar",
+			errorMatcher:         nil,
+		},
+		{
+			name:                 "case 4: valid common domain with prefixing tab '\tfoo.bar' with EtcdCert",
+			inputCommonDomain:    "\tfoo.bar",
+			inputCert:            certs.EtcdCert,
+			expectedServerDomain: "etcd.foo.bar",
+			errorMatcher:         nil,
+		},
+
+		{
+			name:                 "case 5: invalid common domain 'invalid' with EtcdCert",
+			inputCommonDomain:    "invalid",
+			inputCert:            certs.EtcdCert,
+			expectedServerDomain: "",
+			errorMatcher:         IsInvalidConfig,
+		},
+		{
+			name:                 "case 6: empty common domain with EtcdCert",
+			inputCommonDomain:    "",
+			inputCert:            certs.EtcdCert,
+			expectedServerDomain: "",
+			errorMatcher:         IsInvalidConfig,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			serverDomain, err := newServerDomain(tc.inputCommonDomain, tc.inputCert)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			if serverDomain != tc.expectedServerDomain {
+				t.Fatalf("serverDomain == %q, want %q", serverDomain, tc.expectedServerDomain)
+			}
+		})
 	}
 }
