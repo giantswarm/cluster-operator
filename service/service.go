@@ -152,35 +152,41 @@ func (s *Service) Boot() {
 }
 
 func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
-	guestClusterCIDR, _, err := net.ParseCIDR(v.GetString(f.Guest.Cluster.Kubernetes.API.ClusterIPRange))
+	networkIP, apiServerIP, err := parseClusterIPRange(v.GetString(f.Guest.Cluster.Kubernetes.API.ClusterIPRange))
 	if err != nil {
-		return nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange")
+		return nil, microerror.Mask(err)
 	}
-
-	guestClusterAPIServerIP, err := newAPIServerIP(guestClusterCIDR)
 
 	clusterConfig := &cluster.Config{
 		CertTTL: v.GetString(f.Guest.Cluster.Vault.Certificate.TTL),
 		IP: cluster.IP{
-			API:   guestClusterAPIServerIP,
-			Range: guestClusterCIDR,
+			API:   apiServerIP,
+			Range: networkIP,
 		},
 	}
 
 	return clusterConfig, nil
 }
 
-func newAPIServerIP(ip net.IP) (net.IP, error) {
-	ip = ip.To4()
-	if ip != nil {
-		return nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR must be an IPv4 range")
+func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
+	_, cidr, err := net.ParseCIDR(ipRange)
+	if cidr == nil || err != nil {
+		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange")
 	}
 
-	// IP must be a network address
-	if ip[3] != 0 {
-		return nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR must be a network address")
+	ones, bits := cidr.Mask.Size()
+	if bits != 32 {
+		return nil, nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR must be an IPv4 range")
 	}
 
-	ip[3] = apiServerIPLastOctet
-	return ip, nil
+	// Node gets /24 from Kubernetes and each POD receives one IP from this
+	// block. Therefore CIDR block must be at least /24.
+	if ones > 24 {
+		return nil, nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR network block must be at least /24")
+	}
+
+	networkIP := cidr.IP.To4()
+	apiServerIP := net.IPv4(networkIP[0], networkIP[1], networkIP[2], apiServerIPLastOctet)
+
+	return networkIP, apiServerIP, nil
 }
