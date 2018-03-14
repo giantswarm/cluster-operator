@@ -29,9 +29,6 @@ type FrameworkConfig struct {
 
 // NewFramework returns a configured KVMClusterConfig framework implementation.
 func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
-	if config.BaseClusterConfig == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.BaseClusterConfig must not be empty")
-	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.G8sClient must not be empty")
 	}
