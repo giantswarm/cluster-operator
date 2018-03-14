@@ -48,9 +48,33 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	desiredCertConfigs := make([]*v1alpha1.CertConfig, 0, len(managedCertificates))
-	for _, mc := range managedCertificates {
-		certConfig := mc.certConfigFactoryFunc(clusterConfig, mc.name, r.projectName)
+	desiredCertConfigs := make([]*v1alpha1.CertConfig, 0)
+	{
+		certConfig := newAPICertConfig(clusterConfig, certs.APICert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
+		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
+		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
+		certConfig := newNodeOperatorCertConfig(clusterConfig, certs.NodeOperatorCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
+		certConfig := newPrometheusCertConfig(clusterConfig, certs.PrometheusCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
+		certConfig := newServiceAccountCertConfig(clusterConfig, certs.ServiceAccountCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
+		certConfig := newWorkerCertConfig(clusterConfig, certs.WorkerCert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 

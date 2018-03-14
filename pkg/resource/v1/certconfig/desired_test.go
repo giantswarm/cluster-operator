@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/micrologger/microloggertest"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
@@ -15,6 +16,16 @@ import (
 )
 
 func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T) {
+	managedCertificates := []certs.Cert{
+		certs.APICert,
+		certs.CalicoCert,
+		certs.EtcdCert,
+		certs.NodeOperatorCert,
+		certs.PrometheusCert,
+		certs.ServiceAccountCert,
+		certs.WorkerCert,
+	}
+
 	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
 		ID: "cluster-1",
 		VersionBundles: []v1alpha1.ClusterGuestConfigVersionBundle{
@@ -61,8 +72,8 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		t.Fatalf("GetDesiredState() == %#v, wrong type %T, want %T", desiredState, desiredState, certConfigs)
 	}
 
-	for _, mc := range managedCertificates {
-		certConfigName := key.CertConfigName(key.ClusterID(clusterGuestConfig), mc.name)
+	for _, cert := range managedCertificates {
+		certConfigName := key.CertConfigName(key.ClusterID(clusterGuestConfig), cert)
 		found := false
 		for i := 0; i < len(certConfigs); i++ {
 			cc := certConfigs[i]

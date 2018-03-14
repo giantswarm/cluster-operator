@@ -3,7 +3,6 @@ package certconfig
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
@@ -21,43 +20,6 @@ const (
 	// this so this is not strict maximum.
 	listCertConfigLimit = 25
 )
-
-type certificate struct {
-	certConfigFactoryFunc func(cfg *cluster.Config, cert certs.Cert, projName string) *v1alpha1.CertConfig
-	name                  certs.Cert
-}
-
-// managedCertificates is a list of certificates managed by this resource.
-var managedCertificates = []certificate{
-	{
-		certConfigFactoryFunc: newAPICertConfig,
-		name: certs.APICert,
-	},
-	{
-		certConfigFactoryFunc: newCalicoCertConfig,
-		name: certs.CalicoCert,
-	},
-	{
-		certConfigFactoryFunc: newEtcdCertConfig,
-		name: certs.EtcdCert,
-	},
-	{
-		certConfigFactoryFunc: newNodeOperatorCertConfig,
-		name: certs.NodeOperatorCert,
-	},
-	{
-		certConfigFactoryFunc: newPrometheusCertConfig,
-		name: certs.PrometheusCert,
-	},
-	{
-		certConfigFactoryFunc: newServiceAccountCertConfig,
-		name: certs.ServiceAccountCert,
-	},
-	{
-		certConfigFactoryFunc: newWorkerCertConfig,
-		name: certs.WorkerCert,
-	},
-}
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
