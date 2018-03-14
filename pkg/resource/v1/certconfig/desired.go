@@ -62,7 +62,8 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 
 	// Copy baseClusterConfig as basis and supplement it with information from
 	// clusterGuestConfig.
-	clusterConfig := baseClusterConfig
+	clusterConfig := new(cluster.Config)
+	*clusterConfig = baseClusterConfig
 
 	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
 
@@ -104,7 +105,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 
 	clusterConfig.VersionBundleVersion = versionBundle.Version
 
-	return &clusterConfig, nil
+	return clusterConfig, nil
 }
 
 func newAPICertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
