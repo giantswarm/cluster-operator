@@ -90,31 +90,31 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 
 	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
 
-	clusterConfig.Domain.API, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.APICert)
+	clusterConfig.Domain.API, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.APICert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Calico, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.CalicoCert)
+	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Etcd, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.EtcdCert)
+	clusterConfig.Domain.Etcd, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.EtcdCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.NodeOperatorCert)
+	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.NodeOperatorCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Prometheus, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.PrometheusCert)
+	clusterConfig.Domain.Prometheus, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.PrometheusCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.ServiceAccount, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.ServiceAccountCert)
+	clusterConfig.Domain.ServiceAccount, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.ServiceAccountCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Worker, err = newServerDomain(key.CommonDomain(clusterGuestConfig), certs.WorkerCert)
+	clusterConfig.Domain.Worker, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.WorkerCert)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

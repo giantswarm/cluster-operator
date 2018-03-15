@@ -27,8 +27,8 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 	}
 
 	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
-		CommonDomain: "foo.bar.example.com",
-		ID:           "cluster-1",
+		DNSZone: "foo.bar.example.com",
+		ID:      "cluster-1",
 		VersionBundles: []v1alpha1.ClusterGuestConfigVersionBundle{
 			{
 				Name:    certOperatorID,

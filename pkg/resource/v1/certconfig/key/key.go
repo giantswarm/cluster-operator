@@ -24,9 +24,9 @@ func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.ID
 }
 
-// CommonDomain returns common domain for guest cluster.
-func CommonDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
-	return clusterGuestConfig.CommonDomain
+// DNSZone returns common domain for guest cluster.
+func DNSZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return clusterGuestConfig.DNSZone
 }
 
 // VersionBundles returns slice of versionbundle.Bundles for given guest
