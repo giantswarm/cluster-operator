@@ -99,6 +99,36 @@ func verifyCertConfigCreatedReactor(t *testing.T, certConfigSeen map[string]bool
 	}
 }
 
+func verifyCertConfigUpdatedReactor(t *testing.T, certConfigSeen map[string]bool) k8stesting.Reactor {
+	return &k8stesting.SimpleReactor{
+		Verb:     "update",
+		Resource: "certconfigs",
+		Reaction: func(action k8stesting.Action) (bool, runtime.Object, error) {
+			updateAction, ok := action.(k8stesting.UpdateActionImpl)
+			if !ok {
+				return false, nil, microerror.Maskf(wrongTypeError, "action != k8stesting.UpdateActionImpl")
+			}
+
+			var updatedCertConfig *v1alpha1.CertConfig
+			if updateActionObj := updateAction.GetObject(); updateActionObj != nil {
+				updatedCertConfig, ok = updateActionObj.(*v1alpha1.CertConfig)
+				if !ok {
+					return false, nil, microerror.Maskf(wrongTypeError, "UpdateAction did not contain *v1alpha1.CertConfig")
+				}
+			}
+
+			_, exists := certConfigSeen[updatedCertConfig.Name]
+			if exists {
+				certConfigSeen[updatedCertConfig.Name] = true
+			} else {
+				t.Fatalf("update(certconfig) that doesn't exist in verification table; name %s", updatedCertConfig.Name)
+			}
+
+			return true, updatedCertConfig, nil
+		},
+	}
+}
+
 func verifyCertConfigDeletedReactor(t *testing.T, certConfigSeen map[string]bool) k8stesting.Reactor {
 	return &k8stesting.SimpleReactor{
 		Verb:     "delete",
