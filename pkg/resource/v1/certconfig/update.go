@@ -7,12 +7,37 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
+	"k8s.io/api/core/v1"
 )
 
+// ApplyUpdateChange takes observed custom object and update portion of the
+// Patch provided by NewUpdatePatch or NewDeletePatch.
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
+	certConfigsToUpdate, err := toCertConfigs(updateChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if len(certConfigsToUpdate) > 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updating certconfigs")
+
+		for _, certConfigToUpdate := range certConfigsToUpdate {
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).Update(certConfigToUpdate)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updated certconfigs")
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to update certconfigs")
+	}
+
 	return nil
 }
 
+// NewUpdatePatch computes appropriate Patch based on difference in current
+// state and desired state.
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
 	create, err := r.newCreateChange(ctx, obj, currentState, desiredState)
 	if err != nil {
