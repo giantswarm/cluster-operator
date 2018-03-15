@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net"
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -15,8 +16,13 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/healthz"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig"
+)
+
+const (
+	apiServerIPLastOctet = 1
 )
 
 // Config represents the configuration used to create a new service.
@@ -86,10 +92,16 @@ func New(config Config) (*Service, error) {
 
 	var kvmClusterConfigFramework *framework.Framework
 	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		c := kvmclusterconfig.FrameworkConfig{
-			G8sClient:    g8sClient,
-			K8sClient:    k8sClient,
-			K8sExtClient: k8sExtClient,
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
 
 			Logger:      config.Logger,
 			ProjectName: config.ProjectName,
@@ -137,4 +149,44 @@ func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.KVMClusterConfigFramework.Boot()
 	})
+}
+
+func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
+	networkIP, apiServerIP, err := parseClusterIPRange(v.GetString(f.Guest.Cluster.Kubernetes.API.ClusterIPRange))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	clusterConfig := &cluster.Config{
+		CertTTL: v.GetString(f.Guest.Cluster.Vault.Certificate.TTL),
+		IP: cluster.IP{
+			API:   apiServerIP,
+			Range: networkIP,
+		},
+	}
+
+	return clusterConfig, nil
+}
+
+func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
+	_, cidr, err := net.ParseCIDR(ipRange)
+	if cidr == nil || err != nil {
+		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange")
+	}
+
+	ones, bits := cidr.Mask.Size()
+	if bits != 32 {
+		return nil, nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR must be an IPv4 range")
+	}
+
+	// Node gets /24 from Kubernetes and each POD receives one IP from this
+	// block. Therefore CIDR block must be at least /24.
+	if ones > 24 {
+		return nil, nil, microerror.Maskf(invalidConfigError, "Kubernetes ClusterIPRange CIDR network block must be at least /24")
+	}
+
+	networkIP := cidr.IP.To4()
+	apiServerIP := net.IPv4(networkIP[0], networkIP[1], networkIP[2], apiServerIPLastOctet)
+
+	return networkIP, apiServerIP, nil
 }

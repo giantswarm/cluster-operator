@@ -8,11 +8,13 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
+
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 )
 
 func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
@@ -33,10 +35,10 @@ func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
 	}
 
 	verificationTable := map[string]bool{
-		key.CertConfigName(clusterGuestConfig, certs.APICert):        false,
-		key.CertConfigName(clusterGuestConfig, certs.EtcdCert):       false,
-		key.CertConfigName(clusterGuestConfig, certs.PrometheusCert): false,
-		key.CertConfigName(clusterGuestConfig, certs.WorkerCert):     false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.APICert):        false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.EtcdCert):       false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.PrometheusCert): false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.WorkerCert):     false,
 	}
 
 	client := fake.NewSimpleClientset()
@@ -45,10 +47,11 @@ func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		G8sClient:   client,
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		BaseClusterConfig: &cluster.Config{},
+		G8sClient:         client,
+		K8sClient:         clientgofake.NewSimpleClientset(),
+		Logger:            logger,
+		ProjectName:       "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
 		},
@@ -90,10 +93,11 @@ func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *te
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		G8sClient:   client,
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		BaseClusterConfig: &cluster.Config{},
+		G8sClient:         client,
+		K8sClient:         clientgofake.NewSimpleClientset(),
+		Logger:            logger,
+		ProjectName:       "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
 		},
@@ -129,10 +133,11 @@ func Test_ApplyDeleteChange_Handles_K8S_API_Error(t *testing.T) {
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		G8sClient:   client,
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		BaseClusterConfig: &cluster.Config{},
+		G8sClient:         client,
+		K8sClient:         clientgofake.NewSimpleClientset(),
+		Logger:            logger,
+		ProjectName:       "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
 		},
@@ -240,10 +245,11 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			r, err := New(Config{
-				G8sClient:   fake.NewSimpleClientset(),
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				BaseClusterConfig: &cluster.Config{},
+				G8sClient:         fake.NewSimpleClientset(),
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            logger,
+				ProjectName:       "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 					return v.(*v1alpha1.ClusterGuestConfig), nil
 				},
@@ -412,10 +418,11 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			r, err := New(Config{
-				G8sClient:   fake.NewSimpleClientset(),
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				BaseClusterConfig: &cluster.Config{},
+				G8sClient:         fake.NewSimpleClientset(),
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            logger,
+				ProjectName:       "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 					return v.(*v1alpha1.ClusterGuestConfig), nil
 				},

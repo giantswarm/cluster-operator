@@ -3,7 +3,20 @@
 package label
 
 const (
-	ClusterID       = "giantswarm.io/cluster-id"
+	// Cluster label is a new style label for ClusterID
+	Cluster = "giantswarm.io/cluster"
+
+	// LegacyClusterID is an old style label for ClusterID
 	LegacyClusterID = "clusterID"
-	ManagedBy       = "giantswarm.io/managed-by"
+
+	// LegacyComponent is an old style label to identify which component a
+	// specific CertConfig belongs to.
+	LegacyComponent = "clusterComponent"
+
+	// ManagedBy label denotes which operator manages corresponding resource.
+	ManagedBy = "giantswarm.io/managed-by"
+
+	// Organization label denotes guest cluster's organization ID as displayed
+	// in the front-end.
+	Organization = "giantswarm.io/organization"
 )

@@ -34,15 +34,17 @@ func newCertConfigWithVersion(clusterID string, cert certs.Cert, version string)
 	labels := map[string]string{
 		// Legacy
 		label.LegacyClusterID: clusterID,
+		label.LegacyComponent: string(cert),
 
 		// Current
-		label.ClusterID: clusterID,
-		label.ManagedBy: "cluster-operator",
+		label.Cluster:      clusterID,
+		label.ManagedBy:    "cluster-operator",
+		label.Organization: "ACME Inc.",
 	}
 
 	return &v1alpha1.CertConfig{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterGuestConfig, cert),
+			Name:      key.CertConfigName(key.ClusterID(clusterGuestConfig), cert),
 			Namespace: v1.NamespaceDefault,
 			Labels:    labels,
 		},

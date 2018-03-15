@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -33,10 +34,10 @@ func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
 	}
 
 	verificationTable := map[string]bool{
-		key.CertConfigName(clusterGuestConfig, certs.APICert):        false,
-		key.CertConfigName(clusterGuestConfig, certs.EtcdCert):       false,
-		key.CertConfigName(clusterGuestConfig, certs.PrometheusCert): false,
-		key.CertConfigName(clusterGuestConfig, certs.WorkerCert):     false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.APICert):        false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.EtcdCert):       false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.PrometheusCert): false,
+		key.CertConfigName(key.ClusterID(clusterGuestConfig), certs.WorkerCert):     false,
 	}
 
 	client := fake.NewSimpleClientset()
@@ -45,10 +46,11 @@ func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		G8sClient:   client,
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		BaseClusterConfig: &cluster.Config{},
+		G8sClient:         client,
+		K8sClient:         clientgofake.NewSimpleClientset(),
+		Logger:            logger,
+		ProjectName:       "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
 		},
@@ -90,10 +92,11 @@ func Test_ApplyCreateChange_Does_Not_Make_API_Call_With_Empty_CreateChange(t *te
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		G8sClient:   client,
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		BaseClusterConfig: &cluster.Config{},
+		G8sClient:         client,
+		K8sClient:         clientgofake.NewSimpleClientset(),
+		Logger:            logger,
+		ProjectName:       "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
 		},
@@ -129,10 +132,11 @@ func Test_ApplyCreateChange_Handles_K8S_API_Error(t *testing.T) {
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		G8sClient:   client,
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		BaseClusterConfig: &cluster.Config{},
+		G8sClient:         client,
+		K8sClient:         clientgofake.NewSimpleClientset(),
+		Logger:            logger,
+		ProjectName:       "cluster-operator",
 		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 			return v.(*v1alpha1.ClusterGuestConfig), nil
 		},
@@ -260,10 +264,11 @@ func Test_newCreateChange(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			r, err := New(Config{
-				G8sClient:   fake.NewSimpleClientset(),
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				BaseClusterConfig: &cluster.Config{},
+				G8sClient:         fake.NewSimpleClientset(),
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            logger,
+				ProjectName:       "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
 					return v.(*v1alpha1.ClusterGuestConfig), nil
 				},
