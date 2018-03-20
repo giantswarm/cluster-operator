@@ -51,15 +51,7 @@ required = [
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/microstorage"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/operatorkit"
-
-[[constraint]]
-  name = "github.com/go-kit/kit"
-  version = "0.6.0"
 
 [[constraint]]
   name = "github.com/spf13/viper"
