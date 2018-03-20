@@ -85,7 +85,7 @@ func Test_GetCurrentState(t *testing.T) {
 		},
 	}
 
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}

@@ -18,7 +18,7 @@ import (
 )
 
 func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -76,7 +76,7 @@ func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
 }
 
 func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -114,7 +114,7 @@ func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *te
 }
 
 func Test_ApplyDeleteChange_Handles_K8S_API_Error(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -237,7 +237,7 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 		},
 	}
 
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -410,7 +410,7 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 		},
 	}
 
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}

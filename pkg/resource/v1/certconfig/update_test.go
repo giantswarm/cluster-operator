@@ -17,7 +17,7 @@ import (
 )
 
 func Test_ApplyUpdateChange_Updates_updateChange(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -75,7 +75,7 @@ func Test_ApplyUpdateChange_Updates_updateChange(t *testing.T) {
 }
 
 func Test_ApplyUpdateChange_Does_Not_Make_API_Call_With_Empty_UpdateChange(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -113,7 +113,7 @@ func Test_ApplyUpdateChange_Does_Not_Make_API_Call_With_Empty_UpdateChange(t *te
 }
 
 func Test_ApplyUpdateChange_Handles_K8S_API_Error(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -275,7 +275,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 		},
 	}
 
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}

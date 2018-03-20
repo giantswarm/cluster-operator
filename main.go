@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
 	microserver "github.com/giantswarm/microkit/server"
-	"github.com/giantswarm/microkit/transaction"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/microstorage"
-	"github.com/giantswarm/microstorage/memory"
 	"github.com/spf13/viper"
 
 	"github.com/giantswarm/cluster-operator/flag"
@@ -41,9 +37,7 @@ func mainWithError() (err error) {
 	// Create a new logger that is used by all packages.
 	var newLogger micrologger.Logger
 	{
-		loggerConfig := micrologger.DefaultConfig()
-		loggerConfig.IOWriter = os.Stdout
-		newLogger, err = micrologger.New(loggerConfig)
+		newLogger, err = micrologger.New(micrologger.Config{})
 		if err != nil {
 			return microerror.Maskf(err, "micrologger.New")
 		}
@@ -74,40 +68,18 @@ func mainWithError() (err error) {
 			go newService.Boot()
 		}
 
-		var storage microstorage.Storage
-		{
-			storage, err = memory.New(memory.DefaultConfig())
-			if err != nil {
-				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "memory.New")))
-			}
-		}
-
-		var transactionResponder transaction.Responder
-		{
-			c := transaction.DefaultResponderConfig()
-			c.Logger = newLogger
-			c.Storage = storage
-
-			transactionResponder, err = transaction.NewResponder(c)
-			if err != nil {
-				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "transaction.NewResponder")))
-			}
-		}
-
 		// New custom server that bundles microkit endpoints.
 		var newServer microserver.Server
 		{
-			serverConfig := server.Config{
-				MicroServerConfig: microserver.DefaultConfig(),
-				Service:           newService,
+			c := server.Config{
+				Logger:  newLogger,
+				Service: newService,
+				Viper:   v,
+
+				ProjectName: name,
 			}
 
-			serverConfig.MicroServerConfig.Logger = newLogger
-			serverConfig.MicroServerConfig.ServiceName = name
-			serverConfig.MicroServerConfig.TransactionResponder = transactionResponder
-			serverConfig.MicroServerConfig.Viper = v
-
-			newServer, err = server.New(serverConfig)
+			newServer, err = server.New(c)
 			if err != nil {
 				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "server.New")))
 			}
@@ -119,17 +91,17 @@ func mainWithError() (err error) {
 	// Create a new microkit command that manages operator daemon.
 	var newCommand command.Command
 	{
-		commandConfig := command.DefaultConfig()
+		c := command.Config{
+			Logger:        newLogger,
+			ServerFactory: newServerFactory,
 
-		commandConfig.Logger = newLogger
-		commandConfig.ServerFactory = newServerFactory
+			Description: description,
+			GitCommit:   gitCommit,
+			Name:        name,
+			Source:      source,
+		}
 
-		commandConfig.Description = description
-		commandConfig.GitCommit = gitCommit
-		commandConfig.Name = name
-		commandConfig.Source = source
-
-		newCommand, err = command.New(commandConfig)
+		newCommand, err = command.New(c)
 		if err != nil {
 			return microerror.Maskf(err, "command.New")
 		}

@@ -17,7 +17,7 @@ import (
 )
 
 func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -75,7 +75,7 @@ func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
 }
 
 func Test_ApplyCreateChange_Does_Not_Make_API_Call_With_Empty_CreateChange(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -113,7 +113,7 @@ func Test_ApplyCreateChange_Does_Not_Make_API_Call_With_Empty_CreateChange(t *te
 }
 
 func Test_ApplyCreateChange_Handles_K8S_API_Error(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -256,7 +256,7 @@ func Test_newCreateChange(t *testing.T) {
 		},
 	}
 
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
