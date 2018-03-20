@@ -18,7 +18,7 @@ import (
 var unknownRandError = errors.New("unknown error from crypto/rand.Read()")
 
 func Test_GetDesiredState_Secret_Properties(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}
@@ -84,7 +84,7 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 }
 
 func Test_GetDesiredState_Rand_Error_Handling(t *testing.T) {
-	logger, err := micrologger.New(micrologger.DefaultConfig())
+	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
 		t.Fatalf("micrologger.New() failed: %#v", err)
 	}

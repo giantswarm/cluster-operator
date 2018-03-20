@@ -49,10 +49,10 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 	var crdClient *k8scrdclient.CRDClient
 	{
-		c := k8scrdclient.DefaultConfig()
-
-		c.K8sExtClient = config.K8sExtClient
-		c.Logger = config.Logger
+		c := k8scrdclient.Config{
+			K8sExtClient: config.K8sExtClient,
+			Logger:       config.Logger,
+		}
 
 		crdClient, err = k8scrdclient.New(c)
 		if err != nil {
@@ -62,9 +62,9 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 
 	var newInformer *informer.Informer
 	{
-		c := informer.DefaultConfig()
-
-		c.Watcher = config.G8sClient.CoreV1alpha1().KVMClusterConfigs("")
+		c := informer.Config{
+			Watcher: config.G8sClient.CoreV1alpha1().KVMClusterConfigs(""),
+		}
 
 		newInformer, err = informer.New(c)
 		if err != nil {

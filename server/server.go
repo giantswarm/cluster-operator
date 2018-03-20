@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	microserver "github.com/giantswarm/microkit/server"
 	"github.com/giantswarm/micrologger"
-	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/spf13/viper"
 
 	"github.com/giantswarm/cluster-operator/server/endpoint"
 	"github.com/giantswarm/cluster-operator/server/middleware"
@@ -17,26 +17,45 @@ import (
 
 // Config represents the configuration used to construct server object.
 type Config struct {
-	Service           *service.Service
-	MicroServerConfig microserver.Config
+	Logger  micrologger.Logger
+	Service *service.Service
+	Viper   *viper.Viper
+
+	ProjectName string
 }
 
-// New creates a new server object with given configuration.
-func New(config Config) (microserver.Server, error) {
-	var err error
+type Server struct {
+	// Dependencies.
+	logger micrologger.Logger
 
-	if config.MicroServerConfig.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.MicroServerConfig or it's Logger must not be empty")
+	// Internals.
+	bootOnce     sync.Once
+	config       microserver.Config
+	shutdownOnce sync.Once
+}
+
+// New creates a new configured server object.
+func New(config Config) (*Server, error) {
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-
 	if config.Service == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Service must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Service must not be empty", config)
 	}
+	if config.Viper == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
+	}
+
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
+
+	var err error
 
 	var middlewareCollection *middleware.Middleware
 	{
 		c := middleware.Config{
-			Logger:  config.MicroServerConfig.Logger,
+			Logger:  config.Logger,
 			Service: config.Service,
 		}
 
@@ -49,7 +68,7 @@ func New(config Config) (microserver.Server, error) {
 	var endpointCollection *endpoint.Endpoint
 	{
 		c := endpoint.Config{
-			Logger:     config.MicroServerConfig.Logger,
+			Logger:     config.Logger,
 			Middleware: middlewareCollection,
 			Service:    config.Service,
 		}
@@ -60,55 +79,46 @@ func New(config Config) (microserver.Server, error) {
 		}
 	}
 
-	newServer := &server{
-		logger:       config.MicroServerConfig.Logger,
-		bootOnce:     sync.Once{},
-		config:       config.MicroServerConfig,
-		serviceName:  config.MicroServerConfig.ServiceName,
+	s := &Server{
+		logger:   config.Logger,
+		bootOnce: sync.Once{},
+		config: microserver.Config{
+			Logger:      config.Logger,
+			ServiceName: config.ProjectName,
+			Viper:       config.Viper,
+
+			Endpoints: []microserver.Endpoint{
+				endpointCollection.Healthz,
+			},
+			ErrorEncoder: errorEncoder,
+		},
 		shutdownOnce: sync.Once{},
 	}
 
-	// Apply internals to the micro server config.
-	newServer.config.Endpoints = []microserver.Endpoint{
-		endpointCollection.Healthz,
-	}
-
-	newServer.config.ErrorEncoder = newServer.newErrorEncoder()
-
-	return newServer, nil
+	return s, nil
 }
 
-type server struct {
-	logger       micrologger.Logger
-	bootOnce     sync.Once
-	config       microserver.Config
-	serviceName  string
-	shutdownOnce sync.Once
-}
-
-func (s *server) Boot() {
+func (s *Server) Boot() {
 	s.bootOnce.Do(func() {
 		// Insert here custom boot logic for server/endpoint/middleware if needed.
 	})
 }
 
-func (s *server) Config() microserver.Config {
+func (s *Server) Config() microserver.Config {
 	return s.config
 }
 
-func (s *server) Shutdown() {
+func (s *Server) Shutdown() {
 	s.shutdownOnce.Do(func() {
 		// Insert here custom shutdown logic for server/endpoint/middleware if needed.
 	})
 }
 
-func (s *server) newErrorEncoder() kithttp.ErrorEncoder {
-	return func(ctx context.Context, err error, w http.ResponseWriter) {
-		rErr := err.(microserver.ResponseError)
-		uErr := rErr.Underlying()
+func errorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
+	rErr := err.(microserver.ResponseError)
+	uErr := rErr.Underlying()
 
-		rErr.SetCode(microserver.CodeInternalError)
-		rErr.SetMessage(uErr.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	rErr.SetCode(microserver.CodeInternalError)
+	rErr.SetMessage(uErr.Error())
+	w.WriteHeader(http.StatusInternalServerError)
 }
