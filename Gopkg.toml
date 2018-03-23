@@ -29,7 +29,7 @@ required = [
 
 
 [[constraint]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
@@ -53,7 +53,7 @@ required = [
   name = "github.com/giantswarm/micrologger"
 
 [[constraint]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]

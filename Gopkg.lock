@@ -59,7 +59,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -72,13 +72,13 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "f8ac8dd18851337d1f3fa6d11c583b051d0f080d"
+  revision = "1470b7cff67311b0f4d3c7d6349115ae568d59ee"
 
 [[projects]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
-  revision = "1379d3b80cfe2fc9da5c1c948d1f37bfa59ca9dc"
+  revision = "162a1130d27d6bbe1ab101059afab985707e46b0"
 
 [[projects]]
   branch = "master"
@@ -131,7 +131,7 @@
   revision = "2aaea11da0707ebb7f9fbabb07028a37b00efc16"
 
 [[projects]]
-  branch = "bump-k8s-libs"
+  branch = "master"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -146,13 +146,13 @@
     "framework/resource/retryresource",
     "informer"
   ]
-  revision = "ab009f84c1822c7d8271e49883f77d09d22dad00"
+  revision = "e785d24fd81b018fa0ebe1fa7874e306a413461a"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/randomkeytpr"
   packages = ["."]
-  revision = "86417ec356c55ea221701ccc646fe7ef5691f5b9"
+  revision = "b896dccb8a47e3263a48dd310b3a2975812868d0"
 
 [[projects]]
   branch = "master"
@@ -719,6 +719,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "87122ff921edcb157ab1579b6de51a5b599e70bde47e52372ea5476289af0468"
+  inputs-digest = "d5b039b58626d84a141dec997804e6c4383443aadc5af20845d32af3a5bc2dc4"
   solver-name = "gps-cdcl"
   solver-version = 1
