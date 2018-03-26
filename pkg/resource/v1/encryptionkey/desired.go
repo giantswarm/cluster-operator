@@ -5,11 +5,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey/key"
 )
 
 const (
@@ -21,13 +22,13 @@ const (
 // GetDesiredState takes observed (during create, delete and update events)
 // custom object as an input and returns computed desired state for it.
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	customObject, err := key.ToCustomObject(obj)
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "computing desired encryption key secret")
-	secretName := key.EncryptionKeySecretName(customObject)
+	secretName := key.EncryptionKeySecretName(*clusterGuestConfig)
 
 	keyBytes, err := newRandomKey(AESCBCKeyLength)
 	if err != nil {
@@ -39,12 +40,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Name:      secretName,
 			Namespace: v1.NamespaceDefault,
 			Labels: map[string]string{
-				randomkeytpr.ClusterIDLabel: key.ClusterID(customObject),
-				randomkeytpr.KeyLabel:       randomkeytpr.EncryptionKey.String(),
+				label.Cluster:          key.ClusterID(*clusterGuestConfig),
+				label.LegacyClusterID:  key.ClusterID(*clusterGuestConfig),
+				label.LegacyClusterKey: label.LegacyEncryptionKey,
+				label.ManagedBy:        r.projectName,
 			},
 		},
 		StringData: map[string]string{
-			randomkeytpr.EncryptionKey.String(): keyBytes,
+			label.LegacyEncryptionKey: keyBytes,
 		},
 	}
 

@@ -15,42 +15,42 @@ import (
 func Test_ApplyDeleteChange(t *testing.T) {
 	testCases := []struct {
 		description         string
-		customObject        *v1alpha1.KVMClusterConfig
+		clusterGuestConfig  *v1alpha1.ClusterGuestConfig
 		deleteChange        interface{}
 		apiReactorFactories []apiReactorFactory
 		expectedError       error
 	}{
 		{
-			description:  "delete given secret",
-			customObject: newCustomObject("cluster-1"),
-			deleteChange: newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			description:        "delete given secret",
+			clusterGuestConfig: newClusterGuestConfig("cluster-1"),
+			deleteChange:       newEncryptionSecret(t, "cluster-1", make(map[string]string)),
 			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
 				return verifySecretDeletedReactor(t, newEncryptionSecret(t, "cluster-1", make(map[string]string)))
 			}},
 			expectedError: nil,
 		},
 		{
-			description:  "handle error returned by Kubernetes API client while deleting given secret",
-			customObject: newCustomObject("cluster-1"),
-			deleteChange: newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			description:        "handle error returned by Kubernetes API client while deleting given secret",
+			clusterGuestConfig: newClusterGuestConfig("cluster-1"),
+			deleteChange:       newEncryptionSecret(t, "cluster-1", make(map[string]string)),
 			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
 				return alwaysReturnErrorReactor(unknownAPIError)
 			}},
 			expectedError: unknownAPIError,
 		},
 		{
-			description:  "handle nil passed as deleteChange",
-			customObject: newCustomObject("cluster-1"),
-			deleteChange: nil,
+			description:        "handle nil passed as deleteChange",
+			clusterGuestConfig: newClusterGuestConfig("cluster-1"),
+			deleteChange:       nil,
 			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
 				return alwaysReturnErrorReactor(forbiddenAPICall)
 			}},
 			expectedError: nil,
 		},
 		{
-			description:  "handle nil *v1.Secret passed as deleteChange",
-			customObject: newCustomObject("cluster-1"),
-			deleteChange: emptySecretPointer,
+			description:        "handle nil *v1.Secret passed as deleteChange",
+			clusterGuestConfig: newClusterGuestConfig("cluster-1"),
+			deleteChange:       emptySecretPointer,
 			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
 				return alwaysReturnErrorReactor(forbiddenAPICall)
 			}},
@@ -58,7 +58,7 @@ func Test_ApplyDeleteChange(t *testing.T) {
 		},
 		{
 			description:         "handle wrong type value passed as deleteChange",
-			customObject:        newCustomObject("cluster-1"),
+			clusterGuestConfig:  newClusterGuestConfig("cluster-1"),
 			deleteChange:        &v1.Pod{},
 			apiReactorFactories: []apiReactorFactory{},
 			expectedError:       wrongTypeError,
@@ -84,15 +84,19 @@ func Test_ApplyDeleteChange(t *testing.T) {
 			client.ReactionChain = append(apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				K8sClient: client,
-				Logger:    logger,
+				K8sClient:   client,
+				Logger:      logger,
+				ProjectName: "cluster-operator",
+				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+					return v.(*v1alpha1.ClusterGuestConfig), nil
+				},
 			})
 
 			if err != nil {
 				t.Fatalf("Resource construction failed: %#v", err)
 			}
 
-			err = r.ApplyDeleteChange(context.TODO(), tc.customObject, tc.deleteChange)
+			err = r.ApplyDeleteChange(context.TODO(), tc.clusterGuestConfig, tc.deleteChange)
 
 			if microerror.Cause(err) != tc.expectedError {
 				t.Fatalf("Unexpected error returned %#v - expected: %#v", err, tc.expectedError)

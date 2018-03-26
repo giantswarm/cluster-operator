@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8stesting "k8s.io/client-go/testing"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey/key"
 )
 
 var (
@@ -29,27 +30,21 @@ var (
 
 type apiReactorFactory func(t *testing.T) k8stesting.Reactor
 
-func newCustomObject(clusterID string) *v1alpha1.KVMClusterConfig {
-	return &v1alpha1.KVMClusterConfig{
-		Spec: v1alpha1.KVMClusterConfigSpec{
-			Guest: v1alpha1.KVMClusterConfigSpecGuest{
-				ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-					ID: clusterID,
-				},
-			},
-		},
+func newClusterGuestConfig(clusterID string) *v1alpha1.ClusterGuestConfig {
+	return &v1alpha1.ClusterGuestConfig{
+		ID: clusterID,
 	}
 }
 
 func newEncryptionSecret(t *testing.T, clusterID string, data map[string]string) *v1.Secret {
 	t.Helper()
-	return newSecret(t, newCustomObject(clusterID), map[string]string{
-		randomkeytpr.ClusterIDLabel: clusterID,
-		randomkeytpr.KeyLabel:       randomkeytpr.EncryptionKey.String(),
+	return newSecret(t, newClusterGuestConfig(clusterID), map[string]string{
+		label.LegacyClusterID:  clusterID,
+		label.LegacyClusterKey: label.LegacyEncryptionKey,
 	}, data)
 }
 
-func newSecret(t *testing.T, customObject *v1alpha1.KVMClusterConfig, labels, data map[string]string) *v1.Secret {
+func newSecret(t *testing.T, clusterGuestConfig *v1alpha1.ClusterGuestConfig, labels, data map[string]string) *v1.Secret {
 	t.Helper()
 	return &v1.Secret{
 		TypeMeta: apismetav1.TypeMeta{
@@ -57,7 +52,7 @@ func newSecret(t *testing.T, customObject *v1alpha1.KVMClusterConfig, labels, da
 			APIVersion: "v1",
 		},
 		ObjectMeta: apismetav1.ObjectMeta{
-			Name:      key.EncryptionKeySecretName(*customObject),
+			Name:      key.EncryptionKeySecretName(*clusterGuestConfig),
 			Namespace: v1.NamespaceDefault,
 			Labels:    labels,
 		},
