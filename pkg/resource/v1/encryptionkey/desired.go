@@ -44,6 +44,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				label.LegacyClusterID:  key.ClusterID(*clusterGuestConfig),
 				label.LegacyClusterKey: label.RandomKeyTypeEncryption,
 				label.ManagedBy:        r.projectName,
+				label.RandomKey:        label.RandomKeyTypeEncryption,
 			},
 		},
 		StringData: map[string]string{
