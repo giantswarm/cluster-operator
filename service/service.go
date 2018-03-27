@@ -199,8 +199,10 @@ func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error)
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	_, cidr, err := net.ParseCIDR(ipRange)
-	if cidr == nil || err != nil {
-		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange")
+	if cidr == nil {
+		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange: cidr == nil")
+	} else if err != nil {
+		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange: %q", err)
 	}
 
 	ones, bits := cidr.Mask.Size()
