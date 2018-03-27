@@ -8,19 +8,19 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey/key"
 )
 
 // GetCurrentState takes observed custom object as an input and based on that
 // information looks for current state of cluster encryption key secret and
 // returns it. Return value is of type *v1.Secret.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	customObject, err := key.ToCustomObject(obj)
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	secretName := key.EncryptionKeySecretName(customObject)
+	secretName := key.EncryptionKeySecretName(*clusterGuestConfig)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for encryptionkey secret in the Kubernetes API", "secretName", secretName)
 

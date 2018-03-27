@@ -58,58 +58,6 @@ func Test_ClusterID(t *testing.T) {
 	}
 }
 
-func Test_EncryptionKeySecretName(t *testing.T) {
-	testCases := []struct {
-		description        string
-		customObject       v1alpha1.KVMClusterConfig
-		expectedSecretName string
-	}{
-		{
-			description:        "empty value KVMClusterConfig returns only static part of secret name",
-			customObject:       v1alpha1.KVMClusterConfig{},
-			expectedSecretName: "-encryption",
-		},
-		{
-			description: "composed secret name returned when cluster ID defined in KVMClusterConfig",
-			customObject: v1alpha1.KVMClusterConfig{
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							ID: "cluster-1",
-						},
-					},
-				},
-			},
-			expectedSecretName: "cluster-1-encryption",
-		},
-		{
-			description: "only cluster ID used to compose secret name",
-			customObject: v1alpha1.KVMClusterConfig{
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							ID:   "cluster-123",
-							Name: "First cluster",
-						},
-					},
-				},
-			},
-			expectedSecretName: "cluster-123-encryption",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.description, func(t *testing.T) {
-			encryptionKeySecretName := EncryptionKeySecretName(tc.customObject)
-			if encryptionKeySecretName != tc.expectedSecretName {
-				t.Fatalf("EncryptionKeySecretName %s doesn't match. expected: %s",
-					encryptionKeySecretName, tc.expectedSecretName)
-			}
-		})
-	}
-
-}
-
 func Test_ToCustomObject(t *testing.T) {
 	var emptyKVMClusterConfigPtr *v1alpha1.KVMClusterConfig
 
