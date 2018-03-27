@@ -75,12 +75,8 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 	var v1ResourceSet *framework.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			HandledVersionBundles: []string{
-				"0.1.0",
-			},
+			K8sClient:   config.K8sClient,
+			Logger:      config.Logger,
 			ProjectName: config.ProjectName,
 		}
 
