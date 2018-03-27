@@ -40,7 +40,7 @@ type Resource struct {
 // New creates a new configured chart config resource.
 func New(config Config) (*Resource, error) {
 	if config.BaseClusterConfig == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.BaseGuestClusterConfig must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
