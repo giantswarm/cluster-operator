@@ -16,16 +16,16 @@ import (
 
 func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 	testCases := []struct {
-		description    string
-		customObject   *v1alpha1.KVMClusterConfig
-		presentSecrets []*v1.Secret
-		apiReactors    []k8stesting.Reactor
-		expectedSecret *v1.Secret
-		expectedError  error
+		description        string
+		clusterGuestConfig *v1alpha1.ClusterGuestConfig
+		presentSecrets     []*v1.Secret
+		apiReactors        []k8stesting.Reactor
+		expectedSecret     *v1.Secret
+		expectedError      error
 	}{
 		{
-			description:  "three clusters exist - return secret for the one where custom object belongs",
-			customObject: newCustomObject("cluster-2"),
+			description:        "three clusters exist - return secret for the one where custom object belongs",
+			clusterGuestConfig: newClusterGuestConfig("cluster-2"),
 			presentSecrets: []*v1.Secret{
 				newEncryptionSecret(t, "cluster-1", make(map[string]string)),
 				newEncryptionSecret(t, "cluster-2", make(map[string]string)),
@@ -36,16 +36,16 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 			expectedError:  nil,
 		},
 		{
-			description:    "no clusters exist - return empty list of secrets",
-			customObject:   newCustomObject("cluster-1"),
-			presentSecrets: []*v1.Secret{},
-			apiReactors:    []k8stesting.Reactor{},
-			expectedSecret: nil,
-			expectedError:  nil,
+			description:        "no clusters exist - return empty list of secrets",
+			clusterGuestConfig: newClusterGuestConfig("cluster-1"),
+			presentSecrets:     []*v1.Secret{},
+			apiReactors:        []k8stesting.Reactor{},
+			expectedSecret:     nil,
+			expectedError:      nil,
 		},
 		{
-			description:  "three clusters exist - return secrets for them despite custom object referring to new one",
-			customObject: newCustomObject("cluster-4"),
+			description:        "three clusters exist - return secrets for them despite custom object referring to new one",
+			clusterGuestConfig: newClusterGuestConfig("cluster-4"),
 			presentSecrets: []*v1.Secret{
 				newEncryptionSecret(t, "cluster-1", make(map[string]string)),
 				newEncryptionSecret(t, "cluster-2", make(map[string]string)),
@@ -56,9 +56,9 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 			expectedError:  nil,
 		},
 		{
-			description:    "handle unknown error returned from Kubernetes API client",
-			customObject:   newCustomObject("cluster-4"),
-			presentSecrets: []*v1.Secret{},
+			description:        "handle unknown error returned from Kubernetes API client",
+			clusterGuestConfig: newClusterGuestConfig("cluster-4"),
+			presentSecrets:     []*v1.Secret{},
 			apiReactors: []k8stesting.Reactor{
 				alwaysReturnErrorReactor(unknownAPIError),
 			},
@@ -83,15 +83,19 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 			client.ReactionChain = append(tc.apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				K8sClient: client,
-				Logger:    logger,
+				K8sClient:   client,
+				Logger:      logger,
+				ProjectName: "cluster-operator",
+				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+					return v.(*v1alpha1.ClusterGuestConfig), nil
+				},
 			})
 
 			if err != nil {
 				t.Fatalf("Resource construction failed: %#v", err)
 			}
 
-			state, err := r.GetCurrentState(context.TODO(), tc.customObject)
+			state, err := r.GetCurrentState(context.TODO(), tc.clusterGuestConfig)
 			if microerror.Cause(err) != tc.expectedError {
 				t.Fatalf("GetCurrentState() returned error %#v - expected: %#v", err, tc.expectedError)
 			}

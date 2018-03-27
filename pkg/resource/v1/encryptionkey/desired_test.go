@@ -24,22 +24,20 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 	}
 
 	r, err := New(Config{
-		K8sClient: fake.NewSimpleClientset(),
-		Logger:    logger,
+		K8sClient:   fake.NewSimpleClientset(),
+		Logger:      logger,
+		ProjectName: "cluster-operator",
+		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+			return v.(*v1alpha1.ClusterGuestConfig), nil
+		},
 	})
 
 	if err != nil {
 		t.Errorf("Resource construction failed: %#v", err)
 	}
 
-	customObject := &v1alpha1.KVMClusterConfig{
-		Spec: v1alpha1.KVMClusterConfigSpec{
-			Guest: v1alpha1.KVMClusterConfigSpecGuest{
-				ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-					ID: "cluster-1",
-				},
-			},
-		},
+	clusterGuestConfig := &v1alpha1.ClusterGuestConfig{
+		ID: "cluster-1",
 	}
 
 	testPattern := "A"
@@ -47,7 +45,7 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 		pattern: testPattern,
 	}
 
-	state, err := r.GetDesiredState(context.TODO(), customObject)
+	state, err := r.GetDesiredState(context.TODO(), clusterGuestConfig)
 	if err != nil {
 		t.Fatalf("GetDesiredState() returned an error: %#v", err)
 	}
@@ -90,28 +88,26 @@ func Test_GetDesiredState_Rand_Error_Handling(t *testing.T) {
 	}
 
 	r, err := New(Config{
-		K8sClient: fake.NewSimpleClientset(),
-		Logger:    logger,
+		K8sClient:   fake.NewSimpleClientset(),
+		Logger:      logger,
+		ProjectName: "cluster-operator",
+		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+			return v.(*v1alpha1.ClusterGuestConfig), nil
+		},
 	})
 
 	if err != nil {
 		t.Errorf("Resource construction failed: %#v", err)
 	}
 
-	customObject := &v1alpha1.KVMClusterConfig{
-		Spec: v1alpha1.KVMClusterConfigSpec{
-			Guest: v1alpha1.KVMClusterConfigSpecGuest{
-				ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-					ID: "cluster-1",
-				},
-			},
-		},
+	clusterGuestConfig := &v1alpha1.ClusterGuestConfig{
+		ID: "cluster-1",
 	}
 
 	// Overwrite crypto/rand.Reader in order to produce error from rand.Read()
 	rand.Reader = &failingReader{}
 
-	state, err := r.GetDesiredState(context.TODO(), customObject)
+	state, err := r.GetDesiredState(context.TODO(), clusterGuestConfig)
 	if microerror.Cause(err) != unknownRandError {
 		t.Errorf("Unexpected error received: %#v, expected %#v", err, unknownRandError)
 	}
