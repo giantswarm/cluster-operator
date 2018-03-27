@@ -19,3 +19,7 @@ func ToCustomObject(v interface{}) (v1alpha1.AWSClusterConfig, error) {
 
 	return *customObjectPointer, nil
 }
+
+func VersionBundleVersion(awsClusterConfig v1alpha1.AWSClusterConfig) string {
+	return awsClusterConfig.Spec.VersionBundle.Version
+}

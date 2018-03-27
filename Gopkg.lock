@@ -72,7 +72,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "1470b7cff67311b0f4d3c7d6349115ae568d59ee"
+  revision = "83f8fe5805ad7bbf00ece5f8e37372e7b5186d56"
 
 [[projects]]
   branch = "master"
@@ -531,10 +531,10 @@
   version = "v0.9.0"
 
 [[projects]]
+  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "4fc5987536ef307a24ca299aee7ae301cde3d221"
 
 [[projects]]
   name = "k8s.io/api"

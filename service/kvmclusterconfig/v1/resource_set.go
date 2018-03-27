@@ -117,15 +117,16 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		_, err := key.ToCustomObject(obj)
+		kvmClusterConfig, err := key.ToCustomObject(obj)
 		if err != nil {
 			return false
 		}
 
-		// Currently there is only one version to be handled. As long as the
-		// object is of right type, it's good to go.
+		if key.VersionBundleVersion(kvmClusterConfig) == VersionBundle().Version {
+			return true
+		}
 
-		return true
+		return false
 	}
 
 	var resourceSet *framework.ResourceSet
