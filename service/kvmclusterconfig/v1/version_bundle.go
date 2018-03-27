@@ -8,8 +8,19 @@ import (
 
 func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
-		Changelogs:   []versionbundle.Changelog{},
-		Components:   []versionbundle.Component{},
+		Changelogs: []versionbundle.Changelog{
+			{
+				Component:   "Cluster Operator",
+				Description: "Initial version for KVM",
+				Kind:        "added",
+			},
+		},
+		Components: []versionbundle.Component{
+			{
+				Name:    "kvm-operator",
+				Version: "1.0.0",
+			},
+		},
 		Dependencies: []versionbundle.Dependency{},
 		Deprecated:   false,
 		Name:         "cluster-operator",
