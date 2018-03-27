@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -11,8 +12,8 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmconfig"
 )
 
@@ -49,8 +50,10 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	var encryptionKeyResource framework.Resource
 	{
 		c := encryptionkey.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
 		ops, err := encryptionkey.New(c)
@@ -141,6 +144,21 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
+}
+
+func toClusterGuestConfig(obj interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+	var clusterGuestConfig *v1alpha1.ClusterGuestConfig
+	if obj == nil {
+		return nil, microerror.Maskf(wrongTypeError, "got nil interface{}, expected %T", clusterGuestConfig)
+	}
+
+	var ok bool
+	clusterGuestConfig, ok = obj.(*v1alpha1.ClusterGuestConfig)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "got %T, expected %T", obj, clusterGuestConfig)
+	}
+
+	return clusterGuestConfig, nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops framework.CRUDResourceOps) (*framework.CRUDResource, error) {

@@ -19,10 +19,13 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+
+
 required = [
   "k8s.io/api/core/v1",
   "k8s.io/apimachinery/pkg/apis/meta/v1",
 ]
+
 
 
 [[constraint]]
@@ -59,15 +62,21 @@ required = [
 
 [[constraint]]
   name = "k8s.io/api"
-  version = "kubernetes-1.8.5"
+  version = "kubernetes-1.9.3"
+
+[[constraint]]
+  name = "k8s.io/apiextensions-apiserver"
+  version = "kubernetes-1.9.3"
 
 [[constraint]]
   name = "k8s.io/apimachinery"
-  version = "kubernetes-1.8.5"
+  version = "kubernetes-1.9.3"
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "kubernetes-1.8.5"
+  version = "kubernetes-1.9.3"
+
+
 
 [prune]
   go-tests = true
