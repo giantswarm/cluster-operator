@@ -16,19 +16,18 @@ import (
 
 func Test_GetDesiredState(t *testing.T) {
 	testCases := []struct {
-		name              string
-		obj               interface{}
-		baseClusterConfig *cluster.Config
-		expectedLabels    map[string]string
-		expectedSpec      v1alpha1.ChartConfigSpec
-		expectedType      apimetav1.TypeMeta
+		name           string
+		obj            interface{}
+		expectedLabels map[string]string
+		expectedSpec   v1alpha1.ChartConfigSpec
+		expectedType   apimetav1.TypeMeta
 	}{
 		{
 			name: "basic match",
-			baseClusterConfig: &cluster.Config{
-				ClusterID:            "5xchu",
-				Organization:         "giantswarm",
-				VersionBundleVersion: "0.1.0",
+			obj: &v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu.aws.giantswarm.io",
+				ID:      "5xchu",
+				Owner:   "giantswarm",
 			},
 			expectedLabels: map[string]string{
 				"giantswarm.io/cluster":      "5xchu",
@@ -58,11 +57,14 @@ func Test_GetDesiredState(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
-				BaseClusterConfig: tc.baseClusterConfig,
+				BaseClusterConfig: &cluster.Config{},
 				G8sClient:         fake.NewSimpleClientset(),
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            microloggertest.New(),
 				ProjectName:       "cluster-operator",
+				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
+					return v.(*v1alpha1.ClusterGuestConfig), nil
+				},
 			}
 			newResource, err = New(c)
 			if err != nil {
