@@ -42,12 +42,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Labels: map[string]string{
 				label.Cluster:          key.ClusterID(*clusterGuestConfig),
 				label.LegacyClusterID:  key.ClusterID(*clusterGuestConfig),
-				label.LegacyClusterKey: label.LegacyEncryptionKey,
+				label.LegacyClusterKey: label.RandomKeyTypeEncryption,
 				label.ManagedBy:        r.projectName,
 			},
 		},
 		StringData: map[string]string{
-			label.LegacyEncryptionKey: keyBytes,
+			label.RandomKeyTypeEncryption: keyBytes,
 		},
 	}
 

@@ -40,7 +40,7 @@ func newEncryptionSecret(t *testing.T, clusterID string, data map[string]string)
 	t.Helper()
 	return newSecret(t, newClusterGuestConfig(clusterID), map[string]string{
 		label.LegacyClusterID:  clusterID,
-		label.LegacyClusterKey: label.LegacyEncryptionKey,
+		label.LegacyClusterKey: label.RandomKeyTypeEncryption,
 	}, data)
 }
 
