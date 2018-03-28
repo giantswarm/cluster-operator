@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
@@ -110,10 +110,10 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 				t.Fatalf("GetCurrentState() returned wrong type %T for current state. expected %T", state, secret)
 			}
 
-			if tc.expectedSecret.Labels[randomkeytpr.ClusterIDLabel] != secret.Labels[randomkeytpr.ClusterIDLabel] {
+			if tc.expectedSecret.Labels[label.LegacyClusterID] != secret.Labels[label.LegacyClusterID] {
 				t.Fatalf("expected secret with cluster ID label %s, found %s",
-					tc.expectedSecret.Labels[randomkeytpr.ClusterIDLabel],
-					secret.Labels[randomkeytpr.ClusterIDLabel],
+					tc.expectedSecret.Labels[label.LegacyClusterID],
+					secret.Labels[label.LegacyClusterID],
 				)
 			}
 		})
