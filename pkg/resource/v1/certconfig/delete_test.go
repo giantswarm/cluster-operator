@@ -14,7 +14,7 @@ import (
 	k8stesting "k8s.io/client-go/testing"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
 )
 
 func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
