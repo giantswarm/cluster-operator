@@ -24,7 +24,7 @@ func Test_GetDesiredState(t *testing.T) {
 	}{
 		{
 			name: "basic match",
-			obj: &v1alpha1.ClusterGuestConfig{
+			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.aws.giantswarm.io",
 				ID:      "5xchu",
 				Owner:   "giantswarm",
@@ -54,13 +54,15 @@ func Test_GetDesiredState(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
-				BaseClusterConfig: &cluster.Config{},
-				G8sClient:         fake.NewSimpleClientset(),
-				K8sClient:         clientgofake.NewSimpleClientset(),
-				Logger:            microloggertest.New(),
-				ProjectName:       "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				BaseClusterConfig: cluster.Config{
+					ClusterID: "test-cluster",
+				},
+				G8sClient:   fake.NewSimpleClientset(),
+				K8sClient:   clientgofake.NewSimpleClientset(),
+				Logger:      microloggertest.New(),
+				ProjectName: "cluster-operator",
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			}
 			newResource, err := New(c)

@@ -29,7 +29,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	clusterConfig, err := prepareClusterConfig(*r.baseClusterConfig, *clusterGuestConfig)
+	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -43,7 +43,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return desiredChartConfigs, nil
 }
 
-func newChartOperatorChartConfig(clusterConfig *cluster.Config, projectName string) *v1alpha1.ChartConfig {
+func newChartOperatorChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
 	return &v1alpha1.ChartConfig{
 		TypeMeta: apimetav1.TypeMeta{
 			Kind:       chartConfigKind,

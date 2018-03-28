@@ -1,6 +1,8 @@
 package chartconfig
 
 import (
+	"reflect"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
@@ -19,27 +21,27 @@ const (
 
 // Config represents the configuration used to create a new chart config resource.
 type Config struct {
-	BaseClusterConfig        *cluster.Config
+	BaseClusterConfig        cluster.Config
 	G8sClient                versioned.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
-	ToClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 // Resource implements the chart config resource.
 type Resource struct {
-	baseClusterConfig        *cluster.Config
+	baseClusterConfig        cluster.Config
 	g8sClient                versioned.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
-	toClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 // New creates a new configured chart config resource.
 func New(config Config) (*Resource, error) {
-	if config.BaseClusterConfig == nil {
+	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
 	}
 	if config.G8sClient == nil {
@@ -75,19 +77,18 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (*cluster.Config, error) {
+func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
 	var err error
 
-	// Copy baseClusterConfig as a basis and supplement it with information from
+	// Use baseClusterConfig as a basis and supplement it with information from
 	// clusterGuestConfig.
-	clusterConfig := new(cluster.Config)
-	*clusterConfig = baseClusterConfig
+	clusterConfig := baseClusterConfig
 
 	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
 
 	clusterConfig.Domain.API, err = key.ServerDomain(clusterGuestConfig, certs.APICert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 
 	clusterConfig.Organization = clusterGuestConfig.Owner
