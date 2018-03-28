@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/azureclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/healthz"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig"
 )
@@ -116,6 +117,29 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var azureClusterConfigFramework *framework.Framework
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := azureclusterconfig.FrameworkConfig{
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
+
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		azureClusterConfigFramework, err = azureclusterconfig.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmClusterConfigFramework *framework.Framework
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -153,9 +177,10 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		AWSClusterConfigFramework: awsClusterConfigFramework,
-		Healthz:                   healthzService,
-		KVMClusterConfigFramework: kvmClusterConfigFramework,
+		AWSClusterConfigFramework:   awsClusterConfigFramework,
+		AzureClusterConfigFramework: azureClusterConfigFramework,
+		Healthz:                     healthzService,
+		KVMClusterConfigFramework:   kvmClusterConfigFramework,
 
 		bootOnce: sync.Once{},
 	}
@@ -165,9 +190,10 @@ func New(config Config) (*Service, error) {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
-	AWSClusterConfigFramework *framework.Framework
-	Healthz                   *healthz.Service
-	KVMClusterConfigFramework *framework.Framework
+	AWSClusterConfigFramework   *framework.Framework
+	AzureClusterConfigFramework *framework.Framework
+	Healthz                     *healthz.Service
+	KVMClusterConfigFramework   *framework.Framework
 
 	bootOnce sync.Once
 }
@@ -176,6 +202,7 @@ type Service struct {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.AWSClusterConfigFramework.Boot()
+		go s.AzureClusterConfigFramework.Boot()
 		go s.KVMClusterConfigFramework.Boot()
 	})
 }
