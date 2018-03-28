@@ -51,9 +51,6 @@ func Test_GetDesiredState(t *testing.T) {
 		},
 	}
 
-	var err error
-	var newResource *Resource
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
@@ -66,7 +63,7 @@ func Test_GetDesiredState(t *testing.T) {
 					return v.(*v1alpha1.ClusterGuestConfig), nil
 				},
 			}
-			newResource, err = New(c)
+			newResource, err := New(c)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
