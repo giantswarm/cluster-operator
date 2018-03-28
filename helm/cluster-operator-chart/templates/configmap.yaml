@@ -8,6 +8,14 @@ data:
     server:
       listen:
         address: 'http://0.0.0.0:8000'
+    guest:
+      cluster:
+        kubernetes:
+          api:
+            clusterIPRange: '{{ .Values.Installation.V1.Guest.Kubernetes.API.ClusterIPRange }}'
+        vault:
+          certificate:
+            ttl: '{{ .Values.Installation.V1.Auth.Vault.Certificate.TTL }}'
     service:
       kubernetes:
         address: ''

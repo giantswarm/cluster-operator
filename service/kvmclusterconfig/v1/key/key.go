@@ -25,3 +25,7 @@ func ToCustomObject(v interface{}) (v1alpha1.KVMClusterConfig, error) {
 
 	return *customObjectPointer, nil
 }
+
+func VersionBundleVersion(kvmClusterConfig v1alpha1.KVMClusterConfig) string {
+	return kvmClusterConfig.Spec.VersionBundle.Version
+}
