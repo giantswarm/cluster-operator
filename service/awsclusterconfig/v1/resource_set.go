@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/cenkalti/backoff"
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -12,9 +11,8 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmconfig"
+	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/key"
+	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/resource/awsconfig"
 )
 
 const (
@@ -24,7 +22,7 @@ const (
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// KVMClusterConfig framework ResourceSet configuration.
+// AWSClusterConfig framework ResourceSet configuration.
 type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -33,61 +31,41 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured KVMClusterConfig framework ResourceSet.
+// NewResourceSet returns a configured AWSClusterConfig framework ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	var err error
 
 	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
 	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	var encryptionKeyResource framework.Resource
+	var awsConfigResource framework.Resource
 	{
-		c := encryptionkey.Config{
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
-		}
-
-		ops, err := encryptionkey.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var kvmConfigResource framework.Resource
-	{
-		c := kvmconfig.Config{
+		c := awsconfig.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		ops, err := kvmconfig.New(c)
+		ops, err := awsconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		kvmConfigResource, err = toCRUDResource(config.Logger, ops)
+		awsConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []framework.Resource{
-		encryptionKeyResource,
-		kvmConfigResource,
+		awsConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
@@ -117,12 +95,12 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		kvmClusterConfig, err := key.ToCustomObject(obj)
+		awsClusterConfig, err := key.ToCustomObject(obj)
 		if err != nil {
 			return false
 		}
 
-		if key.VersionBundleVersion(kvmClusterConfig) == VersionBundle().Version {
+		if key.VersionBundleVersion(awsClusterConfig) == VersionBundle().Version {
 			return true
 		}
 
@@ -145,21 +123,6 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
-}
-
-func toClusterGuestConfig(obj interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-	var clusterGuestConfig *v1alpha1.ClusterGuestConfig
-	if obj == nil {
-		return nil, microerror.Maskf(wrongTypeError, "got nil interface{}, expected %T", clusterGuestConfig)
-	}
-
-	var ok bool
-	clusterGuestConfig, ok = obj.(*v1alpha1.ClusterGuestConfig)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "got %T, expected %T", obj, clusterGuestConfig)
-	}
-
-	return clusterGuestConfig, nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops framework.CRUDResourceOps) (*framework.CRUDResource, error) {

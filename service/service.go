@@ -17,6 +17,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/service/awsclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/healthz"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig"
 )
@@ -92,6 +93,29 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
+	var awsClusterConfigFramework *framework.Framework
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := awsclusterconfig.FrameworkConfig{
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
+
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		awsClusterConfigFramework, err = awsclusterconfig.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmClusterConfigFramework *framework.Framework
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -129,6 +153,7 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
+		AWSClusterConfigFramework: awsClusterConfigFramework,
 		Healthz:                   healthzService,
 		KVMClusterConfigFramework: kvmClusterConfigFramework,
 
@@ -140,6 +165,7 @@ func New(config Config) (*Service, error) {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
+	AWSClusterConfigFramework *framework.Framework
 	Healthz                   *healthz.Service
 	KVMClusterConfigFramework *framework.Framework
 
@@ -149,6 +175,7 @@ type Service struct {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
+		go s.AWSClusterConfigFramework.Boot()
 		go s.KVMClusterConfigFramework.Boot()
 	})
 }
@@ -172,8 +199,10 @@ func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error)
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	_, cidr, err := net.ParseCIDR(ipRange)
-	if cidr == nil || err != nil {
-		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange")
+	if cidr == nil {
+		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange '%s': cidr == nil", ipRange)
+	} else if err != nil {
+		return nil, nil, microerror.Maskf(invalidConfigError, "invalid Kubernetes ClusterIPRange '%s': %q", ipRange, err)
 	}
 
 	ones, bits := cidr.Mask.Size()
