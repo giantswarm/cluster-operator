@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/randomkeytpr"
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
 )
@@ -59,7 +59,7 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 		t.Errorf("Secret has wrong namespace: %s, expected %s", secret.Namespace, v1.NamespaceDefault)
 	}
 
-	key, present := secret.StringData[randomkeytpr.EncryptionKey.String()]
+	key, present := secret.StringData[label.RandomKeyTypeEncryption]
 	if !present {
 		t.Errorf("Encryption key is missing from secret")
 	}
