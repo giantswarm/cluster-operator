@@ -29,6 +29,12 @@ func DNSZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.DNSZone
 }
 
+// EncryptionKeySecretName generates name for a Kubernetes secret based on
+// information in given v1alpha1.ClusterGuestConfig.
+func EncryptionKeySecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return fmt.Sprintf("%s-%s", ClusterID(clusterGuestConfig), "encryption")
+}
+
 // VersionBundles returns slice of versionbundle.Bundles for given guest
 // cluster config.
 func VersionBundles(clusterGuestConfig v1alpha1.ClusterGuestConfig) []versionbundle.Bundle {

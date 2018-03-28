@@ -8,7 +8,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/certconfig/key"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
 )
 
 const (
