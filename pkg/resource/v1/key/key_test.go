@@ -8,6 +8,58 @@ import (
 	"github.com/giantswarm/certs"
 )
 
+func Test_APIDomain(t *testing.T) {
+	testCases := []struct {
+		description       string
+		clusterConfig     v1alpha1.ClusterGuestConfig
+		expectedAPIDomain string
+		errorMatcher      func(error) bool
+	}{
+		{
+			description: "case 0: basic match",
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "rue99.k8s.gauss.eu-central-1.aws.gigantic.io",
+			},
+			expectedAPIDomain: "api.rue99.k8s.gauss.eu-central-1.aws.gigantic.io",
+		},
+		{
+			description: "case 1: different DNSZone",
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu.k8s.gollum.westeurope.azure.gigantic.io",
+			},
+			expectedAPIDomain: "api.5xchu.k8s.gollum.westeurope.azure.gigantic.io",
+		},
+		{
+			description: "case 2: invalid DNSZone",
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu",
+			},
+			errorMatcher: IsInvalidConfig,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			domain, err := APIDomain(tc.clusterConfig)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			if domain != tc.expectedAPIDomain {
+				t.Fatalf("APIDomain '%s' doesn't match expected '%s'", domain, tc.expectedAPIDomain)
+			}
+		})
+	}
+}
+
 func Test_CertConfigName(t *testing.T) {
 	testCases := []struct {
 		description            string
@@ -154,4 +206,68 @@ func Test_EncryptionKeySecretName(t *testing.T) {
 		})
 	}
 
+}
+
+func Test_ServerDomain(t *testing.T) {
+	testCases := []struct {
+		description    string
+		cert           certs.Cert
+		clusterConfig  v1alpha1.ClusterGuestConfig
+		expectedDomain string
+		errorMatcher   func(error) bool
+	}{
+		{
+			description: "case 0: basic match",
+			cert:        certs.APICert,
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "rue99.k8s.gauss.eu-central-1.aws.gigantic.io",
+			},
+			expectedDomain: "api.rue99.k8s.gauss.eu-central-1.aws.gigantic.io",
+		},
+		{
+			description: "case 1: different DNSZone",
+			cert:        certs.APICert,
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu.k8s.gollum.westeurope.azure.gigantic.io",
+			},
+			expectedDomain: "api.5xchu.k8s.gollum.westeurope.azure.gigantic.io",
+		},
+		{
+			description: "case 2: different cert",
+			cert:        certs.EtcdCert,
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu.k8s.gollum.westeurope.azure.gigantic.io",
+			},
+			expectedDomain: "etcd.5xchu.k8s.gollum.westeurope.azure.gigantic.io",
+		},
+		{
+			description: "case 3: invalid DNSZone",
+			cert:        certs.APICert,
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu",
+			},
+			errorMatcher: IsInvalidConfig,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			domain, err := ServerDomain(tc.clusterConfig, tc.cert)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			if domain != tc.expectedDomain {
+				t.Fatalf("ServerDomain '%s' doesn't match expected '%s'", domain, tc.expectedDomain)
+			}
+		})
+	}
 }
