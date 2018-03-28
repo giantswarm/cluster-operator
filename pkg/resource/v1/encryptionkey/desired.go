@@ -5,12 +5,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey/key"
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
 )
 
 const (
