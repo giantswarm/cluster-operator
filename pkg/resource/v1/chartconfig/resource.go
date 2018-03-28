@@ -5,7 +5,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
@@ -86,7 +85,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 
 	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
 
-	clusterConfig.Domain.API, err = key.ServerDomain(clusterGuestConfig, certs.APICert)
+	clusterConfig.Domain.API, err = key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}

@@ -12,7 +12,7 @@ import (
 
 // APIDomain returns the API server domain for the guest cluster.
 func APIDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) (string, error) {
-	return ServerDomain(clusterGuestConfig, certs.APICert)
+	return serverDomain(clusterGuestConfig, certs.APICert)
 }
 
 // CertConfigName constructs a name for CertConfig CR using ClusterID and Cert.
@@ -42,9 +42,9 @@ func EncryptionKeySecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) str
 	return fmt.Sprintf("%s-%s", ClusterID(clusterGuestConfig), "encryption")
 }
 
-// ServerDomain returns the guest cluster domain for the provided cluster
+// serverDomain returns the guest cluster domain for the provided cluster
 // component.
-func ServerDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.Cert) (string, error) {
+func serverDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.Cert) (string, error) {
 	commonDomain := DNSZone(clusterGuestConfig)
 
 	if !strings.Contains(commonDomain, ".") {

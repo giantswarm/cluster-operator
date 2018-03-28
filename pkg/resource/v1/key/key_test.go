@@ -252,7 +252,7 @@ func Test_ServerDomain(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			domain, err := ServerDomain(tc.clusterConfig, tc.cert)
+			domain, err := serverDomain(tc.clusterConfig, tc.cert)
 
 			switch {
 			case err == nil && tc.errorMatcher == nil:
