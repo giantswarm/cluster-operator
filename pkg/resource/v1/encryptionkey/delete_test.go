@@ -15,7 +15,7 @@ import (
 func Test_ApplyDeleteChange(t *testing.T) {
 	testCases := []struct {
 		description         string
-		clusterGuestConfig  *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig  v1alpha1.ClusterGuestConfig
 		deleteChange        interface{}
 		apiReactorFactories []apiReactorFactory
 		expectedError       error
@@ -87,8 +87,8 @@ func Test_ApplyDeleteChange(t *testing.T) {
 				K8sClient:   client,
 				Logger:      logger,
 				ProjectName: "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 

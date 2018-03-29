@@ -1,6 +1,8 @@
 package certconfig
 
 import (
+	"reflect"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
@@ -23,27 +25,27 @@ const (
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
-	BaseClusterConfig        *cluster.Config
+	BaseClusterConfig        cluster.Config
 	G8sClient                versioned.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
-	ToClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 // Resource implements the cloud config resource.
 type Resource struct {
-	baseClusterConfig        *cluster.Config
+	baseClusterConfig        cluster.Config
 	g8sClient                versioned.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
-	toClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
-	if config.BaseClusterConfig == nil {
+	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "config.BaseClusterConfig must not be empty")
 	}
 	if config.G8sClient == nil {

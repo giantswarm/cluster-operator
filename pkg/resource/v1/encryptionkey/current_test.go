@@ -17,7 +17,7 @@ import (
 func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 	testCases := []struct {
 		description        string
-		clusterGuestConfig *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig v1alpha1.ClusterGuestConfig
 		presentSecrets     []*v1.Secret
 		apiReactors        []k8stesting.Reactor
 		expectedSecret     *v1.Secret
@@ -86,8 +86,8 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 				K8sClient:   client,
 				Logger:      logger,
 				ProjectName: "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 

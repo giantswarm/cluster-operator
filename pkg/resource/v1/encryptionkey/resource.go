@@ -18,7 +18,7 @@ type Config struct {
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
-	ToClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 // Resource implements the cloud config resource.
@@ -26,7 +26,7 @@ type Resource struct {
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
-	toClusterGuestConfigFunc func(obj interface{}) (*v1alpha1.ClusterGuestConfig, error)
+	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 // New creates a new configured cloud config resource.

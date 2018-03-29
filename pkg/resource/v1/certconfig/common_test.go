@@ -2,6 +2,7 @@ package certconfig
 
 import (
 	"errors"
+	"net"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -12,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	k8stesting "k8s.io/client-go/testing"
 
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
 )
@@ -55,6 +57,15 @@ func newCertConfigWithVersion(clusterID string, cert certs.Cert, version string)
 			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
 				Version: version,
 			},
+		},
+	}
+}
+
+func newClusterConfig() cluster.Config {
+	return cluster.Config{
+		CertTTL: "",
+		IP: cluster.IP{
+			Range: net.IPv4(172, 31, 0, 0),
 		},
 	}
 }

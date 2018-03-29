@@ -147,19 +147,13 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	return resourceSet, nil
 }
 
-func toClusterGuestConfig(obj interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-	var clusterGuestConfig *v1alpha1.ClusterGuestConfig
-	if obj == nil {
-		return nil, microerror.Maskf(wrongTypeError, "got nil interface{}, expected %T", clusterGuestConfig)
+func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	kvmClusterConfig, err := key.ToCustomObject(obj)
+	if err != nil {
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
 	}
 
-	var ok bool
-	clusterGuestConfig, ok = obj.(*v1alpha1.ClusterGuestConfig)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "got %T, expected %T", obj, clusterGuestConfig)
-	}
-
-	return clusterGuestConfig, nil
+	return key.ToClusterGuestConfig(kvmClusterConfig), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops framework.CRUDResourceOps) (*framework.CRUDResource, error) {

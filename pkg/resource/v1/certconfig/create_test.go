@@ -13,7 +13,6 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
 
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
 )
 
@@ -47,13 +46,13 @@ func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		BaseClusterConfig: &cluster.Config{},
+		BaseClusterConfig: newClusterConfig(),
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-			return v.(*v1alpha1.ClusterGuestConfig), nil
+		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
 	})
 
@@ -93,13 +92,13 @@ func Test_ApplyCreateChange_Does_Not_Make_API_Call_With_Empty_CreateChange(t *te
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		BaseClusterConfig: &cluster.Config{},
+		BaseClusterConfig: newClusterConfig(),
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-			return v.(*v1alpha1.ClusterGuestConfig), nil
+		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
 	})
 
@@ -133,13 +132,13 @@ func Test_ApplyCreateChange_Handles_K8S_API_Error(t *testing.T) {
 	}, client.ReactionChain...)
 
 	r, err := New(Config{
-		BaseClusterConfig: &cluster.Config{},
+		BaseClusterConfig: newClusterConfig(),
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-			return v.(*v1alpha1.ClusterGuestConfig), nil
+		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
 	})
 
@@ -156,7 +155,7 @@ func Test_ApplyCreateChange_Handles_K8S_API_Error(t *testing.T) {
 func Test_newCreateChange(t *testing.T) {
 	testCases := []struct {
 		name                string
-		clusterGuestConfig  *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig  v1alpha1.ClusterGuestConfig
 		currentState        interface{}
 		desiredState        interface{}
 		expectedCertConfigs []*v1alpha1.CertConfig
@@ -164,7 +163,7 @@ func Test_newCreateChange(t *testing.T) {
 	}{
 		{
 			name: "case 0: No certconfigs exist, single certconfig desired",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			currentState: nil,
@@ -178,7 +177,7 @@ func Test_newCreateChange(t *testing.T) {
 		},
 		{
 			name: "case 1: One certconfig exists and it's the desired one",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			currentState: []*v1alpha1.CertConfig{
@@ -192,7 +191,7 @@ func Test_newCreateChange(t *testing.T) {
 		},
 		{
 			name: "case 2: Some of desired certconfigs exist",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			currentState: []*v1alpha1.CertConfig{
@@ -221,7 +220,7 @@ func Test_newCreateChange(t *testing.T) {
 		},
 		{
 			name: "case 3: desiredState is wrong type",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			currentState: []*v1alpha1.CertConfig{
@@ -239,7 +238,7 @@ func Test_newCreateChange(t *testing.T) {
 		},
 		{
 			name: "case 4: currentState is wrong type",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			currentState: []string{
@@ -265,13 +264,13 @@ func Test_newCreateChange(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			r, err := New(Config{
-				BaseClusterConfig: &cluster.Config{},
+				BaseClusterConfig: newClusterConfig(),
 				G8sClient:         fake.NewSimpleClientset(),
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
 				ProjectName:       "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 

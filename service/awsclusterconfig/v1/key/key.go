@@ -5,6 +5,11 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+// ToClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig
+func ToClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
+	return awsClusterConfig.Spec.Guest.Config
+}
+
 // ToCustomObject converts value to v1alpha1.AWSClusterConfig and returns it or
 // error if type does not match.
 func ToCustomObject(v interface{}) (v1alpha1.AWSClusterConfig, error) {
@@ -20,6 +25,7 @@ func ToCustomObject(v interface{}) (v1alpha1.AWSClusterConfig, error) {
 	return *customObjectPointer, nil
 }
 
+// VersionBundleVersion extracts version bundle version from AWSClusterConfig
 func VersionBundleVersion(awsClusterConfig v1alpha1.AWSClusterConfig) string {
 	return awsClusterConfig.Spec.VersionBundle.Version
 }
