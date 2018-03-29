@@ -2,11 +2,18 @@ package key
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/versionbundle"
 )
+
+// APIDomain returns the API server domain for the guest cluster.
+func APIDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) (string, error) {
+	return serverDomain(clusterGuestConfig, certs.APICert)
+}
 
 // CertConfigName constructs a name for CertConfig CR using ClusterID and Cert.
 func CertConfigName(clusterID string, cert certs.Cert) string {
@@ -33,6 +40,18 @@ func DNSZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 // information in given v1alpha1.ClusterGuestConfig.
 func EncryptionKeySecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return fmt.Sprintf("%s-%s", ClusterID(clusterGuestConfig), "encryption")
+}
+
+// serverDomain returns the guest cluster domain for the provided cluster
+// component.
+func serverDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.Cert) (string, error) {
+	commonDomain := DNSZone(clusterGuestConfig)
+
+	if !strings.Contains(commonDomain, ".") {
+		return "", microerror.Maskf(invalidConfigError, "commonDomain must be a valid domain")
+	}
+
+	return string(cert) + "." + strings.TrimLeft(commonDomain, "\t ."), nil
 }
 
 // VersionBundles returns slice of versionbundle.Bundles for given guest
