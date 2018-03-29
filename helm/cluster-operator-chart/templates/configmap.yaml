@@ -24,3 +24,5 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
+      provider:
+        kind: '{{ .Values.Installation.V1.Provider.Kind }}'
