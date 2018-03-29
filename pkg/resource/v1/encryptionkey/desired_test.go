@@ -27,8 +27,8 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 		K8sClient:   fake.NewSimpleClientset(),
 		Logger:      logger,
 		ProjectName: "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-			return v.(*v1alpha1.ClusterGuestConfig), nil
+		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
 	})
 
@@ -36,7 +36,7 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 		t.Errorf("Resource construction failed: %#v", err)
 	}
 
-	clusterGuestConfig := &v1alpha1.ClusterGuestConfig{
+	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
 		ID: "cluster-1",
 	}
 
@@ -91,8 +91,8 @@ func Test_GetDesiredState_Rand_Error_Handling(t *testing.T) {
 		K8sClient:   fake.NewSimpleClientset(),
 		Logger:      logger,
 		ProjectName: "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-			return v.(*v1alpha1.ClusterGuestConfig), nil
+		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
 	})
 
@@ -100,7 +100,7 @@ func Test_GetDesiredState_Rand_Error_Handling(t *testing.T) {
 		t.Errorf("Resource construction failed: %#v", err)
 	}
 
-	clusterGuestConfig := &v1alpha1.ClusterGuestConfig{
+	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
 		ID: "cluster-1",
 	}
 

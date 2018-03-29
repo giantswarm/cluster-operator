@@ -42,7 +42,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	clusterConfig, err := prepareClusterConfig(*r.baseClusterConfig, *clusterGuestConfig)
+	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -80,50 +80,49 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return desiredCertConfigs, nil
 }
 
-func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (*cluster.Config, error) {
+func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
 	var err error
 
 	// Copy baseClusterConfig as basis and supplement it with information from
 	// clusterGuestConfig.
-	clusterConfig := new(cluster.Config)
-	*clusterConfig = baseClusterConfig
+	clusterConfig := baseClusterConfig
 
 	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
 
 	clusterConfig.Domain.API, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.APICert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoCert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 	clusterConfig.Domain.Etcd, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.EtcdCert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.NodeOperatorCert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 	clusterConfig.Domain.Prometheus, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.PrometheusCert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 	clusterConfig.Domain.ServiceAccount, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.ServiceAccountCert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 	clusterConfig.Domain.Worker, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.WorkerCert)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 
 	clusterConfig.Organization = clusterGuestConfig.Owner
 
 	versionBundle, err := versionbundle.GetBundleByName(key.VersionBundles(clusterGuestConfig), certOperatorID)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return cluster.Config{}, microerror.Mask(err)
 	}
 
 	clusterConfig.VersionBundleVersion = versionBundle.Version
@@ -131,7 +130,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	return clusterConfig, nil
 }
 
-func newAPICertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -167,7 +166,7 @@ func newAPICertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectNam
 	}
 }
 
-func newCalicoCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -200,7 +199,7 @@ func newCalicoCertConfig(clusterConfig *cluster.Config, cert certs.Cert, project
 	}
 }
 
-func newEtcdCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -234,7 +233,7 @@ func newEtcdCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectNa
 	}
 }
 
-func newNodeOperatorCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -267,7 +266,7 @@ func newNodeOperatorCertConfig(clusterConfig *cluster.Config, cert certs.Cert, p
 	}
 }
 
-func newPrometheusCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -300,7 +299,7 @@ func newPrometheusCertConfig(clusterConfig *cluster.Config, cert certs.Cert, pro
 	}
 }
 
-func newServiceAccountCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -333,7 +332,7 @@ func newServiceAccountCertConfig(clusterConfig *cluster.Config, cert certs.Cert,
 	}
 }
 
-func newWorkerCertConfig(clusterConfig *cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newWorkerCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{

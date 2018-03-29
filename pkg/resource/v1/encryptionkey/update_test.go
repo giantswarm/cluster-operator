@@ -14,7 +14,7 @@ import (
 func Test_newUpdateChange_Does_Not_Return_Change(t *testing.T) {
 	testCases := []struct {
 		description        string
-		clusterGuestConfig *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig v1alpha1.ClusterGuestConfig
 		currentState       interface{}
 		desiredState       interface{}
 		expectedSecret     *v1.Secret
@@ -49,8 +49,8 @@ func Test_newUpdateChange_Does_Not_Return_Change(t *testing.T) {
 				K8sClient:   fake.NewSimpleClientset(),
 				Logger:      logger,
 				ProjectName: "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 

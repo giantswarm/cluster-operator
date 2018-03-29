@@ -13,14 +13,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
-
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 )
 
 func Test_GetCurrentState(t *testing.T) {
 	testCases := []struct {
 		description         string
-		clusterGuestConfig  *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig  v1alpha1.ClusterGuestConfig
 		presentCertConfigs  []*v1alpha1.CertConfig
 		apiReactors         []k8stesting.Reactor
 		expectedCertConfigs []*v1alpha1.CertConfig
@@ -28,7 +26,7 @@ func Test_GetCurrentState(t *testing.T) {
 	}{
 		{
 			description: "return correct certconfigs from group of certconfigs for different clusters",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			presentCertConfigs: []*v1alpha1.CertConfig{
@@ -46,7 +44,7 @@ func Test_GetCurrentState(t *testing.T) {
 		},
 		{
 			description: "return empty list as state when there are no certconfigs present",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			presentCertConfigs:  []*v1alpha1.CertConfig{},
@@ -56,7 +54,7 @@ func Test_GetCurrentState(t *testing.T) {
 		},
 		{
 			description: "return all certconfigs that match clusterID despite of having uknonwn Cert name",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			presentCertConfigs: []*v1alpha1.CertConfig{
@@ -76,7 +74,7 @@ func Test_GetCurrentState(t *testing.T) {
 		},
 		{
 			description: "handle unknown error from k8s API",
-			clusterGuestConfig: &v1alpha1.ClusterGuestConfig{
+			clusterGuestConfig: v1alpha1.ClusterGuestConfig{
 				ID: "cluster-1",
 			},
 			presentCertConfigs:  []*v1alpha1.CertConfig{},
@@ -102,13 +100,13 @@ func Test_GetCurrentState(t *testing.T) {
 			client.ReactionChain = append(tc.apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				BaseClusterConfig: &cluster.Config{},
+				BaseClusterConfig: newClusterConfig(),
 				G8sClient:         client,
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
 				ProjectName:       "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 
