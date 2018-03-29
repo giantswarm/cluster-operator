@@ -7,7 +7,7 @@ import (
 
 // ClusterID extracts clusterID from v1alpha1.KVMClusterConfig.
 func ClusterID(customObject v1alpha1.KVMClusterConfig) string {
-	return customObject.Spec.Guest.ID
+	return customObject.Spec.Guest.Config.ID
 }
 
 // ToCustomObject converts value to v1alpha1.KVMClusterConfig and returns it or
