@@ -24,7 +24,7 @@ func Test_ClusterID(t *testing.T) {
 			customObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+						Config: v1alpha1.ClusterGuestConfig{
 							ID: "cluster-1",
 						},
 					},
@@ -37,7 +37,7 @@ func Test_ClusterID(t *testing.T) {
 			customObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+						Config: v1alpha1.ClusterGuestConfig{
 							ID:   "cluster-123",
 							Name: "First cluster",
 						},
@@ -78,7 +78,7 @@ func Test_ToCustomObject(t *testing.T) {
 			inputObject: &v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+						Config: v1alpha1.ClusterGuestConfig{
 							ID:   "cluster-1",
 							Name: "My own snowflake cluster",
 						},
@@ -88,7 +88,7 @@ func Test_ToCustomObject(t *testing.T) {
 			expectedCustomObject: v1alpha1.KVMClusterConfig{
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+						Config: v1alpha1.ClusterGuestConfig{
 							ID:   "cluster-1",
 							Name: "My own snowflake cluster",
 						},

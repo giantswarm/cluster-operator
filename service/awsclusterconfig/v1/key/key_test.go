@@ -28,7 +28,7 @@ func Test_ToCustomObject(t *testing.T) {
 			inputObject: &v1alpha1.AWSClusterConfig{
 				Spec: v1alpha1.AWSClusterConfigSpec{
 					Guest: v1alpha1.AWSClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+						Config: v1alpha1.ClusterGuestConfig{
 							ID:   "cluster-1",
 							Name: "My own snowflake cluster",
 						},
@@ -38,7 +38,7 @@ func Test_ToCustomObject(t *testing.T) {
 			expectedCustomObject: v1alpha1.AWSClusterConfig{
 				Spec: v1alpha1.AWSClusterConfigSpec{
 					Guest: v1alpha1.AWSClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+						Config: v1alpha1.ClusterGuestConfig{
 							ID:   "cluster-1",
 							Name: "My own snowflake cluster",
 						},

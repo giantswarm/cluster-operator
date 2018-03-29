@@ -72,7 +72,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "83f8fe5805ad7bbf00ece5f8e37372e7b5186d56"
+  revision = "bec18e979214981ec96c3dc71daa0b1e68da9e32"
 
 [[projects]]
   branch = "master"
@@ -147,12 +147,6 @@
     "informer"
   ]
   revision = "e785d24fd81b018fa0ebe1fa7874e306a413461a"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/giantswarm/randomkeytpr"
-  packages = ["."]
-  revision = "b896dccb8a47e3263a48dd310b3a2975812868d0"
 
 [[projects]]
   branch = "master"
@@ -719,6 +713,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d5b039b58626d84a141dec997804e6c4383443aadc5af20845d32af3a5bc2dc4"
+  inputs-digest = "6831fba5b56c3c17e69d0e7255957c1e9671d8001259e776486cb170667c3e7f"
   solver-name = "gps-cdcl"
   solver-version = 1
