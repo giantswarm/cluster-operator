@@ -3,9 +3,11 @@ package service
 import (
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
@@ -93,52 +95,6 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var awsClusterConfigFramework *framework.Framework
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := awsclusterconfig.FrameworkConfig{
-			BaseClusterConfig: baseClusterConfig,
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
-		}
-
-		awsClusterConfigFramework, err = awsclusterconfig.NewFramework(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var kvmClusterConfigFramework *framework.Framework
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := kvmclusterconfig.FrameworkConfig{
-			BaseClusterConfig: baseClusterConfig,
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
-		}
-
-		kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var healthzService *healthz.Service
 	{
 		c := healthz.Config{
@@ -152,10 +108,78 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var providerKind string
+	var awsClusterConfigFramework *framework.Framework
+	var kvmClusterConfigFramework *framework.Framework
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		providerKind = config.Viper.GetString(config.Flag.Service.Provider.Kind)
+		providerKind = strings.ToLower(strings.TrimSpace(providerKind))
+		switch providerKind {
+		case "aws":
+			{
+				c := awsclusterconfig.FrameworkConfig{
+					BaseClusterConfig: baseClusterConfig,
+					G8sClient:         g8sClient,
+					K8sClient:         k8sClient,
+					K8sExtClient:      k8sExtClient,
+
+					Logger:      config.Logger,
+					ProjectName: config.ProjectName,
+				}
+
+				awsClusterConfigFramework, err = awsclusterconfig.NewFramework(c)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			}
+		case "kvm":
+			{
+				c := kvmclusterconfig.FrameworkConfig{
+					BaseClusterConfig: baseClusterConfig,
+					G8sClient:         g8sClient,
+					K8sClient:         k8sClient,
+					K8sExtClient:      k8sExtClient,
+
+					Logger:      config.Logger,
+					ProjectName: config.ProjectName,
+				}
+
+				kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			}
+		default:
+			return nil, microerror.Maskf(invalidConfigError, "unsupported provider: '%s'", providerKind)
+		}
+	}
+
+	var versionService *version.Service
+	{
+		versionConfig := version.Config{
+			Description:    config.Description,
+			GitCommit:      config.GitCommit,
+			Name:           config.ProjectName,
+			Source:         config.Source,
+			VersionBundles: NewVersionBundles(providerKind),
+		}
+
+		versionService, err = version.New(versionConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	newService := &Service{
 		AWSClusterConfigFramework: awsClusterConfigFramework,
 		Healthz:                   healthzService,
 		KVMClusterConfigFramework: kvmClusterConfigFramework,
+		Version:                   versionService,
 
 		bootOnce: sync.Once{},
 	}
@@ -168,6 +192,7 @@ type Service struct {
 	AWSClusterConfigFramework *framework.Framework
 	Healthz                   *healthz.Service
 	KVMClusterConfigFramework *framework.Framework
+	Version                   *version.Service
 
 	bootOnce sync.Once
 }
