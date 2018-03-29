@@ -200,8 +200,13 @@ type Service struct {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.AWSClusterConfigFramework.Boot()
-		go s.KVMClusterConfigFramework.Boot()
+		if s.AWSClusterConfigFramework != nil {
+			go s.AWSClusterConfigFramework.Boot()
+		}
+
+		if s.KVMClusterConfigFramework != nil {
+			go s.KVMClusterConfigFramework.Boot()
+		}
 	})
 }
 
