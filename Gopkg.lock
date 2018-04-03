@@ -77,7 +77,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/certs"
-  packages = ["."]
+  packages = [
+    ".",
+    "certstest"
+  ]
   revision = "162a1130d27d6bbe1ab101059afab985707e46b0"
 
 [[projects]]
@@ -713,6 +716,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6831fba5b56c3c17e69d0e7255957c1e9671d8001259e776486cb170667c3e7f"
+  inputs-digest = "84ac9a006afe73b5ae8c688b1d0d1a79677c830f11a73e93021bcd553628624b"
   solver-name = "gps-cdcl"
   solver-version = 1
