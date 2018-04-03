@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
@@ -21,6 +22,7 @@ const (
 // Config represents the configuration used to create a new chart config resource.
 type Config struct {
 	BaseClusterConfig        cluster.Config
+	CertsSearcher            certs.Interface
 	G8sClient                versioned.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
@@ -31,6 +33,7 @@ type Config struct {
 // Resource implements the chart config resource.
 type Resource struct {
 	baseClusterConfig        cluster.Config
+	certsSearcher            certs.Interface
 	g8sClient                versioned.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
@@ -42,6 +45,9 @@ type Resource struct {
 func New(config Config) (*Resource, error) {
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
+	}
+	if config.CertsSearcher == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CertsSearcher must not be empty", config)
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
@@ -61,6 +67,7 @@ func New(config Config) (*Resource, error) {
 
 	newResource := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
+		certsSearcher:            config.CertsSearcher,
 		g8sClient:                config.G8sClient,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
