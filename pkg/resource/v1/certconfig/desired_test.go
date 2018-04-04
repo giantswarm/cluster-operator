@@ -43,7 +43,7 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 	}
 
 	r, err := New(Config{
-		BaseClusterConfig: &cluster.Config{
+		BaseClusterConfig: cluster.Config{
 			ClusterID: "cluster-1",
 			CertTTL:   "720h",
 			IP: cluster.IP{
@@ -54,8 +54,8 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		K8sClient:   clientgofake.NewSimpleClientset(),
 		Logger:      microloggertest.New(),
 		ProjectName: "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-			return v.(*v1alpha1.ClusterGuestConfig), nil
+		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
 	})
 
@@ -63,7 +63,7 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		t.Fatalf("Resource construction failed: %#v", err)
 	}
 
-	desiredState, err := r.GetDesiredState(context.TODO(), &clusterGuestConfig)
+	desiredState, err := r.GetDesiredState(context.TODO(), clusterGuestConfig)
 	if err != nil {
 		t.Fatalf("GetDesiredState() == %#v, want nil error", err)
 	}

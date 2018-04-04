@@ -7,7 +7,12 @@ import (
 
 // ClusterID extracts clusterID from v1alpha1.KVMClusterConfig.
 func ClusterID(customObject v1alpha1.KVMClusterConfig) string {
-	return customObject.Spec.Guest.ID
+	return customObject.Spec.Guest.Config.ID
+}
+
+// ToClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
+func ToClusterGuestConfig(kvmClusterConfig v1alpha1.KVMClusterConfig) v1alpha1.ClusterGuestConfig {
+	return kvmClusterConfig.Spec.Guest.Config
 }
 
 // ToCustomObject converts value to v1alpha1.KVMClusterConfig and returns it or
@@ -26,6 +31,7 @@ func ToCustomObject(v interface{}) (v1alpha1.KVMClusterConfig, error) {
 	return *customObjectPointer, nil
 }
 
+// VersionBundleVersion extracts version bundle version from KVMClusterConfig.
 func VersionBundleVersion(kvmClusterConfig v1alpha1.KVMClusterConfig) string {
 	return kvmClusterConfig.Spec.VersionBundle.Version
 }

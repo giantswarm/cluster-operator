@@ -15,7 +15,7 @@ import (
 func Test_ApplyCreateChange(t *testing.T) {
 	testCases := []struct {
 		description         string
-		clusterGuestConfig  *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig  v1alpha1.ClusterGuestConfig
 		createChange        interface{}
 		apiReactorFactories []apiReactorFactory
 		expectedError       error
@@ -87,8 +87,8 @@ func Test_ApplyCreateChange(t *testing.T) {
 				K8sClient:   client,
 				Logger:      logger,
 				ProjectName: "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 
@@ -111,7 +111,7 @@ func Test_ApplyCreateChange(t *testing.T) {
 func Test_newCreateChange(t *testing.T) {
 	testCases := []struct {
 		description        string
-		clusterGuestConfig *v1alpha1.ClusterGuestConfig
+		clusterGuestConfig v1alpha1.ClusterGuestConfig
 		currentState       interface{}
 		desiredState       interface{}
 		expectedSecret     *v1.Secret
@@ -162,8 +162,8 @@ func Test_newCreateChange(t *testing.T) {
 				K8sClient:   fake.NewSimpleClientset(),
 				Logger:      logger,
 				ProjectName: "cluster-operator",
-				ToClusterGuestConfigFunc: func(v interface{}) (*v1alpha1.ClusterGuestConfig, error) {
-					return v.(*v1alpha1.ClusterGuestConfig), nil
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
 			})
 

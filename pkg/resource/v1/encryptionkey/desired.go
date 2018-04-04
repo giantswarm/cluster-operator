@@ -28,7 +28,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "computing desired encryption key secret")
-	secretName := key.EncryptionKeySecretName(*clusterGuestConfig)
+	secretName := key.EncryptionKeySecretName(clusterGuestConfig)
 
 	keyBytes, err := newRandomKey(AESCBCKeyLength)
 	if err != nil {
@@ -40,8 +40,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Name:      secretName,
 			Namespace: v1.NamespaceDefault,
 			Labels: map[string]string{
-				label.Cluster:          key.ClusterID(*clusterGuestConfig),
-				label.LegacyClusterID:  key.ClusterID(*clusterGuestConfig),
+				label.Cluster:          key.ClusterID(clusterGuestConfig),
+				label.LegacyClusterID:  key.ClusterID(clusterGuestConfig),
 				label.LegacyClusterKey: label.RandomKeyTypeEncryption,
 				label.ManagedBy:        r.projectName,
 				label.RandomKey:        label.RandomKeyTypeEncryption,

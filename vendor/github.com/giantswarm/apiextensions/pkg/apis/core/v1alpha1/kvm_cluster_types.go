@@ -59,9 +59,9 @@ type KVMClusterConfigSpec struct {
 }
 
 type KVMClusterConfigSpecGuest struct {
-	ClusterGuestConfig `json:",inline" yaml:",inline"`
-	Masters            []KVMClusterConfigSpecGuestMaster `json:"masters,omitempty" yaml:"masters,omitempty"`
-	Workers            []KVMClusterConfigSpecGuestWorker `json:"workers,omitempty" yaml:"workers,omitempty"`
+	Config  ClusterGuestConfig                `json:"config" yaml:"config"`
+	Masters []KVMClusterConfigSpecGuestMaster `json:"masters,omitempty" yaml:"masters,omitempty"`
+	Workers []KVMClusterConfigSpecGuestWorker `json:"workers,omitempty" yaml:"workers,omitempty"`
 }
 
 type KVMClusterConfigSpecGuestMaster struct {

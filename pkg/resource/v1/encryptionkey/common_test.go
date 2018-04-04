@@ -30,8 +30,8 @@ var (
 
 type apiReactorFactory func(t *testing.T) k8stesting.Reactor
 
-func newClusterGuestConfig(clusterID string) *v1alpha1.ClusterGuestConfig {
-	return &v1alpha1.ClusterGuestConfig{
+func newClusterGuestConfig(clusterID string) v1alpha1.ClusterGuestConfig {
+	return v1alpha1.ClusterGuestConfig{
 		ID: clusterID,
 	}
 }
@@ -44,7 +44,7 @@ func newEncryptionSecret(t *testing.T, clusterID string, data map[string]string)
 	}, data)
 }
 
-func newSecret(t *testing.T, clusterGuestConfig *v1alpha1.ClusterGuestConfig, labels, data map[string]string) *v1.Secret {
+func newSecret(t *testing.T, clusterGuestConfig v1alpha1.ClusterGuestConfig, labels, data map[string]string) *v1.Secret {
 	t.Helper()
 	return &v1.Secret{
 		TypeMeta: apismetav1.TypeMeta{
@@ -52,7 +52,7 @@ func newSecret(t *testing.T, clusterGuestConfig *v1alpha1.ClusterGuestConfig, la
 			APIVersion: "v1",
 		},
 		ObjectMeta: apismetav1.ObjectMeta{
-			Name:      key.EncryptionKeySecretName(*clusterGuestConfig),
+			Name:      key.EncryptionKeySecretName(clusterGuestConfig),
 			Namespace: v1.NamespaceDefault,
 			Labels:    labels,
 		},
