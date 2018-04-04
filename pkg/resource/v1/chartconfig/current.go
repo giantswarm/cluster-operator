@@ -14,6 +14,9 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the guest cluster")
+
 	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -34,6 +37,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	for _, item := range chartConfigList.Items {
 		chartConfigs = append(chartConfigs, &item)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d chartconfigs in the guest cluster", len(chartConfigs)))
 
 	return chartConfigs, nil
 }
