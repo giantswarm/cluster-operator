@@ -5,12 +5,12 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/resource/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
 )
 
@@ -22,8 +22,8 @@ const (
 // Config represents the configuration used to create a new chart config resource.
 type Config struct {
 	BaseClusterConfig        cluster.Config
-	CertsSearcher            certs.Interface
 	G8sClient                versioned.Interface
+	GuestClusterService      guestcluster.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
@@ -33,8 +33,8 @@ type Config struct {
 // Resource implements the chart config resource.
 type Resource struct {
 	baseClusterConfig        cluster.Config
-	certsSearcher            certs.Interface
 	g8sClient                versioned.Interface
+	guestClusterService      guestcluster.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
@@ -46,11 +46,11 @@ func New(config Config) (*Resource, error) {
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
 	}
-	if config.CertsSearcher == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CertsSearcher must not be empty", config)
-	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
+	if config.GuestClusterService == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.GuestClusterService must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -67,8 +67,8 @@ func New(config Config) (*Resource, error) {
 
 	newResource := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
-		certsSearcher:            config.CertsSearcher,
 		g8sClient:                config.G8sClient,
+		guestClusterService:      config.GuestClusterService,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,

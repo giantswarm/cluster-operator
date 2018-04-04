@@ -7,7 +7,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
-	"github.com/giantswarm/certs/certstest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	apimetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -58,11 +57,11 @@ func Test_GetDesiredState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				CertsSearcher: certstest.NewSearcher(),
-				G8sClient:     fake.NewSimpleClientset(),
-				K8sClient:     clientgofake.NewSimpleClientset(),
-				Logger:        microloggertest.New(),
-				ProjectName:   "cluster-operator",
+				G8sClient:           fake.NewSimpleClientset(),
+				GuestClusterService: &guestClusterServiceMock{},
+				K8sClient:           clientgofake.NewSimpleClientset(),
+				Logger:              microloggertest.New(),
+				ProjectName:         "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
