@@ -6,9 +6,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// GetCurrentState returns the ChartConfig resources present in the guest
+// cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
@@ -27,7 +29,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	chartConfigList, err := g8sClient.CoreV1alpha1().ChartConfigs(v1.NamespaceSystem).List(v1.ListOptions{})
+	chartConfigList, err := g8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).List(metav1.ListOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

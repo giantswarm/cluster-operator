@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
@@ -22,7 +23,7 @@ func Test_GetCurrentState(t *testing.T) {
 		expectedChartConfigs []*v1alpha1.ChartConfig
 	}{
 		{
-			name: "case 1: no results",
+			name: "case 0: no results",
 			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.aws.giantswarm.io",
 				ID:      "5xchu",
@@ -30,6 +31,108 @@ func Test_GetCurrentState(t *testing.T) {
 			},
 			presentChartConfigs:  []*v1alpha1.ChartConfig{},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{},
+		},
+		{
+			name: "case 1: single result",
+			obj: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu.aws.giantswarm.io",
+				ID:      "5xchu",
+				Owner:   "giantswarm",
+			},
+			presentChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-chart",
+						Namespace: "kube-system",
+					},
+					Spec: v1alpha1.ChartConfigSpec{
+						Chart: v1alpha1.ChartConfigSpecChart{
+							Name:    "test-chart",
+							Channel: "0.1-beta",
+							Release: "test-release",
+						},
+					},
+				},
+			},
+			expectedChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-chart",
+						Namespace: "kube-system",
+					},
+					Spec: v1alpha1.ChartConfigSpec{
+						Chart: v1alpha1.ChartConfigSpecChart{
+							Name:    "test-chart",
+							Channel: "0.1-beta",
+							Release: "test-release",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "case 2: multiple results",
+			obj: v1alpha1.ClusterGuestConfig{
+				DNSZone: "5xchu.aws.giantswarm.io",
+				ID:      "5xchu",
+				Owner:   "giantswarm",
+			},
+			presentChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-chart",
+						Namespace: "kube-system",
+					},
+					Spec: v1alpha1.ChartConfigSpec{
+						Chart: v1alpha1.ChartConfigSpecChart{
+							Name:    "test-chart",
+							Channel: "0.1-beta",
+							Release: "test-release",
+						},
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "another-chart",
+						Namespace: "kube-system",
+					},
+					Spec: v1alpha1.ChartConfigSpec{
+						Chart: v1alpha1.ChartConfigSpecChart{
+							Name:    "another-chart",
+							Channel: "0.1-beta",
+							Release: "another-release",
+						},
+					},
+				},
+			},
+			expectedChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-chart",
+						Namespace: "kube-system",
+					},
+					Spec: v1alpha1.ChartConfigSpec{
+						Chart: v1alpha1.ChartConfigSpecChart{
+							Name:    "test-chart",
+							Channel: "0.1-beta",
+							Release: "test-release",
+						},
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "another-chart",
+						Namespace: "kube-system",
+					},
+					Spec: v1alpha1.ChartConfigSpec{
+						Chart: v1alpha1.ChartConfigSpecChart{
+							Name:    "another-chart",
+							Channel: "0.1-beta",
+							Release: "another-release",
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -73,8 +176,22 @@ func Test_GetCurrentState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			if !reflect.DeepEqual(chartConfigs, tc.expectedChartConfigs) {
-				t.Fatalf("expected %#v got %#v", tc.expectedChartConfigs, chartConfigs)
+			if len(chartConfigs) != len(tc.expectedChartConfigs) {
+				t.Fatalf("expected %d chartconfigs got %d", len(tc.expectedChartConfigs), len(chartConfigs))
+			}
+
+			for _, cc := range chartConfigs {
+				found := false
+				for _, ec := range tc.expectedChartConfigs {
+					if reflect.DeepEqual(cc, ec) {
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					t.Fatalf("unexpected ChartConfig %#v among returned values", *cc)
+				}
 			}
 		})
 	}
