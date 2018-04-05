@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"net"
-	"strings"
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -95,6 +94,29 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
+	var awsClusterConfigFramework *framework.Framework
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := awsclusterconfig.FrameworkConfig{
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
+
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		awsClusterConfigFramework, err = awsclusterconfig.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var healthzService *healthz.Service
 	{
 		c := healthz.Config{
@@ -108,8 +130,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var providerKind string
-	var awsClusterConfigFramework *framework.Framework
 	var kvmClusterConfigFramework *framework.Framework
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -117,45 +137,19 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		providerKind = config.Viper.GetString(config.Flag.Service.Provider.Kind)
-		providerKind = strings.ToLower(strings.TrimSpace(providerKind))
-		switch providerKind {
-		case "aws":
-			{
-				c := awsclusterconfig.FrameworkConfig{
-					BaseClusterConfig: baseClusterConfig,
-					G8sClient:         g8sClient,
-					K8sClient:         k8sClient,
-					K8sExtClient:      k8sExtClient,
+		c := kvmclusterconfig.FrameworkConfig{
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
 
-					Logger:      config.Logger,
-					ProjectName: config.ProjectName,
-				}
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
 
-				awsClusterConfigFramework, err = awsclusterconfig.NewFramework(c)
-				if err != nil {
-					return nil, microerror.Mask(err)
-				}
-			}
-		case "kvm":
-			{
-				c := kvmclusterconfig.FrameworkConfig{
-					BaseClusterConfig: baseClusterConfig,
-					G8sClient:         g8sClient,
-					K8sClient:         k8sClient,
-					K8sExtClient:      k8sExtClient,
-
-					Logger:      config.Logger,
-					ProjectName: config.ProjectName,
-				}
-
-				kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
-				if err != nil {
-					return nil, microerror.Mask(err)
-				}
-			}
-		default:
-			return nil, microerror.Maskf(invalidConfigError, "unsupported provider: '%s'", providerKind)
+		kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
 		}
 	}
 
@@ -166,7 +160,7 @@ func New(config Config) (*Service, error) {
 			GitCommit:      config.GitCommit,
 			Name:           config.ProjectName,
 			Source:         config.Source,
-			VersionBundles: NewVersionBundles(providerKind),
+			VersionBundles: NewVersionBundles(),
 		}
 
 		versionService, err = version.New(versionConfig)
@@ -199,15 +193,8 @@ type Service struct {
 
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
-	s.bootOnce.Do(func() {
-		if s.AWSClusterConfigFramework != nil {
-			go s.AWSClusterConfigFramework.Boot()
-		}
-
-		if s.KVMClusterConfigFramework != nil {
-			go s.KVMClusterConfigFramework.Boot()
-		}
-	})
+	go s.AWSClusterConfigFramework.Boot()
+	go s.KVMClusterConfigFramework.Boot()
 }
 
 func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
