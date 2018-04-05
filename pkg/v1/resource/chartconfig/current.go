@@ -36,8 +36,11 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	chartConfigs := make([]*v1alpha1.ChartConfig, 0, len(chartConfigList.Items))
 
-	for i, item := range chartConfigList.Items {
-		chartConfigs[i] = &item
+	for _, item := range chartConfigList.Items {
+		// Make a copy of an Item in order to not refer to loop
+		// iterator variable.
+		item := item
+		chartConfigs = append(chartConfigs, &item)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d chartconfigs in the guest cluster", len(chartConfigs)))
