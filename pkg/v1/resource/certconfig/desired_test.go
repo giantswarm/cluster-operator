@@ -12,7 +12,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
+	"github.com/giantswarm/cluster-operator/pkg/v1/key"
 )
 
 func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T) {
