@@ -102,6 +102,16 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	return clusterConfig, nil
 }
 
+func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
+	for _, l := range list {
+		if reflect.DeepEqual(item, l) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func toChartConfigs(v interface{}) ([]*v1alpha1.ChartConfig, error) {
 	if v == nil {
 		return nil, nil

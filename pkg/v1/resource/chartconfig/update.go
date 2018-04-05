@@ -3,6 +3,8 @@ package chartconfig
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
 )
 
@@ -11,5 +13,23 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 }
 
 func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
-	return nil, nil
+	create, err := r.newCreateChange(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	update, err := r.newUpdateChange(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch := framework.NewPatch()
+	patch.SetCreateChange(create)
+	patch.SetUpdateChange(update)
+
+	return patch, nil
+}
+
+func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) ([]*v1alpha1.ChartConfig, error) {
+	return []*v1alpha1.ChartConfig{}, nil
 }
