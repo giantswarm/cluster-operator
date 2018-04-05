@@ -144,7 +144,7 @@ func Test_GetCurrentState(t *testing.T) {
 			}
 
 			fakeGuestG8sClient := fake.NewSimpleClientset(objs...)
-			guestClusterService := &guestClusterServiceMock{
+			guestService := &guestMock{
 				fakeGuestG8sClient: fakeGuestG8sClient,
 			}
 
@@ -152,11 +152,11 @@ func Test_GetCurrentState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				G8sClient:           fake.NewSimpleClientset(),
-				GuestClusterService: guestClusterService,
-				K8sClient:           clientgofake.NewSimpleClientset(),
-				Logger:              microloggertest.New(),
-				ProjectName:         "cluster-operator",
+				G8sClient:   fake.NewSimpleClientset(),
+				Guest:       guestService,
+				K8sClient:   clientgofake.NewSimpleClientset(),
+				Logger:      microloggertest.New(),
+				ProjectName: "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

@@ -39,8 +39,8 @@ func New(config Config) (*Service, error) {
 	return newService, nil
 }
 
-// GetG8sClient returns a generated clientset for the specified guest cluster.
-func (s *Service) GetG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
+// NewG8sClient returns a generated clientset for the specified guest cluster.
+func (s *Service) NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
 	s.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificate to connect to the guest cluster")
 
 	operatorCerts, err := s.certsSearcher.SearchClusterOperator(clusterID)

@@ -23,7 +23,7 @@ const (
 type Config struct {
 	BaseClusterConfig        cluster.Config
 	G8sClient                versioned.Interface
-	GuestClusterService      guestcluster.Interface
+	Guest                    guestcluster.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
@@ -34,7 +34,7 @@ type Config struct {
 type Resource struct {
 	baseClusterConfig        cluster.Config
 	g8sClient                versioned.Interface
-	guestClusterService      guestcluster.Interface
+	guest                    guestcluster.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
@@ -49,8 +49,8 @@ func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
-	if config.GuestClusterService == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.GuestClusterService must not be empty", config)
+	if config.Guest == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -68,7 +68,7 @@ func New(config Config) (*Resource, error) {
 	newResource := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
 		g8sClient:                config.G8sClient,
-		guestClusterService:      config.GuestClusterService,
+		guest:                    config.Guest,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,

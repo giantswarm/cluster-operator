@@ -24,7 +24,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	g8sClient, err := r.guestClusterService.GetG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	g8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

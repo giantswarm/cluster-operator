@@ -57,11 +57,11 @@ func Test_GetDesiredState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				G8sClient:           fake.NewSimpleClientset(),
-				GuestClusterService: &guestClusterServiceMock{},
-				K8sClient:           clientgofake.NewSimpleClientset(),
-				Logger:              microloggertest.New(),
-				ProjectName:         "cluster-operator",
+				G8sClient:   fake.NewSimpleClientset(),
+				Guest:       &guestMock{},
+				K8sClient:   clientgofake.NewSimpleClientset(),
+				Logger:      microloggertest.New(),
+				ProjectName: "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

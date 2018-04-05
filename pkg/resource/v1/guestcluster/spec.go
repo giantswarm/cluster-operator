@@ -7,5 +7,5 @@ import (
 )
 
 type Interface interface {
-	GetG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error)
+	NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error)
 }
