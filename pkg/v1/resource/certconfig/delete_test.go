@@ -13,7 +13,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
 
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
+	"github.com/giantswarm/cluster-operator/pkg/v1/key"
 )
 
 func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
