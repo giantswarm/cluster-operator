@@ -12,7 +12,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/key"
+	"github.com/giantswarm/cluster-operator/pkg/v1/key"
 )
 
 const (
