@@ -74,3 +74,30 @@ func (r *Resource) newDeleteChangeForDeletePatch(ctx context.Context, obj, curre
 
 	return currentChartConfigs, nil
 }
+
+func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) ([]*v1alpha1.ChartConfig, error) {
+	currentChartConfigs, err := toChartConfigs(currentState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	desiredChartConfigs, err := toChartConfigs(desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which chartconfigs have to be deleted")
+
+	chartConfigsToDelete := make([]*v1alpha1.ChartConfig, 0)
+
+	for _, currentChartConfig := range currentChartConfigs {
+		_, err := getChartConfigByName(desiredChartConfigs, currentChartConfig.Name)
+		// Existing ChartConfig is not desired anymore so it should be deleted.
+		if IsNotFound(err) {
+			chartConfigsToDelete = append(chartConfigsToDelete, currentChartConfig)
+		}
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d chartconfigs that have to be deleted", len(chartConfigsToDelete)))
+
+	return chartConfigsToDelete, nil
+}
