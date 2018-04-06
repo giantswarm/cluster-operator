@@ -89,6 +89,7 @@ func New(config Config) (*Server, error) {
 
 			Endpoints: []microserver.Endpoint{
 				endpointCollection.Healthz,
+				endpointCollection.Version,
 			},
 			ErrorEncoder: errorEncoder,
 		},
