@@ -122,6 +122,19 @@ func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.
 	return nil, microerror.Mask(notFoundError)
 }
 
+func isChartConfigModified(a, b *v1alpha1.ChartConfig) bool {
+	// If the Spec section has changed we need to update.
+	if !reflect.DeepEqual(a.Spec, b.Spec) {
+		return true
+	}
+	// If the Labels have changed we also need to update.
+	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return true
+	}
+
+	return false
+}
+
 func toChartConfigs(v interface{}) ([]*v1alpha1.ChartConfig, error) {
 	if v == nil {
 		return nil, nil
