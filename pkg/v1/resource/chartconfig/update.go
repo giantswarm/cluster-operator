@@ -62,9 +62,15 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 		return nil, microerror.Mask(err)
 	}
 
+	delete, err := r.newDeleteChangeForUpdatePatch(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	patch := framework.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }

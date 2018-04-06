@@ -112,6 +112,16 @@ func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfi
 	return false
 }
 
+func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.ChartConfig, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return nil, microerror.Mask(notFoundError)
+}
+
 func toChartConfigs(v interface{}) ([]*v1alpha1.ChartConfig, error) {
 	if v == nil {
 		return nil, nil
