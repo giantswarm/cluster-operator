@@ -1,0 +1,11 @@
+package guestcluster
+
+import (
+	"context"
+
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+)
+
+type Interface interface {
+	NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error)
+}
