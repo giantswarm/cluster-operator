@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 )
 
-func Test_GetDesiredState(t *testing.T) {
+func Test_ChartConfig_GetDesiredState(t *testing.T) {
 	testCases := []struct {
 		name           string
 		obj            interface{}
