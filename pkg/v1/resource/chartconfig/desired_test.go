@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 )
 
-func Test_GetDesiredState(t *testing.T) {
+func Test_ChartConfig_GetDesiredState(t *testing.T) {
 	testCases := []struct {
 		name           string
 		obj            interface{}
@@ -58,6 +58,7 @@ func Test_GetDesiredState(t *testing.T) {
 					ClusterID: "test-cluster",
 				},
 				G8sClient:   fake.NewSimpleClientset(),
+				Guest:       &guestMock{},
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",

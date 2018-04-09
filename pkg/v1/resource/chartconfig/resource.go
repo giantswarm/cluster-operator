@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v1/key"
 )
 
@@ -22,6 +23,7 @@ const (
 type Config struct {
 	BaseClusterConfig        cluster.Config
 	G8sClient                versioned.Interface
+	Guest                    guestcluster.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
@@ -32,6 +34,7 @@ type Config struct {
 type Resource struct {
 	baseClusterConfig        cluster.Config
 	g8sClient                versioned.Interface
+	guest                    guestcluster.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
@@ -45,6 +48,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
+	if config.Guest == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -62,6 +68,7 @@ func New(config Config) (*Resource, error) {
 	newResource := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
 		g8sClient:                config.G8sClient,
+		guest:                    config.Guest,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,
@@ -93,6 +100,39 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	clusterConfig.Organization = clusterGuestConfig.Owner
 
 	return clusterConfig, nil
+}
+
+func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
+	for _, l := range list {
+		if reflect.DeepEqual(item, l) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.ChartConfig, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return nil, microerror.Mask(notFoundError)
+}
+
+func isChartConfigModified(a, b *v1alpha1.ChartConfig) bool {
+	// If the Spec section has changed we need to update.
+	if !reflect.DeepEqual(a.Spec, b.Spec) {
+		return true
+	}
+	// If the Labels have changed we also need to update.
+	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return true
+	}
+
+	return false
 }
 
 func toChartConfigs(v interface{}) ([]*v1alpha1.ChartConfig, error) {
