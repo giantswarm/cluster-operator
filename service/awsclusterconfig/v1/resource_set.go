@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -11,6 +13,9 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/key"
 	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/resource/awsconfig"
 )
@@ -24,8 +29,11 @@ const (
 // ResourceSetConfig contains necessary dependencies and settings for
 // AWSClusterConfig framework ResourceSet configuration.
 type ResourceSetConfig struct {
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	BaseClusterConfig *cluster.Config
+	G8sClient         versioned.Interface
+	Guest             guestcluster.Interface
+	K8sClient         kubernetes.Interface
+	Logger            micrologger.Logger
 
 	HandledVersionBundles []string
 	ProjectName           string
@@ -64,8 +72,32 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		}
 	}
 
+	var chartConfigResource framework.Resource
+	{
+		c := chartconfig.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			Guest:                    config.Guest,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := chartconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []framework.Resource{
 		awsConfigResource,
+		chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
@@ -123,6 +155,15 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
+}
+
+func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	awsClusterConfig, err := key.ToCustomObject(obj)
+	if err != nil {
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
+	}
+
+	return key.ToClusterGuestConfig(awsClusterConfig), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops framework.CRUDResourceOps) (*framework.CRUDResource, error) {

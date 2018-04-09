@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/service/awsclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/azureclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/healthz"
@@ -94,6 +96,32 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
+	var certsSearcher certs.Interface
+	{
+		c := certs.Config{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		certsSearcher, err = certs.NewSearcher(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var guest guestcluster.Interface
+	{
+		c := guestcluster.Config{
+			CertsSearcher: certsSearcher,
+			Logger:        config.Logger,
+		}
+
+		guest, err = guestcluster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var awsClusterConfigFramework *framework.Framework
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -104,6 +132,7 @@ func New(config Config) (*Service, error) {
 		c := awsclusterconfig.FrameworkConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
+			Guest:             guest,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 
