@@ -180,9 +180,11 @@ func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectN
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.Cluster:      clusterConfig.ClusterID,
-				label.ManagedBy:    projectName,
-				label.Organization: clusterConfig.Organization,
+				label.Cluster:         clusterConfig.ClusterID,
+				label.LegacyClusterID: clusterConfig.ClusterID,
+				label.LegacyComponent: certName,
+				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -211,11 +213,9 @@ func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Ce
 		ObjectMeta: apimetav1.ObjectMeta{
 			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
 			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: certName,
-				label.ManagedBy:       projectName,
-				label.Organization:    clusterConfig.Organization,
+				label.Cluster:      clusterConfig.ClusterID,
+				label.ManagedBy:    projectName,
+				label.Organization: clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
