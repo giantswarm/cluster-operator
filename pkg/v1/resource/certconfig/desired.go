@@ -57,6 +57,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
+		certConfig := newClusterOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
 		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
@@ -189,6 +193,37 @@ func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectN
 				ClusterComponent:    certName,
 				ClusterID:           clusterConfig.ClusterID,
 				CommonName:          clusterConfig.Domain.Calico,
+				DisableRegeneration: false,
+				TTL:                 clusterConfig.CertTTL,
+			},
+			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
+				Version: clusterConfig.VersionBundleVersion,
+			},
+		},
+	}
+}
+
+func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+	certName := string(cert)
+	return &v1alpha1.CertConfig{
+		TypeMeta: apimetav1.TypeMeta{
+			Kind:       certKind,
+			APIVersion: certAPIVersion,
+		},
+		ObjectMeta: apimetav1.ObjectMeta{
+			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Labels: map[string]string{
+				label.Cluster:      clusterConfig.ClusterID,
+				label.ManagedBy:    projectName,
+				label.Organization: clusterConfig.Organization,
+			},
+		},
+		Spec: v1alpha1.CertConfigSpec{
+			Cert: v1alpha1.CertConfigSpecCert{
+				AllowBareDomains:    false,
+				ClusterComponent:    certName,
+				ClusterID:           clusterConfig.ClusterID,
+				CommonName:          clusterConfig.Domain.API,
 				DisableRegeneration: false,
 				TTL:                 clusterConfig.CertTTL,
 			},
