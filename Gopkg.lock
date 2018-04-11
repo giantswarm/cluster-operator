@@ -76,6 +76,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/apprclient"
+  packages = ["."]
+  revision = "941678e89e3d8836ed99687217676cfdc7c711b1"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "162a1130d27d6bbe1ab101059afab985707e46b0"
@@ -432,8 +438,8 @@
     ".",
     "mem"
   ]
-  revision = "bb8f1927f2a9d3ab41c9340aa034f6b803f4359c"
-  version = "v1.0.2"
+  revision = "63644898a8da0bc22138abf860edaf5277b6102e"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -713,6 +719,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6831fba5b56c3c17e69d0e7255957c1e9671d8001259e776486cb170667c3e7f"
+  inputs-digest = "359feb879a140061d78cf9611408c3b5e531f790b2fad19bf96d6d100d4fc401"
   solver-name = "gps-cdcl"
   solver-version = 1
