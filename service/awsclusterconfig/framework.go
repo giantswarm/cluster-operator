@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1"
 )
 
@@ -20,6 +21,7 @@ import (
 type FrameworkConfig struct {
 	BaseClusterConfig *cluster.Config
 	G8sClient         versioned.Interface
+	Guest             guestcluster.Interface
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
@@ -29,8 +31,14 @@ type FrameworkConfig struct {
 
 // NewFramework returns a configured AWSClusterConfig framework implementation.
 func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
+	if config.BaseClusterConfig == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
+	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
+	if config.Guest == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -76,9 +84,12 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 	var v1ResourceSet *framework.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			BaseClusterConfig: config.BaseClusterConfig,
+			G8sClient:         config.G8sClient,
+			Guest:             config.Guest,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
 		}
 
 		v1ResourceSet, err = v1.NewResourceSet(c)
