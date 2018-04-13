@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
@@ -140,6 +141,19 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var healthzService *healthz.Service
+	{
+		c := healthz.Config{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		healthzService, err = healthz.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmClusterConfigFramework *framework.Framework
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -163,14 +177,17 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var healthzService *healthz.Service
+	var versionService *version.Service
 	{
-		c := healthz.Config{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
+		versionConfig := version.Config{
+			Description:    config.Description,
+			GitCommit:      config.GitCommit,
+			Name:           config.ProjectName,
+			Source:         config.Source,
+			VersionBundles: NewVersionBundles(),
 		}
 
-		healthzService, err = healthz.New(c)
+		versionService, err = version.New(versionConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -181,6 +198,7 @@ func New(config Config) (*Service, error) {
 		AzureClusterConfigFramework: azureClusterConfigFramework,
 		Healthz:                     healthzService,
 		KVMClusterConfigFramework:   kvmClusterConfigFramework,
+		Version:                     versionService,
 
 		bootOnce: sync.Once{},
 	}
@@ -194,6 +212,7 @@ type Service struct {
 	AzureClusterConfigFramework *framework.Framework
 	Healthz                     *healthz.Service
 	KVMClusterConfigFramework   *framework.Framework
+	Version                     *version.Service
 
 	bootOnce sync.Once
 }
