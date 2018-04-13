@@ -1,7 +1,7 @@
 package chart
 
-// State holds the state of the chart to be reconciled.
-type State struct {
+// ResourceState holds the state of the chart to be reconciled.
+type ResourceState struct {
 	// ChartName is the name of the Helm Chart.
 	// e.g. chart-operator-chart
 	ChartName string

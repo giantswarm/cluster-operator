@@ -19,6 +19,10 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "chartv1"
+
+	chartOperatorChart   = "chart-operator-chart"
+	chartOperatorChannel = "0.1-beta"
+	chartOperatorRelease = "chart-operator"
 )
 
 // Config represents the configuration used to create a new chart config resource.
@@ -114,4 +118,17 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	clusterConfig.Organization = clusterGuestConfig.Owner
 
 	return clusterConfig, nil
+}
+
+func toResourceState(v interface{}) (ResourceState, error) {
+	if v == nil {
+		return ResourceState{}, nil
+	}
+
+	resourceState, ok := v.(*ResourceState)
+	if !ok {
+		return ResourceState{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", resourceState, v)
+	}
+
+	return *resourceState, nil
 }
