@@ -86,7 +86,7 @@ func SendWithSender(s Sender, r *http.Request, decorators ...SendDecorator) (*ht
 func AfterDelay(d time.Duration) SendDecorator {
 	return func(s Sender) Sender {
 		return SenderFunc(func(r *http.Request) (*http.Response, error) {
-			if !DelayForBackoff(d, 0, r.Context().Done()) {
+			if !DelayForBackoff(d, 0, r.Cancel) {
 				return nil, fmt.Errorf("autorest: AfterDelay canceled before full delay")
 			}
 			return s.Do(r)
@@ -165,7 +165,7 @@ func DoPollForStatusCodes(duration time.Duration, delay time.Duration, codes ...
 			resp, err = s.Do(r)
 
 			if err == nil && ResponseHasStatusCode(resp, codes...) {
-				r, err = NewPollingRequestWithContext(r.Context(), resp)
+				r, err = NewPollingRequest(resp, r.Cancel)
 
 				for err == nil && ResponseHasStatusCode(resp, codes...) {
 					Respond(resp,
@@ -198,9 +198,7 @@ func DoRetryForAttempts(attempts int, backoff time.Duration) SendDecorator {
 				if err == nil {
 					return resp, err
 				}
-				if !DelayForBackoff(backoff, attempt, r.Context().Done()) {
-					return nil, r.Context().Err()
-				}
+				DelayForBackoff(backoff, attempt, r.Cancel)
 			}
 			return resp, err
 		})
@@ -228,9 +226,9 @@ func DoRetryForStatusCodes(attempts int, backoff time.Duration, codes ...int) Se
 				if err == nil && !ResponseHasStatusCode(resp, codes...) || IsTokenRefreshError(err) {
 					return resp, err
 				}
-				delayed := DelayWithRetryAfter(resp, r.Context().Done())
-				if !delayed && !DelayForBackoff(backoff, attempt, r.Context().Done()) {
-					return nil, r.Context().Err()
+				delayed := DelayWithRetryAfter(resp, r.Cancel)
+				if !delayed {
+					DelayForBackoff(backoff, attempt, r.Cancel)
 				}
 				// don't count a 429 against the number of attempts
 				// so that we continue to retry until it succeeds
@@ -279,9 +277,7 @@ func DoRetryForDuration(d time.Duration, backoff time.Duration) SendDecorator {
 				if err == nil {
 					return resp, err
 				}
-				if !DelayForBackoff(backoff, attempt, r.Context().Done()) {
-					return nil, r.Context().Err()
-				}
+				DelayForBackoff(backoff, attempt, r.Cancel)
 			}
 			return resp, err
 		})
