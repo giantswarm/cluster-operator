@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 )
 
+// GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
