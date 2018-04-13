@@ -45,7 +45,7 @@ func New(config Config) (*Service, error) {
 func (s *Service) NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
 	s.logger.LogCtx(ctx, "level", "debug", "message", "creating G8s client for the guest cluster")
 
-	restConfig, err := s.newKubernetesRestConfig(ctx, clusterID, apiDomain)
+	restConfig, err := s.NewRestConfig(ctx, clusterID, apiDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -64,7 +64,7 @@ func (s *Service) NewG8sClient(ctx context.Context, clusterID, apiDomain string)
 func (s *Service) NewK8sClient(ctx context.Context, clusterID, apiDomain string) (kubernetes.Interface, error) {
 	s.logger.LogCtx(ctx, "level", "debug", "message", "creating K8s client for the guest cluster")
 
-	restConfig, err := s.newKubernetesRestConfig(ctx, clusterID, apiDomain)
+	restConfig, err := s.NewRestConfig(ctx, clusterID, apiDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -79,7 +79,9 @@ func (s *Service) NewK8sClient(ctx context.Context, clusterID, apiDomain string)
 	return k8sClient, nil
 }
 
-func (s *Service) newKubernetesRestConfig(ctx context.Context, clusterID, apiDomain string) (*rest.Config, error) {
+// NewRestConfig returns a Kubernetes REST config for the specified guest
+// cluster.
+func (s *Service) NewRestConfig(ctx context.Context, clusterID, apiDomain string) (*rest.Config, error) {
 	s.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificate to connect to the guest cluster")
 
 	operatorCerts, err := s.certsSearcher.SearchClusterOperator(clusterID)
