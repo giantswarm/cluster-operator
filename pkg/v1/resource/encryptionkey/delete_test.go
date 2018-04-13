@@ -5,9 +5,12 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/cluster-operator/pkg/v1/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
 )
@@ -62,6 +65,18 @@ func Test_ApplyDeleteChange(t *testing.T) {
 			deleteChange:        &v1.Pod{},
 			apiReactorFactories: []apiReactorFactory{},
 			expectedError:       wrongTypeError,
+		},
+		{
+			description:        "handle deletion of non-existing secret gracefully",
+			clusterGuestConfig: newClusterGuestConfig("cluster-1"),
+			deleteChange:       newEncryptionSecret(t, "cluster-1", make(map[string]string)),
+			apiReactorFactories: []apiReactorFactory{func(t *testing.T) k8stesting.Reactor {
+				return alwaysReturnErrorReactor(apierrors.NewNotFound(schema.GroupResource{
+					Group:    "core.giantswarm.io",
+					Resource: "AWSClusterConfig",
+				}, key.EncryptionKeySecretName(newClusterGuestConfig("cluster-1"))))
+			}},
+			expectedError: nil,
 		},
 	}
 
