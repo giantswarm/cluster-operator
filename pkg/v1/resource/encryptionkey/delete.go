@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
 	"k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -22,7 +23,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 	if secret != nil {
 		err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Delete(secret.Name, &metav1.DeleteOptions{})
-		if err != nil {
+		if apierrors.IsNotFound(err) {
+			// It's ok if secret doesn't exist anymore. It would have been
+			// deleted anyway. Rational reason for this is during migration
+			// period from kubernetesd to cluster-operator when there's a race
+			// between these on which one is first to delete pending resource.
+			err = nil
+		} else if err != nil {
 			err = microerror.Mask(err)
 		}
 
