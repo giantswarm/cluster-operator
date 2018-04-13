@@ -5,8 +5,8 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-// ToClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig.
-func ToClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
+// ClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig.
+func ClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
 	return awsClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
