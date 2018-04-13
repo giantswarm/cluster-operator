@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/framework"
@@ -11,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/v1/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/azureclusterconfig/v1/key"
 	"github.com/giantswarm/cluster-operator/service/azureclusterconfig/v1/resource/azureconfig"
 )
@@ -46,6 +48,26 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
+	var encryptionKeyResource framework.Resource
+	{
+		c := encryptionkey.Config{
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := encryptionkey.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var azureConfigResource framework.Resource
 	{
 		c := azureconfig.Config{
@@ -66,6 +88,7 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 
 	resources := []framework.Resource{
 		azureConfigResource,
+		encryptionKeyResource,
 	}
 
 	// Wrap resources with retry and metrics.
@@ -123,6 +146,15 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
+}
+
+func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	azureClusterConfig, err := key.ToCustomObject(obj)
+	if err != nil {
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
+	}
+
+	return key.ToClusterGuestConfig(azureClusterConfig), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops framework.CRUDResourceOps) (*framework.CRUDResource, error) {
