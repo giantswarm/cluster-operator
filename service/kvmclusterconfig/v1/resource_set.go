@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/pkg/resource/v1/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v1/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/key"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1/resource/kvmconfig"
 )

@@ -72,7 +72,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "bec18e979214981ec96c3dc71daa0b1e68da9e32"
+  revision = "2a517245443e2473ea3d49024e325c5ddae329c0"
 
 [[projects]]
   branch = "master"
@@ -91,7 +91,9 @@
   name = "github.com/giantswarm/microendpoint"
   packages = [
     "endpoint/healthz",
-    "service/healthz"
+    "endpoint/version",
+    "service/healthz",
+    "service/version"
   ]
   revision = "7d8dc82edffbe68d1d7cf5624736d637e2541002"
 
@@ -152,7 +154,7 @@
   branch = "master"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
-  revision = "9d68178349b5a16f2af8c3d2b4a14dcbcd6fb08b"
+  revision = "4fac1282be1ff8d3c097a8a6e9e9795a2c41a847"
 
 [[projects]]
   name = "github.com/go-kit/kit"
@@ -713,6 +715,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6831fba5b56c3c17e69d0e7255957c1e9671d8001259e776486cb170667c3e7f"
+  inputs-digest = "b85a0fa6031afd71b9a6505c96c44eafe763888631dedf2187609043940675e7"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
@@ -18,6 +19,7 @@ import (
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/azureclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/healthz"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig"
 )
@@ -116,6 +118,42 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var azureClusterConfigFramework *framework.Framework
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := azureclusterconfig.FrameworkConfig{
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
+
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		azureClusterConfigFramework, err = azureclusterconfig.NewFramework(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var healthzService *healthz.Service
+	{
+		c := healthz.Config{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+		}
+
+		healthzService, err = healthz.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmClusterConfigFramework *framework.Framework
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -139,23 +177,28 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var healthzService *healthz.Service
+	var versionService *version.Service
 	{
-		c := healthz.Config{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
+		versionConfig := version.Config{
+			Description:    config.Description,
+			GitCommit:      config.GitCommit,
+			Name:           config.ProjectName,
+			Source:         config.Source,
+			VersionBundles: NewVersionBundles(),
 		}
 
-		healthzService, err = healthz.New(c)
+		versionService, err = version.New(versionConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	newService := &Service{
-		AWSClusterConfigFramework: awsClusterConfigFramework,
-		Healthz:                   healthzService,
-		KVMClusterConfigFramework: kvmClusterConfigFramework,
+		AWSClusterConfigFramework:   awsClusterConfigFramework,
+		AzureClusterConfigFramework: azureClusterConfigFramework,
+		Healthz:                     healthzService,
+		KVMClusterConfigFramework:   kvmClusterConfigFramework,
+		Version:                     versionService,
 
 		bootOnce: sync.Once{},
 	}
@@ -165,9 +208,11 @@ func New(config Config) (*Service, error) {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
-	AWSClusterConfigFramework *framework.Framework
-	Healthz                   *healthz.Service
-	KVMClusterConfigFramework *framework.Framework
+	AWSClusterConfigFramework   *framework.Framework
+	AzureClusterConfigFramework *framework.Framework
+	Healthz                     *healthz.Service
+	KVMClusterConfigFramework   *framework.Framework
+	Version                     *version.Service
 
 	bootOnce sync.Once
 }
@@ -176,6 +221,7 @@ type Service struct {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.AWSClusterConfigFramework.Boot()
+		go s.AzureClusterConfigFramework.Boot()
 		go s.KVMClusterConfigFramework.Boot()
 	})
 }

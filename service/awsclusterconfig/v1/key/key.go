@@ -7,7 +7,7 @@ import (
 
 // ToClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig.
 func ToClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
-	return awsClusterConfig.Spec.Guest.Config
+	return awsClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
 // ToCustomObject converts value to v1alpha1.AWSClusterConfig and returns it or
