@@ -86,6 +86,9 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	resources := []framework.Resource{
+		// Put encryptionKeyResource first because it executes faster than
+		// kvmConfigResource and could introduce dependency during cluster
+		// creation.
 		encryptionKeyResource,
 		kvmConfigResource,
 	}
