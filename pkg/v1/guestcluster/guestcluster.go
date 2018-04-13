@@ -83,7 +83,9 @@ func (s *Service) newKubernetesRestConfig(ctx context.Context, clusterID, apiDom
 	s.logger.LogCtx(ctx, "level", "debug", "message", "looking for certificate to connect to the guest cluster")
 
 	operatorCerts, err := s.certsSearcher.SearchClusterOperator(clusterID)
-	if err != nil {
+	if certs.IsTimeout(err) {
+		return nil, microerror.Maskf(notFoundError, "cluster-operator cert not found for cluster")
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
