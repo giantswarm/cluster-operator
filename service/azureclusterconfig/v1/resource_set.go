@@ -87,8 +87,11 @@ func NewResourceSet(config ResourceSetConfig) (*framework.ResourceSet, error) {
 	}
 
 	resources := []framework.Resource{
-		azureConfigResource,
+		// Put encryptionKeyResource first because it executes faster than
+		// azureConfigResource and could introduce dependency during cluster
+		// creation.
 		encryptionKeyResource,
+		azureConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
