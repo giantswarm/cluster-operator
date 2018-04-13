@@ -154,7 +154,7 @@ func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) 
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
 	}
 
-	return key.ToClusterGuestConfig(azureClusterConfig), nil
+	return key.ClusterGuestConfig(azureClusterConfig), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops framework.CRUDResourceOps) (*framework.CRUDResource, error) {

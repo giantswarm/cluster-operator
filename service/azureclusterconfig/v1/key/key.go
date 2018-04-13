@@ -5,8 +5,8 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-// ToClusterGuestConfig extracts ClusterGuestConfig from AzureClusterConfig.
-func ToClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1.ClusterGuestConfig {
+// ClusterGuestConfig extracts ClusterGuestConfig from AzureClusterConfig.
+func ClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1.ClusterGuestConfig {
 	return azureClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
