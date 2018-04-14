@@ -54,9 +54,6 @@ const (
 
 	// metadataHeader is the header required by MSI extension
 	metadataHeader = "Metadata"
-
-	// msiEndpoint is the well known endpoint for getting MSI authentications tokens
-	msiEndpoint = "http://169.254.169.254/metadata/identity/oauth2/token"
 )
 
 // OAuthTokenProvider is an interface which should be implemented by an access token retriever
@@ -246,15 +243,16 @@ func (secret *ServicePrincipalCertificateSecret) SetAuthenticationValues(spt *Se
 
 // ServicePrincipalToken encapsulates a Token created for a Service Principal.
 type ServicePrincipalToken struct {
-	token         Token
-	secret        ServicePrincipalSecret
-	oauthConfig   OAuthConfig
-	clientID      string
-	resource      string
-	autoRefresh   bool
-	refreshLock   *sync.RWMutex
-	refreshWithin time.Duration
-	sender        Sender
+	Token
+
+	secret          ServicePrincipalSecret
+	oauthConfig     OAuthConfig
+	clientID        string
+	resource        string
+	autoRefresh     bool
+	autoRefreshLock *sync.Mutex
+	refreshWithin   time.Duration
+	sender          Sender
 
 	refreshCallbacks []TokenRefreshCallback
 }
@@ -286,7 +284,7 @@ func NewServicePrincipalTokenWithSecret(oauthConfig OAuthConfig, id string, reso
 		clientID:         id,
 		resource:         resource,
 		autoRefresh:      true,
-		refreshLock:      &sync.RWMutex{},
+		autoRefreshLock:  &sync.Mutex{},
 		refreshWithin:    defaultRefresh,
 		sender:           &http.Client{},
 		refreshCallbacks: callbacks,
@@ -318,7 +316,7 @@ func NewServicePrincipalTokenFromManualToken(oauthConfig OAuthConfig, clientID s
 		return nil, err
 	}
 
-	spt.token = token
+	spt.Token = token
 
 	return spt, nil
 }
@@ -444,7 +442,24 @@ func NewServicePrincipalTokenFromAuthorizationCode(oauthConfig OAuthConfig, clie
 
 // GetMSIVMEndpoint gets the MSI endpoint on Virtual Machines.
 func GetMSIVMEndpoint() (string, error) {
-	return msiEndpoint, nil
+	return getMSIVMEndpoint(msiPath)
+}
+
+func getMSIVMEndpoint(path string) (string, error) {
+	// Read MSI settings
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	msiSettings := struct {
+		URL string `json:"url"`
+	}{}
+	err = json.Unmarshal(bytes, &msiSettings)
+	if err != nil {
+		return "", err
+	}
+
+	return msiSettings.URL, nil
 }
 
 // NewServicePrincipalTokenFromMSI creates a ServicePrincipalToken via the MSI VM Extension.
@@ -477,22 +492,17 @@ func newServicePrincipalTokenFromMSI(msiEndpoint, resource string, userAssignedI
 		return nil, err
 	}
 
-	v := url.Values{}
-	v.Set("resource", resource)
-	v.Set("api-version", "2018-02-01")
-	if userAssignedID != nil {
-		v.Set("client_id", *userAssignedID)
+	oauthConfig, err := NewOAuthConfig(msiEndpointURL.String(), "")
+	if err != nil {
+		return nil, err
 	}
-	msiEndpointURL.RawQuery = v.Encode()
 
 	spt := &ServicePrincipalToken{
-		oauthConfig: OAuthConfig{
-			TokenEndpoint: *msiEndpointURL,
-		},
+		oauthConfig:      *oauthConfig,
 		secret:           &ServicePrincipalMSISecret{},
 		resource:         resource,
 		autoRefresh:      true,
-		refreshLock:      &sync.RWMutex{},
+		autoRefreshLock:  &sync.Mutex{},
 		refreshWithin:    defaultRefresh,
 		sender:           &http.Client{},
 		refreshCallbacks: callbacks,
@@ -528,12 +538,12 @@ func newTokenRefreshError(message string, resp *http.Response) TokenRefreshError
 // EnsureFresh will refresh the token if it will expire within the refresh window (as set by
 // RefreshWithin) and autoRefresh flag is on.  This method is safe for concurrent use.
 func (spt *ServicePrincipalToken) EnsureFresh() error {
-	if spt.autoRefresh && spt.token.WillExpireIn(spt.refreshWithin) {
-		// take the write lock then check to see if the token was already refreshed
-		spt.refreshLock.Lock()
-		defer spt.refreshLock.Unlock()
-		if spt.token.WillExpireIn(spt.refreshWithin) {
-			return spt.refreshInternal(spt.resource)
+	if spt.autoRefresh && spt.WillExpireIn(spt.refreshWithin) {
+		// take the lock then check to see if the token was already refreshed
+		spt.autoRefreshLock.Lock()
+		defer spt.autoRefreshLock.Unlock()
+		if spt.WillExpireIn(spt.refreshWithin) {
+			return spt.Refresh()
 		}
 	}
 	return nil
@@ -543,7 +553,7 @@ func (spt *ServicePrincipalToken) EnsureFresh() error {
 func (spt *ServicePrincipalToken) InvokeRefreshCallbacks(token Token) error {
 	if spt.refreshCallbacks != nil {
 		for _, callback := range spt.refreshCallbacks {
-			err := callback(spt.token)
+			err := callback(spt.Token)
 			if err != nil {
 				return fmt.Errorf("adal: TokenRefreshCallback handler failed. Error = '%v'", err)
 			}
@@ -555,16 +565,12 @@ func (spt *ServicePrincipalToken) InvokeRefreshCallbacks(token Token) error {
 // Refresh obtains a fresh token for the Service Principal.
 // This method is not safe for concurrent use and should be syncrhonized.
 func (spt *ServicePrincipalToken) Refresh() error {
-	spt.refreshLock.Lock()
-	defer spt.refreshLock.Unlock()
 	return spt.refreshInternal(spt.resource)
 }
 
 // RefreshExchange refreshes the token, but for a different resource.
 // This method is not safe for concurrent use and should be syncrhonized.
 func (spt *ServicePrincipalToken) RefreshExchange(resource string) error {
-	spt.refreshLock.Lock()
-	defer spt.refreshLock.Unlock()
 	return spt.refreshInternal(resource)
 }
 
@@ -579,48 +585,34 @@ func (spt *ServicePrincipalToken) getGrantType() string {
 	}
 }
 
-func isIMDS(u url.URL) bool {
-	imds, err := url.Parse(msiEndpoint)
-	if err != nil {
-		return false
-	}
-	return u.Host == imds.Host && u.Path == imds.Path
-}
-
 func (spt *ServicePrincipalToken) refreshInternal(resource string) error {
-	req, err := http.NewRequest(http.MethodPost, spt.oauthConfig.TokenEndpoint.String(), nil)
+	v := url.Values{}
+	v.Set("client_id", spt.clientID)
+	v.Set("resource", resource)
+
+	if spt.RefreshToken != "" {
+		v.Set("grant_type", OAuthGrantTypeRefreshToken)
+		v.Set("refresh_token", spt.RefreshToken)
+	} else {
+		v.Set("grant_type", spt.getGrantType())
+		err := spt.secret.SetAuthenticationValues(spt, &v)
+		if err != nil {
+			return err
+		}
+	}
+
+	s := v.Encode()
+	body := ioutil.NopCloser(strings.NewReader(s))
+	req, err := http.NewRequest(http.MethodPost, spt.oauthConfig.TokenEndpoint.String(), body)
 	if err != nil {
 		return fmt.Errorf("adal: Failed to build the refresh request. Error = '%v'", err)
 	}
 
-	if !isIMDS(spt.oauthConfig.TokenEndpoint) {
-		v := url.Values{}
-		v.Set("client_id", spt.clientID)
-		v.Set("resource", resource)
-
-		if spt.token.RefreshToken != "" {
-			v.Set("grant_type", OAuthGrantTypeRefreshToken)
-			v.Set("refresh_token", spt.token.RefreshToken)
-		} else {
-			v.Set("grant_type", spt.getGrantType())
-			err := spt.secret.SetAuthenticationValues(spt, &v)
-			if err != nil {
-				return err
-			}
-		}
-
-		s := v.Encode()
-		body := ioutil.NopCloser(strings.NewReader(s))
-		req.ContentLength = int64(len(s))
-		req.Header.Set(contentType, mimeTypeFormPost)
-		req.Body = body
-	}
-
+	req.ContentLength = int64(len(s))
+	req.Header.Set(contentType, mimeTypeFormPost)
 	if _, ok := spt.secret.(*ServicePrincipalMSISecret); ok {
-		req.Method = http.MethodGet
 		req.Header.Set(metadataHeader, "true")
 	}
-
 	resp, err := spt.sender.Do(req)
 	if err != nil {
 		return fmt.Errorf("adal: Failed to execute the refresh request. Error = '%v'", err)
@@ -648,7 +640,7 @@ func (spt *ServicePrincipalToken) refreshInternal(resource string) error {
 		return fmt.Errorf("adal: Failed to unmarshal the service principal token during refresh. Error = '%v' JSON = '%s'", err, string(rb))
 	}
 
-	spt.token = token
+	spt.Token = token
 
 	return spt.InvokeRefreshCallbacks(token)
 }
@@ -668,17 +660,3 @@ func (spt *ServicePrincipalToken) SetRefreshWithin(d time.Duration) {
 // SetSender sets the http.Client used when obtaining the Service Principal token. An
 // undecorated http.Client is used by default.
 func (spt *ServicePrincipalToken) SetSender(s Sender) { spt.sender = s }
-
-// OAuthToken implements the OAuthTokenProvider interface.  It returns the current access token.
-func (spt *ServicePrincipalToken) OAuthToken() string {
-	spt.refreshLock.RLock()
-	defer spt.refreshLock.RUnlock()
-	return spt.token.OAuthToken()
-}
-
-// Token returns a copy of the current token.
-func (spt *ServicePrincipalToken) Token() Token {
-	spt.refreshLock.RLock()
-	defer spt.refreshLock.RUnlock()
-	return spt.token
-}

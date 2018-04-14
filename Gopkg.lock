@@ -15,8 +15,8 @@
     "autorest/azure",
     "autorest/date"
   ]
-  revision = "9ad9326b278af8fa5cc67c30c0ce9a58cc0862b2"
-  version = "v10.6.0"
+  revision = "fc3b03a2d2d1f43fad3007038bd16f044f870722"
+  version = "v9.10.0"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -114,13 +114,13 @@
   version = "v3.2.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/docker/distribution"
   packages = [
-    "digest",
+    "digestset",
     "reference"
   ]
-  revision = "48294d928ced5dd9b378f7fd7c6f5da3ff3f2c89"
-  version = "v2.6.2"
+  revision = "83389a148052d74ac602f5f1d62f86ff2f3c4aa5"
 
 [[projects]]
   name = "github.com/docker/docker"
@@ -208,6 +208,12 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
   revision = "2a517245443e2473ea3d49024e325c5ddae329c0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/apprclient"
+  packages = ["."]
+  revision = "941678e89e3d8836ed99687217676cfdc7c711b1"
 
 [[projects]]
   branch = "master"
@@ -568,6 +574,12 @@
   version = "1.0.0"
 
 [[projects]]
+  name = "github.com/opencontainers/go-digest"
+  packages = ["."]
+  revision = "279bed98673dd5bef374d3b6e4b09e2af76183bf"
+  version = "v1.0.0-rc1"
+
+[[projects]]
   name = "github.com/pborman/uuid"
   packages = ["."]
   revision = "e790cca94e6cc75c7064b1332e63811d4aae1a53"
@@ -633,8 +645,8 @@
     ".",
     "mem"
   ]
-  revision = "bb8f1927f2a9d3ab41c9340aa034f6b803f4359c"
-  version = "v1.0.2"
+  revision = "63644898a8da0bc22138abf860edaf5277b6102e"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -1304,6 +1316,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "af1611f98d2e9348bb7150ec496816692f485bd0bd55b485ed4e76d67a3fdf69"
+  inputs-digest = "6a367901a1ae1df50aef1b743723ff4df875c82d318f94ed9a1d444a936bdcf1"
   solver-name = "gps-cdcl"
   solver-version = 1
