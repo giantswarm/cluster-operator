@@ -21,7 +21,7 @@ const (
 	Name = "chartv1"
 
 	chartOperatorChart   = "chart-operator-chart"
-	chartOperatorChannel = "0.1-beta"
+	chartOperatorChannel = "0-1-beta"
 	chartOperatorRelease = "chart-operator"
 )
 

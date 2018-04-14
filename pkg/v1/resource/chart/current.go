@@ -26,10 +26,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
 	if guestcluster.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the cluster-operator api cert in the Kubernetes API")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
-		// We can't continue without the cluster-operator cert. We will retry
-		// during the next execution.
+		// We can't continue without a Helm client. We will retry during the
+		// next execution.
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
