@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework/context/resourcecanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.

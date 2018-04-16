@@ -13,8 +13,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/v1/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/key"
-	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v2/key"
+	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v2/resource/awsconfig"
 )
 
 const (
