@@ -10,13 +10,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
-	"github.com/giantswarm/cluster-operator/pkg/v1/key"
+	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v2/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartconfigv1"
+	Name = "chartconfigv2"
 )
 
 // Config represents the configuration used to create a new chart config resource.
