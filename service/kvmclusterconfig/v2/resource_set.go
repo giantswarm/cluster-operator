@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/framework/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/pkg/v1/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v2/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2/key"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2/resource/kvmconfig"
 )
