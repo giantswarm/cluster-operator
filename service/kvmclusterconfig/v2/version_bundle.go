@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"time"
@@ -11,8 +11,8 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "Cluster Operator",
-				Description: "Initial version for KVM",
-				Kind:        "added",
+				Description: "TODO",
+				Kind:        "updated",
 			},
 		},
 		Components: []versionbundle.Component{
@@ -25,8 +25,8 @@ func VersionBundle() versionbundle.Bundle {
 		Deprecated:   false,
 		Name:         "cluster-operator",
 		Provider:     "kvm",
-		Time:         time.Date(2018, time.March, 27, 12, 00, 0, 0, time.UTC),
-		Version:      "0.1.0",
+		Time:         time.Date(2018, time.April, 16, 12, 00, 0, 0, time.UTC),
+		Version:      "0.2.0",
 		WIP:          true,
 	}
 }

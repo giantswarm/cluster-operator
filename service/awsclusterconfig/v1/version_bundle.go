@@ -27,6 +27,6 @@ func VersionBundle() versionbundle.Bundle {
 		Provider:     "aws",
 		Time:         time.Date(2018, time.March, 27, 12, 00, 0, 0, time.UTC),
 		Version:      "0.1.0",
-		WIP:          true,
+		WIP:          false,
 	}
 }
