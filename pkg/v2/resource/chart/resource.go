@@ -1,11 +1,13 @@
 package chart
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
@@ -20,9 +22,10 @@ const (
 	// Name is the identifier of the resource.
 	Name = "chartv2"
 
-	chartOperatorChart   = "chart-operator-chart"
-	chartOperatorChannel = "0-1-beta"
-	chartOperatorRelease = "chart-operator"
+	chartOperatorChart     = "chart-operator-chart"
+	chartOperatorChannel   = "0-1-stable"
+	chartOperatorRelease   = "chart-operator"
+	chartOperatorNamespace = "kube-system"
 )
 
 // Config represents the configuration used to create a new chart config resource.
@@ -99,6 +102,24 @@ func New(config Config) (*Resource, error) {
 // Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
+}
+
+func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (helmclient.Interface, error) {
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	return guestHelmClient, nil
 }
 
 func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {

@@ -12,19 +12,7 @@ import (
 
 // GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for chart-operator chart in the guest cluster")
-
-	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
 	if guestcluster.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
@@ -34,7 +22,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil, nil
-
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}

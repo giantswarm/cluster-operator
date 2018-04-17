@@ -13,6 +13,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
+	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2"
 )
 
 // FrameworkConfig contains necessary dependencies and settings for
@@ -78,13 +79,25 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			HandledVersionBundles: []string{
-				"0.1.0",
-			},
 			ProjectName: config.ProjectName,
 		}
 
 		v1ResourceSet, err = v1.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var v2ResourceSet *framework.ResourceSet
+	{
+		c := v2.ResourceSetConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ProjectName: config.ProjectName,
+		}
+
+		v2ResourceSet, err = v2.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -96,6 +109,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 			Logger: config.Logger,
 			ResourceSets: []*framework.ResourceSet{
 				v1ResourceSet,
+				v2ResourceSet,
 			},
 		}
 
