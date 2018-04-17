@@ -7,9 +7,9 @@ rules:
       - ""
     resources:
       - secrets
-    resourceNames:
-      - cluster-operator-pull-secret
     verbs:
+      - create
+      - delete
       - get
   - apiGroups:
       - ""
