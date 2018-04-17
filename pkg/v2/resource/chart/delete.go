@@ -5,14 +5,25 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
+	"github.com/giantswarm/operatorkit/framework/context/resourcecanceledcontext"
 	"k8s.io/helm/pkg/helm"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if err != nil {
+	if guestcluster.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
+
+		// We can't continue without a Helm client. We will retry during the
+		// next execution.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+		return nil
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
