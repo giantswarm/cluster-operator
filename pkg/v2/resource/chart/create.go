@@ -13,6 +13,11 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+	createState, err := toResourceState(createChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
 	if guestcluster.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
@@ -24,11 +29,6 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 		return nil
 	} else if err != nil {
-		return microerror.Mask(err)
-	}
-
-	createState, err := toResourceState(createChange)
-	if err != nil {
 		return microerror.Mask(err)
 	}
 
