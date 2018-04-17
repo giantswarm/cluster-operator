@@ -3,7 +3,9 @@ package chart
 import (
 	"context"
 
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
+	"k8s.io/helm/pkg/helm"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
@@ -33,5 +35,17 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 }
 
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
+	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch := framework.NewPatch()
+	patch.SetDeleteChange(delete)
+
+	return patch, nil
+}
+
+func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
 	return nil, nil
 }
