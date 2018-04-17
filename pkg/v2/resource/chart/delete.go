@@ -2,7 +2,6 @@ package chart
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
@@ -69,14 +68,14 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %s release has to be deleted", desiredResourceState.ReleaseName))
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if chart-operator chart has to be deleted")
 
 	if !reflect.DeepEqual(currentResourceState, ResourceState{}) && reflect.DeepEqual(currentResourceState, desiredResourceState) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %s release needs to be deleted", desiredResourceState.ReleaseName))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator chart needs to be deleted")
 
 		return &desiredResourceState, nil
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %s release does not need to be deleted", desiredResourceState.ReleaseName))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator chart does not need to be deleted")
 	}
 
 	return nil, nil
