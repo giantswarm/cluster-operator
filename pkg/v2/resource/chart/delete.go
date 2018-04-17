@@ -12,6 +12,11 @@ import (
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+	deleteState, err := toResourceState(deleteChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
 	if guestcluster.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
@@ -23,11 +28,6 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 		return nil
 	} else if err != nil {
-		return microerror.Mask(err)
-	}
-
-	deleteState, err := toResourceState(deleteChange)
-	if err != nil {
 		return microerror.Mask(err)
 	}
 
