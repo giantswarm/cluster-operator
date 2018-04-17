@@ -2,6 +2,8 @@ package chart
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/framework"
@@ -47,5 +49,24 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 }
 
 func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
+	currentResourceState, err := toResourceState(currentState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	desiredResourceState, err := toResourceState(desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if the %s release has to be deleted", desiredResourceState.ReleaseName))
+
+	if !reflect.DeepEqual(currentResourceState, ResourceState{}) && reflect.DeepEqual(currentResourceState, desiredResourceState) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %s release needs to be deleted", desiredResourceState.ReleaseName))
+
+		return &desiredResourceState, nil
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("the %s release does not need to be deleted", desiredResourceState.ReleaseName))
+	}
+
 	return nil, nil
 }
