@@ -25,16 +25,16 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 		currentState  *ResourceState
 		desiredState  *ResourceState
 		expectedState *ResourceState
-		description   string
+		name          string
 	}{
 		{
-			description:   "empty current and desired, expected empty",
+			name:          "case 0: empty current and desired, expected empty",
 			currentState:  &ResourceState{},
 			desiredState:  &ResourceState{},
 			expectedState: &ResourceState{},
 		},
 		{
-			description: "non-empty current, empty desired, expected empty",
+			name: "case 1: non-empty current, empty desired, expected empty",
 			currentState: &ResourceState{
 				ChartName: "current",
 			},
@@ -43,7 +43,7 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 		},
 
 		{
-			description:  "empty current, non-empty desired, expected desired",
+			name:         "case 2: empty current, non-empty desired, expected desired",
 			currentState: &ResourceState{},
 			desiredState: &ResourceState{
 				ChartName: "desired",
@@ -53,7 +53,7 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 			},
 		},
 		{
-			description: "equal non-empty current and desired, expected empty",
+			name: "case 3: equal non-empty current and desired, expected empty",
 			currentState: &ResourceState{
 				ChartName: "desired",
 			},
@@ -63,7 +63,7 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 			expectedState: &ResourceState{},
 		},
 		{
-			description: "different non-empty current and desired, expected empty",
+			name: "case 4: different non-empty current and desired, expected empty",
 			currentState: &ResourceState{
 				ChartName: "current",
 			},
@@ -75,7 +75,7 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.description, func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
 			helmClient := &helmMock{}
 
 			c := Config{
