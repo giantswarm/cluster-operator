@@ -105,12 +105,17 @@ func Test_Resource_Chart_newDelete(t *testing.T) {
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
-			createChange, ok := result.(*ResourceState)
-			if !ok {
-				t.Fatalf("expected '%T', got '%T'", createChange, result)
+			if tc.expectedState == nil && result != nil {
+				t.Fatal("expected", nil, "got", result)
 			}
-			if !reflect.DeepEqual(createChange, tc.expectedState) {
-				t.Fatalf("ChartState == %q, want %q", createChange, tc.expectedState)
+			if result != nil {
+				deleteChange, ok := result.(*ResourceState)
+				if !ok {
+					t.Fatalf("expected '%T', got '%T'", deleteChange, result)
+				}
+				if !reflect.DeepEqual(deleteChange, tc.expectedState) {
+					t.Fatalf("ChartState == %q, want %q", deleteChange, tc.expectedState)
+				}
 			}
 		})
 	}
