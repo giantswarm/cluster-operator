@@ -18,8 +18,10 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if guestcluster.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
-		// We can't continue without a Helm client. We will retry during the
-		// next execution.
+		// A not found error here means that the cluster-operator certificate for
+		// the current guest cluster was not found. We can't continue without a Helm
+		// client. We will retry during the next execution, when the certificate
+		// might be available.
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
