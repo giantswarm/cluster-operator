@@ -13,22 +13,24 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+	createState, err := toResourceState(createChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
 	if guestcluster.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
-		// We can't continue without a Helm client. We will retry during the
-		// next execution.
+		// A not found error here means that the cluster-operator certificate for
+		// the current guest cluster was not found. We can't continue without a Helm
+		// client. We will retry during the next execution, when the certificate
+		// might be available.
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil
 	} else if err != nil {
-		return microerror.Mask(err)
-	}
-
-	createState, err := toResourceState(createChange)
-	if err != nil {
 		return microerror.Mask(err)
 	}
 
