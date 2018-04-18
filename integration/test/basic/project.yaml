@@ -1,0 +1,7 @@
+version: 1
+
+test:
+  env:
+    - "KEEP_RESOURCES=${KEEP_RESOURCES}"
+    - "CIRCLE_SHA1=${CIRCLE_SHA1}"
+    - "REGISTRY_PULL_SECRET=${REGISTRY_PULL_SECRET}"

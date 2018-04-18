@@ -223,6 +223,15 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/e2e-harness"
+  packages = [
+    "pkg/framework",
+    "pkg/harness"
+  ]
+  revision = "cf856a893ae108770d8f7c0ed93480b0dabee6c2"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   revision = "38b16df4451c7b773167b58342a2e790016a1380"
@@ -499,6 +508,18 @@
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/howeyc/gopass"
+  packages = ["."]
+  revision = "bf9dde6d0d2c004a008c27aaee91170c786f6db8"
+
+[[projects]]
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "9d5f1277e9a8ed20c3684bda8fde67c05628518c"
+  version = "v0.3.4"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -686,6 +707,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -722,8 +749,11 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix"]
-  revision = "3ccc7e5779793fd54564baf60c51bf017955e0ba"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -1096,8 +1126,12 @@
     "rest/watch",
     "testing",
     "third_party/forked/golang/template",
+    "tools/auth",
     "tools/cache",
+    "tools/clientcmd",
     "tools/clientcmd/api",
+    "tools/clientcmd/api/latest",
+    "tools/clientcmd/api/v1",
     "tools/metrics",
     "tools/pager",
     "tools/portforward",
@@ -1108,6 +1142,7 @@
     "util/buffer",
     "util/cert",
     "util/flowcontrol",
+    "util/homedir",
     "util/integer",
     "util/jsonpath",
     "util/retry",
@@ -1317,6 +1352,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7eee8ad988c775f5904b006304a4f962584b8e20e018e8d4349f4dc1a593ebf1"
+  inputs-digest = "b8c893c86657461b489eeac24bdfa65910d20dabf6b35243d8446a0a2dca4180"
   solver-name = "gps-cdcl"
   solver-version = 1
