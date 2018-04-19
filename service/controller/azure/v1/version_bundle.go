@@ -12,7 +12,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "Cluster Operator",
 				Description: "Initial version for Azure",
-				Kind:        "added",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
