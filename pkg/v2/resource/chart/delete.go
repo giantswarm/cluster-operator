@@ -6,8 +6,8 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/framework"
-	"github.com/giantswarm/operatorkit/framework/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/helm/pkg/helm"
 )
 
@@ -48,13 +48,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	return nil
 }
 
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	patch := framework.NewPatch()
+	patch := controller.NewPatch()
 	patch.SetDeleteChange(delete)
 
 	return patch, nil

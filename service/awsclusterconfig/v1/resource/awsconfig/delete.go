@@ -3,7 +3,7 @@ package awsconfig
 import (
 	"context"
 
-	"github.com/giantswarm/operatorkit/framework"
+	"github.com/giantswarm/operatorkit/controller"
 )
 
 // ApplyDeleteChange takes observed custom object and delete portion of the
@@ -18,6 +18,6 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 // and the desired state as provided by GetDesiredState. NewDeletePatch
 // analyses the current and desired state and returns the patch to be applied by
 // Create, Delete, and Update functions.
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	return nil, nil
 }
