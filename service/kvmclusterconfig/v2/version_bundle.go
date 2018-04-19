@@ -12,7 +12,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "Cluster Operator",
 				Description: "TODO",
-				Kind:        "updated",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
