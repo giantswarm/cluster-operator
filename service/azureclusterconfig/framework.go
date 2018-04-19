@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
-	"github.com/giantswarm/operatorkit/framework"
+	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -29,22 +29,9 @@ type FrameworkConfig struct {
 }
 
 // NewFramework returns a configured AzureClusterConfig framework implementation.
-func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
+func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
-	if config.K8sExtClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sExtClient must not be empty", config)
-	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	var err error
@@ -74,7 +61,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		}
 	}
 
-	var v1ResourceSet *framework.ResourceSet
+	var v1ResourceSet *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
 			K8sClient:   config.K8sClient,
@@ -88,7 +75,7 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		}
 	}
 
-	var v2ResourceSet *framework.ResourceSet
+	var v2ResourceSet *controller.ResourceSet
 	{
 		c := v2.ResourceSetConfig{
 			K8sClient:   config.K8sClient,
@@ -102,33 +89,36 @@ func NewFramework(config FrameworkConfig) (*framework.Framework, error) {
 		}
 	}
 
-	var resourceRouter *framework.ResourceRouter
+	var resourceRouter *controller.ResourceRouter
 	{
-		c := framework.ResourceRouterConfig{
+		c := controller.ResourceRouterConfig{
 			Logger: config.Logger,
-			ResourceSets: []*framework.ResourceSet{
+			ResourceSets: []*controller.ResourceSet{
 				v1ResourceSet,
 				v2ResourceSet,
 			},
 		}
 
-		resourceRouter, err = framework.NewResourceRouter(c)
+		resourceRouter, err = controller.NewResourceRouter(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var crdFramework *framework.Framework
+	var crdFramework *controller.Controller
 	{
-		c := framework.Config{
+		c := controller.Config{
 			CRD:            v1alpha1.NewAzureClusterConfigCRD(),
 			CRDClient:      crdClient,
 			Informer:       newInformer,
 			Logger:         config.Logger,
 			ResourceRouter: resourceRouter,
+			RESTClient:     config.G8sClient.ProviderV1alpha1().RESTClient(),
+
+			Name: config.ProjectName,
 		}
 
-		crdFramework, err = framework.New(c)
+		crdFramework, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
