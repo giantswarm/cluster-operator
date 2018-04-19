@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/microerror"
 
 	"github.com/giantswarm/cluster-operator/integration/teardown"
+	"github.com/giantswarm/cluster-operator/integration/template"
 )
 
 func WrapTestMain(f *framework.Host, helmClient *helmclient.Client, m *testing.M) {
@@ -37,7 +38,7 @@ func WrapTestMain(f *framework.Host, helmClient *helmclient.Client, m *testing.M
 	if os.Getenv("KEEP_RESOURCES") != "true" {
 		// only do full teardown when not on CI
 		if os.Getenv("CIRCLECI") != "true" {
-			err := teardown.Teardown(f)
+			err := teardown.Teardown(f, helmClient)
 			if err != nil {
 				log.Printf("%#v\n", err)
 				v = 1
@@ -51,23 +52,7 @@ func WrapTestMain(f *framework.Host, helmClient *helmclient.Client, m *testing.M
 }
 
 func resources(f *framework.Host, helmClient *helmclient.Client) error {
-	const clusterOperatorValues = `Installation:
-  V1:
-    Guest:
-      Kubernetes:
-        API:
-          ClusterIPRange: 10.0.0.0/16
-    Auth:
-      Vault:
-        Certificate:
-          TTL: 3000h
-    Secret:
-      Registry:
-        PullSecret:
-          DockerConfigJSON: "{\"auths\":{\"quay.io\":{\"auth\":\"${REGISTRY_PULL_SECRET}\"}}}"
-`
-
-	err := f.InstallOperator("cluster-operator", "awsclusterconfig", clusterOperatorValues, "@1.0.0-${CIRCLE_SHA1}")
+	err := f.InstallOperator("cluster-operator", "awsclusterconfig", template.ClusterOperatorChartValues, "@1.0.0-${CIRCLE_SHA1}")
 
 	if err != nil {
 		return microerror.Mask(err)
