@@ -102,7 +102,7 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		c := awsclusterconfig.FrameworkConfig{
+		c := aws.FrameworkConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
@@ -112,7 +112,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.ProjectName,
 		}
 
-		awsClusterConfigFramework, err = awsclusterconfig.NewFramework(c)
+		awsClusterConfigFramework, err = aws.NewFramework(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -125,7 +125,7 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		c := azureclusterconfig.FrameworkConfig{
+		c := azure.FrameworkConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
@@ -135,7 +135,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.ProjectName,
 		}
 
-		azureClusterConfigFramework, err = azureclusterconfig.NewFramework(c)
+		azureClusterConfigFramework, err = azure.NewFramework(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -161,7 +161,7 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		c := kvmclusterconfig.FrameworkConfig{
+		c := kvm.FrameworkConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
@@ -171,7 +171,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.ProjectName,
 		}
 
-		kvmClusterConfigFramework, err = kvmclusterconfig.NewFramework(c)
+		kvmClusterConfigFramework, err = kvm.NewFramework(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

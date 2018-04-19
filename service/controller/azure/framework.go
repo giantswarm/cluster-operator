@@ -1,4 +1,4 @@
-package azureclusterconfig
+package azure
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"

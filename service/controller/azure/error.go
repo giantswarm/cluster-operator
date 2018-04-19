@@ -1,4 +1,4 @@
-package azureclusterconfig
+package azure
 
 import (
 	"github.com/giantswarm/microerror"

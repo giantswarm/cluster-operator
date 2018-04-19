@@ -1,4 +1,4 @@
-package kvmclusterconfig
+package kvm
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"

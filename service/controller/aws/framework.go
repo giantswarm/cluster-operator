@@ -1,4 +1,4 @@
-package awsclusterconfig
+package aws
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
