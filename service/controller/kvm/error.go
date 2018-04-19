@@ -1,4 +1,4 @@
-package azureclusterconfig
+package kvm
 
 import (
 	"github.com/giantswarm/microerror"
