@@ -41,6 +41,17 @@ type Config struct {
 	Source      string
 }
 
+// Service is a type providing implementation of microkit service interface.
+type Service struct {
+	AWSClusterController        *aws.Cluster
+	AzureClusterConfigFramework *controller.Controller
+	Healthz                     *healthz.Service
+	KVMClusterConfigFramework   *controller.Controller
+	Version                     *version.Service
+
+	bootOnce sync.Once
+}
+
 // New creates a new service with given configuration.
 func New(config Config) (*Service, error) {
 	if config.Logger == nil {
@@ -95,14 +106,14 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var awsClusterConfigFramework *controller.Controller
+	var awsClusterController *aws.Cluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		c := aws.FrameworkConfig{
+		c := aws.ClusterConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
@@ -112,7 +123,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.ProjectName,
 		}
 
-		awsClusterConfigFramework, err = aws.NewFramework(c)
+		awsClusterController, err = aws.NewCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -194,7 +205,7 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		AWSClusterConfigFramework:   awsClusterConfigFramework,
+		AWSClusterController:        awsClusterController,
 		AzureClusterConfigFramework: azureClusterConfigFramework,
 		Healthz:                     healthzService,
 		KVMClusterConfigFramework:   kvmClusterConfigFramework,
@@ -206,21 +217,10 @@ func New(config Config) (*Service, error) {
 	return newService, nil
 }
 
-// Service is a type providing implementation of microkit service interface.
-type Service struct {
-	AWSClusterConfigFramework   *controller.Controller
-	AzureClusterConfigFramework *controller.Controller
-	Healthz                     *healthz.Service
-	KVMClusterConfigFramework   *controller.Controller
-	Version                     *version.Service
-
-	bootOnce sync.Once
-}
-
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.AWSClusterConfigFramework.Boot()
+		go s.AWSClusterController.Boot()
 		go s.AzureClusterConfigFramework.Boot()
 		go s.KVMClusterConfigFramework.Boot()
 	})
