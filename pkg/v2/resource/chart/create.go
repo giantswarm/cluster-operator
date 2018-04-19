@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/framework/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"

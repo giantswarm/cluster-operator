@@ -3,7 +3,7 @@ package kvmconfig
 import (
 	"context"
 
-	"github.com/giantswarm/operatorkit/framework"
+	"github.com/giantswarm/operatorkit/controller"
 )
 
 // ApplyUpdateChange takes observed custom object and update portion of the
@@ -15,6 +15,6 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 // NewUpdatePatch computes appropriate Patch based on difference in current
 // state and desired state.
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*framework.Patch, error) {
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	return nil, nil
 }
