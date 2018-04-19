@@ -38,7 +38,7 @@ jobs:
     - persist_to_workspace:
         root: .
         paths:
-        - ./chart-operator
+        - ./cluster-operator
         - ./architect
 
   e2eTestPR:
