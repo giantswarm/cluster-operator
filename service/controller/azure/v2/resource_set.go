@@ -1,4 +1,4 @@
-package v1
+package v2
 
 import (
 	"context"
@@ -12,9 +12,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/pkg/v1/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/key"
-	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v2/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v2/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v2/resource/azureconfig"
 )
 
 const (
@@ -24,7 +24,7 @@ const (
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// AWSClusterConfig framework ResourceSet configuration.
+// AzureClusterConfig framework ResourceSet configuration.
 type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -33,7 +33,7 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured AWSClusterConfig framework ResourceSet.
+// NewResourceSet returns a configured AzureClusterConfig framework ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
@@ -68,19 +68,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var awsConfigResource controller.Resource
+	var azureConfigResource controller.Resource
 	{
-		c := awsconfig.Config{
+		c := azureconfig.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		ops, err := awsconfig.New(c)
+		ops, err := azureconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		awsConfigResource, err = toCRUDResource(config.Logger, ops)
+		azureConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -88,10 +88,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
-		// awsConfigResource and could introduce dependency during cluster
+		// azureConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
-		awsConfigResource,
+		azureConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
@@ -121,12 +121,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		awsClusterConfig, err := key.ToCustomObject(obj)
+		azureClusterConfig, err := key.ToCustomObject(obj)
 		if err != nil {
 			return false
 		}
 
-		if key.VersionBundleVersion(awsClusterConfig) == VersionBundle().Version {
+		if key.VersionBundleVersion(azureClusterConfig) == VersionBundle().Version {
 			return true
 		}
 
@@ -152,12 +152,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
-	awsClusterConfig, err := key.ToCustomObject(obj)
+	azureClusterConfig, err := key.ToCustomObject(obj)
 	if err != nil {
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
 	}
 
-	return key.ClusterGuestConfig(awsClusterConfig), nil
+	return key.ClusterGuestConfig(azureClusterConfig), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {

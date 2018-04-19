@@ -12,8 +12,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/azureclusterconfig/v1"
-	"github.com/giantswarm/cluster-operator/service/azureclusterconfig/v2"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v1"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v2"
 )
 
 // FrameworkConfig contains necessary dependencies and settings for

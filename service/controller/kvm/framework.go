@@ -12,8 +12,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v2"
 )
 
 // FrameworkConfig contains necessary dependencies and settings for

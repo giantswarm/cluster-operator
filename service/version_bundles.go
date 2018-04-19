@@ -3,9 +3,9 @@ package service
 import (
 	"github.com/giantswarm/versionbundle"
 
-	awsv1 "github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1"
-	azurev1 "github.com/giantswarm/cluster-operator/service/azureclusterconfig/v1"
-	kvmv1 "github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
+	awsv1 "github.com/giantswarm/cluster-operator/service/controller/aws/v1"
+	azurev1 "github.com/giantswarm/cluster-operator/service/controller/azure/v1"
+	kvmv1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
 )
 
 func NewVersionBundles() []versionbundle.Bundle {
