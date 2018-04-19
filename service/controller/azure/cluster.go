@@ -1,4 +1,4 @@
-package awsclusterconfig
+package azure
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -12,13 +12,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v1"
-	"github.com/giantswarm/cluster-operator/service/awsclusterconfig/v2"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v1"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v2"
 )
 
-// FrameworkConfig contains necessary dependencies and settings for
-// AWSClusterConfig CRD framework implementation.
-type FrameworkConfig struct {
+// ClusterConfig contains necessary dependencies and settings for
+// AzureClusterConfig CRD framework implementation.
+type ClusterConfig struct {
 	BaseClusterConfig *cluster.Config
 	G8sClient         versioned.Interface
 	K8sClient         kubernetes.Interface
@@ -28,8 +28,12 @@ type FrameworkConfig struct {
 	ProjectName string
 }
 
-// NewFramework returns a configured AWSClusterConfig framework implementation.
-func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
+type Cluster struct {
+	*controller.Controller
+}
+
+// NewCluster returns a configured AzureClusterConfig framework implementation.
+func NewCluster(config ClusterConfig) (*Cluster, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -52,7 +56,7 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 	var newInformer *informer.Informer
 	{
 		c := informer.Config{
-			Watcher: config.G8sClient.CoreV1alpha1().AWSClusterConfigs(""),
+			Watcher: config.G8sClient.CoreV1alpha1().AzureClusterConfigs(""),
 		}
 
 		newInformer, err = informer.New(c)
@@ -105,10 +109,10 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 		}
 	}
 
-	var crdFramework *controller.Controller
+	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:            v1alpha1.NewAWSClusterConfigCRD(),
+			CRD:            v1alpha1.NewAzureClusterConfigCRD(),
 			CRDClient:      crdClient,
 			Informer:       newInformer,
 			Logger:         config.Logger,
@@ -118,11 +122,15 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 			Name: config.ProjectName,
 		}
 
-		crdFramework, err = controller.New(c)
+		clusterController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	return crdFramework, nil
+	c := &Cluster{
+		Controller: clusterController,
+	}
+
+	return c, nil
 }

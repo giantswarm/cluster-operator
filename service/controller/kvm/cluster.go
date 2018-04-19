@@ -1,4 +1,4 @@
-package kvmclusterconfig
+package kvm
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -12,13 +12,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v1"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v2"
 )
 
-// FrameworkConfig contains necessary dependencies and settings for
+// ClusterConfig contains necessary dependencies and settings for
 // KVMClusterConfig CRD framework implementation.
-type FrameworkConfig struct {
+type ClusterConfig struct {
 	BaseClusterConfig *cluster.Config
 	G8sClient         versioned.Interface
 	K8sClient         kubernetes.Interface
@@ -28,8 +28,12 @@ type FrameworkConfig struct {
 	ProjectName string
 }
 
-// NewFramework returns a configured KVMClusterConfig framework implementation.
-func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
+type Cluster struct {
+	*controller.Controller
+}
+
+// NewCluster returns a configured KVMClusterConfig framework implementation.
+func NewCluster(config ClusterConfig) (*Cluster, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -107,7 +111,7 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 		}
 	}
 
-	var crdFramework *controller.Controller
+	var clusterController *controller.Controller
 	{
 		c := controller.Config{
 			CRD:            v1alpha1.NewKVMClusterConfigCRD(),
@@ -120,11 +124,15 @@ func NewFramework(config FrameworkConfig) (*controller.Controller, error) {
 			Name: config.ProjectName,
 		}
 
-		crdFramework, err = controller.New(c)
+		clusterController, err = controller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	return crdFramework, nil
+	c := &Cluster{
+		Controller: clusterController,
+	}
+
+	return c, nil
 }

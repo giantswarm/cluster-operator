@@ -13,8 +13,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/v2/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2/key"
-	"github.com/giantswarm/cluster-operator/service/kvmclusterconfig/v2/resource/kvmconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v2/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v2/resource/awsconfig"
 )
 
 const (
@@ -24,7 +24,7 @@ const (
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// KVMClusterConfig framework ResourceSet configuration.
+// AWSClusterConfig framework ResourceSet configuration.
 type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -33,18 +33,19 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured KVMClusterConfig framework ResourceSet.
+// NewResourceSet returns a configured AWSClusterConfig framework ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
 	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	var encryptionKeyResource controller.Resource
@@ -67,19 +68,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var kvmConfigResource controller.Resource
+	var awsConfigResource controller.Resource
 	{
-		c := kvmconfig.Config{
+		c := awsconfig.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
-		ops, err := kvmconfig.New(c)
+		ops, err := awsconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		kvmConfigResource, err = toCRUDResource(config.Logger, ops)
+		awsConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -87,10 +88,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
-		// kvmConfigResource and could introduce dependency during cluster
+		// awsConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
-		kvmConfigResource,
+		awsConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
@@ -120,12 +121,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		kvmClusterConfig, err := key.ToCustomObject(obj)
+		awsClusterConfig, err := key.ToCustomObject(obj)
 		if err != nil {
 			return false
 		}
 
-		if key.VersionBundleVersion(kvmClusterConfig) == VersionBundle().Version {
+		if key.VersionBundleVersion(awsClusterConfig) == VersionBundle().Version {
 			return true
 		}
 
@@ -151,12 +152,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
-	kvmClusterConfig, err := key.ToCustomObject(obj)
+	awsClusterConfig, err := key.ToCustomObject(obj)
 	if err != nil {
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
 	}
 
-	return key.ToClusterGuestConfig(kvmClusterConfig), nil
+	return key.ClusterGuestConfig(awsClusterConfig), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
