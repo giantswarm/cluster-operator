@@ -43,11 +43,11 @@ type Config struct {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
-	AWSClusterController        *aws.Cluster
-	AzureClusterConfigFramework *controller.Controller
-	Healthz                     *healthz.Service
-	KVMClusterConfigFramework   *controller.Controller
-	Version                     *version.Service
+	AWSClusterController      *aws.Cluster
+	AzureClusterController    *azure.Cluster
+	Healthz                   *healthz.Service
+	KVMClusterConfigFramework *controller.Controller
+	Version                   *version.Service
 
 	bootOnce sync.Once
 }
@@ -129,14 +129,14 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var azureClusterConfigFramework *controller.Controller
+	var azureClusterController *azure.Cluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		c := azure.FrameworkConfig{
+		c := azure.ClusterConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
@@ -146,7 +146,7 @@ func New(config Config) (*Service, error) {
 			ProjectName: config.ProjectName,
 		}
 
-		azureClusterConfigFramework, err = azure.NewFramework(c)
+		azureClusterController, err = azure.NewCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -205,11 +205,11 @@ func New(config Config) (*Service, error) {
 	}
 
 	newService := &Service{
-		AWSClusterController:        awsClusterController,
-		AzureClusterConfigFramework: azureClusterConfigFramework,
-		Healthz:                     healthzService,
-		KVMClusterConfigFramework:   kvmClusterConfigFramework,
-		Version:                     versionService,
+		AWSClusterController:      awsClusterController,
+		AzureClusterController:    azureClusterController,
+		Healthz:                   healthzService,
+		KVMClusterConfigFramework: kvmClusterConfigFramework,
+		Version:                   versionService,
 
 		bootOnce: sync.Once{},
 	}
@@ -221,7 +221,7 @@ func New(config Config) (*Service, error) {
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
 		go s.AWSClusterController.Boot()
-		go s.AzureClusterConfigFramework.Boot()
+		go s.AzureClusterController.Boot()
 		go s.KVMClusterConfigFramework.Boot()
 	})
 }
