@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -17,6 +21,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
@@ -25,6 +30,9 @@ import (
 
 const (
 	apiServerIPLastOctet = 1
+
+	defaultCNRAddress      = "https://quay.io"
+	defaultCNROrganization = "giantswarm"
 )
 
 // Config represents the configuration used to create a new service.
@@ -105,6 +113,51 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
+	fs := afero.NewOsFs()
+	var apprClient *apprclient.Client
+	{
+		c := apprclient.Config{
+			Fs:     fs,
+			Logger: config.Logger,
+
+			Address:      defaultCNRAddress,
+			Organization: defaultCNROrganization,
+		}
+
+		apprClient, err = apprclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var certSearcher certs.Interface
+	{
+		c := certs.Config{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+
+			WatchTimeout: 2 * time.Minute,
+		}
+
+		certSearcher, err = certs.NewSearcher(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var guestClusterService *guestcluster.Service
+	{
+		c := guestcluster.Config{
+			CertsSearcher: certSearcher,
+			Logger:        config.Logger,
+		}
+
+		guestClusterService, err = guestcluster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var awsClusterController *aws.Cluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -113,7 +166,10 @@ func New(config Config) (*Service, error) {
 		}
 
 		c := aws.ClusterConfig{
+			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
+			Fs:                fs,
+			Guest:             guestClusterService,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -136,7 +192,10 @@ func New(config Config) (*Service, error) {
 		}
 
 		c := azure.ClusterConfig{
+			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
+			Fs:                fs,
+			Guest:             guestClusterService,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -172,7 +231,10 @@ func New(config Config) (*Service, error) {
 		}
 
 		c := kvm.ClusterConfig{
+			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
+			Fs:                fs,
+			Guest:             guestClusterService,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,

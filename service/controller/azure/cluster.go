@@ -3,15 +3,18 @@ package azure
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v1"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v2"
 )
@@ -19,7 +22,10 @@ import (
 // ClusterConfig contains necessary dependencies and settings for
 // AzureClusterConfig CRD framework implementation.
 type ClusterConfig struct {
+	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
+	Fs                afero.Fs
+	Guest             guestcluster.Interface
 	G8sClient         versioned.Interface
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
@@ -82,9 +88,14 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var v2ResourceSet *controller.ResourceSet
 	{
 		c := v2.ResourceSetConfig{
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			Fs:                config.Fs,
+			Guest:             config.Guest,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
 		}
 
 		v2ResourceSet, err = v2.NewResourceSet(c)
