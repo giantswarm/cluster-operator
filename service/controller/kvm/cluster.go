@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
@@ -14,7 +15,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v2"
 )
@@ -24,8 +24,8 @@ import (
 type ClusterConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
+	CertSearcher      certs.Interface
 	Fs                afero.Fs
-	Guest             guestcluster.Interface
 	G8sClient         versioned.Interface
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
@@ -91,8 +91,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		c := v2.ResourceSetConfig{
 			ApprClient:        config.ApprClient,
 			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
 			Fs:                config.Fs,
-			Guest:             config.Guest,
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,

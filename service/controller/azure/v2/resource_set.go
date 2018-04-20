@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -34,6 +35,7 @@ const (
 type ResourceSetConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
+	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	G8sClient         versioned.Interface
 	Guest             guestcluster.Interface
@@ -97,6 +99,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var guestClusterService *guestcluster.Service
+	{
+		c := guestcluster.Config{
+			CertsSearcher: config.CertSearcher,
+			Logger:        config.Logger,
+		}
+
+		guestClusterService, err = guestcluster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
@@ -104,7 +119,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Fs:                       config.Fs,
 			G8sClient:                config.G8sClient,
-			Guest:                    config.Guest,
+			Guest:                    guestClusterService,
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,

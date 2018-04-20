@@ -21,7 +21,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v1/guestcluster"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
@@ -145,19 +144,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var guestClusterService *guestcluster.Service
-	{
-		c := guestcluster.Config{
-			CertsSearcher: certSearcher,
-			Logger:        config.Logger,
-		}
-
-		guestClusterService, err = guestcluster.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var awsClusterController *aws.Cluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -168,8 +154,8 @@ func New(config Config) (*Service, error) {
 		c := aws.ClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
+			CertSearcher:      certSearcher,
 			Fs:                fs,
-			Guest:             guestClusterService,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -194,8 +180,8 @@ func New(config Config) (*Service, error) {
 		c := azure.ClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
+			CertSearcher:      certSearcher,
 			Fs:                fs,
-			Guest:             guestClusterService,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -233,8 +219,8 @@ func New(config Config) (*Service, error) {
 		c := kvm.ClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
+			CertSearcher:      certSearcher,
 			Fs:                fs,
-			Guest:             guestClusterService,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
