@@ -19,7 +19,7 @@ func WrapTestMain(f *framework.Host, helmClient *helmclient.Client, m *testing.M
 	var v int
 	var err error
 
-	err = f.CreateNamespace("giantswarm")
+	err = f.Setup()
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
@@ -44,7 +44,7 @@ func WrapTestMain(f *framework.Host, helmClient *helmclient.Client, m *testing.M
 				v = 1
 			}
 			// TODO there should be error handling for the framework teardown.
-			f.Teardown()
+			//f.Teardown()
 		}
 	}
 
@@ -52,8 +52,17 @@ func WrapTestMain(f *framework.Host, helmClient *helmclient.Client, m *testing.M
 }
 
 func resources(f *framework.Host, helmClient *helmclient.Client) error {
-	err := f.InstallOperator("cluster-operator", "awsclusterconfig", template.ClusterOperatorChartValues, "@1.0.0-${CIRCLE_SHA1}")
+	err := f.InstallStableOperator("cert-operator", "certconfig", template.CertOperatorChartValues)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
+	err = f.InstallCertResource()
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = f.InstallOperator("cluster-operator", "awsclusterconfig", template.ClusterOperatorChartValues, "@1.0.0-${CIRCLE_SHA1}")
 	if err != nil {
 		return microerror.Mask(err)
 	}

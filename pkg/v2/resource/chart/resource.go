@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -115,6 +116,7 @@ func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (hel
 		return nil, microerror.Mask(err)
 	}
 
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("getting helm client for %s and %s", clusterConfig.ClusterID, clusterConfig.Domain.API))
 	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
 	if err != nil {
 		return nil, microerror.Mask(err)

@@ -10,7 +10,8 @@ import (
 )
 
 func Teardown(f *framework.Host, helmClient *helmclient.Client) error {
-	items := []string{"cluster-operator"}
+	//items := []string{"cluster-operator", "cluster-operator-resource", "cert-operator", "cert-resource-lab", }
+	items := []string{}
 
 	for _, item := range items {
 		err := helmClient.DeleteRelease(item, helm.DeletePurge(true))
