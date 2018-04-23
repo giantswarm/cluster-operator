@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v2/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v2/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v2/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v2/key"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v2/resource/kvmconfig"
@@ -136,6 +137,29 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartConfigResource controller.Resource
+	{
+		c := chartconfig.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			Guest:                    guestClusterService,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := chartconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// kvmConfigResource and could introduce dependency during cluster
@@ -143,6 +167,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		encryptionKeyResource,
 		kvmConfigResource,
 		chartResource,
+		chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
