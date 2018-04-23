@@ -2,6 +2,7 @@ package chartconfig
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -14,15 +15,25 @@ import (
 
 func Test_ChartConfig_GetDesiredState(t *testing.T) {
 	testCases := []struct {
-		name string
-		obj  interface{}
+		name               string
+		obj                interface{}
+		expectedChartNames []string
+		expectedLabels     map[string]string
 	}{
 		{
-			name: "empty chart configs",
+			name: "basic match",
 			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.aws.giantswarm.io",
 				ID:      "5xchu",
 				Owner:   "giantswarm",
+			},
+			expectedChartNames: []string{
+				"kubernetes-kube-state-metrics",
+			},
+			expectedLabels: map[string]string{
+				"giantswarm.io/cluster":      "5xchu",
+				"giantswarm.io/managed-by":   "cluster-operator",
+				"giantswarm.io/organization": "giantswarm",
 			},
 		},
 	}
@@ -57,8 +68,21 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			if len(chartConfigs) != 0 {
-				t.Fatal("expected", 0, "got", len(chartConfigs))
+			if len(chartConfigs) != len(tc.expectedChartNames) {
+				t.Fatal("expected", len(tc.expectedChartNames), "got", len(chartConfigs))
+			}
+
+			for _, chartName := range tc.expectedChartNames {
+				chart, err := getChartConfigByName(chartConfigs, chartName)
+				if IsNotFound(err) {
+					t.Fatalf("expected chart '%s' got not found error", chartName)
+				} else if err != nil {
+					t.Fatal("expected", nil, "got", err)
+				}
+
+				if !reflect.DeepEqual(chart.Labels, tc.expectedLabels) {
+					t.Fatalf("expected labels '%q' got '%q'", tc.expectedLabels, chart.Labels)
+				}
 			}
 		})
 	}
