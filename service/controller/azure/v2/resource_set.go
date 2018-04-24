@@ -31,7 +31,7 @@ const (
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// AzureClusterConfig framework ResourceSet configuration.
+// AzureClusterConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
@@ -46,7 +46,7 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured AzureClusterConfig framework ResourceSet.
+// NewResourceSet returns a configured AzureClusterConfig controller ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
