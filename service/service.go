@@ -135,7 +135,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
 
-			WatchTimeout: 2 * time.Minute,
+			WatchTimeout: 5 * time.Second,
 		}
 
 		certSearcher, err = certs.NewSearcher(c)
