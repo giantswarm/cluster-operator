@@ -1,9 +1,6 @@
 package basic
 
 import (
-	"io/ioutil"
-	"os"
-	"os/exec"
 	"testing"
 
 	"github.com/giantswarm/microerror"
@@ -54,11 +51,6 @@ func setUp() error {
 		return microerror.Mask(err)
 	}
 
-	err = setupDNS()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	err = setupIPTables()
 	if err != nil {
 		return microerror.Mask(err)
@@ -78,11 +70,6 @@ func tearDown() error {
 		return microerror.Mask(err)
 	}
 
-	err = teardownDNS()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	err = teardownIPTables()
 	if err != nil {
 		return microerror.Mask(err)
@@ -96,53 +83,12 @@ func tearDown() error {
 	return nil
 }
 
-func setupDNS() error {
-	// /etc/hosts is in a file system mounted as readonly, we will bind mount the modified file.
-	content, err := ioutil.ReadFile("/etc/hosts")
-	if err != nil {
-		return microerror.Maskf(err, "could not read hosts file %v")
-	}
-	err = ioutil.WriteFile(tmpHostsFile, content, 0644)
-	if err != nil {
-		return microerror.Maskf(err, "could not write tmp hosts file %v")
-	}
-
-	f, err := os.OpenFile(tmpHostsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return microerror.Maskf(err, "could not open hosts file %v")
-	}
-	defer f.Close()
-
-	dnsEntry := os.ExpandEnv("\n127.0.0.1     api.${CLUSTER_NAME}.aws.giantswarm.io")
-	if _, err := f.Write([]byte(dnsEntry)); err != nil {
-		return microerror.Maskf(err, "could not append new entry to tmp hosts file %v")
-	}
-
-	cmd := exec.Command("mount", "--bind", tmpHostsFile, "/etc/hosts")
-	err = cmd.Run()
-	if err != nil {
-		return microerror.Maskf(err, "could not bind mount tmp hosts file")
-	}
-
-	return nil
-}
-
 func setupIPTables() error {
 
 	return nil
 }
 
 func setupCertificates() error {
-
-	return nil
-}
-
-func teardownDNS() error {
-	cmd := exec.Command("umount", "/etc/hosts")
-	err := cmd.Run()
-	if err != nil {
-		return microerror.Mask(err)
-	}
 
 	return nil
 }
