@@ -20,7 +20,7 @@ import (
 )
 
 // ClusterConfig contains necessary dependencies and settings for
-// AzureClusterConfig CRD framework implementation.
+// AzureClusterConfig CRD controller implementation.
 type ClusterConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
@@ -38,7 +38,7 @@ type Cluster struct {
 	*controller.Controller
 }
 
-// NewCluster returns a configured AzureClusterConfig framework implementation.
+// NewCluster returns a configured AzureClusterConfig controller implementation.
 func NewCluster(config ClusterConfig) (*Cluster, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
