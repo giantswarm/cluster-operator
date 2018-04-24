@@ -45,7 +45,7 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 			APIVersion: chartConfigAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: "kubernetes-kube-state-metrics",
+			Name: "kubernetes-kube-state-metrics-chart",
 			Labels: map[string]string{
 				label.Cluster:      clusterConfig.ClusterID,
 				label.ManagedBy:    projectName,
@@ -54,7 +54,7 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 		},
 		Spec: v1alpha1.ChartConfigSpec{
 			Chart: v1alpha1.ChartConfigSpecChart{
-				Name:      "kubernetes-kube-state-metrics",
+				Name:      "kubernetes-kube-state-metrics-chart",
 				Channel:   "0-1-beta",
 				Namespace: "kube-system",
 				Release:   "kube-state-metrics",

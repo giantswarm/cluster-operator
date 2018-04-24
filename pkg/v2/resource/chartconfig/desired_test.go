@@ -28,7 +28,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				Owner:   "giantswarm",
 			},
 			expectedChartNames: []string{
-				"kubernetes-kube-state-metrics",
+				"kubernetes-kube-state-metrics-chart",
 			},
 			expectedLabels: map[string]string{
 				"giantswarm.io/cluster":      "5xchu",
