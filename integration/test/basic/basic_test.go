@@ -7,24 +7,24 @@ import (
 )
 
 const (
-	tmpHostsFile = "/home/e2e-harness/hosts.new"
+	releaseName = "chart-operator"
 )
 
 func TestChartOperatorBootstrap(t *testing.T) {
-	err := setUp()
+	releaseContent, err := helmClient.GetReleaseContent(releaseName)
 	if err != nil {
-		t.Fatalf("could not setup test: %v", err)
+		t.Fatalf("could not get release content %v", err)
 	}
-	// defer tearDown()
 
-}
+	expectedName := releaseName
+	actualName := releaseContent.Name
+	if expectedName != actualName {
+		t.Fatalf("bad release name, want %q, got %q", expectedName, actualName)
+	}
 
-func setUp() error {
-
-	return nil
-}
-
-func tearDown() error {
-
-	return nil
+	expectedStatus := "DEPLOYED"
+	actualStatus := releaseContent.Status
+	if expectedStatus != actualStatus {
+		t.Fatalf("bad release status, want %q, got %q", expectedStatus, actualStatus)
+	}
 }
