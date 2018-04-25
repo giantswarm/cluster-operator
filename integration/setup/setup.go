@@ -140,5 +140,10 @@ func resources(c *awsclient.AWS, h *framework.Host, g *framework.Guest, helmClie
 		return microerror.Mask(err)
 	}
 
+	err = h.InstallResource("cluster-operator-resource", template.ClusterOperatorResourceChartValues, ":stable")
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	return nil
 }
