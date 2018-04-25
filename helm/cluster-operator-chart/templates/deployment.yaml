@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: cluster-operator
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       affinity:
         podAntiAffinity:
