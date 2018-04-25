@@ -20,6 +20,24 @@ func TestChartOperatorBootstrap(t *testing.T) {
 
 }
 
+func setUp() error {
+	err := installResource("cluster-operator-resource")
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func tearDown() error {
+	err := removeResource("cluster-operator-resource")
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
 func installResource(name string) error {
 	tarball, err := apprClient.PullChartTarball(name+"-chart", "stable")
 	if err != nil {
@@ -42,63 +60,5 @@ func removeResource(name string) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	return nil
-}
-
-func setUp() error {
-	err := installResource("cluster-operator-resource")
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = setupIPTables()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = setupCertificates()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
-}
-
-func tearDown() error {
-	err := removeResource("cluster-operator-resource")
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = teardownIPTables()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = teardownCertificates()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
-}
-
-func setupIPTables() error {
-
-	return nil
-}
-
-func setupCertificates() error {
-
-	return nil
-}
-
-func teardownIPTables() error {
-
-	return nil
-}
-
-func teardownCertificates() error {
-
 	return nil
 }

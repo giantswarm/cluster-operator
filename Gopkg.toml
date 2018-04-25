@@ -44,6 +44,10 @@ required = [
 
 [[constraint]]
   branch = "master"
+  name = "github.com/giantswarm/aws-operator"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/apprclient"
 
 [[constraint]]

@@ -73,6 +73,7 @@
     "private/protocol/rest",
     "private/protocol/xml/xmlutil",
     "service/autoscaling",
+    "service/cloudformation",
     "service/ec2",
     "service/ecr",
     "service/elb",
@@ -217,6 +218,14 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/aws-operator"
+  packages = [
+    "integration/client",
+    "integration/template"
+  ]
+  revision = "6c2bd9ac1bd6a6b2c3e7b25936d0c3d7c4cac164"
+
+[[projects]]
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "7be474c80bf0e824b1e575d21fb699686c0a9e4d"
@@ -1352,6 +1361,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b8c893c86657461b489eeac24bdfa65910d20dabf6b35243d8446a0a2dca4180"
+  inputs-digest = "29918cf2be7588a2da7530e6a8c2ae1e69e79f48f73878d071b6b186cd6f16d0"
   solver-name = "gps-cdcl"
   solver-version = 1

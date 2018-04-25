@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	f          *framework.Host
+	h          *framework.Host
+	g          *framework.Guest
 	helmClient *helmclient.Client
 	apprClient *apprclient.Client
 )
@@ -25,7 +26,16 @@ var (
 func TestMain(m *testing.M) {
 	var err error
 
-	f, err = framework.NewHost(framework.HostConfig{})
+	h, err = framework.NewHost(framework.HostConfig{})
+	if err != nil {
+		panic(err.Error())
+	}
+
+	logger, err := micrologger.New(micrologger.Config{})
+	if err != nil {
+		panic(err.Error())
+	}
+	g, err = framework.NewGuest(framework.GuestConfig{Logger: logger})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -37,8 +47,8 @@ func TestMain(m *testing.M) {
 
 	ch := helmclient.Config{
 		Logger:     l,
-		K8sClient:  f.K8sClient(),
-		RestConfig: f.RestConfig(),
+		K8sClient:  h.K8sClient(),
+		RestConfig: h.RestConfig(),
 	}
 	helmClient, err = helmclient.New(ch)
 	if err != nil {
@@ -59,5 +69,5 @@ func TestMain(m *testing.M) {
 		panic(err.Error())
 	}
 
-	setup.WrapTestMain(f, helmClient, m)
+	setup.WrapTestMain(g, h, helmClient, apprClient, m)
 }
