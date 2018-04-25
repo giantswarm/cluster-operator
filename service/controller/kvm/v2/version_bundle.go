@@ -11,7 +11,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Chart resource enabled.",
+				Description: "Install chart-operator in kube-system namespace.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
