@@ -109,7 +109,7 @@ func (g *Guest) Setup() error {
 	g.k8sClient = guestK8sClient
 	g.restConfig = guestRestConfig
 
-	err = g.WaitForAPIUp()
+	err = g.WaitForGuestReady()
 	if err != nil {
 		return microerror.Mask(err)
 	}
