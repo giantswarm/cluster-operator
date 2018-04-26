@@ -11,12 +11,12 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Install chart-operator in kube-system namespace.",
+				Description: "Installed chart-operator in kube-system namespace.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
 				Component:   "cluster-operator",
-				Description: "Misleading component reference to aws-operator removed.",
+				Description: "Removed misleading component reference to aws-operator.",
 				Kind:        versionbundle.KindFixed,
 			},
 		},
