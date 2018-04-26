@@ -119,6 +119,12 @@ func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (hel
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	err = guestHelmClient.EnsureTillerInstalled()
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	return guestHelmClient, nil
 }
 
