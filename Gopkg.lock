@@ -217,12 +217,6 @@
   revision = "3b84395624cf804b3f43bb2f5bcf43ca36de9fee"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/giantswarm/aws-operator"
-  packages = ["integration/client"]
-  revision = "6c2bd9ac1bd6a6b2c3e7b25936d0c3d7c4cac164"
-
-[[projects]]
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "7be474c80bf0e824b1e575d21fb699686c0a9e4d"
@@ -1370,6 +1364,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fdb385b6f7d95fdc04e355e699df989e0ee46fc4bf75a16e690e228cff07e877"
+  inputs-digest = "1992f21001ad4f04018c2ac51594632a3bf16dacbd872bb2c72e7d1dd7c15d0b"
   solver-name = "gps-cdcl"
   solver-version = 1

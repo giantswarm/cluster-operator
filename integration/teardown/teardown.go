@@ -8,14 +8,14 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
-	awsclient "github.com/giantswarm/aws-operator/integration/client"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
+	awsclient "github.com/giantswarm/e2eclients/aws"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/helm/pkg/helm"
 )
 
-func Teardown(c *awsclient.AWS, f *framework.Host, helmClient *helmclient.Client) error {
+func Teardown(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
 	items := []string{
 		"cluster-operator",
 		"cluster-operator-resource",
@@ -41,7 +41,7 @@ func Teardown(c *awsclient.AWS, f *framework.Host, helmClient *helmclient.Client
 	return nil
 }
 
-func hostPeerVPC(c *awsclient.AWS) error {
+func hostPeerVPC(c *awsclient.Client) error {
 	log.Printf("Deleting Host Peer VPC stack")
 
 	_, err := c.CloudFormation.DeleteStack(&cloudformation.DeleteStackInput{
