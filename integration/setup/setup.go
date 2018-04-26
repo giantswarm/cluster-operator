@@ -65,7 +65,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 
 	c := awsclient.NewClient()
 
-	clusterName := fmt.Sprintf("ci-cluster-operator-%s", os.Getenv("CIRCLE_SHA1"))
+	clusterName := fmt.Sprintf("ci-clop-%s", os.Getenv("CIRCLE_SHA1")[0:5])
 	os.Setenv("CLUSTER_NAME", clusterName)
 
 	err = hostPeerVPC(c)
