@@ -3,6 +3,7 @@
 package setup
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -69,6 +70,9 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		log.Printf("%#v\n", err)
 		v = 1
 	}
+
+	clusterName := fmt.Sprintf("ci-cluster-operator-%s", os.Getenv("CIRCLE_SHA1"))
+	os.Setenv("CLUSTER_NAME", clusterName)
 
 	err = h.Setup()
 	if err != nil {
