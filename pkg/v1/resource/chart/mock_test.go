@@ -80,3 +80,7 @@ func (h *helmMock) InstallFromTarball(path, ns string, options ...helm.InstallOp
 func (h *helmMock) UpdateReleaseFromTarball(releaseName, path string, options ...helm.UpdateOption) error {
 	return nil
 }
+
+func (h *helmMock) EnsureTillerInstalled() error {
+	return nil
+}
