@@ -238,6 +238,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/e2eclients"
+  packages = ["aws"]
+  revision = "cb45cf36a000b2212427dac1697740dd316d2f0b"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/e2etemplates"
   packages = ["pkg/e2etemplates"]
   revision = "db9359aee247721c31333ccff099c02a5a934794"
@@ -1364,6 +1370,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "85e1fb5f8845b29ce5235bfc936115c51dcebcaf492b56b173098a994b47fc17"
+  inputs-digest = "fdb385b6f7d95fdc04e355e699df989e0ee46fc4bf75a16e690e228cff07e877"
   solver-name = "gps-cdcl"
   solver-version = 1

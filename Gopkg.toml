@@ -44,15 +44,15 @@ required = [
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/aws-operator"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/apprclient"
 
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/e2e-harness"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/e2eclients"
 
 [[constraint]]
   branch = "master"
