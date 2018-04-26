@@ -87,7 +87,12 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	}
 
 	if v == 0 {
-		err = g.Setup()
+		err = g.Initialize()
+		if err != nil {
+			log.Printf("%#v\n", err)
+			v = 1
+		}
+		err = g.WaitForAPIUp()
 		if err != nil {
 			log.Printf("%#v\n", err)
 			v = 1
