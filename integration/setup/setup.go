@@ -21,7 +21,7 @@ import (
 	"github.com/giantswarm/cluster-operator/integration/template"
 )
 
-func hostPeerVPC(c *awsclient.AWS, g *framework.Guest, h *framework.Host) error {
+func hostPeerVPC(c *awsclient.AWS) error {
 	log.Printf("Creating Host Peer VPC stack")
 
 	clusterID := os.Getenv("CLUSTER_NAME")
@@ -65,14 +65,14 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 
 	c := awsclient.NewAWS()
 
-	err = hostPeerVPC(c, g, h)
+	clusterName := fmt.Sprintf("ci-cluster-operator-%s", os.Getenv("CIRCLE_SHA1"))
+	os.Setenv("CLUSTER_NAME", clusterName)
+
+	err = hostPeerVPC(c)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
 	}
-
-	clusterName := fmt.Sprintf("ci-cluster-operator-%s", os.Getenv("CIRCLE_SHA1"))
-	os.Setenv("CLUSTER_NAME", clusterName)
 
 	err = h.Setup()
 	if err != nil {
