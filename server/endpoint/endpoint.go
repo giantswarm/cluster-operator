@@ -18,6 +18,12 @@ type Config struct {
 	Service    *service.Service
 }
 
+// Endpoint is the endpoint collection.
+type Endpoint struct {
+	Healthz *healthz.Endpoint
+	Version *version.Endpoint
+}
+
 // New creates a new endpoint with given configuration.
 func New(config Config) (*Endpoint, error) {
 	var err error
@@ -61,10 +67,4 @@ func New(config Config) (*Endpoint, error) {
 	}
 
 	return endpoint, nil
-}
-
-// Endpoint is the endpoint collection.
-type Endpoint struct {
-	Healthz *healthz.Endpoint
-	Version *version.Endpoint
 }
