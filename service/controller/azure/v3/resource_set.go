@@ -1,4 +1,4 @@
-package v2
+package v3
 
 import (
 	"context"
@@ -20,8 +20,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v2/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v2/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v2/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v2/resource/azureconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v3/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v3/resource/azureconfig"
 )
 
 const (
