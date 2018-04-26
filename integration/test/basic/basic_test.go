@@ -4,6 +4,9 @@ package basic
 
 import (
 	"testing"
+
+	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/micrologger"
 )
 
 const (
@@ -11,7 +14,22 @@ const (
 )
 
 func TestChartOperatorBootstrap(t *testing.T) {
-	releaseContent, err := helmClient.GetReleaseContent(releaseName)
+	logger, err := micrologger.New(micrologger.Config{})
+	if err != nil {
+		t.Fatalf("could not create logger %v", err)
+	}
+
+	ch := helmclient.Config{
+		Logger:     logger,
+		K8sClient:  g.K8sClient(),
+		RestConfig: g.RestConfig(),
+	}
+	guestHelmClient, err := helmclient.New(ch)
+	if err != nil {
+		t.Fatalf("could not create guest helm client %v", err)
+	}
+
+	releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
 	if err != nil {
 		t.Fatalf("could not get release content %v", err)
 	}
