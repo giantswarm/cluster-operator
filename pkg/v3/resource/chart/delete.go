@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"

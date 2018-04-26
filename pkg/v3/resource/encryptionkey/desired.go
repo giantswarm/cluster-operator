@@ -10,7 +10,7 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v2/key"
+	"github.com/giantswarm/cluster-operator/pkg/v3/key"
 )
 
 const (

@@ -10,12 +10,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v2/key"
+	"github.com/giantswarm/cluster-operator/pkg/v3/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "certconfigv2"
+	Name = "certconfigv3"
 
 	// listCertConfigLimit is the suggested maximum number of CertConfigs
 	// returned in one List() call to K8s API. Server may choose to not support
