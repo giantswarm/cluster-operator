@@ -1,8 +1,8 @@
-package main
+package e2etemplates
 
 // AWSOperatorChartValues values required by aws-operator-chart, the environment
 // variables will be expanded before writing the contents to a file.
-var AWSOperatorChartValues = `Installation:
+const AWSOperatorChartValues = `Installation:
   V1:
     Guest:
       Kubernetes:

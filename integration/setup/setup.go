@@ -13,7 +13,7 @@ import (
 	"github.com/giantswarm/apprclient"
 	awsclient "github.com/giantswarm/aws-operator/integration/client"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
-	"github.com/giantswarm/e2etemplates"
+	"github.com/giantswarm/e2etemplates/pkg/e2etemplates"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 

@@ -239,8 +239,8 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/e2etemplates"
-  packages = ["."]
-  revision = "60b3daf04f3bd55f026386adf6665e484edf7ee5"
+  packages = ["pkg/e2etemplates"]
+  revision = "db9359aee247721c31333ccff099c02a5a934794"
 
 [[projects]]
   branch = "master"
@@ -1364,6 +1364,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e838425ad2846676918ffaa088523d7222814770114a7a9712d7923c3bd75337"
+  inputs-digest = "85e1fb5f8845b29ce5235bfc936115c51dcebcaf492b56b173098a994b47fc17"
   solver-name = "gps-cdcl"
   solver-version = 1
