@@ -76,7 +76,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		v = 1
 	}
 
-	err = resources(c, h, g, helmClient)
+	err = resources(h, g, helmClient)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
@@ -102,7 +102,6 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 				log.Printf("%#v\n", err)
 				v = 1
 			}
-
 			// TODO there should be error handling for the framework teardown.
 			h.Teardown()
 		}
@@ -111,7 +110,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	os.Exit(v)
 }
 
-func resources(c *awsclient.AWS, h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
+func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
 	err := h.InstallStableOperator("cert-operator", "certconfig", awstemplate.CertOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
@@ -128,8 +127,7 @@ func resources(c *awsclient.AWS, h *framework.Host, g *framework.Guest, helmClie
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	// TODO this should probably be in the e2e-harness framework as well just like
-	// the other stuff.
+
 	err = h.InstallResource("aws-resource-lab", awstemplate.AWSResourceChartValues, ":stable")
 	if err != nil {
 		return microerror.Mask(err)
