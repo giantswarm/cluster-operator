@@ -24,7 +24,7 @@ const (
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
-// AWSClusterConfig framework ResourceSet configuration.
+// AWSClusterConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
@@ -33,7 +33,7 @@ type ResourceSetConfig struct {
 	ProjectName           string
 }
 
-// NewResourceSet returns a configured AWSClusterConfig framework ResourceSet.
+// NewResourceSet returns a configured AWSClusterConfig controller ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
