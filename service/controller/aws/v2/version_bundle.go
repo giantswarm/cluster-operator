@@ -10,17 +10,17 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "Cluster Operator",
-				Description: "TODO",
+				Component:   "cluster-operator",
+				Description: "Installed chart-operator in kube-system namespace.",
 				Kind:        versionbundle.KindChanged,
 			},
-		},
-		Components: []versionbundle.Component{
 			{
-				Name:    "aws-operator",
-				Version: "1.0.0",
+				Component:   "cluster-operator",
+				Description: "Removed misleading component reference to aws-operator.",
+				Kind:        versionbundle.KindFixed,
 			},
 		},
+		Components:   []versionbundle.Component{},
 		Dependencies: []versionbundle.Dependency{},
 		Deprecated:   false,
 		Name:         "cluster-operator",
