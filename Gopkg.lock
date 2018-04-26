@@ -219,10 +219,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/aws-operator"
-  packages = [
-    "integration/client",
-    "integration/template"
-  ]
+  packages = ["integration/client"]
   revision = "6c2bd9ac1bd6a6b2c3e7b25936d0c3d7c4cac164"
 
 [[projects]]
@@ -238,6 +235,12 @@
     "pkg/harness"
   ]
   revision = "cf856a893ae108770d8f7c0ed93480b0dabee6c2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/e2etemplates"
+  packages = ["."]
+  revision = "60b3daf04f3bd55f026386adf6665e484edf7ee5"
 
 [[projects]]
   branch = "master"
@@ -1361,6 +1364,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "29918cf2be7588a2da7530e6a8c2ae1e69e79f48f73878d071b6b186cd6f16d0"
+  inputs-digest = "e838425ad2846676918ffaa088523d7222814770114a7a9712d7923c3bd75337"
   solver-name = "gps-cdcl"
   solver-version = 1

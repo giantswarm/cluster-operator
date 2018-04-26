@@ -1,4 +1,4 @@
-package template
+package main
 
 // NodeOperatorChartValues values required by node-operator-chart, the
 // environment variables will be expanded before writing the contents to a file.

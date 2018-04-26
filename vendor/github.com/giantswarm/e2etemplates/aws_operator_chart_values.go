@@ -1,4 +1,4 @@
-package template
+package main
 
 // AWSOperatorChartValues values required by aws-operator-chart, the environment
 // variables will be expanded before writing the contents to a file.

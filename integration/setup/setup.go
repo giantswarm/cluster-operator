@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/giantswarm/apprclient"
 	awsclient "github.com/giantswarm/aws-operator/integration/client"
-	awstemplate "github.com/giantswarm/aws-operator/integration/template"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
+	"github.com/giantswarm/e2etemplates"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 
@@ -30,7 +30,7 @@ func hostPeerVPC(c *awsclient.AWS) error {
 	stackName := "host-peer-" + clusterID
 	stackInput := &cloudformation.CreateStackInput{
 		StackName:        aws.String(stackName),
-		TemplateBody:     aws.String(os.ExpandEnv(awstemplate.AWSHostVPCStack)),
+		TemplateBody:     aws.String(os.ExpandEnv(e2etemplates.AWSHostVPCStack)),
 		TimeoutInMinutes: aws.Int64(2),
 	}
 	_, err := c.CloudFormation.CreateStack(stackInput)
@@ -115,15 +115,15 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 }
 
 func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
-	err := h.InstallStableOperator("cert-operator", "certconfig", awstemplate.CertOperatorChartValues)
+	err := h.InstallStableOperator("cert-operator", "certconfig", e2etemplates.CertOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	err = h.InstallStableOperator("node-operator", "nodeconfig", awstemplate.NodeOperatorChartValues)
+	err = h.InstallStableOperator("node-operator", "nodeconfig", e2etemplates.NodeOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	err = h.InstallStableOperator("aws-operator", "awsconfig", awstemplate.AWSOperatorChartValues)
+	err = h.InstallStableOperator("aws-operator", "awsconfig", e2etemplates.AWSOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -132,7 +132,7 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 		return microerror.Mask(err)
 	}
 
-	err = h.InstallResource("aws-resource-lab", awstemplate.AWSResourceChartValues, ":stable")
+	err = h.InstallResource("aws-resource-lab", e2etemplates.AWSResourceChartValues, ":stable")
 	if err != nil {
 		return microerror.Mask(err)
 	}

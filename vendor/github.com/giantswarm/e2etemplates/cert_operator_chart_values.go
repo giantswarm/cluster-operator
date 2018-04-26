@@ -1,4 +1,4 @@
-package template
+package main
 
 // CertOperatorChartValues values required by cert-operator-chart, the environment
 // variables will be expanded before writing the contents to a file.

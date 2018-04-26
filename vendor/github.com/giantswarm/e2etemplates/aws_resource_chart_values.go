@@ -1,4 +1,4 @@
-package template
+package main
 
 var AWSResourceChartValues = `commonDomain: ${COMMON_DOMAIN_GUEST}
 clusterName: ${CLUSTER_NAME}
