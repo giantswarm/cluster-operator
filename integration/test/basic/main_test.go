@@ -40,13 +40,8 @@ func TestMain(m *testing.M) {
 		panic(err.Error())
 	}
 
-	l, err := micrologger.New(micrologger.Config{})
-	if err != nil {
-		panic(err.Error())
-	}
-
 	ch := helmclient.Config{
-		Logger:     l,
+		Logger:     logger,
 		K8sClient:  h.K8sClient(),
 		RestConfig: h.RestConfig(),
 	}
@@ -58,7 +53,7 @@ func TestMain(m *testing.M) {
 	fs := afero.NewOsFs()
 	ca := apprclient.Config{
 		Fs:     fs,
-		Logger: l,
+		Logger: logger,
 
 		Address:      "https://quay.io",
 		Organization: "giantswarm",
