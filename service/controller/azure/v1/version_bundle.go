@@ -10,7 +10,7 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "Cluster Operator",
+				Component:   "cluster-operator",
 				Description: "Initial version for Azure",
 				Kind:        versionbundle.KindAdded,
 			},
