@@ -104,6 +104,11 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	}
 
 	if os.Getenv("KEEP_RESOURCES") != "true" {
+		name := "aws-operator"
+		customResource := "awsconfig"
+		logEntry := "deleted the guest cluster main stack"
+		h.DeleteGuestCluster(name, customResource, logEntry)
+
 		// only do full teardown when not on CI
 		if os.Getenv("CIRCLECI") != "true" {
 			err := teardown.Teardown(c, h, helmClient)
