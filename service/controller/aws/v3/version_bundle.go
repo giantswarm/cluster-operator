@@ -11,8 +11,8 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "-",
-				Kind:        versionbundle.KindChanged,
+				Description: "Added chartconfig for kube-state-metrics and migration chart.",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components:   []versionbundle.Component{},
