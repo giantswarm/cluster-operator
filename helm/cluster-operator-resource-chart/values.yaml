@@ -1,0 +1,7 @@
+guest:
+  name: "test-cluster"
+  dnsZone: "test-cluster.aws.giantswarm.io"
+  id: "test-cluster"
+  owner: "giantswarm"
+versionBundle:
+  version: "0.2.0"

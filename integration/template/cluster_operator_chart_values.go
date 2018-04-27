@@ -1,6 +1,6 @@
 package template
 
-// ClusterOperatorChartValues values required by aws-operator-chart, the
+// ClusterOperatorChartValues values required by cluster-operator-chart, the
 // environment variables will be expanded before writing the contents to a file.
 const ClusterOperatorChartValues = `Installation:
   V1:
