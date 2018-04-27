@@ -22,7 +22,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 		},
 		Dependencies: []versionbundle.Dependency{},
-		Deprecated:   false,
+		Deprecated:   true,
 		Name:         "cluster-operator",
 		Provider:     "aws",
 		Time:         time.Date(2018, time.March, 27, 12, 00, 0, 0, time.UTC),
