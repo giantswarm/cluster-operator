@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/operatorkit/informer"
@@ -179,12 +180,18 @@ func (f *Controller) DeleteFunc(obj interface{}) {
 		return
 	}
 
-	if !isContextCanceled(ctx) {
+	if !finalizerskeptcontext.IsKept(ctx) {
+		f.logger.LogCtx(ctx, "event", "delete", "function", "DeleteFunc", "level", "debug", "message", "removing finalizer from runtime object")
+
 		err = f.removeFinalizer(ctx, obj)
 		if err != nil {
 			f.logger.LogCtx(ctx, "event", "delete", "function", "DeleteFunc", "level", "error", "message", "stop reconciliation due to error", "stack", fmt.Sprintf("%#v", err))
 			return
 		}
+
+		f.logger.LogCtx(ctx, "event", "delete", "function", "DeleteFunc", "level", "debug", "message", "removed finalizer from runtime object")
+	} else {
+		f.logger.LogCtx(ctx, "event", "delete", "function", "DeleteFunc", "level", "debug", "message", "not removing finalizer from runtime object due to request of keeping it")
 	}
 }
 
@@ -233,18 +240,6 @@ func (f *Controller) UpdateFunc(oldObj, newObj interface{}) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
-	ok, err := f.addFinalizer(obj)
-	if err != nil {
-		f.logger.Log("event", "update", "function", "UpdateFunc", "level", "error", "message", "stop reconciliation due to error", "stack", fmt.Sprintf("%#v", err))
-		return
-	}
-	if ok {
-		// A finalizer was added, this causes a new update event, so we stop
-		// reconciling here and will pick up the new event.
-		f.logger.Log("event", "update", "function", "UpdateFunc", "level", "debug", "message", "stop reconciliation due to finalizer added")
-		return
-	}
-
 	resourceSet, err := f.resourceRouter.ResourceSet(obj)
 	if IsNoResourceSet(err) {
 		// In case the resource router is not able to find any resource set to
@@ -257,7 +252,19 @@ func (f *Controller) UpdateFunc(oldObj, newObj interface{}) {
 
 	ctx, err := resourceSet.InitCtx(context.Background(), obj)
 	if err != nil {
+		f.logger.Log("event", "update", "function", "UpdateFunc", "level", "error", "message", "stop reconciliation due to error", "stack", fmt.Sprintf("%#v", err))
+		return
+	}
+
+	ok, err := f.addFinalizer(obj)
+	if err != nil {
 		f.logger.LogCtx(ctx, "event", "update", "function", "UpdateFunc", "level", "error", "message", "stop reconciliation due to error", "stack", fmt.Sprintf("%#v", err))
+		return
+	}
+	if ok {
+		// A finalizer was added, this causes a new update event, so we stop
+		// reconciling here and will pick up the new event.
+		f.logger.LogCtx(ctx, "event", "update", "function", "UpdateFunc", "level", "debug", "message", "stop reconciliation due to finalizer added")
 		return
 	}
 
@@ -281,6 +288,14 @@ func (f *Controller) bootWithError(ctx context.Context) error {
 
 		// TODO collect metrics
 	}
+
+	f.logger.LogCtx(ctx, "function", "bootWithError", "level", "debug", "message", "booting informer")
+	err := f.informer.Boot(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	f.logger.LogCtx(ctx, "function", "bootWithError", "level", "debug", "message", "booted informer")
 
 	f.logger.LogCtx(ctx, "function", "bootWithError", "level", "debug", "message", "starting list-watch")
 
@@ -373,18 +388,6 @@ func ProcessUpdate(ctx context.Context, obj interface{}, resources []Resource) e
 	}
 
 	return nil
-}
-
-func isContextCanceled(ctx context.Context) bool {
-	if reconciliationcanceledcontext.IsCanceled(ctx) {
-		return true
-	}
-
-	if resourcecanceledcontext.IsCanceled(ctx) {
-		return true
-	}
-
-	return false
 }
 
 func setLoggerCtxValue(ctx context.Context, key, value string) context.Context {

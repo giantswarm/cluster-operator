@@ -301,6 +301,7 @@
     "client/k8scrdclient",
     "client/k8srestconfig",
     "controller",
+    "controller/context/finalizerskeptcontext",
     "controller/context/reconciliationcanceledcontext",
     "controller/context/resourcecanceledcontext",
     "controller/context/updateallowedcontext",
@@ -310,7 +311,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "5705b45040654b97beb8df955db880944b646692"
+  revision = "5eada9d37953fd9d12cb68f02af61448c5c573f1"
 
 [[projects]]
   branch = "master"
