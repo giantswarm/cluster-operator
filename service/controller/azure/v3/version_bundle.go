@@ -11,13 +11,8 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Installed chart-operator in kube-system namespace.",
+				Description: "-",
 				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Removed misleading component reference to azure-operator.",
-				Kind:        versionbundle.KindFixed,
 			},
 		},
 		Components:   []versionbundle.Component{},
@@ -25,8 +20,8 @@ func VersionBundle() versionbundle.Bundle {
 		Deprecated:   false,
 		Name:         "cluster-operator",
 		Provider:     "azure",
-		Time:         time.Date(2018, time.April, 16, 12, 00, 0, 0, time.UTC),
-		Version:      "0.2.0",
+		Time:         time.Date(2018, time.April, 26, 12, 00, 0, 0, time.UTC),
+		Version:      "0.3.0",
 		WIP:          true,
 	}
 }

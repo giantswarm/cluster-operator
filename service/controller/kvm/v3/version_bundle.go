@@ -25,8 +25,8 @@ func VersionBundle() versionbundle.Bundle {
 		Deprecated:   false,
 		Name:         "cluster-operator",
 		Provider:     "kvm",
-		Time:         time.Date(2018, time.April, 16, 12, 00, 0, 0, time.UTC),
-		Version:      "0.2.0",
+		Time:         time.Date(2018, time.April, 26, 12, 00, 0, 0, time.UTC),
+		Version:      "0.3.0",
 		WIP:          true,
 	}
 }
