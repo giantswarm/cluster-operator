@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -28,6 +29,7 @@ type Config struct {
 	Logger                   micrologger.Logger
 	ProjectName              string
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
 // Resource implements the namespace resource.
@@ -37,6 +39,7 @@ type Resource struct {
 	logger                   micrologger.Logger
 	projectName              string
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
 // New creates a new configured namespace resource.
@@ -56,6 +59,9 @@ func New(config Config) (*Resource, error) {
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
+	if config.ToClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
+	}
 
 	newResource := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
@@ -63,6 +69,7 @@ func New(config Config) (*Resource, error) {
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
 
 	return newResource, nil
