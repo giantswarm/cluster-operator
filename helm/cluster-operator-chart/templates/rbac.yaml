@@ -11,6 +11,7 @@ rules:
       - create
       - delete
       - get
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -78,4 +79,3 @@ roleRef:
   kind: ClusterRole
   name: cluster-operator-psp
   apiGroup: rbac.authorization.k8s.io
-
