@@ -1,0 +1,112 @@
+package namespace
+
+import (
+	"context"
+	"reflect"
+
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
+	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v3/key"
+)
+
+const (
+	// Name is the identifier of the resource.
+	Name = "namespacev3"
+
+	namespaceName = "giantswarm"
+)
+
+// Config represents the configuration used to create a new namespace resource.
+type Config struct {
+	BaseClusterConfig        cluster.Config
+	Guest                    guestcluster.Interface
+	Logger                   micrologger.Logger
+	ProjectName              string
+	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+}
+
+// Resource implements the namespace resource.
+type Resource struct {
+	baseClusterConfig        cluster.Config
+	guest                    guestcluster.Interface
+	logger                   micrologger.Logger
+	projectName              string
+	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+}
+
+// New creates a new configured namespace resource.
+func New(config Config) (*Resource, error) {
+	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
+	}
+	if config.Guest == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
+	}
+	if config.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
+	if config.ToClusterGuestConfigFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
+	}
+
+	newResource := &Resource{
+		baseClusterConfig:        config.BaseClusterConfig,
+		guest:                    config.Guest,
+		logger:                   config.Logger,
+		projectName:              config.ProjectName,
+		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+	}
+
+	return newResource, nil
+}
+
+// Name returns name of the Resource.
+func (r *Resource) Name() string {
+	return Name
+}
+
+func (r *Resource) getGuestK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	guestK8sClient, err := r.guest.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return guestK8sClient, nil
+}
+
+func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
+	var err error
+
+	// Use baseClusterConfig as a basis and supplement it with information from
+	// clusterGuestConfig.
+	clusterConfig := baseClusterConfig
+
+	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
+
+	clusterConfig.Domain.API, err = key.APIDomain(clusterGuestConfig)
+	if err != nil {
+		return cluster.Config{}, microerror.Mask(err)
+	}
+
+	clusterConfig.Organization = clusterGuestConfig.Owner
+
+	return clusterConfig, nil
+}
