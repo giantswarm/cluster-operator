@@ -11,13 +11,8 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Installed chart-operator in kube-system namespace.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Removed misleading component reference to kvm-operator.",
-				Kind:        versionbundle.KindFixed,
+				Description: "Added giantswarm namespace.",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components:   []versionbundle.Component{},
