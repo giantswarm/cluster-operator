@@ -11,7 +11,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Created giantswarm namespace in guest clusters.",
+				Description: "Added giantswarm namespace.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
