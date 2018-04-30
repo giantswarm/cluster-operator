@@ -79,7 +79,8 @@ func (s *Service) NewHelmClient(ctx context.Context, clusterID, apiDomain string
 		K8sClient: k8sClient,
 		Logger:    s.logger,
 
-		RestConfig: restConfig,
+		RestConfig:      restConfig,
+		TillerNamespace: tillerDefaultNamespace,
 	}
 	helmClient, err := helmclient.New(c)
 	if err != nil {
