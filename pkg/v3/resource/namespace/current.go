@@ -3,6 +3,7 @@ package namespace
 import (
 	"context"
 
+	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -26,7 +27,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	guestK8sClient, err := r.getGuestK8sClient(ctx, obj)
-	if err != nil {
+	if guestcluster.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the guest cluster")
+
+		// We can't continue without a K8s client. We will retry during the
+		// next execution.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+		return nil, nil
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
