@@ -32,6 +32,7 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 				ChartName:      "chart-operator-chart",
 				ReleaseName:    "chart-operator",
 				ReleaseVersion: "0.1.2",
+				ReleaseStatus:  "DEPLOYED",
 			},
 		},
 	}
