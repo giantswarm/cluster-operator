@@ -14,12 +14,14 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"github.com/spf13/afero"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v3/key"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v3/resource/kvmconfig"
 )
@@ -111,6 +113,28 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var namespaceResource controller.Resource
+	{
+		c := namespace.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			Guest:                    guestClusterService,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
+		}
+
+		ops, err := namespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		namespaceResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
@@ -142,6 +166,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// creation.
 		encryptionKeyResource,
 		kvmConfigResource,
+		// namespaceResource and chartResource manage resources in the guest
+		// cluster so they should be executed last.
+		namespaceResource,
 		chartResource,
 	}
 
@@ -209,6 +236,15 @@ func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) 
 	}
 
 	return key.ToClusterGuestConfig(kvmClusterConfig), nil
+}
+
+func toClusterObjectMeta(obj interface{}) (apismetav1.ObjectMeta, error) {
+	awsClusterConfig, err := key.ToCustomObject(obj)
+	if err != nil {
+		return apismetav1.ObjectMeta{}, microerror.Mask(err)
+	}
+
+	return awsClusterConfig.ObjectMeta, nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
