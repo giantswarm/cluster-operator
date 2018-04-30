@@ -1,16 +1,13 @@
-package chart
+package namespace
 
 import (
 	"context"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apprclient"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/spf13/afero"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -20,60 +17,38 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartv3"
+	Name = "namespacev3"
 
-	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-1-stable"
-	chartOperatorRelease       = "chart-operator"
-	chartOperatorNamespace     = "kube-system"
-	chartOperatorDesiredStatus = "DEPLOYED"
+	namespaceName = "giantswarm"
 )
 
-// Config represents the configuration used to create a new chart config resource.
+// Config represents the configuration used to create a new namespace resource.
 type Config struct {
-	ApprClient               apprclient.Interface
 	BaseClusterConfig        cluster.Config
-	Fs                       afero.Fs
-	G8sClient                versioned.Interface
 	Guest                    guestcluster.Interface
-	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
-// Resource implements the chart resource.
+// Resource implements the namespace resource.
 type Resource struct {
-	apprClient               apprclient.Interface
 	baseClusterConfig        cluster.Config
-	fs                       afero.Fs
-	g8sClient                versioned.Interface
 	guest                    guestcluster.Interface
-	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
-// New creates a new configured chart resource.
+// New creates a new configured namespace resource.
 func New(config Config) (*Resource, error) {
-	if config.ApprClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ApprClient must not be empty", config)
-	}
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
 	}
-	if config.Fs == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
 	if config.Guest == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
-	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -84,17 +59,17 @@ func New(config Config) (*Resource, error) {
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
+	if config.ToClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
+	}
 
 	newResource := &Resource{
-		apprClient:               config.ApprClient,
 		baseClusterConfig:        config.BaseClusterConfig,
-		fs:                       config.Fs,
-		g8sClient:                config.G8sClient,
 		guest:                    config.Guest,
-		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
 
 	return newResource, nil
@@ -105,7 +80,7 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (helmclient.Interface, error) {
+func (r *Resource) getGuestK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -116,17 +91,12 @@ func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (hel
 		return nil, microerror.Mask(err)
 	}
 
-	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	guestK8sClient, err := r.guest.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	err = guestHelmClient.EnsureTillerInstalled()
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return guestHelmClient, nil
+	return guestK8sClient, nil
 }
 
 func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
@@ -146,17 +116,4 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	clusterConfig.Organization = clusterGuestConfig.Owner
 
 	return clusterConfig, nil
-}
-
-func toResourceState(v interface{}) (ResourceState, error) {
-	if v == nil {
-		return ResourceState{}, nil
-	}
-
-	resourceState, ok := v.(*ResourceState)
-	if !ok {
-		return ResourceState{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", resourceState, v)
-	}
-
-	return *resourceState, nil
 }
