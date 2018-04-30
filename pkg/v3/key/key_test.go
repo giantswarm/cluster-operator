@@ -3,9 +3,11 @@ package key
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_APIDomain(t *testing.T) {
@@ -206,6 +208,43 @@ func Test_EncryptionKeySecretName(t *testing.T) {
 		})
 	}
 
+}
+
+func Test_IsDeleted(t *testing.T) {
+	testCases := []struct {
+		description    string
+		objectMeta     apismetav1.ObjectMeta
+		expectedResult bool
+	}{
+		{
+			description:    "case 0: false when struct is empty",
+			objectMeta:     apismetav1.ObjectMeta{},
+			expectedResult: false,
+		},
+		{
+			description: "case 1: false when field is nil",
+			objectMeta: apismetav1.ObjectMeta{
+				DeletionTimestamp: nil,
+			},
+			expectedResult: false,
+		},
+		{
+			description: "case 2: true when field is set",
+			objectMeta: apismetav1.ObjectMeta{
+				DeletionTimestamp: &apismetav1.Time{Time: time.Now()},
+			},
+			expectedResult: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := IsDeleted(tc.objectMeta)
+			if result != tc.expectedResult {
+				t.Fatalf("expected IsDeleted %t, got %t", tc.expectedResult, result)
+			}
+		})
+	}
 }
 
 func Test_ServerDomain(t *testing.T) {
