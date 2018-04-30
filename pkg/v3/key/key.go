@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/versionbundle"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // APIDomain returns the API server domain for the guest cluster.
@@ -40,6 +41,12 @@ func DNSZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 // information in given v1alpha1.ClusterGuestConfig.
 func EncryptionKeySecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return fmt.Sprintf("%s-%s", ClusterID(clusterGuestConfig), "encryption")
+}
+
+// IsDeleted returns true if the Kubernetes resource has been marked for
+// deletion.
+func IsDeleted(objectMeta apismetav1.ObjectMeta) bool {
+	return objectMeta.DeletionTimestamp != nil
 }
 
 // serverDomain returns the guest cluster domain for the provided cluster
