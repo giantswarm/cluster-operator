@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
 	apiv1 "k8s.io/api/core/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 )
@@ -46,6 +47,9 @@ func Test_Resource_Namespace_GetDesiredState(t *testing.T) {
 				ProjectName: "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+					return v.(apismetav1.ObjectMeta), nil
 				},
 			}
 			newResource, err := New(c)
