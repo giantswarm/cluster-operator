@@ -246,7 +246,7 @@
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "2c5de17867c531388f4b3fb674e7d74a7494b770"
+  revision = "a3bc5146b0ecc8b3cbe7b7d94555435d366e715e"
 
 [[projects]]
   branch = "master"
