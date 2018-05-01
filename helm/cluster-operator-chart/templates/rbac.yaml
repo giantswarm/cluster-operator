@@ -11,7 +11,6 @@ rules:
       - create
       - delete
       - get
-      - watch
   - apiGroups:
       - ""
     resources:
