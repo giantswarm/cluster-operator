@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/key"
@@ -18,13 +19,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	// Guest cluster namespace is not deleted so cancel the reconcilation. The
-	// namespace will be deleted when the guest cluster resources are deleted.
-	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling namespace deletion: deleted with the guest cluster")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
-	}
+	r.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("Object Meta %#v DeletionTimestamp %v IsDeleted %t", objectMeta, objectMeta.DeletionTimestamp, key.IsDeleted(objectMeta)))
+
+	/*
+		// Guest cluster namespace is not deleted so cancel the reconcilation. The
+		// namespace will be deleted when the guest cluster resources are deleted.
+		if key.IsDeleted(objectMeta) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling namespace deletion: deleted with the guest cluster")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
+		}
+	*/
 
 	guestK8sClient, err := r.getGuestK8sClient(ctx, obj)
 	if guestcluster.IsNotFound(err) {
