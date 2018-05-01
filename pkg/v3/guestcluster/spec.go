@@ -8,6 +8,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const (
+	tillerDefaultNamespace = "giantswarm"
+)
+
 type Interface interface {
 	// NewG8sClient returns a new generated clientset for a guest cluster.
 	NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error)
