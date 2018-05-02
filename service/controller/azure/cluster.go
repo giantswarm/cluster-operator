@@ -63,6 +63,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var newInformer *informer.Informer
 	{
 		c := informer.Config{
+			Logger:  config.Logger,
 			Watcher: config.G8sClient.CoreV1alpha1().AzureClusterConfigs(""),
 		}
 
