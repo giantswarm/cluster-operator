@@ -22,10 +22,11 @@ const (
 	// Name is the identifier of the resource.
 	Name = "chartv2"
 
-	chartOperatorChart     = "chart-operator-chart"
-	chartOperatorChannel   = "0-1-stable"
-	chartOperatorRelease   = "chart-operator"
-	chartOperatorNamespace = "kube-system"
+	chartOperatorChart         = "chart-operator-chart"
+	chartOperatorChannel       = "0-1-stable"
+	chartOperatorRelease       = "chart-operator"
+	chartOperatorNamespace     = "kube-system"
+	chartOperatorDesiredStatus = "DEPLOYED"
 )
 
 // Config represents the configuration used to create a new chart config resource.

@@ -18,6 +18,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ChartName:      chartOperatorChart,
 		ReleaseName:    chartOperatorRelease,
 		ReleaseVersion: releaseVersion,
+		ReleaseStatus:  chartOperatorDesiredStatus,
 	}
 
 	return chartState, nil
