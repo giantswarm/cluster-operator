@@ -49,6 +49,12 @@ func IsDeleted(objectMeta apismetav1.ObjectMeta) bool {
 	return objectMeta.DeletionTimestamp != nil
 }
 
+// MasterServiceDomain returns the domain of the master service for the given
+// guest cluster.
+func MasterServiceDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return fmt.Sprintf("master.%s", ClusterID(clusterGuestConfig))
+}
+
 // serverDomain returns the guest cluster domain for the provided cluster
 // component.
 func serverDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.Cert) (string, error) {
