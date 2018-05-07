@@ -79,4 +79,3 @@ roleRef:
   kind: ClusterRole
   name: cluster-operator-psp
   apiGroup: rbac.authorization.k8s.io
-

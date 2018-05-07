@@ -73,6 +73,7 @@
     "private/protocol/rest",
     "private/protocol/xml/xmlutil",
     "service/autoscaling",
+    "service/cloudformation",
     "service/ec2",
     "service/ecr",
     "service/elb",
@@ -216,7 +217,6 @@
   revision = "3b84395624cf804b3f43bb2f5bcf43ca36de9fee"
 
 [[projects]]
-  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "7be474c80bf0e824b1e575d21fb699686c0a9e4d"
@@ -228,13 +228,25 @@
     "pkg/framework",
     "pkg/harness"
   ]
-  revision = "cf856a893ae108770d8f7c0ed93480b0dabee6c2"
+  revision = "2af3583727eabb5743547205f9d25996123b3862"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/e2eclients"
+  packages = ["aws"]
+  revision = "cb45cf36a000b2212427dac1697740dd316d2f0b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/e2etemplates"
+  packages = ["pkg/e2etemplates"]
+  revision = "db9359aee247721c31333ccff099c02a5a934794"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "2c5de17867c531388f4b3fb674e7d74a7494b770"
+  revision = "a3bc5146b0ecc8b3cbe7b7d94555435d366e715e"
 
 [[projects]]
   branch = "master"
@@ -301,6 +313,7 @@
     "client/k8scrdclient",
     "client/k8srestconfig",
     "controller",
+    "controller/context/finalizerskeptcontext",
     "controller/context/reconciliationcanceledcontext",
     "controller/context/resourcecanceledcontext",
     "controller/context/updateallowedcontext",
@@ -310,7 +323,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "5705b45040654b97beb8df955db880944b646692"
+  revision = "fa5f9b848a8c9cb53e1face5f3af0e42a1e26b87"
 
 [[projects]]
   branch = "master"
@@ -1352,6 +1365,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b8c893c86657461b489eeac24bdfa65910d20dabf6b35243d8446a0a2dca4180"
+  inputs-digest = "1992f21001ad4f04018c2ac51594632a3bf16dacbd872bb2c72e7d1dd7c15d0b"
   solver-name = "gps-cdcl"
   solver-version = 1
