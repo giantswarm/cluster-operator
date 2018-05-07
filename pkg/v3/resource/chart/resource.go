@@ -116,7 +116,7 @@ func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (hel
 		return nil, microerror.Mask(err)
 	}
 
-	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, key.MasterServiceDomain(clusterGuestConfig))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

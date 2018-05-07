@@ -11,8 +11,8 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "-",
-				Kind:        versionbundle.KindChanged,
+				Description: "Added giantswarm namespace.",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components:   []versionbundle.Component{},

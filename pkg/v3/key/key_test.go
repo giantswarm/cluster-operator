@@ -247,6 +247,38 @@ func Test_IsDeleted(t *testing.T) {
 	}
 }
 
+func Test_MasterServiceDomain(t *testing.T) {
+	testCases := []struct {
+		description    string
+		clusterConfig  v1alpha1.ClusterGuestConfig
+		expectedDomain string
+	}{
+		{
+			description: "basic match",
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				ID: "5xchu",
+			},
+			expectedDomain: "master.5xchu",
+		},
+		{
+			description: "different cluster id",
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				ID: "rue99",
+			},
+			expectedDomain: "master.rue99",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			domain := MasterServiceDomain(tc.clusterConfig)
+			if domain != tc.expectedDomain {
+				t.Fatalf("MasterServiceDomain '%s' doesn't match expected '%s'", domain, tc.expectedDomain)
+			}
+		})
+	}
+}
+
 func Test_ServerDomain(t *testing.T) {
 	testCases := []struct {
 		description    string

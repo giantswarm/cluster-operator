@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	apiv1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
@@ -91,7 +92,7 @@ func (r *Resource) getGuestK8sClient(ctx context.Context, obj interface{}) (kube
 		return nil, microerror.Mask(err)
 	}
 
-	guestK8sClient, err := r.guest.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	guestK8sClient, err := r.guest.NewK8sClient(ctx, clusterConfig.ClusterID, key.MasterServiceDomain(clusterGuestConfig))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -116,4 +117,17 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	clusterConfig.Organization = clusterGuestConfig.Owner
 
 	return clusterConfig, nil
+}
+
+func toNamespace(v interface{}) (*apiv1.Namespace, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	namespace, ok := v.(*apiv1.Namespace)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &apiv1.Namespace{}, v)
+	}
+
+	return namespace, nil
 }
