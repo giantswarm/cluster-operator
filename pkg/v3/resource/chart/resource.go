@@ -23,7 +23,7 @@ const (
 	Name = "chartv3"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-1-stable"
+	chartOperatorChannel       = "0-1-beta"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "kube-system"
 	chartOperatorDesiredStatus = "DEPLOYED"
