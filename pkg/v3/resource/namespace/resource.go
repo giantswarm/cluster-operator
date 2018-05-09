@@ -92,7 +92,12 @@ func (r *Resource) getGuestK8sClient(ctx context.Context, obj interface{}) (kube
 		return nil, microerror.Mask(err)
 	}
 
-	guestK8sClient, err := r.guest.NewK8sClient(ctx, clusterConfig.ClusterID, key.MasterServiceDomain(clusterGuestConfig))
+	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	guestK8sClient, err := r.guest.NewK8sClient(ctx, clusterConfig.ClusterID, guestAPIDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
