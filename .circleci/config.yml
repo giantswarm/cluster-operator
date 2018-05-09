@@ -41,12 +41,12 @@ jobs:
         - ./cluster-operator
         - ./architect
 
-  e2eTestCurPR:
+  e2eTestCurrentPR:
     environment:
       TESTED_VERSION: current
     <<: *e2eTest
 
-  e2eTestCurMaster:
+  e2eTestCurrentMaster:
     environment:
       TESTED_VERSION: current
     <<: *e2eTest
@@ -85,14 +85,14 @@ workflows:
           requires:
           - build
 
-      - e2eTestCurPR:
+      - e2eTestCurrentPR:
           requires:
           - hold
       - e2eTestWIPPR:
           requires:
           - hold
 
-      - e2eTestCurMaster:
+      - e2eTestCurrentMaster:
           filters:
             branches:
               only: master
@@ -110,5 +110,5 @@ workflows:
             branches:
               only: master
           requires:
-          - e2eTestCurMaster
+          - e2eTestCurrentMaster
           - e2eTestWIPMaster
