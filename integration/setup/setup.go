@@ -86,6 +86,12 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		log.Printf("%#v\n", err)
 		v = 1
 	}
+	// do not fail on missing WIP.
+	if vbv == "" && os.Getenv("TESTED_VERSION") == "wip" {
+		log.Printf("WIP version not present, exiting.\n")
+		os.Exit(0)
+	}
+
 	os.Setenv("CLOP_VERSION_BUNDLE_VERSION", vbv)
 
 	err = resources(h, g, helmClient)
