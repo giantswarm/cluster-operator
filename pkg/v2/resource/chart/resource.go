@@ -25,7 +25,7 @@ const (
 	chartOperatorChart         = "chart-operator-chart"
 	chartOperatorChannel       = "0-1-stable"
 	chartOperatorRelease       = "chart-operator"
-	chartOperatorNamespace     = "kube-system"
+	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
 )
 
