@@ -110,5 +110,5 @@ workflows:
             branches:
               only: master
           requires:
-          - e2eTestMaster
+          - e2eTestCurMaster
           - e2eTestWIPMaster
