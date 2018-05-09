@@ -19,6 +19,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/integration/teardown"
 	"github.com/giantswarm/cluster-operator/integration/template"
+	"github.com/giantswarm/cluster-operator/service"
 )
 
 func hostPeerVPC(c *awsclient.Client) error {
@@ -65,7 +66,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 
 	c := awsclient.NewClient()
 
-	clusterName := fmt.Sprintf("ci-clop-%s", os.Getenv("CIRCLE_SHA1")[0:5])
+	clusterName := fmt.Sprintf("ci-clop-%s-%s", os.Getenv("TESTED_VERSION"), os.Getenv("CIRCLE_SHA1")[0:5])
 	os.Setenv("CLUSTER_NAME", clusterName)
 
 	err = hostPeerVPC(c)
@@ -79,6 +80,13 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		log.Printf("%#v\n", err)
 		v = 1
 	}
+
+	vbv, err := framework.GetVersionBundleVersion(service.NewVersionBundles(), os.Getenv("TESTED_VERSION"))
+	if err != nil {
+		log.Printf("%#v\n", err)
+		v = 1
+	}
+	os.Setenv("CLOP_VERSION_BUNDLE_VERSION", vbv)
 
 	err = resources(h, g, helmClient)
 	if err != nil {
