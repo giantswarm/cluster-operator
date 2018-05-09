@@ -20,10 +20,9 @@ func TestChartOperatorBootstrap(t *testing.T) {
 	}
 
 	ch := helmclient.Config{
-		Logger:          logger,
-		K8sClient:       g.K8sClient(),
-		RestConfig:      g.RestConfig(),
-		TillerNamespace: "giantswarm",
+		Logger:     logger,
+		K8sClient:  g.K8sClient(),
+		RestConfig: g.RestConfig(),
 	}
 	guestHelmClient, err := helmclient.New(ch)
 	if err != nil {
