@@ -8,5 +8,5 @@ const ClusterOperatorResourceChartValues = `guest:
   id: "${CLUSTER_NAME}"
   owner: "giantswarm"
 versionBundle:
-  version: "0.3.0"
+  version: "${CLOP_VERSION_BUNDLE_VERSION}"
 `
