@@ -25,7 +25,7 @@ func TestChartOperatorBootstrap(t *testing.T) {
 	// This version bundle uses kube-system because it doesn't have the
 	// namespace resource that creates the giantswarm namespace. All future
 	// version will use the giantswarm namespace.
-	if os.Getenv("VERSION_BUNDLE_VERSION") == "0.2.0" {
+	if os.Getenv("CLOP_VERSION_BUNDLE_VERSION") == "0.2.0" {
 		tillerNamespace = "kube-system"
 	}
 
