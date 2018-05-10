@@ -231,7 +231,7 @@ func (c *Client) EnsureTillerInstalled() error {
 
 		err := backoff.RetryNotify(o, b, n)
 		if err != nil {
-			return microerror.Mask(err)
+			return microerror.Maskf(tillerInstallationFailedError, err.Error())
 		}
 
 		c.logger.Log("level", "debug", "message", "succeeded pinging tiller")
