@@ -20,6 +20,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v3/key"
@@ -160,16 +161,40 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartConfigResource controller.Resource
+	{
+		c := chartconfig.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			Guest:                    guestClusterService,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := chartconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// awsConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		awsConfigResource,
-		// namespaceResource and chartResource manage resources in the guest
-		// cluster so they should be executed last.
+		// The namespace, chart and chartconfig resources manage resources in
+		// guest clusters so they should be executed last.
 		namespaceResource,
 		chartResource,
+		chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
