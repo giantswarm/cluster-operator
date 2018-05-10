@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
@@ -35,7 +34,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		}
 
 		for _, chartConfigToCreate := range chartConfigsToCreate {
-			_, err := g8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Create(chartConfigToCreate)
+			_, err := g8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
 			} else if err != nil {
