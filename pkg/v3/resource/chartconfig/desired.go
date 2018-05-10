@@ -68,7 +68,7 @@ func newNodeExporterChartConfig(clusterConfig cluster.Config, projectName string
 				Release:   releaseName,
 			},
 			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
+				Version: chartConfigVersionBundleVersion,
 			},
 		},
 	}
@@ -100,7 +100,7 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 				Release:   releaseName,
 			},
 			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
+				Version: chartConfigVersionBundleVersion,
 			},
 		},
 	}
