@@ -10,11 +10,6 @@ import (
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	chartConfigsToCreate, err := toChartConfigs(createChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -23,18 +18,13 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if len(chartConfigsToCreate) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating chartconfigs")
 
-		clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		g8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+		guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, chartConfigToCreate := range chartConfigsToCreate {
-			_, err := g8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
+			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
 			} else if err != nil {

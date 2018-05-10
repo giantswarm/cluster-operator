@@ -1,6 +1,7 @@
 package chartconfig
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -103,6 +104,30 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	clusterConfig.Organization = clusterGuestConfig.Owner
 
 	return clusterConfig, nil
+}
+
+func (r *Resource) getGuestG8sClient(ctx context.Context, obj interface{}) (versioned.Interface, error) {
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	guestG8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, guestAPIDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return guestG8sClient, nil
 }
 
 func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
