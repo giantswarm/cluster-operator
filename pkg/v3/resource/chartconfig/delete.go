@@ -12,11 +12,6 @@ import (
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	chartConfigsToCreate, err := toChartConfigs(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -25,18 +20,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if len(chartConfigsToCreate) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting chartconfigs")
 
-		clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		g8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+		guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, chartConfig := range chartConfigsToCreate {
-			err := g8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Delete(chartConfig.Name, &metav1.DeleteOptions{})
+			err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Delete(chartConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {
