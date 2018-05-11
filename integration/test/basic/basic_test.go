@@ -85,7 +85,7 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 		}
 
 		for _, chart := range chartConfigList.Items {
-			releaseName := chart.Spec.ReleaseName
+			releaseName := chart.Spec.Chart.Release
 			releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
 			if err != nil {
 				t.Fatalf("could not get release content for release %q %v", releaseName, err)
