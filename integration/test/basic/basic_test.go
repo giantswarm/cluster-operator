@@ -67,7 +67,7 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 
 	guestG8sClient := g.G8sClient()
-	chartConfigs, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace, metav1.GetOptions{})
+	chartConfigs, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
