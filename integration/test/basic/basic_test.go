@@ -8,6 +8,7 @@ import (
 
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/micrologger"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -55,5 +56,46 @@ func TestChartOperatorBootstrap(t *testing.T) {
 	actualStatus := releaseContent.Status
 	if expectedStatus != actualStatus {
 		t.Fatalf("bad release status, want %q, got %q", expectedStatus, actualStatus)
+	}
+}
+
+func TestChartConfigChartsInstalled(t *testing.T) {
+	guestNamespace := "giantswarm"
+	logger, err := micrologger.New(micrologger.Config{})
+	if err != nil {
+		t.Fatalf("could not create logger %v", err)
+	}
+
+	guestG8sClient := g.G8sClient()
+	chartConfigs, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace, metav1.GetOptions{})
+	if err != nil {
+		t.Fatalf("could not get chartconfigs %v", err)
+	}
+
+	if len(chartConfigs) > 0 {
+		ch := helmclient.Config{
+			Logger:          logger,
+			K8sClient:       g.K8sClient(),
+			RestConfig:      g.RestConfig(),
+			TillerNamespace: guestNamespace,
+		}
+		guestHelmClient, err := helmclient.New(ch)
+		if err != nil {
+			t.Fatalf("could not create guest helm client %v", err)
+		}
+
+		for _, chart := range chartConfigs {
+			releaseName := chart.Spec.ReleaseName
+			releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
+			if err != nil {
+				t.Fatalf("could not get release content for release %q %v", releaseName, err)
+			}
+
+			expectedStatus := "DEPLOYED"
+			actualStatus := releaseContent.Status
+			if expectedStatus != actualStatus {
+				t.Fatalf("bad release status for %q, want %q, got %q", releaseName, expectedStatus, actualStatus)
+			}
+		}
 	}
 }
