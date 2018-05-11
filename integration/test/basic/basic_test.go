@@ -75,6 +75,14 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 
 	if len(chartConfigList.Items) > 0 {
+		if os.Getenv("CLOP_VERSION_BUNDLE_VERSION") == "0.3.0" {
+			expectedChartConfigCount := 2
+
+			if len(chartConfigList.Items) != expectedChartConfigCount {
+				t.Fatalf("expected %d chartconfigs got %d", expectedChartConfigCount, len(chartConfigList.Items))
+			}
+		}
+
 		ch := helmclient.Config{
 			Logger:          logger,
 			K8sClient:       g.K8sClient(),
