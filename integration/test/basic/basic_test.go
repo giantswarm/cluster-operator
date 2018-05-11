@@ -59,6 +59,8 @@ func TestChartOperatorBootstrap(t *testing.T) {
 	}
 }
 
+// TestChartConfigChartsInstalled checks that the charts for any chartconfig
+// CRs installed in the cluster have been deployed.
 func TestChartConfigChartsInstalled(t *testing.T) {
 	guestNamespace := "giantswarm"
 	logger, err := micrologger.New(micrologger.Config{})
