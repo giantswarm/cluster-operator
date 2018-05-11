@@ -67,12 +67,12 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 
 	guestG8sClient := g.G8sClient()
-	chartConfigs, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
+	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
 
-	if len(chartConfigs) > 0 {
+	if len(chartConfigList.Items) > 0 {
 		ch := helmclient.Config{
 			Logger:          logger,
 			K8sClient:       g.K8sClient(),
@@ -84,7 +84,7 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 			t.Fatalf("could not create guest helm client %v", err)
 		}
 
-		for _, chart := range chartConfigs {
+		for _, chart := range chartConfigList.Items {
 			releaseName := chart.Spec.ReleaseName
 			releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
 			if err != nil {
