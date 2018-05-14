@@ -30,10 +30,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	desiredChartConfigs := make([]*v1alpha1.ChartConfig, 0)
-	{
-		chartConfig := newNodeExporterChartConfig(clusterConfig, r.projectName)
-		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
-	}
+	/*
+		{
+			chartConfig := newNodeExporterChartConfig(clusterConfig, r.projectName)
+			desiredChartConfigs = append(desiredChartConfigs, chartConfig)
+		}
+	*/
 	{
 		chartConfig := newKubeStateMetricsChartConfig(clusterConfig, r.projectName)
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)

@@ -57,8 +57,8 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			if len(chartConfigs) != 2 {
-				t.Fatal("expected", 2, "got", len(chartConfigs))
+			if len(chartConfigs) != 1 {
+				t.Fatal("expected", 1, "got", len(chartConfigs))
 			}
 		})
 	}
