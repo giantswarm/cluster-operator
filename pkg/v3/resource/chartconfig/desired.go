@@ -40,7 +40,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
 	chartName := "kubernetes-kube-state-metrics-chart"
-	channelName := "0-1-beta"
+	channelName := "0-1-stable"
 	releaseName := "kube-state-metrics"
 
 	return &v1alpha1.ChartConfig{
