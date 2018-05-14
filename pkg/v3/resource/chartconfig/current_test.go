@@ -43,7 +43,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-chart",
-						Namespace: "kube-system",
+						Namespace: "giantswarm",
 					},
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
@@ -58,7 +58,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-chart",
-						Namespace: "kube-system",
+						Namespace: "giantswarm",
 					},
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
@@ -81,7 +81,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-chart",
-						Namespace: "kube-system",
+						Namespace: "giantswarm",
 					},
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
@@ -94,7 +94,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "another-chart",
-						Namespace: "kube-system",
+						Namespace: "giantswarm",
 					},
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
@@ -109,7 +109,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test-chart",
-						Namespace: "kube-system",
+						Namespace: "giantswarm",
 					},
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
@@ -122,7 +122,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "another-chart",
-						Namespace: "kube-system",
+						Namespace: "giantswarm",
 					},
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
