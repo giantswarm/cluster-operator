@@ -11,11 +11,6 @@ import (
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	chartConfigsToUpdate, err := toChartConfigs(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -24,18 +19,13 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if len(chartConfigsToUpdate) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating chartconfigs")
 
-		clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		g8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+		guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
-			_, err := g8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Update(chartConfigToUpdate)
+			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Update(chartConfigToUpdate)
 			if err != nil {
 				return microerror.Mask(err)
 			}
