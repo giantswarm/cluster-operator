@@ -194,7 +194,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// guest clusters so they should be executed last.
 		namespaceResource,
 		chartResource,
-		chartResource,
 		chartConfigResource,
 	}
 
