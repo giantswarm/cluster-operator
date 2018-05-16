@@ -62,6 +62,12 @@ func TestChartOperatorBootstrap(t *testing.T) {
 // TestChartConfigChartsInstalled checks that the charts for any chartconfig
 // CRs installed in the cluster have been deployed.
 func TestChartConfigChartsInstalled(t *testing.T) {
+	// These versions have no chartconfigs so we return early.
+	clusterOperatorVersion := os.Getenv("CLOP_VERSION_BUNDLE_VERSION")
+	if clusterOperatorVersion == "0.1.0" || clusterOperatorVersion == "0.2.0" {
+		return
+	}
+
 	guestNamespace := "giantswarm"
 	logger, err := micrologger.New(micrologger.Config{})
 	if err != nil {
@@ -72,14 +78,6 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
-	}
-
-	if os.Getenv("CLOP_VERSION_BUNDLE_VERSION") == "0.3.0" {
-		expectedChartConfigs := 1
-
-		if len(chartConfigList.Items) != expectedChartConfigs {
-			t.Fatalf("expected %d chartconfigs got %d", expectedChartConfigs, len(chartConfigList.Items))
-		}
 	}
 
 	ch := helmclient.Config{
