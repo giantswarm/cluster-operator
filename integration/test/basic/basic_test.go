@@ -74,30 +74,36 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
 
-	if len(chartConfigList.Items) > 0 {
-		ch := helmclient.Config{
-			Logger:          logger,
-			K8sClient:       g.K8sClient(),
-			RestConfig:      g.RestConfig(),
-			TillerNamespace: guestNamespace,
+	if os.Getenv("CLOP_VERSION_BUNDLE_VERSION") == "0.3.0" {
+		expectedChartConfigs := 1
+
+		if len(chartConfigList.Items) != expectedChartConfigs {
+			t.Fatalf("expected %d chartconfigs got %d", expectedChartConfigs, len(chartConfigList.Items))
 		}
-		guestHelmClient, err := helmclient.New(ch)
+	}
+
+	ch := helmclient.Config{
+		Logger:          logger,
+		K8sClient:       g.K8sClient(),
+		RestConfig:      g.RestConfig(),
+		TillerNamespace: guestNamespace,
+	}
+	guestHelmClient, err := helmclient.New(ch)
+	if err != nil {
+		t.Fatalf("could not create guest helm client %v", err)
+	}
+
+	for _, chart := range chartConfigList.Items {
+		releaseName := chart.Spec.Chart.Release
+		releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
 		if err != nil {
-			t.Fatalf("could not create guest helm client %v", err)
+			t.Fatalf("could not get release content for release %q %v", releaseName, err)
 		}
 
-		for _, chart := range chartConfigList.Items {
-			releaseName := chart.Spec.Chart.Release
-			releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
-			if err != nil {
-				t.Fatalf("could not get release content for release %q %v", releaseName, err)
-			}
-
-			expectedStatus := "DEPLOYED"
-			actualStatus := releaseContent.Status
-			if expectedStatus != actualStatus {
-				t.Fatalf("bad release status for %q, want %q, got %q", releaseName, expectedStatus, actualStatus)
-			}
+		expectedStatus := "DEPLOYED"
+		actualStatus := releaseContent.Status
+		if expectedStatus != actualStatus {
+			t.Fatalf("bad release status for %q, want %q, got %q", releaseName, expectedStatus, actualStatus)
 		}
 	}
 }
