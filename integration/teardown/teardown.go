@@ -15,7 +15,7 @@ import (
 	"k8s.io/helm/pkg/helm"
 )
 
-func Teardown(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
+func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
 	items := []string{
 		"cluster-operator",
 		"cluster-operator-resource",
@@ -33,15 +33,10 @@ func Teardown(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cli
 		}
 	}
 
-	err := hostPeerVPC(c)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	return nil
 }
 
-func hostPeerVPC(c *awsclient.Client) error {
+func HostPeerVPC(c *awsclient.Client) error {
 	log.Printf("Deleting Host Peer VPC stack")
 
 	_, err := c.CloudFormation.DeleteStack(&cloudformation.DeleteStackInput{
