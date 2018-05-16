@@ -80,6 +80,12 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
 
+	// At least 1 chartconfig is expected. Actual number depends on how many
+	// components have been migrated.
+	if len(chartConfigList.Items) == 0 {
+		t.Fatalf("expected at least 1 chartconfigs: %d found", len(chartConfigList.Items))
+	}
+
 	ch := helmclient.Config{
 		Logger:          logger,
 		K8sClient:       g.K8sClient(),
