@@ -51,6 +51,7 @@ func Test_ApplyUpdateChange_Updates_updateChange(t *testing.T) {
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
+		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -97,6 +98,7 @@ func Test_ApplyUpdateChange_Does_Not_Make_API_Call_With_Empty_UpdateChange(t *te
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
+		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -137,6 +139,7 @@ func Test_ApplyUpdateChange_Handles_K8S_API_Error(t *testing.T) {
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
+		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -201,7 +204,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 				newCertConfig("cluster-1", certs.APICert),
 				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
-				newCertConfig("cluster-1", certs.FlanneldCert),
+				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
 				newCertConfig("cluster-1", certs.PrometheusCert),
 				newCertConfig("cluster-1", certs.ServiceAccountCert),
@@ -224,7 +227,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.CalicoCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.2.0"),
-				newCertConfigWithVersion("cluster-1", certs.FlanneldCert, "1.2.0"),
+				newCertConfigWithVersion("cluster-1", certs.FlanneldEtcdClientCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.NodeOperatorCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.PrometheusCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.ServiceAccountCert, "1.2.0"),
@@ -288,6 +291,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
 				ProjectName:       "cluster-operator",
+				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
