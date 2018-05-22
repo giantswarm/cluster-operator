@@ -3,13 +3,14 @@ package namespace
 import (
 	"context"
 
-	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
-	"github.com/giantswarm/cluster-operator/pkg/v3/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v3/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -49,6 +50,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the guest cluster")
 			// fall through
+		} else if guestcluster.IsGuestAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+
+			// We can't continue without a successful K8s connection. Cluster
+			// may not be up yet. We will retry during the next execution.
+			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {

@@ -46,6 +46,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 		return nil, nil
 
+	} else if guestcluster.IsGuestAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+
+		// We can't continue without a successful K8s connection. Cluster
+		// may not be up yet. We will retry during the next execution.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
