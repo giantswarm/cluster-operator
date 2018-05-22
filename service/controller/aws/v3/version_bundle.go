@@ -14,6 +14,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added giantswarm namespace.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Add node-exporter and kube-state-metrics chartconfigs.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components:   []versionbundle.Component{},
 		Dependencies: []versionbundle.Dependency{},
