@@ -58,6 +58,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			resourcecanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
+			return nil, nil
+
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
