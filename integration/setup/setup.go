@@ -73,9 +73,15 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 			logEntry := "deleted the guest cluster main stack"
 			h.DeleteGuestCluster(name, customResource, logEntry)
 
+			err := teardown.HostPeerVPC(c)
+			if err != nil {
+				log.Printf("%#v\n", err)
+				v = 1
+			}
+
 			// only do full teardown when not on CI
 			if os.Getenv("CIRCLECI") != "true" {
-				err := teardown.Teardown(c, h, helmClient)
+				err := teardown.Resources(c, h, helmClient)
 				if err != nil {
 					log.Printf("%#v\n", err)
 					v = 1
