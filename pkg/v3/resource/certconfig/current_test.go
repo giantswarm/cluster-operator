@@ -105,6 +105,7 @@ func Test_GetCurrentState(t *testing.T) {
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
 				ProjectName:       "cluster-operator",
+				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

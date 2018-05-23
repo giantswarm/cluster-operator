@@ -14,13 +14,15 @@ type Config struct {
 
 // Domain data structure holds different domain entries for cluster components.
 type Domain struct {
-	API            string
-	Calico         string
-	Etcd           string
-	NodeOperator   string
-	Prometheus     string
-	ServiceAccount string
-	Worker         string
+	API                string
+	Calico             string
+	CalicoEtcdClient   string
+	Etcd               string
+	FlanneldEtcdClient string
+	NodeOperator       string
+	Prometheus         string
+	ServiceAccount     string
+	Worker             string
 }
 
 // IP data structure holds IP entries for cluster components.

@@ -51,6 +51,7 @@ func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
+		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -97,6 +98,7 @@ func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *te
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
+		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -137,6 +139,7 @@ func Test_ApplyDeleteChange_Handles_K8S_API_Error(t *testing.T) {
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
 		ProjectName:       "cluster-operator",
+		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -203,7 +206,7 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 				newCertConfig("cluster-1", certs.APICert),
 				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
-				newCertConfig("cluster-1", certs.FlanneldCert),
+				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
 				newCertConfig("cluster-1", certs.PrometheusCert),
 				newCertConfig("cluster-1", certs.ServiceAccountCert),
@@ -249,6 +252,7 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
 				ProjectName:       "cluster-operator",
+				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
@@ -352,13 +356,13 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 				newCertConfig("cluster-1", "legacy-cert-1"),
 				newCertConfig("cluster-1", "legacy-cert-2"),
 				newCertConfig("cluster-1", "not needed anymore"),
-				newCertConfig("cluster-1", certs.FlanneldCert),
+				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
 				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
-				newCertConfig("cluster-1", certs.FlanneldCert),
+				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
 				newCertConfig("cluster-1", certs.PrometheusCert),
 				newCertConfig("cluster-1", certs.ServiceAccountCert),
@@ -422,6 +426,7 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
 				ProjectName:       "cluster-operator",
+				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

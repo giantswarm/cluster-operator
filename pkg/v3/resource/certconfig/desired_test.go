@@ -16,15 +16,61 @@ import (
 )
 
 func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T) {
-	managedCertificates := []certs.Cert{
-		certs.APICert,
-		certs.CalicoCert,
-		certs.ClusterOperatorAPICert,
-		certs.EtcdCert,
-		certs.NodeOperatorCert,
-		certs.PrometheusCert,
-		certs.ServiceAccountCert,
-		certs.WorkerCert,
+	testCases := []struct {
+		name                string
+		provider            string
+		managedCertificates []certs.Cert
+		errorMatcher        func(error) bool
+	}{
+		{
+			name:     "On AWS",
+			provider: "aws",
+			managedCertificates: []certs.Cert{
+				certs.APICert,
+				certs.CalicoCert,
+				certs.CalicoEtcdClientCert,
+				certs.ClusterOperatorAPICert,
+				certs.EtcdCert,
+				certs.NodeOperatorCert,
+				certs.PrometheusCert,
+				certs.ServiceAccountCert,
+				certs.WorkerCert,
+			},
+			errorMatcher: nil,
+		},
+		{
+			name:     "On Azure",
+			provider: "azure",
+			managedCertificates: []certs.Cert{
+				certs.APICert,
+				certs.CalicoCert,
+				certs.CalicoEtcdClientCert,
+				certs.ClusterOperatorAPICert,
+				certs.EtcdCert,
+				certs.NodeOperatorCert,
+				certs.PrometheusCert,
+				certs.ServiceAccountCert,
+				certs.WorkerCert,
+			},
+			errorMatcher: nil,
+		},
+		{
+			name:     "On KVM",
+			provider: "kvm",
+			managedCertificates: []certs.Cert{
+				certs.APICert,
+				certs.CalicoCert,
+				certs.CalicoEtcdClientCert,
+				certs.ClusterOperatorAPICert,
+				certs.EtcdCert,
+				certs.FlanneldEtcdClientCert,
+				certs.NodeOperatorCert,
+				certs.PrometheusCert,
+				certs.ServiceAccountCert,
+				certs.WorkerCert,
+			},
+			errorMatcher: nil,
+		},
 	}
 
 	clusterGuestConfig := v1alpha1.ClusterGuestConfig{
@@ -43,58 +89,73 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 		t.Fatalf("failed to parse cluster CIDR: %v", err)
 	}
 
-	r, err := New(Config{
-		BaseClusterConfig: cluster.Config{
-			ClusterID: "cluster-1",
-			CertTTL:   "720h",
-			IP: cluster.IP{
-				Range: clusterCIDR,
-			},
+	baseClusterConfig := cluster.Config{
+		ClusterID: "cluster-1",
+		CertTTL:   "720h",
+		IP: cluster.IP{
+			Range: clusterCIDR,
 		},
-		G8sClient:   fake.NewSimpleClientset(),
-		K8sClient:   clientgofake.NewSimpleClientset(),
-		Logger:      microloggertest.New(),
-		ProjectName: "cluster-operator",
-		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
-			return v.(v1alpha1.ClusterGuestConfig), nil
-		},
-	})
-
-	if err != nil {
-		t.Fatalf("Resource construction failed: %#v", err)
 	}
 
-	desiredState, err := r.GetDesiredState(context.TODO(), clusterGuestConfig)
-	if err != nil {
-		t.Fatalf("GetDesiredState() == %#v, want nil error", err)
-	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			r, err := New(Config{
+				BaseClusterConfig: baseClusterConfig,
+				G8sClient:         fake.NewSimpleClientset(),
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            microloggertest.New(),
+				ProjectName:       "cluster-operator",
+				Provider:          tc.provider,
+				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
+					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+			})
 
-	certConfigs, ok := desiredState.([]*v1alpha1.CertConfig)
-	if !ok {
-		t.Fatalf("GetDesiredState() == %#v, wrong type %T, want %T", desiredState, desiredState, certConfigs)
-	}
-
-	for _, cert := range managedCertificates {
-		certConfigName := key.CertConfigName(key.ClusterID(clusterGuestConfig), cert)
-		found := false
-		for i := 0; i < len(certConfigs); i++ {
-			cc := certConfigs[i]
-			if cc.Name == certConfigName {
-				found = true
-				certConfigs = append(certConfigs[:i], certConfigs[i+1:]...)
-				break
+			if err != nil {
+				t.Fatalf("Resource construction failed: %#v", err)
 			}
-		}
 
-		if !found {
-			t.Fatalf("GetDesiredState() doesn't return wanted CertConfig: %s", certConfigName)
-		}
-	}
+			desiredState, err := r.GetDesiredState(context.TODO(), clusterGuestConfig)
 
-	if len(certConfigs) > 0 {
-		for _, cc := range certConfigs {
-			t.Errorf("GetDesiredState() returns unwanted CertConfig: %#v", cc)
-		}
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			certConfigs, ok := desiredState.([]*v1alpha1.CertConfig)
+			if !ok {
+				t.Fatalf("GetDesiredState() == %#v, wrong type %T, want %T", desiredState, desiredState, certConfigs)
+			}
+
+			for _, cert := range tc.managedCertificates {
+				certConfigName := key.CertConfigName(key.ClusterID(clusterGuestConfig), cert)
+				found := false
+				for i := 0; i < len(certConfigs); i++ {
+					cc := certConfigs[i]
+					if cc.Name == certConfigName {
+						found = true
+						certConfigs = append(certConfigs[:i], certConfigs[i+1:]...)
+						break
+					}
+				}
+
+				if !found {
+					t.Fatalf("GetDesiredState() doesn't return wanted CertConfig: %s", certConfigName)
+				}
+			}
+
+			if len(certConfigs) > 0 {
+				for _, cc := range certConfigs {
+					t.Fatalf("GetDesiredState() returns unwanted CertConfig: %#v", cc)
+				}
+			}
+		})
 	}
 }
 

@@ -30,6 +30,7 @@ type Config struct {
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
+	Provider                 string
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
@@ -40,6 +41,7 @@ type Resource struct {
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
+	provider                 string
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
@@ -60,6 +62,9 @@ func New(config Config) (*Resource, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "config.Provider must not be empty")
+	}
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.ToClusterGuestConfigFunc must not be empty")
 	}
@@ -70,6 +75,7 @@ func New(config Config) (*Resource, error) {
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,
+		provider:                 config.Provider,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
