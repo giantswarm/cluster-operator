@@ -10,3 +10,10 @@ var emptyChartConfigListError = microerror.New("empty chart config list")
 func IsEmptyChartConfigList(err error) bool {
 	return microerror.Cause(err) == emptyChartConfigListError
 }
+
+var releaseStatusNotMatchingError = microerror.New("release status not matching")
+
+// IsReleaseStatusNotMatching asserts releaseStatusNotMatchingError
+func IsReleaseStatusNotMatching(err error) bool {
+	return microerror.Cause(err) == releaseStatusNotMatchingError
+}
