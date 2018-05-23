@@ -18,6 +18,9 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "chartconfigv3"
+
+	// resourceNamespace is the resource where the chartconfig CRs are created.
+	resourceNamespace = "giantswarm"
 )
 
 // Config represents the configuration used to create a new chart config resource.
