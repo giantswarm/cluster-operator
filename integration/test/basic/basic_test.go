@@ -142,7 +142,8 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 		log.Printf("getting chart configs %s: %v", t, err)
 	}
 
-	b := framework.NewExponentialBackoff(framework.ShortMaxWait, framework.LongMaxInterval)
+	maxInterval := 5 * time.Minute
+	b := framework.NewExponentialBackoff(maxInterval, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
