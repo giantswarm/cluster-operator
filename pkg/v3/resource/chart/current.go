@@ -22,14 +22,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	releaseContent, err := guestHelmClient.GetReleaseContent(chartOperatorRelease)
-	if helmclient.IsReleaseNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chart-operator chart in the guest cluster")
-		return nil, nil
 
 	} else if helmclient.IsGuestAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
@@ -39,6 +31,15 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
+		return nil, nil
+
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	releaseContent, err := guestHelmClient.GetReleaseContent(chartOperatorRelease)
+	if helmclient.IsReleaseNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chart-operator chart in the guest cluster")
 		return nil, nil
 
 	} else if err != nil {
