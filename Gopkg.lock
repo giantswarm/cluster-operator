@@ -217,9 +217,10 @@
   revision = "3b84395624cf804b3f43bb2f5bcf43ca36de9fee"
 
 [[projects]]
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
-  revision = "7be474c80bf0e824b1e575d21fb699686c0a9e4d"
+  revision = "0f142455010d072e040260da2b5376c991543801"
 
 [[projects]]
   branch = "master"
