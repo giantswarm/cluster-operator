@@ -3,6 +3,7 @@
 package basic
 
 import (
+	"os"
 	"testing"
 
 	"github.com/giantswarm/helmclient"
@@ -19,10 +20,20 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		t.Fatalf("could not create logger %v", err)
 	}
 
+	tillerNamespace := "giantswarm"
+
+	// This version bundle uses kube-system because it doesn't have the
+	// namespace resource that creates the giantswarm namespace. All future
+	// version will use the giantswarm namespace.
+	if os.Getenv("CLOP_VERSION_BUNDLE_VERSION") == "0.2.0" {
+		tillerNamespace = "kube-system"
+	}
+
 	ch := helmclient.Config{
-		Logger:     logger,
-		K8sClient:  g.K8sClient(),
-		RestConfig: g.RestConfig(),
+		Logger:          logger,
+		K8sClient:       g.K8sClient(),
+		RestConfig:      g.RestConfig(),
+		TillerNamespace: tillerNamespace,
 	}
 	guestHelmClient, err := helmclient.New(ch)
 	if err != nil {

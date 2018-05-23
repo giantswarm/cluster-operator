@@ -25,7 +25,7 @@ const (
 	chartOperatorChart         = "chart-operator-chart"
 	chartOperatorChannel       = "0-1-stable"
 	chartOperatorRelease       = "chart-operator"
-	chartOperatorNamespace     = "kube-system"
+	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
 )
 
@@ -116,7 +116,12 @@ func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (hel
 		return nil, microerror.Mask(err)
 	}
 
-	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, key.MasterServiceDomain(clusterGuestConfig))
+	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, guestAPIDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

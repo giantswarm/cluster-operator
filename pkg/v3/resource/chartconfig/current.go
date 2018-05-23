@@ -16,19 +16,10 @@ import (
 // GetCurrentState returns the ChartConfig resources present in the guest
 // cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the guest cluster")
 
-	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	g8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.Domain.API)
+	guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
 	if guestcluster.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the cluster-operator api cert in the Kubernetes API")
 
@@ -43,13 +34,23 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	chartConfigList, err := g8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).List(metav1.ListOptions{})
+	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).List(metav1.ListOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chartconfig CRD in the guest cluster")
 
 		// ChartConfig CRD is created by chart-operator which may not be
 		// running yet in the guest cluster. We will retry during the next
 		// execution.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+		return nil, nil
+
+	} else if guestcluster.IsGuestAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+
+		// We can't continue without a successful K8s connection. Cluster
+		// may not be up yet. We will retry during the next execution.
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 

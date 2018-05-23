@@ -19,6 +19,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/integration/teardown"
 	"github.com/giantswarm/cluster-operator/integration/template"
+	"github.com/giantswarm/cluster-operator/service"
 )
 
 func hostPeerVPC(c *awsclient.Client) error {
@@ -65,63 +66,83 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 
 	c := awsclient.NewClient()
 
-	clusterName := fmt.Sprintf("ci-clop-%s", os.Getenv("CIRCLE_SHA1")[0:5])
+	defer func() {
+		if os.Getenv("KEEP_RESOURCES") != "true" {
+			name := "aws-operator"
+			customResource := "awsconfig"
+			logEntry := "deleted the guest cluster main stack"
+			h.DeleteGuestCluster(name, customResource, logEntry)
+
+			err := teardown.HostPeerVPC(c)
+			if err != nil {
+				log.Printf("%#v\n", err)
+				v = 1
+			}
+
+			// only do full teardown when not on CI
+			if os.Getenv("CIRCLECI") != "true" {
+				err := teardown.Resources(c, h, helmClient)
+				if err != nil {
+					log.Printf("%#v\n", err)
+					v = 1
+				}
+				// TODO there should be error handling for the framework teardown.
+				h.Teardown()
+			}
+		}
+		os.Exit(v)
+	}()
+
+	vbv, err := framework.GetVersionBundleVersion(service.NewVersionBundles(), os.Getenv("TESTED_VERSION"))
+	if err != nil {
+		log.Printf("%#v\n", err)
+		v = 1
+		return
+	}
+	// do not fail on missing WIP.
+	if vbv == "" && os.Getenv("TESTED_VERSION") == "wip" {
+		log.Printf("WIP version not present, exiting.\n")
+		os.Exit(0)
+	}
+	os.Setenv("CLOP_VERSION_BUNDLE_VERSION", vbv)
+
+	clusterName := fmt.Sprintf("ci-clop-%s-%s", os.Getenv("TESTED_VERSION"), os.Getenv("CIRCLE_SHA1")[0:5])
 	os.Setenv("CLUSTER_NAME", clusterName)
 
 	err = hostPeerVPC(c)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
+		return
 	}
 
 	err = h.Setup()
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
+		return
 	}
 
 	err = resources(h, g, helmClient)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
+		return
 	}
 
-	if v == 0 {
-		err = g.Initialize()
-		if err != nil {
-			log.Printf("%#v\n", err)
-			v = 1
-		}
-		err = g.WaitForAPIUp()
-		if err != nil {
-			log.Printf("%#v\n", err)
-			v = 1
-		}
+	err = g.Initialize()
+	if err != nil {
+		log.Printf("%#v\n", err)
+		v = 1
+		return
 	}
-
-	if v == 0 {
-		v = m.Run()
+	err = g.WaitForAPIUp()
+	if err != nil {
+		log.Printf("%#v\n", err)
+		v = 1
+		return
 	}
-
-	if os.Getenv("KEEP_RESOURCES") != "true" {
-		name := "aws-operator"
-		customResource := "awsconfig"
-		logEntry := "deleted the guest cluster main stack"
-		h.DeleteGuestCluster(name, customResource, logEntry)
-
-		// only do full teardown when not on CI
-		if os.Getenv("CIRCLECI") != "true" {
-			err := teardown.Teardown(c, h, helmClient)
-			if err != nil {
-				log.Printf("%#v\n", err)
-				v = 1
-			}
-			// TODO there should be error handling for the framework teardown.
-			h.Teardown()
-		}
-	}
-
-	os.Exit(v)
+	v = m.Run()
 }
 
 func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
