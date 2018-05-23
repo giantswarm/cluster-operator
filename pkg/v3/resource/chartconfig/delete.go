@@ -26,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		}
 
 		for _, chartConfig := range chartConfigsToCreate {
-			err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Delete(chartConfig.Name, &metav1.DeleteOptions{})
+			err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {

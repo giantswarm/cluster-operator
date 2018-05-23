@@ -34,7 +34,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).List(metav1.ListOptions{})
+	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).List(metav1.ListOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chartconfig CRD in the guest cluster")
 

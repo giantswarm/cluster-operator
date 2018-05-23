@@ -223,13 +223,13 @@
   revision = "0f142455010d072e040260da2b5376c991543801"
 
 [[projects]]
-  branch = "master"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
     "pkg/framework",
     "pkg/harness"
   ]
-  revision = "2af3583727eabb5743547205f9d25996123b3862"
+  revision = "5352466ad607e1c7c3a29e51116192d5410372f2"
+  version = "5352466"
 
 [[projects]]
   branch = "master"

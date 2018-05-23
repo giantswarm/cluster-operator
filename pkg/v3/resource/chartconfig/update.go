@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
@@ -25,7 +24,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		}
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
-			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).Update(chartConfigToUpdate)
+			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
 			if err != nil {
 				return microerror.Mask(err)
 			}
