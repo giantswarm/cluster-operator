@@ -3,16 +3,23 @@
 package basic
 
 import (
+	"log"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/e2e-harness/pkg/framework"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	releaseName = "chart-operator"
+	guestNamespace = "giantswarm"
+	releaseName    = "chart-operator"
 )
 
 func TestChartOperatorBootstrap(t *testing.T) {
@@ -75,6 +82,13 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 
 	guestG8sClient := g.G8sClient()
+
+	// Wait for chart configs as they may not have been created yet.
+	err = waitForChartConfigs(guestG8sClient)
+	if err != nil {
+		t.Fatalf("could not get chartconfigs %v", err)
+	}
+
 	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
@@ -110,4 +124,29 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 			t.Fatalf("bad release status for %q, want %q, got %q", releaseName, expectedStatus, actualStatus)
 		}
 	}
+}
+
+func waitForChartConfigs(guestG8sClient versioned.Interface) error {
+	operation := func() error {
+		cc, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		} else if len(cc.Items) == 0 {
+			return microerror.Maskf(emptyChartConfigListError, "waiting for chart configs")
+		}
+
+		return nil
+	}
+
+	notify := func(err error, t time.Duration) {
+		log.Printf("getting chart configs %s: %v", t, err)
+	}
+
+	b := framework.NewExponentialBackoff(framework.ShortMaxWait, framework.LongMaxInterval)
+	err := backoff.RetryNotify(operation, b, notify)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
 }
