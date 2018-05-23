@@ -217,9 +217,10 @@
   revision = "3b84395624cf804b3f43bb2f5bcf43ca36de9fee"
 
 [[projects]]
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
-  revision = "7be474c80bf0e824b1e575d21fb699686c0a9e4d"
+  revision = "0f142455010d072e040260da2b5376c991543801"
 
 [[projects]]
   name = "github.com/giantswarm/e2e-harness"
@@ -246,7 +247,7 @@
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "0393af05514494472c2d0b5cb34bfe9c97ecb975"
+  revision = "5ff4c1ff0eb8ebf7c65224cef7f94af77114bca8"
 
 [[projects]]
   branch = "master"
