@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 )
@@ -18,8 +18,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 		// We can't continue without a Helm client. We will retry during the
 		// next execution.
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
 
 		return nil, nil
 
@@ -28,8 +28,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 		// We can't continue without a successful K8s connection. Cluster
 		// may not be up yet. We will retry during the next execution.
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
 
 		return nil, nil
 

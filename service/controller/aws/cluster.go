@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"time"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
@@ -63,8 +65,12 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var newInformer *informer.Informer
 	{
 		c := informer.Config{
-			Logger:  config.Logger,
-			Watcher: config.G8sClient.CoreV1alpha1().AWSClusterConfigs(""),
+			Logger: config.Logger,
+			// ResyncPeriod is 1 minute because some resources access guest
+			// clusters. So we need to wait until they become available. When
+			// a guest cluster is not available we cancel the reconciliation.
+			ResyncPeriod: 1 * time.Minute,
+			Watcher:      config.G8sClient.CoreV1alpha1().AWSClusterConfigs(""),
 		}
 
 		newInformer, err = informer.New(c)

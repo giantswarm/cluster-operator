@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,8 +34,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 		// We can't continue without a K8s client. We will retry during the
 		// next execution.
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
 
 		return nil, nil
 	} else if err != nil {
@@ -55,8 +56,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 			// We can't continue without a successful K8s connection. Cluster
 			// may not be up yet. We will retry during the next execution.
-			resourcecanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
 
 			return nil, nil
 
