@@ -25,8 +25,8 @@ func VersionBundle() versionbundle.Bundle {
 		Deprecated:   false,
 		Name:         "cluster-operator",
 		Provider:     "aws",
-		Time:         time.Date(2018, time.April, 26, 12, 00, 0, 0, time.UTC),
+		Time:         time.Date(2018, time.May, 28, 8, 21, 0, 0, time.UTC),
 		Version:      "0.3.0",
-		WIP:          true,
+		WIP:          false,
 	}
 }
