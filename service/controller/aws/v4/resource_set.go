@@ -1,4 +1,4 @@
-package v3
+package v4
 
 import (
 	"context"
@@ -23,8 +23,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v3/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v3/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/resource/awsconfig"
 )
 
 const (
