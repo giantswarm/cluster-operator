@@ -109,6 +109,3 @@ workflows:
           filters:
             branches:
               only: master
-          requires:
-          - e2eTestCurrentMaster
-          - e2eTestWIPMaster
