@@ -11,12 +11,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Added giantswarm namespace.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Added kube-state-metrics chartconfig.",
+				Description: "Add changes here.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
@@ -26,7 +21,7 @@ func VersionBundle() versionbundle.Bundle {
 		Name:         "cluster-operator",
 		Provider:     "aws",
 		Time:         time.Date(2018, time.May, 28, 8, 21, 0, 0, time.UTC),
-		Version:      "0.3.0",
-		WIP:          false,
+		Version:      "0.4.0",
+		WIP:          true,
 	}
 }

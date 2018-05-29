@@ -6,6 +6,7 @@ import (
 	awsv1 "github.com/giantswarm/cluster-operator/service/controller/aws/v1"
 	awsv2 "github.com/giantswarm/cluster-operator/service/controller/aws/v2"
 	awsv3 "github.com/giantswarm/cluster-operator/service/controller/aws/v3"
+	awsv4 "github.com/giantswarm/cluster-operator/service/controller/aws/v4"
 	azurev1 "github.com/giantswarm/cluster-operator/service/controller/azure/v1"
 	azurev2 "github.com/giantswarm/cluster-operator/service/controller/azure/v2"
 	azurev3 "github.com/giantswarm/cluster-operator/service/controller/azure/v3"
@@ -28,6 +29,8 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv3.VersionBundle())
 	versionBundles = append(versionBundles, azurev3.VersionBundle())
 	versionBundles = append(versionBundles, kvmv3.VersionBundle())
+
+	versionBundles = append(versionBundles, awsv4.VersionBundle())
 
 	return versionBundles
 }
