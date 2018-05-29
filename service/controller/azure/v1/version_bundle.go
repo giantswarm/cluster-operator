@@ -15,12 +15,7 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindAdded,
 			},
 		},
-		Components: []versionbundle.Component{
-			{
-				Name:    "azure-operator",
-				Version: "1.0.0",
-			},
-		},
+		Components:   []versionbundle.Component{},
 		Dependencies: []versionbundle.Dependency{},
 		Deprecated:   true,
 		Name:         "cluster-operator",
