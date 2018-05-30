@@ -3,7 +3,6 @@ package v4
 import (
 	"context"
 
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
@@ -25,12 +24,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/resource/awsconfig"
-)
-
-const (
-	// ResourceRetries presents number of retries for failed Resource
-	// operation before giving up.
-	ResourceRetries uint64 = 3
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -199,21 +192,22 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	// Wrap resources with retry and metrics.
 	{
-		retryWrapConfig := retryresource.WrapConfig{}
+		c := retryresource.WrapConfig{
+			Logger: config.Logger,
+		}
 
-		retryWrapConfig.BackOffFactory = func() backoff.BackOff { return backoff.WithMaxTries(backoff.NewExponentialBackOff(), ResourceRetries) }
-		retryWrapConfig.Logger = config.Logger
-
-		resources, err = retryresource.Wrap(resources, retryWrapConfig)
+		resources, err = retryresource.Wrap(resources, c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
+	}
 
-		metricsWrapConfig := metricsresource.WrapConfig{}
+	{
+		c := metricsresource.WrapConfig{
+			Name: config.ProjectName,
+		}
 
-		metricsWrapConfig.Name = config.ProjectName
-
-		resources, err = metricsresource.Wrap(resources, metricsWrapConfig)
+		resources, err = metricsresource.Wrap(resources, c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
