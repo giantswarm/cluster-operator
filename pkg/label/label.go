@@ -3,6 +3,9 @@
 package label
 
 const (
+	// App is a standard label for guest resources.
+	App = "app"
+
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
 
@@ -31,4 +34,13 @@ const (
 	// RandomKey label specifies type of a secret that is used for guest
 	// cluster.
 	RandomKey = "giantswarm.io/randomkey"
+
+	// ServiceType is a standard label for guest resources.
+	ServiceType = "giantswarm.io/service-type"
+
+	// ServiceTypeManaged is a label value for managed resources.
+	ServiceTypeManaged = "managed"
+
+	// ServiceTypeSystem is a label value for system resources.
+	ServiceTypeSystem = "system"
 )
