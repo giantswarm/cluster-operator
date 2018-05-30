@@ -18,10 +18,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
+	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/resource/azureconfig"
 )
