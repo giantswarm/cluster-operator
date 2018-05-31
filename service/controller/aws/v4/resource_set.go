@@ -26,6 +26,11 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/resource/awsconfig"
 )
 
+const (
+	// Provider is used to enable provider specific features.
+	Provider = "aws"
+)
+
 // ResourceSetConfig contains necessary dependencies and settings for
 // AWSClusterConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
@@ -163,6 +168,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
+			Provider:                 Provider,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
