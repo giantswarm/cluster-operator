@@ -293,6 +293,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		K8sClient:   clientgofake.NewSimpleClientset(),
 		Logger:      microloggertest.New(),
 		ProjectName: "cluster-operator",
+		Provider:    "aws",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
