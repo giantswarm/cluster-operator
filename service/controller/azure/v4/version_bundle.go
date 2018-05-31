@@ -9,13 +9,13 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Added giantswarm namespace.",
+				Description: "Added chartconfig resource.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{},
 		Name:       "cluster-operator",
 		Provider:   "azure",
-		Version:    "0.3.0",
+		Version:    "0.4.0",
 	}
 }
