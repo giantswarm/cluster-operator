@@ -19,7 +19,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/integration/teardown"
 	"github.com/giantswarm/cluster-operator/integration/template"
-	"github.com/giantswarm/cluster-operator/service"
 )
 
 func hostPeerVPC(c *awsclient.Client) error {
@@ -93,7 +92,15 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		os.Exit(v)
 	}()
 
-	vbv, err := framework.GetVersionBundleVersion(service.NewVersionBundles(), os.Getenv("TESTED_VERSION"))
+	token := os.Getenv("GITHUB_BOT_TOKEN")
+	vType := os.Getenv("TESTED_VERSION")
+	params := &framework.VBVParams{
+		Component: "cluster-operator",
+		Provider:  "aws",
+		Token:     token,
+		VType:     vType,
+	}
+	vbv, err := framework.GetVersionBundleVersion(params)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
