@@ -17,8 +17,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v2/guestcluster"
-	"github.com/giantswarm/cluster-operator/pkg/v2/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v2/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v2/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v2/resource/awsconfig"
@@ -98,51 +96,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestClusterService *guestcluster.Service
-	{
-		c := guestcluster.Config{
-			CertsSearcher: config.CertSearcher,
-			Logger:        config.Logger,
-		}
-
-		guestClusterService, err = guestcluster.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartResource controller.Resource
-	{
-		c := chart.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
-		}
-
-		ops, err := chart.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// awsConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		awsConfigResource,
-		chartResource,
 	}
 
 	// Wrap resources with retry and metrics.

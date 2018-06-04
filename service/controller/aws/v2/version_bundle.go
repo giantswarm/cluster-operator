@@ -17,6 +17,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Removed misleading component reference to aws-operator.",
 				Kind:        versionbundle.KindFixed,
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Removed chart resource so Tiller is not installed in the kube-system namespace.",
+				Kind:        versionbundle.KindRemoved,
+			},
 		},
 		Components: []versionbundle.Component{},
 		Name:       "cluster-operator",
