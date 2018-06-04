@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -219,7 +220,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 		K8sClient:   clientgofake.NewSimpleClientset(),
 		Logger:      microloggertest.New(),
 		ProjectName: "cluster-operator",
-		Provider:    "aws",
+		Provider:    label.ProviderAWS,
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
