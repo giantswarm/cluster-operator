@@ -19,6 +19,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v3/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
@@ -78,6 +79,28 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var certConfigResource controller.Resource
+	{
+		c := certconfig.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := certconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		certConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -166,6 +189,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// azureConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
+		certConfigResource,
 		azureConfigResource,
 		// namespaceResource and chartResource manage resources in the guest
 		// cluster so they should be executed last.
