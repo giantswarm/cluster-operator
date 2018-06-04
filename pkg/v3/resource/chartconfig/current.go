@@ -34,13 +34,23 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(metav1.NamespaceSystem).List(metav1.ListOptions{})
+	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).List(metav1.ListOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chartconfig CRD in the guest cluster")
 
 		// ChartConfig CRD is created by chart-operator which may not be
 		// running yet in the guest cluster. We will retry during the next
 		// execution.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+		return nil, nil
+
+	} else if guestcluster.IsGuestAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+
+		// We can't continue without a successful K8s connection. Cluster
+		// may not be up yet. We will retry during the next execution.
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 

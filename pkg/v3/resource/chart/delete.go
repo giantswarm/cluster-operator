@@ -39,6 +39,15 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil
+	} else if helmclient.IsGuestAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "Guest API not available.")
+
+		// We should not hammer guest API if it is not available, the guest cluster
+		// might be initializing. We will retry on next reconciliation loop.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}

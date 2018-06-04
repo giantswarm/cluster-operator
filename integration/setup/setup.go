@@ -19,7 +19,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/integration/teardown"
 	"github.com/giantswarm/cluster-operator/integration/template"
-	"github.com/giantswarm/cluster-operator/service"
 )
 
 func hostPeerVPC(c *awsclient.Client) error {
@@ -73,9 +72,15 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 			logEntry := "deleted the guest cluster main stack"
 			h.DeleteGuestCluster(name, customResource, logEntry)
 
+			err := teardown.HostPeerVPC(c)
+			if err != nil {
+				log.Printf("%#v\n", err)
+				v = 1
+			}
+
 			// only do full teardown when not on CI
 			if os.Getenv("CIRCLECI") != "true" {
-				err := teardown.Teardown(c, h, helmClient)
+				err := teardown.Resources(c, h, helmClient)
 				if err != nil {
 					log.Printf("%#v\n", err)
 					v = 1
@@ -87,7 +92,15 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		os.Exit(v)
 	}()
 
-	vbv, err := framework.GetVersionBundleVersion(service.NewVersionBundles(), os.Getenv("TESTED_VERSION"))
+	token := os.Getenv("GITHUB_BOT_TOKEN")
+	vType := os.Getenv("TESTED_VERSION")
+	params := &framework.VBVParams{
+		Component: "cluster-operator",
+		Provider:  "aws",
+		Token:     token,
+		VType:     vType,
+	}
+	vbv, err := framework.GetVersionBundleVersion(params)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1

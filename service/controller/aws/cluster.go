@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"time"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
@@ -18,6 +20,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v1"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v2"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v3"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v4"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -63,8 +66,12 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var newInformer *informer.Informer
 	{
 		c := informer.Config{
-			Logger:  config.Logger,
-			Watcher: config.G8sClient.CoreV1alpha1().AWSClusterConfigs(""),
+			Logger: config.Logger,
+			// ResyncPeriod is 1 minute because some resources access guest
+			// clusters. So we need to wait until they become available. When
+			// a guest cluster is not available we cancel the reconciliation.
+			ResyncPeriod: 1 * time.Minute,
+			Watcher:      config.G8sClient.CoreV1alpha1().AWSClusterConfigs(""),
 		}
 
 		newInformer, err = informer.New(c)
@@ -125,6 +132,25 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v4ResourceSet *controller.ResourceSet
+	{
+		c := v4.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+		}
+
+		v4ResourceSet, err = v4.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var resourceRouter *controller.ResourceRouter
 	{
 		c := controller.ResourceRouterConfig{
@@ -133,6 +159,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v1ResourceSet,
 				v2ResourceSet,
 				v3ResourceSet,
+				v4ResourceSet,
 			},
 		}
 

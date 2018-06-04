@@ -22,6 +22,8 @@ const (
 
 	loopbackIP = "127.0.0.1"
 
+	providerKVM = "kvm"
+
 	// systemMastersOrganization is the RBAC kubernetes admin group.
 	systemMastersOrganization = "system:masters"
 )
@@ -57,11 +59,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
+		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
 		certConfig := newClusterOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
 		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	if r.provider == providerKVM {
+		certConfig := newFlanneldEtcdClientCertConfig(clusterConfig, certs.FlanneldEtcdClientCert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
@@ -101,7 +111,15 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
+	clusterConfig.Domain.CalicoEtcdClient, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoEtcdClientCert)
+	if err != nil {
+		return cluster.Config{}, microerror.Mask(err)
+	}
 	clusterConfig.Domain.Etcd, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.EtcdCert)
+	if err != nil {
+		return cluster.Config{}, microerror.Mask(err)
+	}
+	clusterConfig.Domain.FlanneldEtcdClient, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.FlanneldEtcdClientCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
@@ -203,6 +221,39 @@ func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectN
 	}
 }
 
+func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+	certName := string(cert)
+	return &v1alpha1.CertConfig{
+		TypeMeta: apimetav1.TypeMeta{
+			Kind:       certKind,
+			APIVersion: certAPIVersion,
+		},
+		ObjectMeta: apimetav1.ObjectMeta{
+			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Labels: map[string]string{
+				label.Cluster:         clusterConfig.ClusterID,
+				label.LegacyClusterID: clusterConfig.ClusterID,
+				label.LegacyComponent: certName,
+				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
+			},
+		},
+		Spec: v1alpha1.CertConfigSpec{
+			Cert: v1alpha1.CertConfigSpecCert{
+				AllowBareDomains:    false,
+				ClusterComponent:    certName,
+				ClusterID:           clusterConfig.ClusterID,
+				CommonName:          clusterConfig.Domain.CalicoEtcdClient,
+				DisableRegeneration: false,
+				TTL:                 clusterConfig.CertTTL,
+			},
+			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
+				Version: clusterConfig.VersionBundleVersion,
+			},
+		},
+	}
+}
+
 func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
@@ -259,6 +310,39 @@ func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectNam
 				CommonName:          clusterConfig.Domain.Etcd,
 				DisableRegeneration: false,
 				IPSANs:              []string{loopbackIP},
+				TTL:                 clusterConfig.CertTTL,
+			},
+			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
+				Version: clusterConfig.VersionBundleVersion,
+			},
+		},
+	}
+}
+
+func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+	certName := string(cert)
+	return &v1alpha1.CertConfig{
+		TypeMeta: apimetav1.TypeMeta{
+			Kind:       certKind,
+			APIVersion: certAPIVersion,
+		},
+		ObjectMeta: apimetav1.ObjectMeta{
+			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Labels: map[string]string{
+				label.Cluster:         clusterConfig.ClusterID,
+				label.LegacyClusterID: clusterConfig.ClusterID,
+				label.LegacyComponent: certName,
+				label.ManagedBy:       projectName,
+				label.Organization:    clusterConfig.Organization,
+			},
+		},
+		Spec: v1alpha1.CertConfigSpec{
+			Cert: v1alpha1.CertConfigSpecCert{
+				AllowBareDomains:    false,
+				ClusterComponent:    certName,
+				ClusterID:           clusterConfig.ClusterID,
+				CommonName:          clusterConfig.Domain.FlanneldEtcdClient,
+				DisableRegeneration: false,
 				TTL:                 clusterConfig.CertTTL,
 			},
 			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
