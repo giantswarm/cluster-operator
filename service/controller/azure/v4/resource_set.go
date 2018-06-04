@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
@@ -24,11 +25,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/resource/azureconfig"
-)
-
-const (
-	// Provider is used to enable provider specific features.
-	Provider = "azure"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -169,7 +165,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
-			Provider:                 Provider,
+			Provider:                 label.ProviderAzure,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
