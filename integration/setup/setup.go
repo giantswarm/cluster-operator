@@ -113,7 +113,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	}
 	os.Setenv("CLOP_VERSION_BUNDLE_VERSION", vbv)
 
-	params := &framework.VBVParams{
+	params = &framework.VBVParams{
 		Component: "aws-operator",
 		Provider:  "aws",
 		Token:     token,
