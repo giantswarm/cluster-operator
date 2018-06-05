@@ -189,7 +189,7 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 		return microerror.Mask(err)
 	}
 
-	err = h.InstallResource("aws-resource-lab", e2etemplates.AWSResourceChartValues, ":stable")
+	err = h.InstallResource("apiextensions-aws-config-e2e", e2etemplates.ApiextensionsAWSConfigE2EChartValues, ":stable")
 	if err != nil {
 		return microerror.Mask(err)
 	}
