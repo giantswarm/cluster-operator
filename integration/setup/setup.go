@@ -113,6 +113,25 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	}
 	os.Setenv("CLOP_VERSION_BUNDLE_VERSION", vbv)
 
+	params = &framework.VBVParams{
+		Component: "aws-operator",
+		Provider:  "aws",
+		Token:     token,
+		VType:     "current",
+	}
+
+	vbv, err = framework.GetVersionBundleVersion(params)
+	if err != nil {
+		log.Printf("%#v\n", err)
+		v = 1
+		return
+	}
+	if vbv == "" {
+		log.Fatalf("Could not get aws-operator current version.\n")
+		os.Exit(0)
+	}
+	os.Setenv("VERSION_BUNDLE_VERSION", vbv)
+
 	clusterName := fmt.Sprintf("ci-clop-%s-%s", os.Getenv("TESTED_VERSION"), os.Getenv("CIRCLE_SHA1")[0:5])
 	os.Setenv("CLUSTER_NAME", clusterName)
 
