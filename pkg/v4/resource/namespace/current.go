@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -52,7 +53,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the guest cluster")
 			// fall through
 		} else if guestcluster.IsGuestAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("guest cluster is not available: %#v", err))
 
 			// We can't continue without a successful K8s connection. Cluster
 			// may not be up yet. We will retry during the next execution.

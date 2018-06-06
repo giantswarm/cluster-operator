@@ -7,18 +7,28 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	awsclient "github.com/giantswarm/e2eclients/aws"
 	"github.com/giantswarm/e2etemplates/pkg/e2etemplates"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
+	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/integration/teardown"
 	"github.com/giantswarm/cluster-operator/integration/template"
+)
+
+const (
+	awsOperatorArnKey   = "aws.awsoperator.arn"
+	credentialName      = "credential-default"
+	credentialNamespace = "giantswarm"
 )
 
 func hostPeerVPC(c *awsclient.Client) error {
@@ -189,6 +199,11 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 		return microerror.Mask(err)
 	}
 
+	err = installCredential(h)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	err = h.InstallResource("apiextensions-aws-config-e2e", e2etemplates.ApiextensionsAWSConfigE2EChartValues, ":stable")
 	if err != nil {
 		return microerror.Mask(err)
@@ -200,6 +215,41 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 	}
 
 	err = h.InstallResource("cluster-operator-resource", template.ClusterOperatorResourceChartValues, ":stable")
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func installCredential(h *framework.Host) error {
+	o := func() error {
+		k8sClient := h.K8sClient()
+
+		k8sClient.CoreV1().Secrets(credentialNamespace).Delete(credentialName, &metav1.DeleteOptions{})
+
+		secret := &v1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: credentialName,
+			},
+			Data: map[string][]byte{
+				awsOperatorArnKey: []byte(os.Getenv("GUEST_AWS_ARN")),
+			},
+		}
+
+		_, err := k8sClient.CoreV1().Secrets(credentialNamespace).Create(secret)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		return nil
+	}
+	b := framework.NewExponentialBackoff(framework.ShortMaxWait, framework.ShortMaxInterval)
+	n := func(err error, delay time.Duration) {
+		log.Println("level", "debug", "message", err.Error())
+	}
+
+	err := backoff.RetryNotify(o, b, n)
 	if err != nil {
 		return microerror.Mask(err)
 	}

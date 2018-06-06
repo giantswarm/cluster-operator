@@ -211,7 +211,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "461375f2ed17f7efd1c97917daa135c1f135ac1f"
+  revision = "8599d0312c41dcf2bd3122b77935b87a74b5918f"
 
 [[projects]]
   branch = "master"
@@ -244,7 +244,7 @@
   branch = "master"
   name = "github.com/giantswarm/e2etemplates"
   packages = ["pkg/e2etemplates"]
-  revision = "cac5ee40b8feb5760b7c67273631037ebbc1f0cb"
+  revision = "641ca85450f736082b846d20c8be8bb2f1504e30"
 
 [[projects]]
   branch = "master"
