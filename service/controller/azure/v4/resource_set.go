@@ -19,10 +19,16 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/resource/azureconfig"
+)
+
+const (
+	// Provider is used to enable provider specific features.
+	Provider = "azure"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -154,16 +160,41 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartConfigResource controller.Resource
+	{
+		c := chartconfig.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			Guest:                    guestClusterService,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			Provider:                 Provider,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := chartconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// azureConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		azureConfigResource,
-		// namespaceResource and chartResource manage resources in the guest
-		// cluster so they should be executed last.
+		// namespace, chart and chartconfig resources manage resources in
+		// guest clusters so they should be executed last.
 		namespaceResource,
 		chartResource,
+		chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
