@@ -188,6 +188,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
+			Provider:                 label.ProviderAWS,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 

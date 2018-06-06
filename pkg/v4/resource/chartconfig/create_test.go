@@ -11,6 +11,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func Test_ChartConfig_newCreateChange(t *testing.T) {
@@ -183,6 +184,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 		K8sClient:   clientgofake.NewSimpleClientset(),
 		Logger:      microloggertest.New(),
 		ProjectName: "cluster-operator",
+		Provider:    label.ProviderAWS,
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},

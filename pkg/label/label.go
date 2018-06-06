@@ -31,13 +31,13 @@ const (
 	// in the front-end.
 	Organization = "giantswarm.io/organization"
 
-	// ProviderAWS label specifies format for AWS provider ID
+	// ProviderAWS label specifies format for AWS provider ID.
 	ProviderAWS = "aws"
 
-	// ProviderAzure label specifies format for Azure provider ID
+	// ProviderAzure label specifies format for Azure provider ID.
 	ProviderAzure = "azure"
 
-	// ProviderKVM label specifies format for KVM provider ID
+	// ProviderKVM label specifies format for KVM provider ID.
 	ProviderKVM = "kvm"
 
 	// RandomKey label specifies type of a secret that is used for guest
