@@ -4,7 +4,7 @@ package template
 // the environment variables will be expanded before writing the contents to a file.
 const ClusterOperatorResourceChartValues = `guest:
   name: "${CLUSTER_NAME}"
-  dnsZone: "${CLUSTER_NAME}.${COMMON_DOMAIN_GUEST}"
+  dnsZone: "${CLUSTER_NAME}.k8s.${COMMON_DOMAIN}"
   id: "${CLUSTER_NAME}"
   owner: "giantswarm"
 versionBundle:

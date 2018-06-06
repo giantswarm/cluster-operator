@@ -20,9 +20,9 @@ func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cl
 		"cluster-operator",
 		"cluster-operator-resource",
 		"cert-operator",
-		"cert-resource-lab",
+		"cert-config-e2e",
 		"aws-operator",
-		"aws-resource-lab",
+		"apiextensions-aws-config-e2e",
 		"node-operator",
 	}
 
