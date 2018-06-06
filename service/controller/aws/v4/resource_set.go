@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
@@ -163,6 +164,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
+			Provider:                 label.ProviderAWS,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
