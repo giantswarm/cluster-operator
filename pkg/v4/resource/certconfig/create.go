@@ -22,7 +22,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating certconfigs")
 
 		for _, certConfigToCreate := range certConfigsToCreate {
-			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfigToCreate.ObjectMeta.Namespace).Create(certConfigToCreate)
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfigToCreate.Namespace).Create(certConfigToCreate)
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
 			} else if err != nil {
