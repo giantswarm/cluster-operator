@@ -143,8 +143,8 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 		log.Printf("getting chart configs %s: %v", t, err)
 	}
 
-	maxInterval := 5 * time.Minute
-	b := framework.NewExponentialBackoff(maxInterval, framework.LongMaxInterval)
+	maxWait := 5 * time.Minute
+	b := framework.NewExponentialBackoff(maxWait, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
@@ -169,7 +169,8 @@ func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, st
 		log.Printf("getting release status %s: %v", t, err)
 	}
 
-	b := framework.NewExponentialBackoff(framework.ShortMaxWait, framework.LongMaxInterval)
+	maxWait := 5 * time.Minute
+	b := framework.NewExponentialBackoff(maxWait, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
