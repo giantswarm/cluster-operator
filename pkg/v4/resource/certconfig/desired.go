@@ -22,8 +22,6 @@ const (
 
 	loopbackIP = "127.0.0.1"
 
-	providerKVM = "kvm"
-
 	// systemMastersOrganization is the RBAC kubernetes admin group.
 	systemMastersOrganization = "system:masters"
 )
@@ -70,7 +68,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
-	if r.provider == providerKVM {
+	if r.provider == label.ProviderKVM {
 		certConfig := newFlanneldEtcdClientCertConfig(clusterConfig, certs.FlanneldEtcdClientCert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}

@@ -17,7 +17,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v3/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
@@ -53,6 +55,29 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+	}
+
+	var certConfigResource controller.Resource
+	{
+		c := certconfig.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			Provider:                 label.ProviderKVM,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		ops, err := certconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		certConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var encryptionKeyResource controller.Resource
@@ -158,6 +183,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// kvmConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
+		certConfigResource,
 		kvmConfigResource,
 		// namespaceResource and chartResource manage resources in the guest
 		// cluster so they should be executed last.
