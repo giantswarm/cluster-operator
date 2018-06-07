@@ -11,6 +11,11 @@ import (
 // Patch provided by NewUpdatePatch or NewDeletePatch. It creates k8s secret
 // for encryption key if needed.
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	secret, err := toSecret(createChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -19,7 +24,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret")
 
 	if secret != nil {
-		_, err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Create(secret)
+		_, err = r.k8sClient.Core().Secrets(objectMeta.Namespace).Create(secret)
 		if err != nil {
 			err = microerror.Mask(err)
 		}

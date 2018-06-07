@@ -5,7 +5,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -14,6 +13,11 @@ import (
 // Patch provided by NewUpdatePatch and NewDeletePatch. It deletes k8s secret
 // for related encryption key if needed.
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	secret, err := toSecret(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -22,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret")
 
 	if secret != nil {
-		err = r.k8sClient.Core().Secrets(v1.NamespaceDefault).Delete(secret.Name, &metav1.DeleteOptions{})
+		err = r.k8sClient.Core().Secrets(objectMeta.Namespace).Delete(secret.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// It's ok if secret doesn't exist anymore. It would have been
 			// deleted anyway. Rational reason for this is during migration
