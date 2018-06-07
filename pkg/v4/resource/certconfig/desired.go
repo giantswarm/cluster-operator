@@ -47,45 +47,50 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	desiredCertConfigs := make([]*v1alpha1.CertConfig, 0)
 	{
-		certConfig := newAPICertConfig(clusterConfig, certs.APICert, r.projectName)
+		certConfig := newAPICertConfig(clusterConfig, certs.APICert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoCert, r.projectName)
+		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, r.projectName)
+		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newClusterOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, r.projectName)
+		certConfig := newClusterOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, r.projectName)
+		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	if r.provider == label.ProviderKVM {
-		certConfig := newFlanneldEtcdClientCertConfig(clusterConfig, certs.FlanneldEtcdClientCert, r.projectName)
+		certConfig := newFlanneldEtcdClientCertConfig(clusterConfig, certs.FlanneldEtcdClientCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newNodeOperatorCertConfig(clusterConfig, certs.NodeOperatorCert, r.projectName)
+		certConfig := newNodeOperatorCertConfig(clusterConfig, certs.NodeOperatorCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newPrometheusCertConfig(clusterConfig, certs.PrometheusCert, r.projectName)
+		certConfig := newPrometheusCertConfig(clusterConfig, certs.PrometheusCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newServiceAccountCertConfig(clusterConfig, certs.ServiceAccountCert, r.projectName)
+		certConfig := newServiceAccountCertConfig(clusterConfig, certs.ServiceAccountCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newWorkerCertConfig(clusterConfig, certs.WorkerCert, r.projectName)
+		certConfig := newWorkerCertConfig(clusterConfig, certs.WorkerCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 
@@ -150,7 +155,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	return clusterConfig, nil
 }
 
-func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -158,7 +163,8 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -186,7 +192,7 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName
 	}
 }
 
-func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -194,7 +200,8 @@ func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectN
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -219,7 +226,7 @@ func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectN
 	}
 }
 
-func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -227,7 +234,8 @@ func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -252,7 +260,7 @@ func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert
 	}
 }
 
-func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -260,7 +268,8 @@ func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Ce
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:      clusterConfig.ClusterID,
 				label.ManagedBy:    projectName,
@@ -283,7 +292,7 @@ func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Ce
 	}
 }
 
-func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -291,7 +300,8 @@ func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectNam
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -317,7 +327,7 @@ func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectNam
 	}
 }
 
-func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -325,7 +335,8 @@ func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Ce
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -350,7 +361,7 @@ func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Ce
 	}
 }
 
-func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -358,7 +369,8 @@ func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, pr
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -383,7 +395,7 @@ func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, pr
 	}
 }
 
-func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -391,7 +403,8 @@ func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, proj
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -416,7 +429,7 @@ func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, proj
 	}
 }
 
-func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -424,7 +437,8 @@ func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, 
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
@@ -449,7 +463,7 @@ func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, 
 	}
 }
 
-func newWorkerCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newWorkerCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
@@ -457,7 +471,8 @@ func newWorkerCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectN
 			APIVersion: certAPIVersion,
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name: key.CertConfigName(clusterConfig.ClusterID, cert),
+			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
+			Namespace: namespace,
 			Labels: map[string]string{
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
