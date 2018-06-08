@@ -48,15 +48,14 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		t.Fatalf("could not create guest helm client %v", err)
 	}
 
-	expectedStatus := "DEPLOYED"
-	err = waitForReleaseStatus(guestHelmClient, releaseName, expectedStatus)
-	if err != nil {
-		t.Fatalf("could not get release content %v", err)
-	}
-
 	releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
 	if err != nil {
-		t.Fatalf("could not get release content %v", err)
+		log.Printf("could not get release content, retrying once: %v", err)
+
+		releaseContent, err = guestHelmClient.GetReleaseContent(releaseName)
+		if err != nil {
+			t.Fatalf("could not get release content %v", err)
+		}
 	}
 
 	expectedName := releaseName
@@ -65,6 +64,7 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		t.Fatalf("bad release name, want %q, got %q", expectedName, actualName)
 	}
 
+	expectedStatus := "DEPLOYED"
 	actualStatus := releaseContent.Status
 	if expectedStatus != actualStatus {
 		t.Fatalf("bad release status, want %q, got %q", expectedStatus, actualStatus)
