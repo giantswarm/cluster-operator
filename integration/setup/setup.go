@@ -109,7 +109,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		Token:    token,
 		VType:    vType,
 	}
-	authorities, err = framework.GetAuthorities(params)
+	authorities, err := framework.GetAuthorities(params)
 	// do not fail on missing WIP.
 	if os.Getenv("TESTED_VERSION") == "wip" && framework.IsNotFound(err) {
 		log.Printf("WIP version not present, exiting.\n")
