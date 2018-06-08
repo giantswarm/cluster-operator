@@ -214,7 +214,7 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 		return microerror.Mask(err)
 	}
 
-	err = h.InstallResource("cluster-operator-resource", template.ClusterOperatorResourceChartValues, ":stable")
+	err = h.InstallResource("apiextensions-aws-cluster-config-e2e", template.ClusterOperatorResourceChartValues, ":stable")
 	if err != nil {
 		return microerror.Mask(err)
 	}
