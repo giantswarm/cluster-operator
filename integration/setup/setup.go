@@ -105,42 +105,33 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	token := os.Getenv("GITHUB_BOT_TOKEN")
 	vType := os.Getenv("TESTED_VERSION")
 	params := &framework.VBVParams{
-		Component: "cluster-operator",
-		Provider:  "aws",
-		Token:     token,
-		VType:     vType,
+		Provider: "aws",
+		Token:    token,
+		VType:    vType,
 	}
-	vbv, err := framework.GetVersionBundleVersion(params)
-	if err != nil {
-		log.Printf("%#v\n", err)
-		v = 1
-		return
-	}
+	authorities, err := framework.GetAuthorities(params)
 	// do not fail on missing WIP.
-	if vbv == "" && os.Getenv("TESTED_VERSION") == "wip" {
+	if os.Getenv("TESTED_VERSION") == "wip" && framework.IsNotFound(err) {
 		log.Printf("WIP version not present, exiting.\n")
 		os.Exit(0)
 	}
-	os.Setenv("CLOP_VERSION_BUNDLE_VERSION", vbv)
-
-	params = &framework.VBVParams{
-		Component: "aws-operator",
-		Provider:  "aws",
-		Token:     token,
-		VType:     "current",
-	}
-
-	vbv, err = framework.GetVersionBundleVersion(params)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
 		return
 	}
-	if vbv == "" {
-		log.Fatalf("Could not get aws-operator current version.\n")
-		os.Exit(0)
+	for _, authority := range authorities {
+		switch authority.Name {
+		case "aws-operator":
+			os.Setenv("AWSOP_VERSION_BUNDLE_VERSION", authority.Version)
+			// next env var is required by aws-operator templates.
+			os.Setenv("VERSION_BUNDLE_VERSION", authority.Version)
+		case "cluster-operator":
+			os.Setenv("CLOP_VERSION_BUNDLE_VERSION", authority.Version)
+		case "cert-operator":
+			os.Setenv("CERTOP_VERSION_BUNDLE_VERSION", authority.Version)
+		}
 	}
-	os.Setenv("VERSION_BUNDLE_VERSION", vbv)
 
 	clusterName := fmt.Sprintf("ci-clop-%s-%s", os.Getenv("TESTED_VERSION"), os.Getenv("CIRCLE_SHA1")[0:5])
 	os.Setenv("CLUSTER_NAME", clusterName)
