@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
@@ -27,6 +29,15 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
+			} else if guest.IsGuestAPINotAvailable(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
+
+				// We should not hammer guest API if it is not available, the guest cluster
+				// might be initializing. We will retry on next reconciliation loop.
+				resourcecanceledcontext.SetCanceled(ctx)
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+				return nil
 			} else if err != nil {
 				return microerror.Mask(err)
 			}

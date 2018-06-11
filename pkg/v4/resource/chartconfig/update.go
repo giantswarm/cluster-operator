@@ -25,7 +25,16 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
 			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
-			if err != nil {
+			if guest.IsGuestAPINotAvailable(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
+
+				// We should not hammer guest API if it is not available, the guest cluster
+				// might be initializing. We will retry on next reconciliation loop.
+				resourcecanceledcontext.SetCanceled(ctx)
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+				return nil
+			else if err != nil {
 				return microerror.Mask(err)
 			}
 		}
