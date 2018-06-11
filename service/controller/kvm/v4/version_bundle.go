@@ -1,4 +1,4 @@
-package v3
+package v4
 
 import (
 	"github.com/giantswarm/versionbundle"
@@ -16,6 +16,6 @@ func VersionBundle() versionbundle.Bundle {
 		Components: []versionbundle.Component{},
 		Name:       "cluster-operator",
 		Provider:   "kvm",
-		Version:    "0.3.0",
+		Version:    "0.4.0",
 	}
 }

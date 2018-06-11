@@ -1,4 +1,4 @@
-package v3
+package v4
 
 import (
 	"context"
@@ -18,13 +18,13 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v3/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v3/resource/kvmconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v4/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v4/resource/kvmconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
