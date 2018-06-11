@@ -7,12 +7,16 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	certConfigsToDelete, err := toCertConfigs(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -22,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting the certconfigs in the Kubernetes API")
 
 		for _, certConfig := range certConfigsToDelete {
-			err := r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).Delete(certConfig.Name, &metav1.DeleteOptions{})
+			err := r.g8sClient.CoreV1alpha1().CertConfigs(objectMeta.Namespace).Delete(certConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {
