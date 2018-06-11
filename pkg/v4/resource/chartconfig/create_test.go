@@ -33,7 +33,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 		{
 			description: "case 1: non-empty current, empty desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -48,7 +48,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 		{
 			description: "case 2: equal non-empty current and desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -57,7 +57,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -72,7 +72,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			description:  "case 3: empty current and non-empty desired, expected desired",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -81,7 +81,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -94,7 +94,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 		{
 			description: "case 4: different non-empty current and desired, expected desired",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
@@ -103,21 +103,21 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-3",
@@ -126,14 +126,14 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-3",
@@ -146,7 +146,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 		{
 			description: "case 5: incorrect type for current state",
 			currentState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -162,7 +162,7 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			description:  "case 6: incorrect type for desired state",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
