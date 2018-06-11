@@ -215,14 +215,14 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/errors"
-  packages = ["api"]
-  revision = "282cac0812c7870825c66648f1e61471d4a33bf2"
+  packages = ["guest"]
+  revision = "e829655ed78351b795407d7ec2b9b27d9a40dcf7"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "ef96695ed455e1f051c945c7db6d21d1681a7bb5"
+  revision = "b48ae48e60b4891baf6f3ab23eff9ed469532ad0"
 
 [[projects]]
   branch = "master"
@@ -270,7 +270,7 @@
     "server",
     "tls"
   ]
-  revision = "6578efbcb390bb4be316637e0de492241bea52a3"
+  revision = "19f5fe4a59000232718a4e563090d8346bd06ad9"
 
 [[projects]]
   branch = "master"
@@ -1267,6 +1267,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "79321ce7fffef8941d0a37584999b215b97c126cb05143690a255706a4446d59"
+  inputs-digest = "104964f77c71f3aed6d66dad06be3cc59248f23b0a8765bbdc67998802df9879"
   solver-name = "gps-cdcl"
   solver-version = 1
