@@ -13,9 +13,14 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindAdded,
 			},
 		},
-		Components: []versionbundle.Component{},
-		Name:       "cluster-operator",
-		Provider:   "azure",
-		Version:    "0.4.0",
+		Components: []versionbundle.Component{
+			{
+				Name:    "nginx-ingress-controller",
+				Version: "0.12",
+			},
+		},
+		Name:     "cluster-operator",
+		Provider: "azure",
+		Version:  "0.4.0",
 	}
 }
