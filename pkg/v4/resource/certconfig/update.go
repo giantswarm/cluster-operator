@@ -7,12 +7,16 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	"k8s.io/api/core/v1"
 )
 
 // ApplyUpdateChange takes observed custom object and update portion of the
 // Patch provided by NewUpdatePatch or NewDeletePatch.
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	certConfigsToUpdate, err := toCertConfigs(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -22,7 +26,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating certconfigs")
 
 		for _, certConfigToUpdate := range certConfigsToUpdate {
-			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).Update(certConfigToUpdate)
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(objectMeta.Namespace).Update(certConfigToUpdate)
 			if err != nil {
 				return microerror.Mask(err)
 			}

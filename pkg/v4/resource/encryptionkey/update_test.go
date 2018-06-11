@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
 )
 
@@ -51,6 +52,11 @@ func Test_newUpdateChange_Does_Not_Return_Change(t *testing.T) {
 				ProjectName: "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+					return apismetav1.ObjectMeta{
+						Namespace: v1.NamespaceDefault,
+					}, nil
 				},
 			})
 

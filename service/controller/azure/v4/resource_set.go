@@ -69,6 +69,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ProjectName:              config.ProjectName,
 			Provider:                 label.ProviderAzure,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
 
 		ops, err := certconfig.New(c)
@@ -89,6 +90,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
 
 		ops, err := encryptionkey.New(c)

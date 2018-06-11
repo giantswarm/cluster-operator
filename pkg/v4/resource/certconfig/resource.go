@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -32,6 +33,7 @@ type Config struct {
 	ProjectName              string
 	Provider                 string
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
 // Resource implements the cloud config resource.
@@ -43,30 +45,34 @@ type Resource struct {
 	projectName              string
 	provider                 string
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
-		return nil, microerror.Maskf(invalidConfigError, "config.BaseClusterConfig must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
 	}
 	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.G8sClient must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 	if config.Provider == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.Provider must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
 	if config.ToClusterGuestConfigFunc == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.ToClusterGuestConfigFunc must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
+	}
+	if config.ToClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
 	}
 
 	newService := &Resource{
@@ -77,6 +83,7 @@ func New(config Config) (*Resource, error) {
 		projectName:              config.ProjectName,
 		provider:                 config.Provider,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
 
 	return newService, nil

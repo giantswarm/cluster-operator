@@ -10,6 +10,8 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/api/core/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
@@ -108,6 +110,11 @@ func Test_GetCurrentState(t *testing.T) {
 				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+					return apismetav1.ObjectMeta{
+						Namespace: v1.NamespaceDefault,
+					}, nil
 				},
 			})
 

@@ -5,6 +5,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -19,6 +20,7 @@ type Config struct {
 	Logger                   micrologger.Logger
 	ProjectName              string
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
 // Resource implements the cloud config resource.
@@ -27,21 +29,25 @@ type Resource struct {
 	logger                   micrologger.Logger
 	projectName              string
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
 
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 	if config.ToClusterGuestConfigFunc == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.ToClusterGuestConfigFunc must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
+	}
+	if config.ToClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
 	}
 
 	newService := &Resource{
@@ -49,6 +55,7 @@ func New(config Config) (*Resource, error) {
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
 
 	return newService, nil

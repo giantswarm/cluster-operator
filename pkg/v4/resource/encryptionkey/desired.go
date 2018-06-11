@@ -27,6 +27,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", "computing desired encryption key secret")
 	secretName := key.EncryptionKeySecretName(clusterGuestConfig)
 
@@ -38,7 +43,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	secret := &v1.Secret{
 		ObjectMeta: apismetav1.ObjectMeta{
 			Name:      secretName,
-			Namespace: v1.NamespaceDefault,
+			Namespace: objectMeta.Namespace,
 			Labels: map[string]string{
 				label.Cluster:          key.ClusterID(clusterGuestConfig),
 				label.LegacyClusterID:  key.ClusterID(clusterGuestConfig),

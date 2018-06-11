@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -18,6 +17,11 @@ import (
 // Return value is of type []*v1alpha1.CertConfig.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -44,7 +48,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		for {
 			listOptions.Continue = continueToken
 
-			certConfigList, err := r.g8sClient.CoreV1alpha1().CertConfigs(v1.NamespaceDefault).List(listOptions)
+			certConfigList, err := r.g8sClient.CoreV1alpha1().CertConfigs(objectMeta.Namespace).List(listOptions)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
