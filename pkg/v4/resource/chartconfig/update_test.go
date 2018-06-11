@@ -34,7 +34,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		{
 			description: "case 1: non-empty current and empty desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -48,7 +48,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 			description:  "case 2: empty current and noo-empty desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -60,14 +60,14 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		{
 			description: "case 3: equal current and desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -79,7 +79,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		{
 			description: "case 4: unequal spec, expected desired",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -92,7 +92,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -105,7 +105,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -122,7 +122,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		{
 			description: "case 5: unequal labels, expected desired",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 						Labels: map[string]string{
@@ -138,7 +138,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 						Labels: map[string]string{
@@ -155,7 +155,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 						Labels: map[string]string{
@@ -176,7 +176,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		{
 			description: "case 6: unequal current and desired, expected changed desired",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 						Labels: map[string]string{
@@ -190,7 +190,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-2",
 						Labels: map[string]string{
@@ -206,7 +206,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 						Labels: map[string]string{
@@ -220,7 +220,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-2",
 						Labels: map[string]string{
@@ -236,7 +236,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-2",
 						Labels: map[string]string{
@@ -256,7 +256,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 		{
 			description: "case 7: incorrect type for current, expected error",
 			currentState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -272,7 +272,7 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 			description:  "case 8: incorrect type for desired, expected error",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",

@@ -3,6 +3,7 @@ package chart
 import (
 	"context"
 
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -23,7 +24,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 		return nil, nil
 
-	} else if helmclient.IsGuestAPINotAvailable(err) {
+	} else if guest.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
 
 		// We can't continue without a successful K8s connection. Cluster
