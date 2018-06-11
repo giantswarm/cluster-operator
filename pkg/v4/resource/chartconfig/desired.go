@@ -39,7 +39,42 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 
+	// Only enable Ingress Controller for Azure.
+	if r.provider == label.ProviderAzure {
+		chartConfig := newIngressControllerChartConfig(clusterConfig, r.projectName)
+		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
+	}
+
 	return desiredChartConfigs, nil
+}
+
+func newIngressControllerChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
+	chartName := "kubernetes-nginx-ingress-controller-chart"
+	channelName := "0-1-stable"
+	releaseName := "nginx-ingress-controller"
+	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
+
+	return &v1alpha1.ChartConfig{
+		TypeMeta: apismetav1.TypeMeta{
+			Kind:       chartConfigKind,
+			APIVersion: chartConfigAPIVersion,
+		},
+		ObjectMeta: apismetav1.ObjectMeta{
+			Name:   chartName,
+			Labels: labels,
+		},
+		Spec: v1alpha1.ChartConfigSpec{
+			Chart: v1alpha1.ChartConfigSpecChart{
+				Name:      chartName,
+				Channel:   channelName,
+				Namespace: apismetav1.NamespaceSystem,
+				Release:   releaseName,
+			},
+			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
+				Version: chartConfigVersionBundleVersion,
+			},
+		},
+	}
 }
 
 func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
