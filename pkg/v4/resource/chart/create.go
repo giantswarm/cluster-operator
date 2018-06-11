@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -40,7 +41,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil
-	} else if helmclient.IsGuestAPINotAvailable(err) {
+	} else if guest.IsGuestAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "Guest API not available.")
 
 		// We should not hammer guest API if it is not available, the guest cluster
