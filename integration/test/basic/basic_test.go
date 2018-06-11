@@ -50,7 +50,12 @@ func TestChartOperatorBootstrap(t *testing.T) {
 
 	releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
 	if err != nil {
-		t.Fatalf("could not get release content %v", err)
+		log.Printf("could not get release content, retrying once: %v", err)
+
+		releaseContent, err = guestHelmClient.GetReleaseContent(releaseName)
+		if err != nil {
+			t.Fatalf("could not get release content %v", err)
+		}
 	}
 
 	expectedName := releaseName

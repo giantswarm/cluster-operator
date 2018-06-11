@@ -10,6 +10,8 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/api/core/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
 
@@ -54,6 +56,11 @@ func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
+		},
+		ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+			return apismetav1.ObjectMeta{
+				Namespace: v1.NamespaceDefault,
+			}, nil
 		},
 	})
 
@@ -102,6 +109,11 @@ func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *te
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
+		ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+			return apismetav1.ObjectMeta{
+				Namespace: v1.NamespaceDefault,
+			}, nil
+		},
 	})
 
 	if err != nil {
@@ -142,6 +154,11 @@ func Test_ApplyDeleteChange_Handles_K8S_API_Error(t *testing.T) {
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
+		},
+		ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+			return apismetav1.ObjectMeta{
+				Namespace: v1.NamespaceDefault,
+			}, nil
 		},
 	})
 
@@ -255,6 +272,11 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+					return apismetav1.ObjectMeta{
+						Namespace: v1.NamespaceDefault,
+					}, nil
 				},
 			})
 
@@ -429,6 +451,11 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
+					return apismetav1.ObjectMeta{
+						Namespace: v1.NamespaceDefault,
+					}, nil
 				},
 			})
 

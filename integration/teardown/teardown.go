@@ -18,7 +18,7 @@ import (
 func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
 	items := []string{
 		"cluster-operator",
-		"cluster-operator-resource",
+		"apiextensions-aws-cluster-config-e2e",
 		"cert-operator",
 		"cert-config-e2e",
 		"aws-operator",
