@@ -68,6 +68,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ProjectName:              config.ProjectName,
 			Provider:                 label.ProviderKVM,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
 
 		ops, err := certconfig.New(c)
@@ -285,12 +286,12 @@ func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) 
 }
 
 func toClusterObjectMeta(obj interface{}) (apismetav1.ObjectMeta, error) {
-	awsClusterConfig, err := key.ToCustomObject(obj)
+	kvmClusterConfig, err := key.ToCustomObject(obj)
 	if err != nil {
 		return apismetav1.ObjectMeta{}, microerror.Mask(err)
 	}
 
-	return awsClusterConfig.ObjectMeta, nil
+	return kvmClusterConfig.ObjectMeta, nil
 }
 
 func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
