@@ -16,7 +16,7 @@ func VersionBundle() versionbundle.Bundle {
 		Components: []versionbundle.Component{
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.12",
+				Version: "0.12.0",
 			},
 		},
 		Name:     "cluster-operator",
