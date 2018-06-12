@@ -41,7 +41,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil
-	} else if guest.IsGuestAPINotAvailable(err) {
+	} else if guest.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "Guest API not available.")
 
 		// We should not hammer guest API if it is not available, the guest cluster
