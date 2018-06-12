@@ -31,7 +31,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
-			} else if guest.IsGuestAPINotAvailable(err) {
+			} else if guest.IsAPINotAvailable(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", "Guest API not available.")
 
 				// We should not hammer guest API if it is not available, the guest cluster

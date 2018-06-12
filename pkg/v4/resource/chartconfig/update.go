@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
@@ -25,7 +27,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
 			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
-			if guest.IsGuestAPINotAvailable(err) {
+			if guest.IsAPINotAvailable(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
 
 				// We should not hammer guest API if it is not available, the guest cluster
@@ -34,7 +36,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 				return nil
-			else if err != nil {
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 		}
