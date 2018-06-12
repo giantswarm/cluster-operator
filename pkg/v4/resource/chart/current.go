@@ -32,7 +32,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
 
 		return nil, nil
-
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
