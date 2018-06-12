@@ -32,7 +32,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 		{
 			description: "case 1: non-empty current and empty desired, expected current",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -41,7 +41,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -50,7 +50,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -64,7 +64,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 			description:  "case 2: empty current and non-empty desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -78,14 +78,14 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 		{
 			description: "case 3: equal non-empty current and desired, expected current",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
@@ -94,14 +94,14 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
@@ -110,14 +110,14 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
@@ -130,21 +130,21 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 		{
 			description: "case 4: unequal non-empty current and desired, expected current",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-3",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-4",
@@ -153,14 +153,14 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-1",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
@@ -169,21 +169,21 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-2",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-3",
 						},
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart-4",
@@ -196,7 +196,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 		{
 			description: "case 5: incorrect type for current, expected error",
 			currentState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -271,7 +271,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 			description:  "case 1: empty current and non-empty desired, expected empty",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -283,7 +283,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 		{
 			description: "case 2: non-empty current and empty desired, expected current",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -291,7 +291,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 			},
 			desiredState: []*v1alpha1.ChartConfig{},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
@@ -302,36 +302,36 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 		{
 			description: "case 3: non-equal current and desired, expected missing current",
 			currentState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-2",
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-3",
 					},
 				},
 			},
 			desiredState: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart",
 					},
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-2",
 					},
 				},
-				&v1alpha1.ChartConfig{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-chart-3",
 					},
@@ -342,7 +342,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 		{
 			description: "case 4: incorrect type for current, expected error",
 			currentState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",
@@ -358,7 +358,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 			description:  "case 5: incorrect type for desired, expected error",
 			currentState: []*v1alpha1.ChartConfig{},
 			desiredState: []v1alpha1.ChartConfig{
-				v1alpha1.ChartConfig{
+				{
 					Spec: v1alpha1.ChartConfigSpec{
 						Chart: v1alpha1.ChartConfigSpecChart{
 							Name: "test-chart",

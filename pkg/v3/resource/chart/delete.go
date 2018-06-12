@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
@@ -39,7 +40,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil
-	} else if helmclient.IsGuestAPINotAvailable(err) {
+	} else if guest.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "Guest API not available.")
 
 		// We should not hammer guest API if it is not available, the guest cluster
