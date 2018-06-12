@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -45,8 +46,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil, nil
-
-	} else if guestcluster.IsGuestAPINotAvailable(err) {
+	} else if guest.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
 
 		// We can't continue without a successful K8s connection. Cluster
@@ -55,7 +55,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
 
 		return nil, nil
-
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
