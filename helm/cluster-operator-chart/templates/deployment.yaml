@@ -14,7 +14,7 @@ spec:
       labels:
         app: cluster-operator
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        releasetime: {{ $.Release.Time }}
     spec:
       affinity:
         podAntiAffinity:
