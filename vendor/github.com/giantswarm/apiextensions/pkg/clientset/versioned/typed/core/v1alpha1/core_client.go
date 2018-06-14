@@ -31,6 +31,7 @@ type CoreV1alpha1Interface interface {
 	AzureClusterConfigsGetter
 	CertConfigsGetter
 	ChartConfigsGetter
+	ClusterNetworkConfigsGetter
 	DraughtsmanConfigsGetter
 	FlannelConfigsGetter
 	IngressConfigsGetter
@@ -58,6 +59,10 @@ func (c *CoreV1alpha1Client) CertConfigs(namespace string) CertConfigInterface {
 
 func (c *CoreV1alpha1Client) ChartConfigs(namespace string) ChartConfigInterface {
 	return newChartConfigs(c, namespace)
+}
+
+func (c *CoreV1alpha1Client) ClusterNetworkConfigs(namespace string) ClusterNetworkConfigInterface {
+	return newClusterNetworkConfigs(c, namespace)
 }
 
 func (c *CoreV1alpha1Client) DraughtsmanConfigs(namespace string) DraughtsmanConfigInterface {

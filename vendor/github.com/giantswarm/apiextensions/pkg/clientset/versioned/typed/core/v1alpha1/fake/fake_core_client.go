@@ -44,6 +44,10 @@ func (c *FakeCoreV1alpha1) ChartConfigs(namespace string) v1alpha1.ChartConfigIn
 	return &FakeChartConfigs{c, namespace}
 }
 
+func (c *FakeCoreV1alpha1) ClusterNetworkConfigs(namespace string) v1alpha1.ClusterNetworkConfigInterface {
+	return &FakeClusterNetworkConfigs{c, namespace}
+}
+
 func (c *FakeCoreV1alpha1) DraughtsmanConfigs(namespace string) v1alpha1.DraughtsmanConfigInterface {
 	return &FakeDraughtsmanConfigs{c, namespace}
 }
