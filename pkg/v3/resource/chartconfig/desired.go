@@ -34,6 +34,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		chartConfig := newKubeStateMetricsChartConfig(clusterConfig, r.projectName)
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
+	{
+		chartConfig := newNodeExporterChartConfig(clusterConfig, r.projectName)
+		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
+	}
 
 	return desiredChartConfigs, nil
 }
@@ -42,6 +46,7 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 	chartName := "kubernetes-kube-state-metrics-chart"
 	channelName := "0-1-stable"
 	releaseName := "kube-state-metrics"
+	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
 	return &v1alpha1.ChartConfig{
 		TypeMeta: apismetav1.TypeMeta{
@@ -49,12 +54,8 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 			APIVersion: chartConfigAPIVersion,
 		},
 		ObjectMeta: apismetav1.ObjectMeta{
-			Name: chartName,
-			Labels: map[string]string{
-				label.Cluster:      clusterConfig.ClusterID,
-				label.ManagedBy:    projectName,
-				label.Organization: clusterConfig.Organization,
-			},
+			Name:   chartName,
+			Labels: labels,
 		},
 		Spec: v1alpha1.ChartConfigSpec{
 			Chart: v1alpha1.ChartConfigSpecChart{
@@ -67,5 +68,44 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 				Version: chartConfigVersionBundleVersion,
 			},
 		},
+	}
+}
+
+func newNodeExporterChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
+	chartName := "kubernetes-node-exporter-chart"
+	channelName := "0-1-stable"
+	releaseName := "node-exporter"
+	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
+
+	return &v1alpha1.ChartConfig{
+		TypeMeta: apismetav1.TypeMeta{
+			Kind:       chartConfigKind,
+			APIVersion: chartConfigAPIVersion,
+		},
+		ObjectMeta: apismetav1.ObjectMeta{
+			Name:   chartName,
+			Labels: labels,
+		},
+		Spec: v1alpha1.ChartConfigSpec{
+			Chart: v1alpha1.ChartConfigSpecChart{
+				Name:      chartName,
+				Channel:   channelName,
+				Namespace: apismetav1.NamespaceSystem,
+				Release:   releaseName,
+			},
+			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
+				Version: chartConfigVersionBundleVersion,
+			},
+		},
+	}
+}
+
+func newChartConfigLabels(clusterConfig cluster.Config, appName, projectName string) map[string]string {
+	return map[string]string{
+		label.App:          appName,
+		label.Cluster:      clusterConfig.ClusterID,
+		label.ManagedBy:    projectName,
+		label.Organization: clusterConfig.Organization,
+		label.ServiceType:  label.ServiceTypeManaged,
 	}
 }
