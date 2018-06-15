@@ -24,6 +24,9 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		}
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig ObjectMeta %#v", chartConfigToUpdate.ObjectMeta))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#v", *chartConfigToUpdate))
+
 			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
 			if err != nil {
 				return microerror.Mask(err)

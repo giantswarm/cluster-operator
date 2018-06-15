@@ -45,8 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
 	chartName := "kubernetes-kube-state-metrics-chart"
 	channelName := "0-1-stable"
-	releaseName := "kube-state-metrics"
-	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
+	releaseName := "kube-state-metrics-test"
 
 	return &v1alpha1.ChartConfig{
 		TypeMeta: apismetav1.TypeMeta{
@@ -54,8 +53,12 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 			APIVersion: chartConfigAPIVersion,
 		},
 		ObjectMeta: apismetav1.ObjectMeta{
-			Name:   chartName,
-			Labels: labels,
+			Name: chartName,
+			Labels: map[string]string{
+				label.Cluster:      clusterConfig.ClusterID,
+				label.ManagedBy:    projectName,
+				label.Organization: clusterConfig.Organization,
+			},
 		},
 		Spec: v1alpha1.ChartConfigSpec{
 			Chart: v1alpha1.ChartConfigSpecChart{
