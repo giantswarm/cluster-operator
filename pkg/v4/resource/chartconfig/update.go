@@ -37,7 +37,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 				return nil
 			} else if err != nil {
-				return nil
+				return microerror.Mask(err)
 			}
 		}
 
