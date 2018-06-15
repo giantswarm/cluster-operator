@@ -103,7 +103,7 @@ func NewController(config ControllerConfig) (*Controller, error) {
 			Informer:       newInformer,
 			Logger:         config.Logger,
 			ResourceRouter: resourceRouter,
-			RESTClient:     config.G8sClient.ProviderV1alpha1().RESTClient(),
+			RESTClient:     config.G8sClient.CoreV1alpha1().RESTClient(),
 
 			Name: config.ProjectName,
 		}
