@@ -101,7 +101,6 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 
 func (r *Resource) updateChartConfig(ctx context.Context, updatedChartConfig *v1alpha1.ChartConfig, guestG8sClient versioned.Interface) error {
 	chartConfigName := updatedChartConfig.ObjectMeta.Name
-
 	chartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Get(chartConfigName, metav1.GetOptions{})
 	if err != nil {
 		return microerror.Mask(err)
