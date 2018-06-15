@@ -37,6 +37,7 @@ type ClusterNetworkConfigsGetter interface {
 type ClusterNetworkConfigInterface interface {
 	Create(*v1alpha1.ClusterNetworkConfig) (*v1alpha1.ClusterNetworkConfig, error)
 	Update(*v1alpha1.ClusterNetworkConfig) (*v1alpha1.ClusterNetworkConfig, error)
+	UpdateStatus(*v1alpha1.ClusterNetworkConfig) (*v1alpha1.ClusterNetworkConfig, error)
 	Delete(name string, options *v1.DeleteOptions) error
 	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
 	Get(name string, options v1.GetOptions) (*v1alpha1.ClusterNetworkConfig, error)
@@ -114,6 +115,22 @@ func (c *clusterNetworkConfigs) Update(clusterNetworkConfig *v1alpha1.ClusterNet
 		Namespace(c.ns).
 		Resource("clusternetworkconfigs").
 		Name(clusterNetworkConfig.Name).
+		Body(clusterNetworkConfig).
+		Do().
+		Into(result)
+	return
+}
+
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+
+func (c *clusterNetworkConfigs) UpdateStatus(clusterNetworkConfig *v1alpha1.ClusterNetworkConfig) (result *v1alpha1.ClusterNetworkConfig, err error) {
+	result = &v1alpha1.ClusterNetworkConfig{}
+	err = c.client.Put().
+		Namespace(c.ns).
+		Resource("clusternetworkconfigs").
+		Name(clusterNetworkConfig.Name).
+		SubResource("status").
 		Body(clusterNetworkConfig).
 		Do().
 		Into(result)

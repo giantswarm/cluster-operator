@@ -100,6 +100,18 @@ func (c *FakeClusterNetworkConfigs) Update(clusterNetworkConfig *v1alpha1.Cluste
 	return obj.(*v1alpha1.ClusterNetworkConfig), err
 }
 
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+func (c *FakeClusterNetworkConfigs) UpdateStatus(clusterNetworkConfig *v1alpha1.ClusterNetworkConfig) (*v1alpha1.ClusterNetworkConfig, error) {
+	obj, err := c.Fake.
+		Invokes(testing.NewUpdateSubresourceAction(clusternetworkconfigsResource, "status", c.ns, clusterNetworkConfig), &v1alpha1.ClusterNetworkConfig{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.ClusterNetworkConfig), err
+}
+
 // Delete takes name of the clusterNetworkConfig and deletes it. Returns an error if one occurs.
 func (c *FakeClusterNetworkConfigs) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
