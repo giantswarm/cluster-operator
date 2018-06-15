@@ -5,10 +5,12 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
@@ -26,17 +28,8 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		}
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
-			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
-			if guest.IsAPINotAvailable(err) {
-				r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
-
-				// We should not hammer guest API if it is not available, the guest cluster
-				// might be initializing. We will retry on next reconciliation loop.
-				resourcecanceledcontext.SetCanceled(ctx)
-				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
-
-				return nil
-			} else if err != nil {
+			err := r.updateChartConfig(ctx, chartConfigToUpdate, guestG8sClient)
+			if err != nil {
 				return microerror.Mask(err)
 			}
 		}
@@ -106,4 +99,32 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d chartconfigs which have to be updated", len(chartConfigsToUpdate)))
 
 	return chartConfigsToUpdate, nil
+}
+
+func (r *Resource) updateChartConfig(ctx context.Context, updatedChartConfig *v1alpha1.ChartConfig, guestG8sClient versioned.Interface) error {
+	chartConfigName := updatedChartConfig.ObjectMeta.Name
+
+	chartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Get(chartConfigName, metav1.GetOptions{})
+	if guest.IsAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
+
+		// Guest API is not available. We will retry on next reconciliation loop.
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// Update current CR with new desired state.
+	chartConfig.ObjectMeta.Labels = updatedChartConfig.ObjectMeta.Labels
+	chartConfig.Spec = updatedChartConfig.Spec
+
+	_, err = guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfig)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
 }
