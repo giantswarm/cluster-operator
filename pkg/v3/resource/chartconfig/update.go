@@ -86,7 +86,11 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		}
 
 		if isChartConfigModified(desiredChartConfig, currentChartConfig) {
-			chartConfigsToUpdate = append(chartConfigsToUpdate, desiredChartConfig)
+			// Make a copy and set the resource version so the CR can be updated.
+			chartConfigToUpdate := desiredChartConfig.DeepCopy()
+			chartConfigToUpdate.ObjectMeta.ResourceVersion = currentChartConfig.ObjectMeta.ResourceVersion
+
+			chartConfigsToUpdate = append(chartConfigsToUpdate, chartConfigToUpdate)
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chartconfig '%s' that has to be updated", desiredChartConfig.GetName()))
 		}
