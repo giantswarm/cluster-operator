@@ -177,7 +177,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "8db51d0f39a555c0c1bd8c88557c8f36ae8a6bda"
+  revision = "979090417ae58133751867f75c4bacc506c6ed2d"
 
 [[projects]]
   branch = "master"

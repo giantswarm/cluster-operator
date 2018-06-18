@@ -23,6 +23,8 @@ var knownTypes = []runtime.Object{
 	&AWSClusterConfigList{},
 	&AzureClusterConfig{},
 	&AzureClusterConfigList{},
+	&ClusterNetworkConfig{},
+	&ClusterNetworkConfigList{},
 	&KVMClusterConfig{},
 	&KVMClusterConfigList{},
 	&DraughtsmanConfig{},
