@@ -33,6 +33,7 @@ rules:
       - azureclusterconfigs
       - certconfigs
       - clusternetworkconfigs
+      - clusternetworkconfigs/status
       - kvmclusterconfigs
     verbs:
       - "*"
