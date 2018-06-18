@@ -68,7 +68,7 @@ func NewController(config ControllerConfig) (*Controller, error) {
 	var v1ResourceSet *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
-			K8sClient: config.K8sClient,
+			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 
 			ProjectName: config.ProjectName,

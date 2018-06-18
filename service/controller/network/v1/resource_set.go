@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/cenkalti/backoff"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/service/controller/network/v1/key"
 	"github.com/giantswarm/cluster-operator/service/controller/network/v1/resource/ipam"
@@ -24,19 +24,18 @@ const (
 // ResourceSetConfig contains necessary dependencies and settings for
 // ClusterNetworkConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
-	K8sClient kubernetes.Interface
+	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 
-	HandledVersionBundles []string
-	ProjectName           string
+	ProjectName string
 }
 
 // NewResourceSet returns a configured ClusterNetworkConfig controller ResourceSet.
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -48,7 +47,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var ipamResource controller.Resource
 	{
 		c := ipam.Config{
-			K8sClient: config.K8sClient,
+			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 		}
 
