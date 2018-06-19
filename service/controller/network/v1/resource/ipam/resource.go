@@ -78,6 +78,9 @@ func New(config Config) (*Resource, error) {
 			config.Logger.Log("level", "debug", "message", "using memory storage")
 			storage, err = memory.New(memory.DefaultConfig())
 		case "crd":
+			// NOTE: If crdstorage implementation is removed at some point,
+			// remember to remove also namespace creation and storageconfig
+			// RBAC rules.
 			c := crdstorage.DefaultConfig()
 
 			c.CRDClient = config.CRDClient

@@ -2,7 +2,6 @@ package ipam
 
 import (
 	"context"
-	"fmt"
 	"net"
 
 	"github.com/giantswarm/cluster-operator/service/controller/network/v1/key"
@@ -40,8 +39,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	err = r.ipam.DeleteSubnet(ctx, subnet)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", "Subnet freeing failed.", "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err))
-		return microerror.Mask(err)
+		return microerror.Maskf(err, "Subnet(%s, %s) freeing failed. clusterID: %s", subnet.IP.String(), net.IP(subnet.Mask).String(), clusterID)
 	}
 
 	clusterNetworkCfg.Status.IP = ""
@@ -49,8 +47,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	_, err = r.g8sClient.CoreV1alpha1().ClusterNetworkConfigs(accessor.GetNamespace()).UpdateStatus(&clusterNetworkCfg)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("ClusterNetworkConfig status update failed. Subnet(%s, %s) is not allocated anymore but possibly used.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err))
-		return microerror.Mask(err)
+		return microerror.Maskf(err, "ClusterNetworkConfig status update failed. Subnet(%s, %s) is not allocated anymore but possibly used. clusterID: %s", subnet.IP.String(), subnet.Mask.String(), clusterID)
 	}
 
 	return nil

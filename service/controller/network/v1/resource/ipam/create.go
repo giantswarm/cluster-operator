@@ -37,10 +37,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	maskBits := key.ClusterNetworkMaskBits(clusterNetworkCfg)
 
 	mask := net.CIDRMask(maskBits, 32)
+
 	subnet, err := r.ipam.CreateSubnet(ctx, mask, clusterID)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", "Subnet allocation failed.", "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err))
-		return microerror.Mask(err)
+		return microerror.Maskf(err, "Subnet allocation failed with mask %s. clusterID: %s", net.IP(mask).String(), clusterID)
 	}
 
 	clusterNetworkCfg.Status.IP = subnet.IP.String()
@@ -50,11 +50,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		ipamDeleteErr := r.ipam.DeleteSubnet(ctx, subnet)
 		if ipamDeleteErr != nil {
-			r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("ClusterNetworkConfig status update failed. Freeing Subnet(%s, %s) allocation also failed. It is allocated but possibly not used.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err), "ipamDeleteErrorStack", fmt.Sprintf("%#v", ipamDeleteErr))
-		} else {
-			r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("ClusterNetworkConfig status update failed. Allocated Subnet(%s, %s) successfully freed.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err))
+			r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("Freeing Subnet(%s, %s) failed.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", ipamDeleteErr))
+			return microerror.Maskf(err, "ClusterNetworkConfig status update failed for clusterID %s. Freeing Subnet(%s, %s) allocation also failed. It is allocated but possibly not used.", clusterID, subnet.IP.String(), subnet.Mask.String())
 		}
-		return microerror.Mask(err)
+		return microerror.Maskf(err, "ClusterNetworkConfig status update failed for clusterID %s. Allocated Subnet(%s, %s) successfully freed.", clusterID, subnet.IP.String(), subnet.Mask.String())
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Subnet allocated: %s, %s.", clusterNetworkCfg.Status.IP, clusterNetworkCfg.Status.Mask), "clusterID", clusterID)

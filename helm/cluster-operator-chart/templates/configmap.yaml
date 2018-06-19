@@ -29,3 +29,5 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
+      storage:
+        kind: crd
