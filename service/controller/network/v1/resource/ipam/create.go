@@ -44,11 +44,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	clusterNetworkCfg.Status.IP = subnet.IP.String()
-	clusterNetworkCfg.Status.Mask = subnet.Mask.String()
+	clusterNetworkCfg.Status.Mask = net.IP(subnet.Mask).String()
 
 	_, err = r.g8sClient.CoreV1alpha1().ClusterNetworkConfigs(accessor.GetNamespace()).UpdateStatus(&clusterNetworkCfg)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("ClusterNetworkConfig status update failed. Subnet(%s, %s) is allocated but possibly not used.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err))
+		ipamDeleteErr := r.ipam.DeleteSubnet(ctx, subnet)
+		if ipamDeleteErr != nil {
+			r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("ClusterNetworkConfig status update failed. Freeing Subnet(%s, %s) allocation also failed. It is allocated but possibly not used.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err), "ipamDeleteErrorStack", fmt.Sprintf("%#v", ipamDeleteErr))
+		} else {
+			r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("ClusterNetworkConfig status update failed. Allocated Subnet(%s, %s) successfully freed.", subnet.IP.String(), subnet.Mask.String()), "clusterID", clusterID, "stack", fmt.Sprintf("%#v", err))
+		}
 		return microerror.Mask(err)
 	}
 
