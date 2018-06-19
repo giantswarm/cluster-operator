@@ -1,6 +1,8 @@
 package network
 
 import (
+	"net"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
@@ -24,7 +26,10 @@ type ControllerConfig struct {
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 
-	ProjectName string
+	Network         net.IPNet
+	ProjectName     string
+	ReservedSubnets []net.IPNet
+	StorageKind     string
 }
 
 type Controller struct {
@@ -68,10 +73,15 @@ func NewController(config ControllerConfig) (*Controller, error) {
 	var v1ResourceSet *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
+			CRDClient: crdClient,
 			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
+			Network:         config.Network,
+			ProjectName:     config.ProjectName,
+			ReservedSubnets: config.ReservedSubnets,
+			StorageKind:     config.StorageKind,
 		}
 
 		v1ResourceSet, err = v1.NewResourceSet(c)

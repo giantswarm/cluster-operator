@@ -21,6 +21,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
@@ -244,14 +245,44 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 
+		var clusterNetwork net.IPNet
+		{
+			networkCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Network.CIDR)
+
+			_, n, err := net.ParseCIDR(networkCIDR)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			clusterNetwork = *n
+		}
+
+		var reservedSubnets []net.IPNet
+		{
+			provider := config.Viper.GetString(config.Flag.Guest.Cluster.Provider.Kind)
+			if provider == label.ProviderAzure {
+				hostClusterCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Azure.HostCluster.CIDR)
+
+				_, n, err := net.ParseCIDR(hostClusterCIDR)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+
+				reservedSubnets = append(reservedSubnets, *n)
+			}
+		}
+
 		c := network.ControllerConfig{
 			BaseClusterConfig: baseClusterConfig,
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			Logger:          config.Logger,
+			Network:         clusterNetwork,
+			ProjectName:     config.ProjectName,
+			ReservedSubnets: reservedSubnets,
+			StorageKind:     config.Viper.GetString(config.Flag.Service.Storage.Kind),
 		}
 
 		networkController, err = network.NewController(c)

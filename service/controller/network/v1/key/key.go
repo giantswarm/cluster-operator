@@ -5,6 +5,16 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+// ClusterID extracts clusterID from v1alpha1.ClusterNetworkConfig.
+func ClusterID(customObject v1alpha1.ClusterNetworkConfig) string {
+	return customObject.Spec.Cluster.ID
+}
+
+// ClusterNetworkMaskBits extracts network mask bits from v1alpha1.ClusterNetworkConfig.
+func ClusterNetworkMaskBits(customObject v1alpha1.ClusterNetworkConfig) int {
+	return customObject.Spec.Cluster.Network.MaskBits
+}
+
 // ToCustomObject converts value to v1alpha1.ClusterNetworkConfig and returns it or
 // error if type does not match.
 func ToCustomObject(v interface{}) (v1alpha1.ClusterNetworkConfig, error) {

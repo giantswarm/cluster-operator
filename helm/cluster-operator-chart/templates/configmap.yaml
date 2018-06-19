@@ -10,9 +10,14 @@ data:
         address: 'http://0.0.0.0:8000'
     guest:
       cluster:
+        azure:
+          hostCluster:
+            cidr: '{{ .Values.Installation.V1.Provider.Azure.HostCluster.CIDR }}'
         kubernetes:
           api:
             clusterIPRange: '{{ .Values.Installation.V1.Guest.Kubernetes.API.ClusterIPRange }}'
+        network:
+          cidr: '{{ .Values.Installation.V1.Guest.IPAM.NetworkCIDR }}'
         vault:
           certificate:
             ttl: '{{ .Values.Installation.V1.Auth.Vault.Certificate.TTL }}'

@@ -2,14 +2,17 @@ package v1
 
 import (
 	"context"
+	"net"
 
 	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/service/controller/network/v1/key"
 	"github.com/giantswarm/cluster-operator/service/controller/network/v1/resource/ipam"
@@ -24,10 +27,15 @@ const (
 // ResourceSetConfig contains necessary dependencies and settings for
 // ClusterNetworkConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
+	CRDClient *k8scrdclient.CRDClient
 	G8sClient versioned.Interface
+	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
-	ProjectName string
+	Network         net.IPNet
+	ProjectName     string
+	ReservedSubnets []net.IPNet
+	StorageKind     string
 }
 
 // NewResourceSet returns a configured ClusterNetworkConfig controller ResourceSet.
@@ -47,8 +55,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var ipamResource controller.Resource
 	{
 		c := ipam.Config{
+			CRDClient: config.CRDClient,
 			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			Network:         config.Network,
+			ProjectName:     config.ProjectName,
+			ReservedSubnets: config.ReservedSubnets,
+			StorageKind:     config.StorageKind,
 		}
 
 		ipamResource, err = ipam.New(c)
