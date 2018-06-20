@@ -384,7 +384,7 @@ func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, na
 				AllowBareDomains:    false,
 				ClusterComponent:    certName,
 				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.NodeOperator,
+				CommonName:          clusterConfig.Domain.API,
 				DisableRegeneration: false,
 				TTL:                 clusterConfig.CertTTL,
 			},
