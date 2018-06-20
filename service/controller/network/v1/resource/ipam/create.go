@@ -6,7 +6,6 @@ import (
 	"net"
 
 	"github.com/giantswarm/microerror"
-	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/giantswarm/cluster-operator/service/controller/network/v1/key"
 )
@@ -15,11 +14,6 @@ import (
 // ClusterNetworkConfig object is created.
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	clusterNetworkCfg, err := key.ToCustomObject(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	accessor, err := meta.Accessor(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -46,7 +40,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	clusterNetworkCfg.Status.IP = subnet.IP.String()
 	clusterNetworkCfg.Status.Mask = net.IP(subnet.Mask).String()
 
-	_, err = r.g8sClient.CoreV1alpha1().ClusterNetworkConfigs(accessor.GetNamespace()).UpdateStatus(&clusterNetworkCfg)
+	_, err = r.g8sClient.CoreV1alpha1().ClusterNetworkConfigs(clusterNetworkCfg.GetNamespace()).UpdateStatus(&clusterNetworkCfg)
 	if err != nil {
 		ipamDeleteErr := r.ipam.DeleteSubnet(ctx, subnet)
 		if ipamDeleteErr != nil {
