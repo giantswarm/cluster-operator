@@ -24,8 +24,7 @@ func ToCustomObject(v interface{}) (v1alpha1.ClusterNetworkConfig, error) {
 	}
 
 	if customObjectPointer == nil {
-		return v1alpha1.ClusterNetworkConfig{}, microerror.Maskf(emptyValueError,
-			"empty value cannot be converted to CustomObject")
+		return v1alpha1.ClusterNetworkConfig{}, microerror.Maskf(emptyValueError, "empty value cannot be converted to CustomObject")
 	}
 
 	return *customObjectPointer, nil
