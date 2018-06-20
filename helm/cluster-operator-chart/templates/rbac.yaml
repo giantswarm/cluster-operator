@@ -35,8 +35,15 @@ rules:
       - clusternetworkconfigs
       - clusternetworkconfigs/status
       - kvmclusterconfigs
+      - storageconfigs
     verbs:
       - "*"
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - create
   - nonResourceURLs:
       - "/"
       - "/healthz"

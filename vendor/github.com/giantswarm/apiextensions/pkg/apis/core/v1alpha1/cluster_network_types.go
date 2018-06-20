@@ -61,8 +61,17 @@ type ClusterNetworkConfig struct {
 }
 
 type ClusterNetworkConfigSpec struct {
-	MaskBits      int                                   `json:"maskBits" yaml:"maskBits"`
+	Cluster       ClusterNetworkConfigSpecCluster       `json:"cluster" yaml:"cluster"`
 	VersionBundle ClusterNetworkConfigSpecVersionBundle `json:"versionBundle" yaml:"versionBundle"`
+}
+
+type ClusterNetworkConfigSpecCluster struct {
+	ID      string                                 `json:"id" yaml:"id"`
+	Network ClusterNetworkConfigSpecClusterNetwork `json:"network" yaml:"network"`
+}
+
+type ClusterNetworkConfigSpecClusterNetwork struct {
+	MaskBits int `json:"maskBits" yaml:"maskBits"`
 }
 
 type ClusterNetworkConfigSpecVersionBundle struct {

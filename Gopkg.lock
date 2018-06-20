@@ -177,7 +177,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "979090417ae58133751867f75c4bacc506c6ed2d"
+  revision = "16c052ee0f40015e0515e7e99d7d0c2696405e79"
 
 [[projects]]
   branch = "master"
@@ -190,6 +190,12 @@
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "04529861e1d707d6edb01808e1d9870e1b48c711"
+
+[[projects]]
+  branch = "dev-clusternetworkconfig-crd"
+  name = "github.com/giantswarm/crdstorage"
+  packages = ["."]
+  revision = "b76f734c33a9109443807583c30df4e8bc58bfa0"
 
 [[projects]]
   branch = "master"
@@ -223,6 +229,12 @@
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   revision = "b48ae48e60b4891baf6f3ab23eff9ed469532ad0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/ipam"
+  packages = ["."]
+  revision = "9f5e82f904b3f54b19ac8cb58cbbadb59d50eb89"
 
 [[projects]]
   branch = "master"
@@ -281,6 +293,15 @@
     "microloggertest"
   ]
   revision = "39f8cfb7c2583edb28552d9e4b12193e5bddaf60"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/microstorage"
+  packages = [
+    ".",
+    "memory"
+  ]
+  revision = "4411a6307c6b844b7f9e68aaba37407b41b1c4d7"
 
 [[projects]]
   branch = "master"
@@ -1267,6 +1288,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "46218e9636496377ca369d64460d8b6260f82db9720939d6406bbefe05c62b71"
+  inputs-digest = "d6d91f5506e002e355c7442ebf15de3b85b50b6cec24db30a6d2ebea4b3e266a"
   solver-name = "gps-cdcl"
   solver-version = 1

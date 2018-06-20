@@ -27,12 +27,20 @@ func Test_ToCustomObject(t *testing.T) {
 			description: "verify that internal ClusterNetworkConfig fields are returned as well",
 			inputObject: &v1alpha1.ClusterNetworkConfig{
 				Spec: v1alpha1.ClusterNetworkConfigSpec{
-					MaskBits: 31,
+					Cluster: v1alpha1.ClusterNetworkConfigSpecCluster{
+						Network: v1alpha1.ClusterNetworkConfigSpecClusterNetwork{
+							MaskBits: 31,
+						},
+					},
 				},
 			},
 			expectedCustomObject: v1alpha1.ClusterNetworkConfig{
 				Spec: v1alpha1.ClusterNetworkConfigSpec{
-					MaskBits: 31,
+					Cluster: v1alpha1.ClusterNetworkConfigSpecCluster{
+						Network: v1alpha1.ClusterNetworkConfigSpecClusterNetwork{
+							MaskBits: 31,
+						},
+					},
 				},
 			},
 			expectedError: nil,
