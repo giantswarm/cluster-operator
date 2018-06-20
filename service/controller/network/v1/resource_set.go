@@ -1,10 +1,8 @@
 package v1
 
 import (
-	"context"
 	"net"
 
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -78,28 +76,25 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	// Wrap resources with retry and metrics.
 	{
-		retryWrapConfig := retryresource.WrapConfig{}
-
-		retryWrapConfig.BackOffFactory = func() backoff.BackOff { return backoff.WithMaxTries(backoff.NewExponentialBackOff(), ResourceRetries) }
-		retryWrapConfig.Logger = config.Logger
-
-		resources, err = retryresource.Wrap(resources, retryWrapConfig)
-		if err != nil {
-			return nil, microerror.Mask(err)
+		c := retryresource.WrapConfig{
+			Logger: config.Logger,
 		}
 
-		metricsWrapConfig := metricsresource.WrapConfig{}
-
-		metricsWrapConfig.Name = config.ProjectName
-
-		resources, err = metricsresource.Wrap(resources, metricsWrapConfig)
+		resources, err = retryresource.Wrap(resources, c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
-		return ctx, nil
+	{
+		c := metricsresource.WrapConfig{
+			Name: config.ProjectName,
+		}
+
+		resources, err = metricsresource.Wrap(resources, c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	handlesFunc := func(obj interface{}) bool {
@@ -119,7 +114,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := controller.ResourceSetConfig{
 			Handles:   handlesFunc,
-			InitCtx:   initCtxFunc,
 			Logger:    config.Logger,
 			Resources: resources,
 		}
