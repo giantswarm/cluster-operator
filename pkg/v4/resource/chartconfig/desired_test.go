@@ -47,7 +47,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "azure also has ingress controller chartconfig",
+			name: "azure also has provider specific chartconfigs",
 			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.azure.giantswarm.io",
 				ID:      "5xchu",
@@ -58,6 +58,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				"kubernetes-node-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
 				"kubernetes-nginx-ingress-controller-chart",
+				"kubernetes-external-dns-chart",
 			},
 		},
 	}

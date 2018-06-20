@@ -90,7 +90,12 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 
 		if isCertConfigModified(desiredCertConfig, currentCertConfig) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found certconfig '%s' that has to be updated", desiredCertConfig.GetName()))
-			certConfigsToUpdate = append(certConfigsToUpdate, desiredCertConfig)
+
+			// Create a copy and set the resource version to allow the CR to be updated.
+			certConfigToUpdate := desiredCertConfig.DeepCopy()
+			certConfigToUpdate.ObjectMeta.ResourceVersion = currentCertConfig.ObjectMeta.ResourceVersion
+
+			certConfigsToUpdate = append(certConfigsToUpdate, certConfigToUpdate)
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not updating certconfig '%s': no changes found", currentCertConfig.GetName()))
 		}
