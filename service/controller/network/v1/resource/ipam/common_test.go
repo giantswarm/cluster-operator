@@ -20,14 +20,6 @@ var (
 
 type k8stestingReactorFactoryFunc func(t *testing.T, expectedStatus *v1alpha1.ClusterNetworkConfigStatus) k8stesting.Reactor
 
-func mustParseNetworkCIDR(cidr string) net.IPNet {
-	_, n, err := net.ParseCIDR(cidr)
-	if err != nil {
-		panic(err)
-	}
-	return *n
-}
-
 func alwaysFailReactor(t *testing.T, _ *v1alpha1.ClusterNetworkConfigStatus) k8stesting.Reactor {
 	return &k8stesting.SimpleReactor{
 		Verb:     "*",
@@ -49,6 +41,14 @@ func alwaysReturnErrorReactor(err error) k8stestingReactorFactoryFunc {
 			},
 		}
 	}
+}
+
+func mustParseNetworkCIDR(cidr string) net.IPNet {
+	_, n, err := net.ParseCIDR(cidr)
+	if err != nil {
+		panic(err)
+	}
+	return *n
 }
 
 func verifyClusterNetworkConfigStatusUpdateReactor(t *testing.T, expectedStatus *v1alpha1.ClusterNetworkConfigStatus) k8stesting.Reactor {
