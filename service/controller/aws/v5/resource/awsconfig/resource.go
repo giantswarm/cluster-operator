@@ -9,7 +9,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "awsconfigv4"
+	Name = "awsconfigv5"
 )
 
 // Config represents the configuration used to create a new cloud config resource.

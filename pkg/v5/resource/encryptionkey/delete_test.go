@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/cluster-operator/pkg/v4/key"
+	"github.com/giantswarm/cluster-operator/pkg/v5/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"

@@ -1,4 +1,4 @@
-package v4
+package v5
 
 import (
 	"context"
@@ -24,8 +24,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v5/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v5/resource/awsconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
