@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/helm/pkg/helm"
 
-	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v5/guestcluster"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
