@@ -73,7 +73,12 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	var v int
 	var err error
 
-	c := awsclient.NewClient()
+	c, err := awsclient.NewClient()
+	if err != nil {
+		log.Printf("%#v\n", err)
+		v = 1
+		return
+	}
 
 	defer func() {
 		if os.Getenv("KEEP_RESOURCES") != "true" {
