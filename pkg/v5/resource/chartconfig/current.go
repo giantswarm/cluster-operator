@@ -11,7 +11,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v5/guestcluster"
 )
 
 // GetCurrentState returns the ChartConfig resources present in the guest
