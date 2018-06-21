@@ -9,7 +9,12 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Add changes here.",
+				Description: "Enabled managing certconfig resources.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "cluster-operator",
+				Description: "Added node-exporter chartconfig.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
