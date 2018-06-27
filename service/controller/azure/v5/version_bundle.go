@@ -9,12 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Added chartconfig resource.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Added external-dns chartconfig resource.",
+				Description: "Add your changes here.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
@@ -30,6 +25,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
-		Version:  "0.4.0",
+		Version:  "0.5.0",
 	}
 }
