@@ -18,12 +18,12 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v4/guestcluster"
-	"github.com/giantswarm/cluster-operator/pkg/v4/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
+	"github.com/giantswarm/cluster-operator/pkg/v5/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v5/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v5/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v5/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v5/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v5/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v5/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v5/resource/azureconfig"
 )
