@@ -24,6 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
+	"github.com/giantswarm/cluster-operator/service/controller/network"
 	"github.com/giantswarm/cluster-operator/service/healthz"
 )
 
@@ -53,6 +54,7 @@ type Service struct {
 	AzureClusterController *azure.Cluster
 	Healthz                *healthz.Service
 	KVMClusterController   *kvm.Cluster
+	NetworkController      *network.Controller
 	Version                *version.Service
 
 	bootOnce sync.Once
@@ -235,6 +237,29 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var networkController *network.Controller
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := network.ControllerConfig{
+			BaseClusterConfig: baseClusterConfig,
+			G8sClient:         g8sClient,
+			K8sClient:         k8sClient,
+			K8sExtClient:      k8sExtClient,
+
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		networkController, err = network.NewController(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
@@ -256,6 +281,7 @@ func New(config Config) (*Service, error) {
 		AzureClusterController: azureClusterController,
 		Healthz:                healthzService,
 		KVMClusterController:   kvmClusterController,
+		NetworkController:      networkController,
 		Version:                versionService,
 
 		bootOnce: sync.Once{},
@@ -270,6 +296,7 @@ func (s *Service) Boot() {
 		go s.AWSClusterController.Boot()
 		go s.AzureClusterController.Boot()
 		go s.KVMClusterController.Boot()
+		go s.NetworkController.Boot()
 	})
 }
 

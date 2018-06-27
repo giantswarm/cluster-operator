@@ -32,6 +32,8 @@ rules:
       - awsclusterconfigs
       - azureclusterconfigs
       - certconfigs
+      - clusternetworkconfigs
+      - clusternetworkconfigs/status
       - kvmclusterconfigs
     verbs:
       - "*"

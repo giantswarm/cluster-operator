@@ -161,7 +161,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
+  branch = "add-clusternetwork-crd"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/core/v1alpha1",
@@ -177,7 +177,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "18c1aa070409bfa5ebdf91660837370dfb4071b1"
+  revision = "979090417ae58133751867f75c4bacc506c6ed2d"
 
 [[projects]]
   branch = "master"
@@ -1267,6 +1267,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "104964f77c71f3aed6d66dad06be3cc59248f23b0a8765bbdc67998802df9879"
+  inputs-digest = "46218e9636496377ca369d64460d8b6260f82db9720939d6406bbefe05c62b71"
   solver-name = "gps-cdcl"
   solver-version = 1

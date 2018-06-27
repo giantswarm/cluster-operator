@@ -26,6 +26,8 @@ type CertConfigExpansion interface{}
 
 type ChartConfigExpansion interface{}
 
+type ClusterNetworkConfigExpansion interface{}
+
 type DraughtsmanConfigExpansion interface{}
 
 type FlannelConfigExpansion interface{}
