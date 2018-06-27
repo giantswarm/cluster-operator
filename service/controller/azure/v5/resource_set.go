@@ -1,4 +1,4 @@
-package v4
+package v5
 
 import (
 	"context"
@@ -24,8 +24,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v4/resource/azureconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v5/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v5/resource/azureconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
