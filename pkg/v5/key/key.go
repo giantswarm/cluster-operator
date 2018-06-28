@@ -11,7 +11,7 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// return alt-names for api certs
+// APIAltNames returns the alt names for API certs.
 func APIAltNames(clusterID string, kubeAltNames []string) []string {
 	return append(kubeAltNames, fmt.Sprintf("master.%s", clusterID))
 }
