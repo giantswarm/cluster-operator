@@ -13,7 +13,6 @@ spec:
   supplementalGroups:
     rule: RunAsAny
   volumes:
-    - 'secret'
     - 'configMap'
   hostNetwork: false
   hostIPC: false
