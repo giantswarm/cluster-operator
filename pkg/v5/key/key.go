@@ -11,6 +11,11 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// return alt-names for api certs
+func APIAltNames(clusterID string, kubeAltNames []string) []string {
+	return append(kubeAltNames, fmt.Sprintf("master.%s", clusterID))
+}
+
 // APIDomain returns the API server domain for the guest cluster.
 func APIDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) (string, error) {
 	return serverDomain(clusterGuestConfig, certs.APICert)
