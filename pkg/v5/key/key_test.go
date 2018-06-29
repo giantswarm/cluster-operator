@@ -170,6 +170,38 @@ func Test_ClusterID(t *testing.T) {
 	}
 }
 
+func Test_ClusterOrganization(t *testing.T) {
+	testCases := []struct {
+		description          string
+		clusterConfig        v1alpha1.ClusterGuestConfig
+		expectedOrganization string
+	}{
+		{
+			description:          "empty value",
+			clusterConfig:        v1alpha1.ClusterGuestConfig{},
+			expectedOrganization: "",
+		},
+		{
+			description: "ClusterGuestConfig with ID",
+			clusterConfig: v1alpha1.ClusterGuestConfig{
+				ID:    "cluster-1",
+				Name:  "Test cluster nr. 1",
+				Owner: "giantswarm",
+			},
+			expectedOrganization: "giantswarm",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			org := ClusterOrganization(tc.clusterConfig)
+			if org != tc.expectedOrganization {
+				t.Fatalf("ClusterOrganization '%s' doesn't match expected '%s'", org, tc.expectedOrganization)
+			}
+		})
+	}
+}
+
 func Test_EncryptionKeySecretName(t *testing.T) {
 	testCases := []struct {
 		description        string
