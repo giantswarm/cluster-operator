@@ -5,6 +5,14 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+func ClusterID(azureClusterConfig v1alpha1.AzureClusterConfig) string {
+	return azureClusterConfig.Spec.Guest.ID
+}
+
+func ClusterOrganization(azureClusterConfig v1alpha1.AzureClusterConfig) string {
+	return azureClusterConfig.Spec.Guest.Owner
+}
+
 // ClusterGuestConfig extracts ClusterGuestConfig from AzureClusterConfig.
 func ClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1.ClusterGuestConfig {
 	return azureClusterConfig.Spec.Guest.ClusterGuestConfig
@@ -27,4 +35,8 @@ func ToCustomObject(v interface{}) (v1alpha1.AzureClusterConfig, error) {
 
 func VersionBundleVersion(azureClusterConfig v1alpha1.AzureClusterConfig) string {
 	return azureClusterConfig.Spec.VersionBundle.Version
+}
+
+func WorkerCount(azureClusterConfig v1alpha1.AzureClusterConfig) int {
+	return len(azureClusterConfig.Spec.Guest.Workers)
 }
