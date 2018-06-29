@@ -5,14 +5,6 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-func ClusterID(azureClusterConfig v1alpha1.AzureClusterConfig) string {
-	return azureClusterConfig.Spec.Guest.ID
-}
-
-func ClusterOrganization(azureClusterConfig v1alpha1.AzureClusterConfig) string {
-	return azureClusterConfig.Spec.Guest.Owner
-}
-
 // ClusterGuestConfig extracts ClusterGuestConfig from AzureClusterConfig.
 func ClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1.ClusterGuestConfig {
 	return azureClusterConfig.Spec.Guest.ClusterGuestConfig
