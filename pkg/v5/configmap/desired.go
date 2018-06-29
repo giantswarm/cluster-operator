@@ -31,7 +31,7 @@ type IngressController struct {
 }
 
 type IngressControllerController struct {
-	ReplicaCount int `json:"replicaCount"`
+	Replicas int `json:"replicas"`
 }
 
 func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
@@ -41,7 +41,7 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 
 	values := IngressController{
 		Controller: IngressControllerController{
-			ReplicaCount: configMapValues.WorkerCount,
+			Replicas: configMapValues.WorkerCount,
 		},
 	}
 	json, err := json.Marshal(values)

@@ -38,7 +38,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": "{\"controller\":{\"replicaCount\":3}}",
+						"values.json": "{\"controller\":{\"replicas\":3}}",
 					},
 				},
 			},
@@ -64,7 +64,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": "{\"controller\":{\"replicaCount\":7}}",
+						"values.json": "{\"controller\":{\"replicas\":7}}",
 					},
 				},
 			},
