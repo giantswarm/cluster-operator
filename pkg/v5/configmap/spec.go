@@ -7,6 +7,7 @@ import (
 )
 
 type Interface interface {
+	ApplyCreateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToCreate []*corev1.ConfigMap) error
 	GetCurrentState(ctx context.Context, configMapConfig ConfigMapConfig) ([]*corev1.ConfigMap, error)
 	GetDesiredState(ctx context.Context, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error)
 }
