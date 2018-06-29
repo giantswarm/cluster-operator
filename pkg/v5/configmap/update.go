@@ -65,7 +65,7 @@ func (s *Service) newUpdateChange(ctx context.Context, currentConfigMaps, desire
 	configMapsToUpdate := make([]*corev1.ConfigMap, 0)
 
 	for _, currentConfigMap := range currentConfigMaps {
-		desiredConfigMap, err := getConfigMapByName(desiredConfigMaps, currentConfigMap.Name)
+		desiredConfigMap, err := getConfigMapByNameAndNamespace(desiredConfigMaps, currentConfigMap.Name, currentConfigMap.Namespace)
 		if IsNotFound(err) {
 			// Ignore here. These are handled by newDeleteChangeForUpdatePatch().
 			continue

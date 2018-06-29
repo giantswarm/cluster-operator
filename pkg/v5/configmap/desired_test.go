@@ -93,7 +93,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			}
 
 			for _, expectedConfigMap := range tc.expectedConfigMaps {
-				configMap, err := getConfigMapByName(configMaps, expectedConfigMap.Name)
+				configMap, err := getConfigMapByNameAndNamespace(configMaps, expectedConfigMap.Name, expectedConfigMap.Namespace)
 				if IsNotFound(err) {
 					t.Fatalf("expected config map %s not found", expectedConfigMap.Name)
 				} else if err != nil {
