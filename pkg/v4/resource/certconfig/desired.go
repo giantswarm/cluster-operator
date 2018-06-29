@@ -176,7 +176,7 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, 
 		Spec: v1alpha1.CertConfigSpec{
 			Cert: v1alpha1.CertConfigSpecCert{
 				AllowBareDomains:    true,
-				AltNames:            kubeAltNames,
+				AltNames:            key.APIAltNames(clusterConfig.ClusterID, kubeAltNames),
 				ClusterComponent:    certName,
 				ClusterID:           clusterConfig.ClusterID,
 				CommonName:          clusterConfig.Domain.API,
