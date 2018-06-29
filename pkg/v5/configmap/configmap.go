@@ -30,12 +30,12 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	newService := &Service{
+	s := &Service{
 		logger:      config.Logger,
 		projectName: config.ProjectName,
 	}
 
-	return newService, nil
+	return s, nil
 }
 
 func getConfigMapByName(list []*corev1.ConfigMap, name string) (*corev1.ConfigMap, error) {

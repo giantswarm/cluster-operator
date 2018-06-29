@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,11 +30,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						Name:      "nginx-ingress-controller-values",
 						Namespace: metav1.NamespaceSystem,
 						Labels: map[string]string{
-							"app": "nginx-ingress-controller",
-							"giantswarm.io/cluster":      "5xchu",
-							"giantswarm.io/managed-by":   "cluster-operator",
-							"giantswarm.io/organization": "giantswarm",
-							"giantswarm.io/service-type": "managed",
+							label.App:          "nginx-ingress-controller",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
 						},
 					},
 					Data: map[string]string{
@@ -55,11 +56,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						Name:      "nginx-ingress-controller-values",
 						Namespace: metav1.NamespaceSystem,
 						Labels: map[string]string{
-							"app": "nginx-ingress-controller",
-							"giantswarm.io/cluster":      "5xchu",
-							"giantswarm.io/managed-by":   "cluster-operator",
-							"giantswarm.io/organization": "giantswarm",
-							"giantswarm.io/service-type": "managed",
+							label.App:          "nginx-ingress-controller",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
 						},
 					},
 					Data: map[string]string{

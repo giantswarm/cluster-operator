@@ -51,7 +51,7 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	newResource := &Resource{
+	r := &Resource{
 		configMap:   config.ConfigMap,
 		guest:       config.Guest,
 		k8sClient:   config.K8sClient,
@@ -59,7 +59,7 @@ func New(config Config) (*Resource, error) {
 		projectName: config.ProjectName,
 	}
 
-	return newResource, nil
+	return r, nil
 }
 
 // Name returns name of the Resource.
