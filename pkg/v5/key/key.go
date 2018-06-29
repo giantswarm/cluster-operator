@@ -37,6 +37,11 @@ func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.ID
 }
 
+// ClusterOrganization returns the org for given guest cluster config.
+func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return clusterGuestConfig.Owner
+}
+
 // DNSZone returns common domain for guest cluster.
 func DNSZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.DNSZone
