@@ -74,6 +74,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
+				Guest:       &guestMock{},
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
 			}
