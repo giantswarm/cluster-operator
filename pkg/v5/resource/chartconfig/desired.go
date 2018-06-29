@@ -14,7 +14,7 @@ import (
 const (
 	chartConfigAPIVersion           = "core.giantswarm.io"
 	chartConfigKind                 = "ChartConfig"
-	chartConfigVersionBundleVersion = "0.1.0"
+	chartConfigVersionBundleVersion = "0.2.0"
 )
 
 // GetDesiredState returns all desired ChartConfigs for managed guest resources.
