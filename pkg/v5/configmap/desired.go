@@ -54,8 +54,9 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 
 	newConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   configMapName,
-			Labels: labels,
+			Name:      configMapName,
+			Namespace: metav1.NamespaceSystem,
+			Labels:    labels,
 		},
 		Data: data,
 	}
