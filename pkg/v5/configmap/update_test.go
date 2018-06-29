@@ -8,6 +8,8 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func Test_ConfigMap_newUpdateChange(t *testing.T) {
@@ -118,7 +120,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
@@ -131,8 +133,8 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-configmap",
 						Labels: map[string]string{
-							"app": "test",
-							"giantswarm.io/cluster": "rue99",
+							label.App:     "test",
+							label.Cluster: "rue99",
 						},
 					},
 					Data: map[string]string{
@@ -145,8 +147,8 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-configmap",
 						Labels: map[string]string{
-							"app": "test",
-							"giantswarm.io/cluster": "rue99",
+							label.App:     "test",
+							label.Cluster: "rue99",
 						},
 					},
 					Data: map[string]string{
@@ -162,7 +164,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
@@ -173,7 +175,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "another-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
@@ -186,7 +188,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "test-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
@@ -197,7 +199,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "another-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
@@ -208,7 +210,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "extra-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
@@ -221,7 +223,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "another-configmap",
 						Labels: map[string]string{
-							"app": "test",
+							label.App: "test",
 						},
 					},
 					Data: map[string]string{
