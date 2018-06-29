@@ -44,17 +44,15 @@ func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState
 		return nil, microerror.Mask(err)
 	}
 
-	/* TODO
 	delete, err := s.newDeleteChangeForUpdatePatch(ctx, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	*/
 
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
-	// patch.SetDeleteChange(delete)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
