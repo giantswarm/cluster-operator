@@ -8,6 +8,78 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+func Test_ClusterID(t *testing.T) {
+	testCases := []struct {
+		description   string
+		clusterConfig v1alpha1.AzureClusterConfig
+		expectedID    string
+	}{
+		{
+			description:   "case 0: empty value",
+			clusterConfig: v1alpha1.AzureClusterConfig{},
+			expectedID:    "",
+		},
+		{
+			description: "case 1: basic match",
+			clusterConfig: v1alpha1.AzureClusterConfig{
+				Spec: v1alpha1.AzureClusterConfigSpec{
+					Guest: v1alpha1.AzureClusterConfigSpecGuest{
+						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+							ID: "cluster-1",
+						},
+					},
+				},
+			},
+			expectedID: "cluster-1",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			id := ClusterID(tc.clusterConfig)
+			if id != tc.expectedID {
+				t.Fatalf("ClusterID '%s' doesn't match expected '%s'", id, tc.expectedID)
+			}
+		})
+	}
+}
+
+func Test_ClusterOrganization(t *testing.T) {
+	testCases := []struct {
+		description          string
+		clusterConfig        v1alpha1.AzureClusterConfig
+		expectedOrganization string
+	}{
+		{
+			description:          "case 0: empty value",
+			clusterConfig:        v1alpha1.AzureClusterConfig{},
+			expectedOrganization: "",
+		},
+		{
+			description: "case 1: basic match",
+			clusterConfig: v1alpha1.AzureClusterConfig{
+				Spec: v1alpha1.AzureClusterConfigSpec{
+					Guest: v1alpha1.AzureClusterConfigSpecGuest{
+						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+							Owner: "giantswarm",
+						},
+					},
+				},
+			},
+			expectedOrganization: "giantswarm",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			org := ClusterOrganization(tc.clusterConfig)
+			if org != tc.expectedOrganization {
+				t.Fatalf("Organization '%s' doesn't match expected '%s'", org, tc.expectedOrganization)
+			}
+		})
+	}
+}
+
 func Test_ToCustomObject(t *testing.T) {
 	var emptyAzureClusterConfigPtr *v1alpha1.AzureClusterConfig
 
@@ -84,6 +156,57 @@ func Test_ToCustomObject(t *testing.T) {
 			if !reflect.DeepEqual(customObject, tc.expectedCustomObject) {
 				t.Fatalf("customObject %#v doesn't match expected %#v",
 					customObject, tc.expectedCustomObject)
+			}
+		})
+	}
+}
+
+func Test_WorkerCount(t *testing.T) {
+	testCases := []struct {
+		description         string
+		clusterConfig       v1alpha1.AzureClusterConfig
+		expectedWorkerCount int
+	}{
+		{
+			description:         "case 0: empty value",
+			clusterConfig:       v1alpha1.AzureClusterConfig{},
+			expectedWorkerCount: 0,
+		},
+		{
+			description: "case 1: basic match",
+			clusterConfig: v1alpha1.AzureClusterConfig{
+				Spec: v1alpha1.AzureClusterConfigSpec{
+					Guest: v1alpha1.AzureClusterConfigSpecGuest{
+						Workers: []v1alpha1.AzureClusterConfigSpecGuestWorker{
+							v1alpha1.AzureClusterConfigSpecGuestWorker{},
+						},
+					},
+				},
+			},
+			expectedWorkerCount: 1,
+		},
+		{
+			description: "case 2: different worker count",
+			clusterConfig: v1alpha1.AzureClusterConfig{
+				Spec: v1alpha1.AzureClusterConfigSpec{
+					Guest: v1alpha1.AzureClusterConfigSpecGuest{
+						Workers: []v1alpha1.AzureClusterConfigSpecGuestWorker{
+							v1alpha1.AzureClusterConfigSpecGuestWorker{},
+							v1alpha1.AzureClusterConfigSpecGuestWorker{},
+							v1alpha1.AzureClusterConfigSpecGuestWorker{},
+						},
+					},
+				},
+			},
+			expectedWorkerCount: 3,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			workerCount := WorkerCount(tc.clusterConfig)
+			if workerCount != tc.expectedWorkerCount {
+				t.Fatalf("WorkerCount %d doesn't match expected %d", workerCount, tc.expectedWorkerCount)
 			}
 		})
 	}
