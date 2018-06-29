@@ -1,6 +1,8 @@
 package configmap
 
 import (
+	"reflect"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -46,6 +48,16 @@ func New(config Config) (*Service, error) {
 	return s, nil
 }
 
+func containsConfigMap(list []*corev1.ConfigMap, item *corev1.ConfigMap) bool {
+	for _, l := range list {
+		if reflect.DeepEqual(item, l) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func getConfigMapByName(list []*corev1.ConfigMap, name string) (*corev1.ConfigMap, error) {
 	for _, l := range list {
 		if l.Name == name {
@@ -54,4 +66,17 @@ func getConfigMapByName(list []*corev1.ConfigMap, name string) (*corev1.ConfigMa
 	}
 
 	return nil, microerror.Mask(notFoundError)
+}
+
+func isConfigMapModified(a, b *corev1.ConfigMap) bool {
+	// If the Data section has changed we need to update.
+	if !reflect.DeepEqual(a.Data, b.Data) {
+		return true
+	}
+	// If the Labels have changed we also need to update.
+	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return true
+	}
+
+	return false
 }
