@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -41,7 +43,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	// Only enable Ingress Controller for Azure.
 	if r.provider == label.ProviderAzure {
-		chartConfig := newIngressControllerChartConfig(clusterConfig, r.projectName)
+		chartConfig, err := r.newIngressControllerChartConfig(ctx, clusterConfig, r.projectName)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 
@@ -54,13 +60,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return desiredChartConfigs, nil
 }
 
-func newIngressControllerChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
+func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-nginx-ingress-controller-chart"
 	channelName := "0-1-stable"
+	configMapName := "nginx-ingress-controller-values"
 	releaseName := "nginx-ingress-controller"
 	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
-	return &v1alpha1.ChartConfig{
+	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	chartConfigCR := &v1alpha1.ChartConfig{
 		TypeMeta: apismetav1.TypeMeta{
 			Kind:       chartConfigKind,
 			APIVersion: chartConfigAPIVersion,
@@ -73,6 +85,7 @@ func newIngressControllerChartConfig(clusterConfig cluster.Config, projectName s
 			Chart: v1alpha1.ChartConfigSpecChart{
 				Name:      chartName,
 				Channel:   channelName,
+				ConfigMap: *configMapSpec,
 				Namespace: apismetav1.NamespaceSystem,
 				Release:   releaseName,
 			},
@@ -81,6 +94,8 @@ func newIngressControllerChartConfig(clusterConfig cluster.Config, projectName s
 			},
 		},
 	}
+
+	return chartConfigCR, nil
 }
 
 func newExternalDNSChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
@@ -168,6 +183,38 @@ func newNodeExporterChartConfig(clusterConfig cluster.Config, projectName string
 			},
 		},
 	}
+}
+
+func (r *Resource) getConfigMapSpec(ctx context.Context, guestConfig cluster.Config, configMapName, namespace string) (*v1alpha1.ChartConfigSpecConfigMap, error) {
+	guestK8sClient, err := r.getGuestK8sClient(ctx, guestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	configMap, err := guestK8sClient.CoreV1().ConfigMaps(namespace).Get(configMapName, apismetav1.GetOptions{})
+	if apierrors.IsNotFound(err) || guest.IsAPINotAvailable(err) {
+		// Cannot get configmap resource version so leave it unset. We will
+		// check again after the next resync period.
+		configMapSpec := &v1alpha1.ChartConfigSpecConfigMap{
+			Name:      configMapName,
+			Namespace: namespace,
+		}
+
+		return configMapSpec, nil
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// Set the configmap resource version. This will generate an update event
+	// for chart-operator which will recalculate the desired state including
+	// any updated config map values.
+	configMapSpec := &v1alpha1.ChartConfigSpecConfigMap{
+		Name:            configMapName,
+		Namespace:       namespace,
+		ResourceVersion: configMap.ObjectMeta.ResourceVersion,
+	}
+
+	return configMapSpec, nil
 }
 
 func newChartConfigLabels(clusterConfig cluster.Config, appName, projectName string) map[string]string {

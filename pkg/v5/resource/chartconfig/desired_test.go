@@ -69,8 +69,10 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				G8sClient:   fake.NewSimpleClientset(),
-				Guest:       &guestMock{},
+				G8sClient: fake.NewSimpleClientset(),
+				Guest: &guestMock{
+					fakeGuestK8sClient: clientgofake.NewSimpleClientset(),
+				},
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
