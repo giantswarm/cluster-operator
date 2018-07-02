@@ -3,12 +3,16 @@ package configmap
 import (
 	"context"
 
+	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
 )
 
 type Interface interface {
+	ApplyCreateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToCreate []*corev1.ConfigMap) error
+	ApplyUpdateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToUpdate []*corev1.ConfigMap) error
 	GetCurrentState(ctx context.Context, configMapConfig ConfigMapConfig) ([]*corev1.ConfigMap, error)
 	GetDesiredState(ctx context.Context, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error)
+	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
 }
 
 // ConfigMapConfig is used by the configmap resources to provide config to
