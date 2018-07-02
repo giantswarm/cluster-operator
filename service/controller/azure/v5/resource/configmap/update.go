@@ -57,12 +57,12 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 		return nil, microerror.Mask(err)
 	}
 
-	desireConfigMaps, err := toConfigMaps(desiredState)
+	desiredConfigMaps, err := toConfigMaps(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	patch, err := r.configMap.NewUpdatePatch(ctx, currentConfigMaps, desireConfigMaps)
+	patch, err := r.configMap.NewUpdatePatch(ctx, currentConfigMaps, desiredConfigMaps)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
