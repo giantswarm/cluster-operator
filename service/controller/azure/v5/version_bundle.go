@@ -9,8 +9,13 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Add your changes here.",
+				Description: "Added configmap resource for managing chart configuration in guest clusters.",
 				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "cluster-operator",
+				Description: "Configured the Ingress Controller chart with the number of worker nodes.",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{

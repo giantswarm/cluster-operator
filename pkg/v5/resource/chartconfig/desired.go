@@ -14,7 +14,7 @@ import (
 const (
 	chartConfigAPIVersion           = "core.giantswarm.io"
 	chartConfigKind                 = "ChartConfig"
-	chartConfigVersionBundleVersion = "0.1.0"
+	chartConfigVersionBundleVersion = "0.2.0"
 )
 
 // GetDesiredState returns all desired ChartConfigs for managed guest resources.
@@ -57,6 +57,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 func newIngressControllerChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
 	chartName := "kubernetes-nginx-ingress-controller-chart"
 	channelName := "0-1-stable"
+	configMapName := "nginx-ingress-controller-values"
 	releaseName := "nginx-ingress-controller"
 	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
@@ -72,9 +73,13 @@ func newIngressControllerChartConfig(clusterConfig cluster.Config, projectName s
 		Spec: v1alpha1.ChartConfigSpec{
 			Chart: v1alpha1.ChartConfigSpecChart{
 				Name:      chartName,
-				Channel:   channelName,
 				Namespace: apismetav1.NamespaceSystem,
-				Release:   releaseName,
+				Channel:   channelName,
+				ConfigMap: v1alpha1.ChartConfigSpecConfigMap{
+					Name:      configMapName,
+					Namespace: apismetav1.NamespaceSystem,
+				},
+				Release: releaseName,
 			},
 			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
 				Version: chartConfigVersionBundleVersion,

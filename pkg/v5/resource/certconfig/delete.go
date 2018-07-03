@@ -90,6 +90,8 @@ func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, curre
 		// Existing CertConfig is not desired anymore so it should be deleted.
 		if IsNotFound(err) {
 			certConfigsToDelete = append(certConfigsToDelete, currentCertConfig)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
 		}
 	}
 

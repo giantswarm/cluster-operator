@@ -9,9 +9,11 @@ import (
 
 type Interface interface {
 	ApplyCreateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToCreate []*corev1.ConfigMap) error
+	ApplyDeleteChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToDelete []*corev1.ConfigMap) error
 	ApplyUpdateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToUpdate []*corev1.ConfigMap) error
 	GetCurrentState(ctx context.Context, configMapConfig ConfigMapConfig) ([]*corev1.ConfigMap, error)
 	GetDesiredState(ctx context.Context, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error)
+	NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
 	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
 }
 
