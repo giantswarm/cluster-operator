@@ -65,6 +65,8 @@ func (s *Service) newDeleteChangeForUpdatePatch(ctx context.Context, currentConf
 		// Existing ConfigMap is not desired anymore so it should be deleted.
 		if IsNotFound(err) {
 			configMapsToDelete = append(configMapsToDelete, currentConfigMap)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
 		}
 	}
 
