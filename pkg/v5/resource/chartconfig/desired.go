@@ -43,7 +43,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	// Only enable Ingress Controller for Azure.
 	if r.provider == label.ProviderAzure {
-		chartConfig, err := r.newIngressControllerChartConfig(ctx, clusterConfig, r.projectName)
+		chartConfig, err := r.newIngressControllerChartConfig(ctx, clusterConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -60,12 +60,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return desiredChartConfigs, nil
 }
 
-func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
+func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterConfig cluster.Config) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-nginx-ingress-controller-chart"
 	channelName := "0-1-stable"
 	configMapName := "nginx-ingress-controller-values"
 	releaseName := "nginx-ingress-controller"
-	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
+	labels := newChartConfigLabels(clusterConfig, releaseName, r.projectName)
 
 	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
 	if err != nil {
