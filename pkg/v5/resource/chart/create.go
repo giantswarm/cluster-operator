@@ -79,7 +79,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		//
 		err = guestHelmClient.InstallFromTarball(tarballPath, chartOperatorNamespace,
 			helm.ReleaseName(createState.ReleaseName),
-			helm.ValueOverrides([]byte("{}")),
+			helm.ValueOverrides([]byte("image.registry="+r.registryDomain)),
 			helm.InstallWait(true))
 		if err != nil {
 			return microerror.Mask(err)

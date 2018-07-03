@@ -121,9 +121,10 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 				Guest: &guestMock{
 					fakeGuestHelmClient: helmClient,
 				},
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      microloggertest.New(),
-				ProjectName: "cluster-operator",
+				K8sClient:      clientgofake.NewSimpleClientset(),
+				Logger:         microloggertest.New(),
+				ProjectName:    "cluster-operator",
+				RegistryDomain: "quay.io",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
