@@ -48,12 +48,13 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				Fs:          afero.NewMemMapFs(),
-				G8sClient:   fake.NewSimpleClientset(),
-				Guest:       &guestMock{},
-				K8sClient:   clientgofake.NewSimpleClientset(),
-				Logger:      microloggertest.New(),
-				ProjectName: "cluster-operator",
+				Fs:             afero.NewMemMapFs(),
+				G8sClient:      fake.NewSimpleClientset(),
+				Guest:          &guestMock{},
+				K8sClient:      clientgofake.NewSimpleClientset(),
+				Logger:         microloggertest.New(),
+				ProjectName:    "cluster-operator",
+				RegistryDomain: "quay.io",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
