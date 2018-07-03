@@ -211,7 +211,7 @@ func (r *Resource) getConfigMapSpec(ctx context.Context, guestConfig cluster.Con
 	configMapSpec := &v1alpha1.ChartConfigSpecConfigMap{
 		Name:            configMapName,
 		Namespace:       namespace,
-		ResourceVersion: configMap.ObjectMeta.ResourceVersion,
+		ResourceVersion: configMap.ResourceVersion,
 	}
 
 	return configMapSpec, nil
