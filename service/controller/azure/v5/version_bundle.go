@@ -12,6 +12,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added configmap resource for managing chart configuration in guest clusters.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Configured the Ingress Controller chart with the number of worker nodes.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
