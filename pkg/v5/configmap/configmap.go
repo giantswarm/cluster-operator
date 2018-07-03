@@ -58,9 +58,9 @@ func containsConfigMap(list []*corev1.ConfigMap, item *corev1.ConfigMap) bool {
 	return false
 }
 
-func getConfigMapByName(list []*corev1.ConfigMap, name string) (*corev1.ConfigMap, error) {
+func getConfigMapByNameAndNamespace(list []*corev1.ConfigMap, name, namespace string) (*corev1.ConfigMap, error) {
 	for _, l := range list {
-		if l.Name == name {
+		if l.Name == name && l.Namespace == namespace {
 			return l, nil
 		}
 	}

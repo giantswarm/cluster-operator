@@ -95,6 +95,8 @@ func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, curre
 		// Existing ChartConfig is not desired anymore so it should be deleted.
 		if IsNotFound(err) {
 			chartConfigsToDelete = append(chartConfigsToDelete, currentChartConfig)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
 		}
 	}
 

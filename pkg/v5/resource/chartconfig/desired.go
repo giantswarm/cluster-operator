@@ -16,7 +16,7 @@ import (
 const (
 	chartConfigAPIVersion           = "core.giantswarm.io"
 	chartConfigKind                 = "ChartConfig"
-	chartConfigVersionBundleVersion = "0.1.0"
+	chartConfigVersionBundleVersion = "0.2.0"
 )
 
 // GetDesiredState returns all desired ChartConfigs for managed guest resources.
@@ -84,9 +84,9 @@ func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterC
 		Spec: v1alpha1.ChartConfigSpec{
 			Chart: v1alpha1.ChartConfigSpecChart{
 				Name:      chartName,
+				Namespace: apismetav1.NamespaceSystem,
 				Channel:   channelName,
 				ConfigMap: *configMapSpec,
-				Namespace: apismetav1.NamespaceSystem,
 				Release:   releaseName,
 			},
 			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{

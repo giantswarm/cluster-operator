@@ -44,17 +44,15 @@ func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState
 		return nil, microerror.Mask(err)
 	}
 
-	/* TODO
 	delete, err := s.newDeleteChangeForUpdatePatch(ctx, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	*/
 
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
-	// patch.SetDeleteChange(delete)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
@@ -65,7 +63,7 @@ func (s *Service) newUpdateChange(ctx context.Context, currentConfigMaps, desire
 	configMapsToUpdate := make([]*corev1.ConfigMap, 0)
 
 	for _, currentConfigMap := range currentConfigMaps {
-		desiredConfigMap, err := getConfigMapByName(desiredConfigMaps, currentConfigMap.Name)
+		desiredConfigMap, err := getConfigMapByNameAndNamespace(desiredConfigMaps, currentConfigMap.Name, currentConfigMap.Namespace)
 		if IsNotFound(err) {
 			// Ignore here. These are handled by newDeleteChangeForUpdatePatch().
 			continue
