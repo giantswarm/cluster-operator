@@ -205,9 +205,9 @@ func (r *Resource) getConfigMapSpec(ctx context.Context, guestConfig cluster.Con
 		return nil, microerror.Mask(err)
 	}
 
-	// Set the configmap resource version. This will generate an update event
-	// for chart-operator which will recalculate the desired state including
-	// any updated config map values.
+	// Set the configmap resource version. When this changes it will generate
+	// an update event for chart-operator. chart-operator will recalculate the
+	// desired state including any updated config map values.
 	configMapSpec := &v1alpha1.ChartConfigSpecConfigMap{
 		Name:            configMapName,
 		Namespace:       namespace,
