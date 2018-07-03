@@ -146,7 +146,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 			configMapName:      "ingress-controller-values",
 			configMapNamespace: metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test",
 						Namespace: metav1.NamespaceSystem,
@@ -169,7 +169,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 			configMapName:      "ingress-controller-values",
 			configMapNamespace: metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:            "ingress-controller-values",
 						Namespace:       metav1.NamespacePublic,
@@ -193,7 +193,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 			configMapName:      "ingress-controller-values",
 			configMapNamespace: metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:            "ingress-controller-values",
 						Namespace:       metav1.NamespaceSystem,
@@ -218,7 +218,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 			configMapName:      "ingress-controller-values",
 			configMapNamespace: metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:            "ingress-controller-values",
 						Namespace:       metav1.NamespaceSystem,
@@ -228,7 +228,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 						"key": "value",
 					},
 				},
-				&corev1.ConfigMap{
+				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:            "test-values",
 						Namespace:       metav1.NamespaceSystem,
