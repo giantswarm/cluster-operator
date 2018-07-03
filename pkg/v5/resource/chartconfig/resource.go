@@ -136,6 +136,15 @@ func (r *Resource) getGuestG8sClient(ctx context.Context, obj interface{}) (vers
 	return guestG8sClient, nil
 }
 
+func (r *Resource) getGuestK8sClient(ctx context.Context, guestConfig cluster.Config) (kubernetes.Interface, error) {
+	guestK8sClient, err := r.guest.NewK8sClient(ctx, guestConfig.ClusterID, guestConfig.Domain.API)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return guestK8sClient, nil
+}
+
 func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
 	for _, l := range list {
 		if reflect.DeepEqual(item, l) {
