@@ -23,7 +23,7 @@ const (
 	Name = "chartv4"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-1-test"
+	chartOperatorChannel       = "0-1-stable"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"

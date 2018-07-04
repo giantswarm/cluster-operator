@@ -62,7 +62,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 				updateState.ReleaseVersion,
 				chartOperatorChannel))
 
-		tarballPath, err := r.apprClient.PullChartTarball(updateState.ReleaseName, chartOperatorChannel)
+		tarballPath, err := r.apprClient.PullChartTarball(updateState.ChartName, chartOperatorChannel)
 		if err != nil {
 			return microerror.Mask(err)
 		}
