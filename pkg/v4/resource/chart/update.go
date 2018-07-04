@@ -56,11 +56,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if !reflect.DeepEqual(updateState, ResourceState{}) {
-		r.logger.LogCtx(ctx, "level", "debug", "message",
-			fmt.Sprintf("updating chart-operator chart, release name %q, release version %q from channel %q",
-				updateState.ReleaseName,
-				updateState.ReleaseVersion,
-				chartOperatorChannel))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart-operator chart, release name %q, release version %q from channel %q", updateState.ReleaseName, updateState.ReleaseVersion, chartOperatorChannel))
 
 		tarballPath, err := r.apprClient.PullChartTarball(updateState.ChartName, chartOperatorChannel)
 		if err != nil {
@@ -127,7 +123,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if chart-operator has to be updated")
 
 	updateState := &ResourceState{}
-	if currentResourceState.ReleaseVersion != "" && isChartModified(currentResourceState, desiredResourceState) {
+	if shouldUpdate(currentResourceState, desiredResourceState) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator has to be updated")
 
 		updateState = &desiredResourceState

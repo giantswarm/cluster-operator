@@ -166,8 +166,8 @@ func toResourceState(v interface{}) (ResourceState, error) {
 	return *resourceState, nil
 }
 
-func isChartModified(a, b ResourceState) bool {
-	if a.ReleaseVersion != b.ReleaseVersion {
+func shouldUpdate(currentState, desiredState ResourceState) bool {
+	if currentState.ReleaseVersion != "" && currentState.ReleaseVersion != desiredState.ReleaseVersion {
 		// ReleaseVersion has changed for the channel so we need to update the Helm
 		// Release.
 		return true
