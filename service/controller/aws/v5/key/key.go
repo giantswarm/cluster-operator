@@ -5,6 +5,11 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+// AWSConfigName generates name to AWSConfig CR from AWSClusterConfig.
+func AWSConfigName(awsClusterConfig v1alpha1.AWSClusterConfig) string {
+	return awsClusterConfig.Spec.Guest.ID
+}
+
 // ClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig.
 func ClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
 	return awsClusterConfig.Spec.Guest.ClusterGuestConfig

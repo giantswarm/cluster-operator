@@ -1,10 +1,9 @@
 package awsconfig
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -14,27 +13,27 @@ const (
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
-	K8sClient kubernetes.Interface
+	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 }
 
 // Resource implements the cloud config resource.
 type Resource struct {
-	k8sClient kubernetes.Interface
+	g8sClient versioned.Interface
 	logger    micrologger.Logger
 }
 
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
 	r := &Resource{
-		k8sClient: config.K8sClient,
+		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 	}
 
@@ -44,17 +43,4 @@ func New(config Config) (*Resource, error) {
 // Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
-}
-
-func toAwsConfig(v interface{}) (*v1alpha1.AWSConfig, error) {
-	if v == nil {
-		return nil, nil
-	}
-
-	awsConfig, ok := v.(*v1alpha1.AWSConfig)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.AWSConfig{}, v)
-	}
-
-	return awsConfig, nil
 }

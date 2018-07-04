@@ -106,7 +106,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var awsConfigResource controller.Resource
 	{
 		c := awsconfig.Config{
-			K8sClient: config.K8sClient,
+			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 		}
 
