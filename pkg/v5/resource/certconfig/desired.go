@@ -2,6 +2,7 @@ package certconfig
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -114,10 +115,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
-	clusterConfig.Domain.CalicoEtcdClient, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoEtcdClientCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
+	clusterConfig.Domain.CalicoEtcdClient = fmt.Sprintf("calico.%s.%s", clusterConfig.ClusterID, key.DNSZone(clusterGuestConfig))
 	clusterConfig.Domain.Etcd, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.EtcdCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
@@ -417,10 +415,12 @@ func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, name
 		},
 		Spec: v1alpha1.CertConfigSpec{
 			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    certName,
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.Prometheus,
+				AllowBareDomains: false,
+				ClusterComponent: certName,
+				ClusterID:        clusterConfig.ClusterID,
+				// TODO: Once there's role for prometheus in guest cluster, fix CN below.
+				//		 See: https://github.com/giantswarm/giantswarm/issues/3599
+				CommonName:          clusterConfig.Domain.API,
 				DisableRegeneration: false,
 				TTL:                 clusterConfig.CertTTL,
 			},
