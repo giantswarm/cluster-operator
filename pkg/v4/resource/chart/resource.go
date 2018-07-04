@@ -23,7 +23,7 @@ const (
 	Name = "chartv4"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-1-stable"
+	chartOperatorChannel       = "0-1-test"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
@@ -164,4 +164,14 @@ func toResourceState(v interface{}) (ResourceState, error) {
 	}
 
 	return *resourceState, nil
+}
+
+func isChartModified(a, b ResourceState) bool {
+	if a.ReleaseVersion != b.ReleaseVersion {
+		// ReleaseVersion has changed for the channel so we need to update the Helm
+		// Release.
+		return true
+	}
+
+	return false
 }
