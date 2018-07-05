@@ -63,13 +63,16 @@ func Test_Resource_Chart_newUpdate(t *testing.T) {
 		{
 			name: "case 4: different non-empty current and desired, expected desired",
 			currentState: &ResourceState{
-				ChartName: "current",
+				ChartName:      "current",
+				ReleaseVersion: "0.1.2",
 			},
 			desiredState: &ResourceState{
-				ChartName: "desired",
+				ChartName:      "desired",
+				ReleaseVersion: "0.1.3",
 			},
 			expectedState: &ResourceState{
-				ChartName: "desired",
+				ChartName:      "desired",
+				ReleaseVersion: "0.1.3",
 			},
 		},
 	}
