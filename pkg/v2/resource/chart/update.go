@@ -38,7 +38,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if !reflect.DeepEqual(updateState, ResourceState{}) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating chart-operator chart")
 
-		tarballPath, err := r.apprClient.PullChartTarball(updateState.ReleaseName, chartOperatorChannel)
+		tarballPath, err := r.apprClient.PullChartTarball(updateState.ChartName, chartOperatorChannel)
 		if err != nil {
 			return microerror.Mask(err)
 		}
