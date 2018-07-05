@@ -369,10 +369,12 @@ func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, pr
 		},
 		Spec: v1alpha1.CertConfigSpec{
 			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    certName,
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.NodeOperator,
+				AllowBareDomains: false,
+				ClusterComponent: certName,
+				ClusterID:        clusterConfig.ClusterID,
+				// TODO: Once there's role for node-operator in guest cluster, fix CN below.
+				//		 See: https://github.com/giantswarm/giantswarm/issues/3450
+				CommonName:          clusterConfig.Domain.API,
 				DisableRegeneration: false,
 				TTL:                 clusterConfig.CertTTL,
 			},
