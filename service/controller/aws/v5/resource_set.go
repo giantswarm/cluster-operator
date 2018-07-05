@@ -18,6 +18,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v5/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v5/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v5/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v5/resource/chart"
@@ -26,6 +27,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v5/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v5/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v5/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v5/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -181,6 +183,42 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var configMapService configmapservice.Interface
+	{
+		c := configmapservice.Config{
+			Guest:          guestClusterService,
+			Logger:         config.Logger,
+			ProjectName:    config.ProjectName,
+			RegistryDomain: config.RegistryDomain,
+		}
+
+		configMapService, err = configmapservice.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var configMapResource controller.Resource
+	{
+		c := configmap.Config{
+			ConfigMap:   configMapService,
+			Guest:       guestClusterService,
+			K8sClient:   config.K8sClient,
+			Logger:      config.Logger,
+			ProjectName: config.ProjectName,
+		}
+
+		ops, err := configmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartConfigResource controller.Resource
 	{
 		c := chartconfig.Config{
@@ -212,10 +250,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		encryptionKeyResource,
 		certConfigResource,
 		awsConfigResource,
-		// namespace, chart and chartconfig resources manage resources in
+		// namespace, chart, configmap and chartconfig resources manage resources in
 		// guest clusters so they should be executed last.
 		namespaceResource,
 		chartResource,
+		configMapResource,
 		chartConfigResource,
 	}
 

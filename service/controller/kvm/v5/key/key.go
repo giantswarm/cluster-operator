@@ -5,6 +5,11 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+// ClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
+func ClusterGuestConfig(kvmClusterConfig v1alpha1.KVMClusterConfig) v1alpha1.ClusterGuestConfig {
+	return kvmClusterConfig.Spec.Guest.ClusterGuestConfig
+}
+
 // ClusterID extracts clusterID from v1alpha1.KVMClusterConfig.
 func ClusterID(customObject v1alpha1.KVMClusterConfig) string {
 	return customObject.Spec.Guest.ClusterGuestConfig.ID

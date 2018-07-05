@@ -187,9 +187,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapService configmapservice.Interface
 	{
 		c := configmapservice.Config{
-			Guest:       guestClusterService,
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			Guest:          guestClusterService,
+			Logger:         config.Logger,
+			ProjectName:    config.ProjectName,
+			RegistryDomain: config.RegistryDomain,
 		}
 
 		configMapService, err = configmapservice.New(c)
