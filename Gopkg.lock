@@ -198,7 +198,7 @@
     "pkg/framework",
     "pkg/harness"
   ]
-  revision = "c5b82c0351c122d5c4f96de2381c58fd97f1e354"
+  revision = "bec65bb6f5a8860f27cbd94a61f243abcfc64398"
 
 [[projects]]
   branch = "master"
@@ -210,7 +210,7 @@
   branch = "master"
   name = "github.com/giantswarm/e2etemplates"
   packages = ["pkg/e2etemplates"]
-  revision = "f60b47d58ebbcc919ce94918af33ac2cb155a4c8"
+  revision = "a53b3bf982c863948719acb122321ee511dce813"
 
 [[projects]]
   branch = "master"
