@@ -15,3 +15,14 @@ type ResourceState struct {
 	// e.g. 0.1.2
 	ReleaseVersion string
 }
+
+// Values represents the values to be passed to Helm commands related to
+// chart-operator chart.
+type Values struct {
+	Image Image `json:"image"`
+}
+
+// Image holds the image settings for chart-operator chart.
+type Image struct {
+	Registry string `json:"registry"`
+}
