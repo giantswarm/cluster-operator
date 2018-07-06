@@ -25,7 +25,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 		expectedChartConfigNames []string
 	}{
 		{
-			name: "basic match for aws",
+			name: "case 0: basic match for aws",
 			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.aws.giantswarm.io",
 				ID:      "5xchu",
@@ -35,10 +35,11 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			expectedChartConfigNames: []string{
 				"kubernetes-node-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-nginx-ingress-controller-chart",
 			},
 		},
 		{
-			name: "basic match for kvm",
+			name: "case 1: basic match for kvm",
 			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.kvm.giantswarm.io",
 				ID:      "5xchu",
@@ -51,7 +52,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "azure also has provider specific chartconfigs",
+			name: "case 2: azure also has provider specific chartconfigs",
 			obj: v1alpha1.ClusterGuestConfig{
 				DNSZone: "5xchu.azure.giantswarm.io",
 				ID:      "5xchu",
