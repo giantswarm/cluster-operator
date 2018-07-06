@@ -51,8 +51,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 
-	// Only enable External DNS for Azure.
-	if r.provider == label.ProviderAzure {
+	// Only enable External DNS for Azure and AWS.
+	if r.provider == label.ProviderAzure || r.provider == label.ProviderAWS {
 		chartConfig := newExternalDNSChartConfig(clusterConfig, r.projectName)
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
