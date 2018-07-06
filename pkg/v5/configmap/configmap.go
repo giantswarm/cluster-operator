@@ -15,7 +15,8 @@ type Config struct {
 	Guest  guestcluster.Interface
 	Logger micrologger.Logger
 
-	ProjectName string
+	ProjectName    string
+	RegistryDomain string
 }
 
 // Service provides shared functionality for managing configmaps.
@@ -23,7 +24,8 @@ type Service struct {
 	guest  guestcluster.Interface
 	logger micrologger.Logger
 
-	projectName string
+	projectName    string
+	registryDomain string
 }
 
 // New creates a new configmap service.
@@ -38,11 +40,15 @@ func New(config Config) (*Service, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+	if config.RegistryDomain == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
+	}
 
 	s := &Service{
-		guest:       config.Guest,
-		logger:      config.Logger,
-		projectName: config.ProjectName,
+		guest:          config.Guest,
+		logger:         config.Logger,
+		projectName:    config.ProjectName,
+		registryDomain: config.RegistryDomain,
 	}
 
 	return s, nil
