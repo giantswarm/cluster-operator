@@ -44,6 +44,7 @@ type ResourceSetConfig struct {
 
 	HandledVersionBundles []string
 	ProjectName           string
+	RegistryDomain        string
 }
 
 // NewResourceSet returns a configured KVMClusterConfig controller ResourceSet.
@@ -169,6 +170,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
+			RegistryDomain:           config.RegistryDomain,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 

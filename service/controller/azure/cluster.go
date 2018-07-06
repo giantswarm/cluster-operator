@@ -34,7 +34,8 @@ type ClusterConfig struct {
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 
-	ProjectName string
+	ProjectName    string
+	RegistryDomain string
 }
 
 type Cluster struct {
@@ -157,6 +158,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
 			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
 		}
 
 		v5ResourceSet, err = v5.NewResourceSet(c)
