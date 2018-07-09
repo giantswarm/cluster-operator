@@ -24,3 +24,4 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
+      registryDomain: '{{ .Values.Installation.V1.Registry.Domain }}'

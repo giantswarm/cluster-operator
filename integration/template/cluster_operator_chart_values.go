@@ -12,6 +12,8 @@ const ClusterOperatorChartValues = `Installation:
       Vault:
         Certificate:
           TTL: 3000h
+    Registry:
+      Domain: quay.io
     Secret:
       Registry:
         PullSecret:

@@ -2,6 +2,7 @@ package chart
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -68,18 +69,18 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			}
 		}()
 
-		// We need to pass the ValueOverrides option to make the install process
-		// use the default values and prevent errors on nested values.
-		//
-		//     {
-		//      rpc error: code = Unknown desc = render error in "cnr-server-chart/templates/deployment.yaml":
-		//      template: cnr-server-chart/templates/deployment.yaml:20:26:
-		//      executing "cnr-server-chart/templates/deployment.yaml" at <.Values.image.reposi...>: can't evaluate field repository in type interface {}
-		//     }
-		//
+		v := &Values{
+			Image: Image{
+				Registry: r.registryDomain,
+			},
+		}
+		b, err := json.Marshal(v)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 		err = guestHelmClient.InstallFromTarball(tarballPath, chartOperatorNamespace,
 			helm.ReleaseName(createState.ReleaseName),
-			helm.ValueOverrides([]byte("{}")),
+			helm.ValueOverrides(b),
 			helm.InstallWait(true))
 		if err != nil {
 			return microerror.Mask(err)

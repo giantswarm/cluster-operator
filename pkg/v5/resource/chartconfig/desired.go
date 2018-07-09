@@ -33,11 +33,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	desiredChartConfigs := make([]*v1alpha1.ChartConfig, 0)
 	{
-		chartConfig := newKubeStateMetricsChartConfig(clusterConfig, r.projectName)
+		chartConfig, err := r.newKubeStateMetricsChartConfig(ctx, clusterConfig, r.projectName)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 	{
-		chartConfig := newNodeExporterChartConfig(clusterConfig, r.projectName)
+		chartConfig, err := r.newNodeExporterChartConfig(ctx, clusterConfig, r.projectName)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 
@@ -127,13 +133,19 @@ func newExternalDNSChartConfig(clusterConfig cluster.Config, projectName string)
 	}
 }
 
-func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
+func (r *Resource) newKubeStateMetricsChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-kube-state-metrics-chart"
 	channelName := "0-1-stable"
+	configMapName := "kube-state-metrics-values"
 	releaseName := "kube-state-metrics"
 	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
-	return &v1alpha1.ChartConfig{
+	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	chartConfigCR := &v1alpha1.ChartConfig{
 		TypeMeta: apismetav1.TypeMeta{
 			Kind:       chartConfigKind,
 			APIVersion: chartConfigAPIVersion,
@@ -146,6 +158,7 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 			Chart: v1alpha1.ChartConfigSpecChart{
 				Name:      chartName,
 				Channel:   channelName,
+				ConfigMap: *configMapSpec,
 				Namespace: apismetav1.NamespaceSystem,
 				Release:   releaseName,
 			},
@@ -154,15 +167,22 @@ func newKubeStateMetricsChartConfig(clusterConfig cluster.Config, projectName st
 			},
 		},
 	}
+	return chartConfigCR, nil
 }
 
-func newNodeExporterChartConfig(clusterConfig cluster.Config, projectName string) *v1alpha1.ChartConfig {
+func (r *Resource) newNodeExporterChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-node-exporter-chart"
 	channelName := "0-1-stable"
+	configMapName := "node-exporter-values"
 	releaseName := "node-exporter"
 	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
-	return &v1alpha1.ChartConfig{
+	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	chartConfigCR := &v1alpha1.ChartConfig{
 		TypeMeta: apismetav1.TypeMeta{
 			Kind:       chartConfigKind,
 			APIVersion: chartConfigAPIVersion,
@@ -175,6 +195,7 @@ func newNodeExporterChartConfig(clusterConfig cluster.Config, projectName string
 			Chart: v1alpha1.ChartConfigSpecChart{
 				Name:      chartName,
 				Channel:   channelName,
+				ConfigMap: *configMapSpec,
 				Namespace: apismetav1.NamespaceSystem,
 				Release:   releaseName,
 			},
@@ -183,6 +204,7 @@ func newNodeExporterChartConfig(clusterConfig cluster.Config, projectName string
 			},
 		},
 	}
+	return chartConfigCR, nil
 }
 
 func (r *Resource) getConfigMapSpec(ctx context.Context, guestConfig cluster.Config, configMapName, namespace string) (*v1alpha1.ChartConfigSpecConfigMap, error) {

@@ -38,7 +38,39 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": "{\"controller\":{\"replicas\":3}}",
+						"values.json": "{\"controller\":{\"replicas\":3,\"image\":{\"registry\":\"quay.io\"}}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kube-state-metrics-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "kube-state-metrics",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "node-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "node-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
 					},
 				},
 			},
@@ -64,7 +96,39 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": "{\"controller\":{\"replicas\":7}}",
+						"values.json": "{\"controller\":{\"replicas\":7,\"image\":{\"registry\":\"quay.io\"}}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kube-state-metrics-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "kube-state-metrics",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "node-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "node-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
 					},
 				},
 			},
@@ -74,9 +138,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
-				Guest:       &guestMock{},
-				Logger:      microloggertest.New(),
-				ProjectName: "cluster-operator",
+				Guest:          &guestMock{},
+				Logger:         microloggertest.New(),
+				ProjectName:    "cluster-operator",
+				RegistryDomain: "quay.io",
 			}
 			newService, err := New(c)
 			if err != nil {
