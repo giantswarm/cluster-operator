@@ -77,6 +77,8 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
+	registryDomain := config.Viper.GetString(config.Flag.Service.RegistryDomain)
+
 	var restConfig *rest.Config
 	{
 		c := k8srestconfig.Config{
@@ -160,8 +162,9 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			Logger:         config.Logger,
+			ProjectName:    config.ProjectName,
+			RegistryDomain: registryDomain,
 		}
 
 		awsClusterController, err = aws.NewCluster(c)
@@ -186,8 +189,9 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			Logger:         config.Logger,
+			ProjectName:    config.ProjectName,
+			RegistryDomain: registryDomain,
 		}
 
 		azureClusterController, err = azure.NewCluster(c)
@@ -225,8 +229,9 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			Logger:         config.Logger,
+			ProjectName:    config.ProjectName,
+			RegistryDomain: registryDomain,
 		}
 
 		kvmClusterController, err = kvm.NewCluster(c)
