@@ -61,7 +61,7 @@ func Test_ToCustomObject(t *testing.T) {
 		},
 		{
 			description:          "wrong type must return wrongTypeError",
-			inputObject:          &v1alpha1.AWSClusterConfig{},
+			inputObject:          &v1alpha1.AzureClusterConfig{},
 			expectedCustomObject: v1alpha1.AWSClusterConfig{},
 			expectedError:        wrongTypeError,
 		},
