@@ -47,7 +47,6 @@ func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
-	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
