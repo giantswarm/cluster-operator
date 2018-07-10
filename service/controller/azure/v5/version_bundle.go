@@ -27,6 +27,14 @@ func VersionBundle() versionbundle.Bundle {
 				Name:    "external-dns",
 				Version: "0.5.2",
 			},
+			{
+				Name:    "kube-state-metrics",
+				Version: "1.3.1",
+			},
+			{
+				Name:    "node-exporter",
+				Version: "0.15.1",
+			},
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
