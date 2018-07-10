@@ -61,7 +61,7 @@ func Test_ToCustomObject(t *testing.T) {
 		},
 		{
 			description:          "wrong type must return wrongTypeError",
-			inputObject:          &v1alpha1.AzureClusterConfig{},
+			inputObject:          &v1alpha1.AWSClusterConfig{},
 			expectedCustomObject: v1alpha1.AWSClusterConfig{},
 			expectedError:        wrongTypeError,
 		},
@@ -84,6 +84,57 @@ func Test_ToCustomObject(t *testing.T) {
 			if !reflect.DeepEqual(customObject, tc.expectedCustomObject) {
 				t.Fatalf("customObject %#v doesn't match expected %#v",
 					customObject, tc.expectedCustomObject)
+			}
+		})
+	}
+}
+
+func Test_WorkerCount(t *testing.T) {
+	testCases := []struct {
+		description         string
+		clusterConfig       v1alpha1.AWSClusterConfig
+		expectedWorkerCount int
+	}{
+		{
+			description:         "case 0: empty value",
+			clusterConfig:       v1alpha1.AWSClusterConfig{},
+			expectedWorkerCount: 0,
+		},
+		{
+			description: "case 1: basic match",
+			clusterConfig: v1alpha1.AWSClusterConfig{
+				Spec: v1alpha1.AWSClusterConfigSpec{
+					Guest: v1alpha1.AWSClusterConfigSpecGuest{
+						Workers: []v1alpha1.AWSClusterConfigSpecGuestWorker{
+							v1alpha1.AWSClusterConfigSpecGuestWorker{},
+						},
+					},
+				},
+			},
+			expectedWorkerCount: 1,
+		},
+		{
+			description: "case 2: different worker count",
+			clusterConfig: v1alpha1.AWSClusterConfig{
+				Spec: v1alpha1.AWSClusterConfigSpec{
+					Guest: v1alpha1.AWSClusterConfigSpecGuest{
+						Workers: []v1alpha1.AWSClusterConfigSpecGuestWorker{
+							v1alpha1.AWSClusterConfigSpecGuestWorker{},
+							v1alpha1.AWSClusterConfigSpecGuestWorker{},
+							v1alpha1.AWSClusterConfigSpecGuestWorker{},
+						},
+					},
+				},
+			},
+			expectedWorkerCount: 3,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			workerCount := WorkerCount(tc.clusterConfig)
+			if workerCount != tc.expectedWorkerCount {
+				t.Fatalf("WorkerCount %d doesn't match expected %d", workerCount, tc.expectedWorkerCount)
 			}
 		})
 	}

@@ -138,3 +138,54 @@ func Test_ToCustomObject(t *testing.T) {
 		})
 	}
 }
+
+func Test_WorkerCount(t *testing.T) {
+	testCases := []struct {
+		description         string
+		clusterConfig       v1alpha1.KVMClusterConfig
+		expectedWorkerCount int
+	}{
+		{
+			description:         "case 0: empty value",
+			clusterConfig:       v1alpha1.KVMClusterConfig{},
+			expectedWorkerCount: 0,
+		},
+		{
+			description: "case 1: basic match",
+			clusterConfig: v1alpha1.KVMClusterConfig{
+				Spec: v1alpha1.KVMClusterConfigSpec{
+					Guest: v1alpha1.KVMClusterConfigSpecGuest{
+						Workers: []v1alpha1.KVMClusterConfigSpecGuestWorker{
+							v1alpha1.KVMClusterConfigSpecGuestWorker{},
+						},
+					},
+				},
+			},
+			expectedWorkerCount: 1,
+		},
+		{
+			description: "case 2: different worker count",
+			clusterConfig: v1alpha1.KVMClusterConfig{
+				Spec: v1alpha1.KVMClusterConfigSpec{
+					Guest: v1alpha1.KVMClusterConfigSpecGuest{
+						Workers: []v1alpha1.KVMClusterConfigSpecGuestWorker{
+							v1alpha1.KVMClusterConfigSpecGuestWorker{},
+							v1alpha1.KVMClusterConfigSpecGuestWorker{},
+							v1alpha1.KVMClusterConfigSpecGuestWorker{},
+						},
+					},
+				},
+			},
+			expectedWorkerCount: 3,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			workerCount := WorkerCount(tc.clusterConfig)
+			if workerCount != tc.expectedWorkerCount {
+				t.Fatalf("WorkerCount %d doesn't match expected %d", workerCount, tc.expectedWorkerCount)
+			}
+		})
+	}
+}
