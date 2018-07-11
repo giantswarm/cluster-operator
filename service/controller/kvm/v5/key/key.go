@@ -40,3 +40,7 @@ func ToCustomObject(v interface{}) (v1alpha1.KVMClusterConfig, error) {
 func VersionBundleVersion(kvmClusterConfig v1alpha1.KVMClusterConfig) string {
 	return kvmClusterConfig.Spec.VersionBundle.Version
 }
+
+func WorkerCount(kvmClusterConfig v1alpha1.KVMClusterConfig) int {
+	return len(kvmClusterConfig.Spec.Guest.Workers)
+}
