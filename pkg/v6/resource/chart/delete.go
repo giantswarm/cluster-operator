@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/giantswarm/cluster-operator/pkg/v5/guestcluster"
+	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
