@@ -9,13 +9,22 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Add your changes here.",
+				Description: "Added configmap resource for managing chart configuration in guest clusters.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
-		Components: []versionbundle.Component{},
-		Name:       "cluster-operator",
-		Provider:   "aws",
-		Version:    "0.5.0",
+		Components: []versionbundle.Component{
+			{
+				Name:    "kube-state-metrics",
+				Version: "1.3.1",
+			},
+			{
+				Name:    "node-exporter",
+				Version: "0.15.1",
+			},
+		},
+		Name:     "cluster-operator",
+		Provider: "aws",
+		Version:  "0.5.0",
 	}
 }
