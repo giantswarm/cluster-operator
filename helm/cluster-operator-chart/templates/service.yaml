@@ -10,5 +10,6 @@ metadata:
 spec:
   ports:
   - port: 8000
+  - port: 6060
   selector:
     app: cluster-operator

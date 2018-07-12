@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "net/http/pprof"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/microkit/command"
