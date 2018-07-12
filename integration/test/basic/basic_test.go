@@ -48,14 +48,28 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		t.Fatalf("could not create guest helm client %v", err)
 	}
 
-	releaseContent, err := guestHelmClient.GetReleaseContent(releaseName)
-	if err != nil {
-		log.Printf("could not get release content, retrying once: %v", err)
-
+	o := func() error {
 		releaseContent, err = guestHelmClient.GetReleaseContent(releaseName)
 		if err != nil {
-			t.Fatalf("could not get release content %v", err)
+			return err
 		}
+		return nil
+	}
+	b := &backoff.ExponentialBackOff{
+		InitialInterval:     backoff.DefaultInitialInterval,
+		RandomizationFactor: backoff.DefaultRandomizationFactor,
+		Multiplier:          backoff.DefaultMultiplier,
+		MaxInterval:         backoff.DefaultMaxInterval,
+		MaxElapsedTime:      10 * time.Minute,
+		Clock:               backoff.SystemClock,
+	}
+	n := func(err error, delay time.Duration) {
+		c.logger.Log("level", "debug", "message", "failed fetching release content")
+	}
+
+	err := backoff.RetryNotify(o, b, n)
+	if err != nil {
+		t.Fatalf(err)
 	}
 
 	expectedName := releaseName
