@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	_ "net/http/pprof"
 
 	"github.com/giantswarm/microerror"
@@ -28,6 +30,10 @@ var (
 )
 
 func main() {
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	err := mainWithError()
 	if err != nil {
 		panic(fmt.Sprintf("%#v\n", err))
