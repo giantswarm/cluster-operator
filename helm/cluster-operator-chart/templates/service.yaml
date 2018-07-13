@@ -9,6 +9,9 @@ metadata:
     prometheus.io/scrape: "true"
 spec:
   ports:
-  - port: 8000
+  - name: operator
+    port: 8000
+  - name: pprof
+    port: 6060
   selector:
     app: cluster-operator
