@@ -182,7 +182,7 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	err = h.InstallStableOperator("node-operator", "nodeconfig", e2etemplates.NodeOperatorChartValues)
+	err = h.InstallStableOperator("node-operator", "drainerconfig", e2etemplates.NodeOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
 	}
