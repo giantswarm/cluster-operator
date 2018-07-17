@@ -209,7 +209,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v5ResourceSet,
 				v6ResourceSet,
 			},
-			RESTClient: config.G8sClient.ProviderV1alpha1().RESTClient(),
+			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
 			Name: config.ProjectName,
 		}
