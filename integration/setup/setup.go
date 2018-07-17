@@ -128,6 +128,8 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		switch authority.Name {
 		case "aws-operator":
 			os.Setenv("AWSOP_VERSION_BUNDLE_VERSION", authority.Version)
+			// next env var is required by aws-operator templates.
+			os.Setenv("VERSION_BUNDLE_VERSION", authority.Version)
 		case "cluster-operator":
 			os.Setenv("CLOP_VERSION_BUNDLE_VERSION", authority.Version)
 		case "cert-operator":
