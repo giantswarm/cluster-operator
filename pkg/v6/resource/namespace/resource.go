@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apiv1 "k8s.io/api/core/v1"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v6/key"
-	"github.com/giantswarm/guestcluster"
 )
 
 const (

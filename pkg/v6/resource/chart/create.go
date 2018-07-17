@@ -7,12 +7,11 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/helm/pkg/helm"
-
-	"github.com/giantswarm/guestcluster"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {

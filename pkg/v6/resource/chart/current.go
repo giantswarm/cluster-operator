@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-
-	"github.com/giantswarm/guestcluster"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.
