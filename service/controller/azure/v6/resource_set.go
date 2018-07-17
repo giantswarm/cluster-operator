@@ -130,6 +130,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := guestcluster.Config{
 			CertsSearcher: config.CertSearcher,
 			Logger:        config.Logger,
+
+			CertID: certs.ClusterOperatorAPICert,
 		}
 
 		guestClusterService, err = guestcluster.New(c)

@@ -124,11 +124,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestClusterService *guestcluster.Service
+	var guestClusterService guestcluster.Interface
 	{
 		c := guestcluster.Config{
 			CertsSearcher: config.CertSearcher,
 			Logger:        config.Logger,
+
+			CertID: certs.ClusterOperatorAPICert,
 		}
 
 		guestClusterService, err = guestcluster.New(c)
