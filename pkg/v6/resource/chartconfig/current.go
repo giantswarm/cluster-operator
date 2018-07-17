@@ -21,7 +21,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the guest cluster")
 
 	guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
-	if guestcluster.IsNotFound(err) {
+	if guestcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the cluster-operator api cert in the Kubernetes API")
 
 		// We can't continue without the cert. We will retry during the next
