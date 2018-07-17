@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
+	"github.com/giantswarm/guestcluster"
 )
 
 // Config represents the configuration used to create a new configmap service.

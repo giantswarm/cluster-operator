@@ -14,8 +14,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v6/key"
+	"github.com/giantswarm/guestcluster"
 )
 
 const (
