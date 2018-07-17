@@ -3,6 +3,7 @@
 package env
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -24,7 +25,7 @@ func init() {
 	// breaking the initialization behaviour.
 	clusterID = os.Getenv(EnvVarClusterID)
 	if clusterID == "" {
-		os.Setenv(EnvVarClusterID, ClusterID())
+		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarClusterID))
 	}
 }
 
