@@ -86,9 +86,10 @@ func init() {
 
 	token := os.Getenv(EnvVarGithubBotToken)
 	params := &framework.VBVParams{
-		Provider: "aws",
-		Token:    token,
-		VType:    TestedVersion(),
+		Component: "cluster-operator",
+		Provider:  "aws",
+		Token:     token,
+		VType:     TestedVersion(),
 	}
 	versionBundleVersion, err = framework.GetVersionBundleVersion(params)
 	if err != nil {
