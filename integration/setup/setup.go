@@ -3,7 +3,6 @@
 package setup
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -129,17 +128,12 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		switch authority.Name {
 		case "aws-operator":
 			os.Setenv("AWSOP_VERSION_BUNDLE_VERSION", authority.Version)
-			// next env var is required by aws-operator templates.
-			os.Setenv("VERSION_BUNDLE_VERSION", authority.Version)
 		case "cluster-operator":
 			os.Setenv("CLOP_VERSION_BUNDLE_VERSION", authority.Version)
 		case "cert-operator":
 			os.Setenv("CERTOP_VERSION_BUNDLE_VERSION", authority.Version)
 		}
 	}
-
-	clusterName := fmt.Sprintf("ci-clop-%s-%s", os.Getenv("TESTED_VERSION"), os.Getenv("CIRCLE_SHA1")[0:5])
-	os.Setenv("CLUSTER_NAME", clusterName)
 
 	err = hostPeerVPC(c)
 	if err != nil {
