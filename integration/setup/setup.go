@@ -3,7 +3,6 @@
 package setup
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -21,6 +20,7 @@ import (
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/integration/env"
 	"github.com/giantswarm/cluster-operator/integration/teardown"
 	"github.com/giantswarm/cluster-operator/integration/template"
 )
@@ -34,10 +34,9 @@ const (
 func hostPeerVPC(c *awsclient.Client) error {
 	log.Printf("Creating Host Peer VPC stack")
 
-	clusterID := os.Getenv("CLUSTER_NAME")
-	os.Setenv("AWS_ROUTE_TABLE_0", clusterID+"_0")
-	os.Setenv("AWS_ROUTE_TABLE_1", clusterID+"_1")
-	stackName := "host-peer-" + clusterID
+	os.Setenv("AWS_ROUTE_TABLE_0", env.ClusterID()+"_0")
+	os.Setenv("AWS_ROUTE_TABLE_1", env.ClusterID()+"_1")
+	stackName := "host-peer-" + env.ClusterID()
 	stackInput := &cloudformation.CreateStackInput{
 		StackName:        aws.String(stackName),
 		TemplateBody:     aws.String(os.ExpandEnv(e2etemplates.AWSHostVPCStack)),
@@ -138,9 +137,6 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		}
 	}
 
-	clusterName := fmt.Sprintf("ci-clop-%s-%s", os.Getenv("TESTED_VERSION"), os.Getenv("CIRCLE_SHA1")[0:5])
-	os.Setenv("CLUSTER_NAME", clusterName)
-
 	err = hostPeerVPC(c)
 	if err != nil {
 		log.Printf("%#v\n", err)
@@ -182,7 +178,7 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	err = h.InstallStableOperator("node-operator", "nodeconfig", e2etemplates.NodeOperatorChartValues)
+	err = h.InstallStableOperator("node-operator", "drainerconfig", e2etemplates.NodeOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
 	}

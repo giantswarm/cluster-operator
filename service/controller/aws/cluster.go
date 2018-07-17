@@ -194,10 +194,13 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	var resourceRouter *controller.ResourceRouter
+	var clusterController *controller.Controller
 	{
-		c := controller.ResourceRouterConfig{
-			Logger: config.Logger,
+		c := controller.Config{
+			CRD:       v1alpha1.NewAWSClusterConfigCRD(),
+			CRDClient: crdClient,
+			Informer:  newInformer,
+			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
 				v1ResourceSet,
 				v2ResourceSet,
@@ -206,23 +209,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v5ResourceSet,
 				v6ResourceSet,
 			},
-		}
-
-		resourceRouter, err = controller.NewResourceRouter(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterController *controller.Controller
-	{
-		c := controller.Config{
-			CRD:            v1alpha1.NewAWSClusterConfigCRD(),
-			CRDClient:      crdClient,
-			Informer:       newInformer,
-			Logger:         config.Logger,
-			ResourceRouter: resourceRouter,
-			RESTClient:     config.G8sClient.CoreV1alpha1().RESTClient(),
+			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
 			Name: config.ProjectName,
 		}
