@@ -61,6 +61,10 @@ required = [
 
 [[constraint]]
   branch = "master"
+  name = "github.com/giantswarm/guestcluster"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
