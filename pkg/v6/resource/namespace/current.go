@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -12,7 +13,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v6/key"
 )
 
@@ -31,7 +31,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	guestK8sClient, err := r.getGuestK8sClient(ctx, obj)
-	if guestcluster.IsNotFound(err) {
+	if guestcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the guest cluster")
 
 		// We can't continue without a K8s client. We will retry during the

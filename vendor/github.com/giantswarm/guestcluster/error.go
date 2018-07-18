@@ -11,9 +11,9 @@ func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
-var notFoundError = microerror.New("not found")
+var timeoutError = microerror.New("timeout")
 
-// IsNotFound asserts notFoundError.
-func IsNotFound(err error) bool {
-	return microerror.Cause(err) == notFoundError
+// IsTimeout asserts timeoutError.
+func IsTimeout(err error) bool {
+	return microerror.Cause(err) == timeoutError
 }

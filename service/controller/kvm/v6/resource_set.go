@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -19,7 +20,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v6/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v6/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chartconfig"
@@ -124,11 +124,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestClusterService *guestcluster.Service
+	var guestClusterService guestcluster.Interface
 	{
 		c := guestcluster.Config{
 			CertsSearcher: config.CertSearcher,
 			Logger:        config.Logger,
+
+			CertID: certs.ClusterOperatorAPICert,
 		}
 
 		guestClusterService, err = guestcluster.New(c)

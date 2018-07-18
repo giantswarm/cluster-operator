@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	tillerDefaultNamespace = "giantswarm"
+	TillerDefaultNamespace = "giantswarm"
 )
 
 type Interface interface {

@@ -4,17 +4,16 @@ import (
 	"context"
 
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if guestcluster.IsNotFound(err) {
+	if guestcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
 		// We can't continue without a Helm client. We will retry during the

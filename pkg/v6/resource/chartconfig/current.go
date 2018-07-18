@@ -6,12 +6,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 )
 
 // GetCurrentState returns the ChartConfig resources present in the guest
@@ -21,7 +20,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the guest cluster")
 
 	guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
-	if guestcluster.IsNotFound(err) {
+	if guestcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the cluster-operator api cert in the Kubernetes API")
 
 		// We can't continue without the cert. We will retry during the next

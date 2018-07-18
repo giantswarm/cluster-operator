@@ -7,12 +7,11 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"k8s.io/helm/pkg/helm"
-
-	"github.com/giantswarm/cluster-operator/pkg/v6/guestcluster"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
@@ -22,7 +21,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if guestcluster.IsNotFound(err) {
+	if guestcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
 		// A not found error here means that the cluster-operator certificate for
