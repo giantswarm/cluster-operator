@@ -12,6 +12,8 @@ import (
 
 // GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator chart in the guest cluster")
+
 	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
 	if guestcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
@@ -19,7 +21,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// We can't continue without a Helm client. We will retry during the
 		// next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil, nil
 	} else if guest.IsAPINotAvailable(err) {
@@ -28,7 +30,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// We can't continue without a successful K8s connection. Cluster
 		// may not be up yet. We will retry during the next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil, nil
 	} else if err != nil {
@@ -45,7 +47,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// We can't continue without a successful K8s connection. Cluster
 		// may not be up yet. We will retry during the next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil, nil
 	} else if err != nil {
