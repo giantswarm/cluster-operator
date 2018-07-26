@@ -25,8 +25,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Guest cluster namespace is not deleted so cancel the reconcilation. The
 	// namespace will be deleted when the guest cluster resources are deleted.
 	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling namespace deletion: deleted with the guest cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting namespace deletion to provider operators")
 		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
 		return nil, nil
 	}
 
@@ -37,7 +39,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// We can't continue without a K8s client. We will retry during the
 		// next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 		return nil, nil
 	} else if err != nil {
@@ -59,7 +61,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			// We can't continue without a successful K8s connection. Cluster
 			// may not be up yet. We will retry during the next execution.
 			reconciliationcanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation for custom object")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 			return nil, nil
 
