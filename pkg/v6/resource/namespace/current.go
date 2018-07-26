@@ -25,7 +25,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Guest cluster namespace is not deleted so cancel the reconcilation. The
 	// namespace will be deleted when the guest cluster resources are deleted.
 	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirect namespace deletion to provider operators")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting namespace deletion to provider operators")
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
