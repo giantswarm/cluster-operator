@@ -35,7 +35,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		// We can't continue without a successful K8s connection. Cluster
 		// may not be up yet. We will retry during the next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 		return nil, nil
 	} else if err != nil {

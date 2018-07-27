@@ -37,7 +37,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 				// We should not hammer guest API if it is not available, the guest cluster
 				// might be initializing. We will retry on next reconciliation loop.
 				resourcecanceledcontext.SetCanceled(ctx)
-				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource reconciliation for custom object")
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 				return nil
 			} else if err != nil {
