@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "nginx-ingress-controller",
-				Description: "Disable HSTS headers.",
+				Description: "Disabled HSTS headers.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
