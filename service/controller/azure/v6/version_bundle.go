@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Add your changes here",
+				Component:   "nginx-ingress-controller",
+				Description: "Disabled HSTS headers.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
