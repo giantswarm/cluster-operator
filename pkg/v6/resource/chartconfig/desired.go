@@ -68,7 +68,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterConfig cluster.Config) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-nginx-ingress-controller-chart"
-	channelName := "0-1-stable"
+	channelName := "0-2-stable"
 	configMapName := "nginx-ingress-controller-values"
 	releaseName := "nginx-ingress-controller"
 	labels := newChartConfigLabels(clusterConfig, releaseName, r.projectName)
