@@ -57,6 +57,10 @@ func (h *helmMock) DeleteRelease(releaseName string, options ...helm.DeleteOptio
 	return nil
 }
 
+func (h *helmMock) EnsureTillerInstalled() error {
+	return nil
+}
+
 func (h *helmMock) GetReleaseContent(releaseName string) (*helmclient.ReleaseContent, error) {
 	if h.defaultError != nil {
 		return nil, h.defaultError
@@ -77,10 +81,10 @@ func (h *helmMock) InstallFromTarball(path, ns string, options ...helm.InstallOp
 	return nil
 }
 
-func (h *helmMock) UpdateReleaseFromTarball(releaseName, path string, options ...helm.UpdateOption) error {
+func (h *helmMock) RunReleaseTest(releaseName string, options ...helm.ReleaseTestOption) error {
 	return nil
 }
 
-func (h *helmMock) EnsureTillerInstalled() error {
+func (h *helmMock) UpdateReleaseFromTarball(releaseName, path string, options ...helm.UpdateOption) error {
 	return nil
 }
