@@ -77,6 +77,10 @@ func (h *helmMock) InstallFromTarball(path, ns string, options ...helm.InstallOp
 	return nil
 }
 
+func (h *helmMock) RunReleaseTest(releaseName string, options ...helm.ReleaseTestOption) error {
+	return nil
+}
+
 func (h *helmMock) UpdateReleaseFromTarball(releaseName, path string, options ...helm.UpdateOption) error {
 	return nil
 }
