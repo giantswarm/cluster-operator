@@ -4,14 +4,18 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-var emptyChartConfigListError = microerror.New("empty chart config list")
+var emptyChartConfigListError = &microerror.Error{
+	Kind: "emptyChartConfigListError",
+}
 
 // IsEmptyChartConfigList asserts emptyChartConfigListError.
 func IsEmptyChartConfigList(err error) bool {
 	return microerror.Cause(err) == emptyChartConfigListError
 }
 
-var releaseStatusNotMatchingError = microerror.New("release status not matching")
+var releaseStatusNotMatchingError = &microerror.Error{
+	Kind: "releaseStatusNotMatchingError",
+}
 
 // IsReleaseStatusNotMatching asserts releaseStatusNotMatchingError
 func IsReleaseStatusNotMatching(err error) bool {
