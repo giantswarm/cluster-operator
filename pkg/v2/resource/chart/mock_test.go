@@ -27,6 +27,10 @@ func (a *apprMock) PullChartTarball(name, channel string) (string, error) {
 	return "", nil
 }
 
+func (a *apprMock) PullChartTarballFromRelease(name, release string) (string, error) {
+	return "", nil
+}
+
 type guestMock struct {
 	fakeGuestG8sClient  versioned.Interface
 	fakeGuestHelmClient helmclient.Interface

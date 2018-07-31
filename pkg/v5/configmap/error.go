@@ -4,14 +4,18 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
-var invalidConfigError = microerror.New("invalid config")
+var invalidConfigError = &microerror.Error{
+	Kind: "invalidConfigError",
+}
 
 // IsInvalidConfig asserts invalidConfigError.
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
-var notFoundError = microerror.New("not found")
+var notFoundError = &microerror.Error{
+	Kind: "notFoundError",
+}
 
 // IsNotFound asserts notFoundError.
 func IsNotFound(err error) bool {
