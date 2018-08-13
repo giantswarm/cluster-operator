@@ -47,8 +47,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 
-	// Only enable Ingress Controller for Azure.
-	if r.provider == label.ProviderAzure {
+	// Enable Ingress Controller for Azure and AWS.
+	if r.provider == label.ProviderAzure || r.provider == label.ProviderAWS {
 		chartConfig, err := r.newIngressControllerChartConfig(ctx, clusterConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
