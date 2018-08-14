@@ -31,6 +31,5 @@ type ConfigMapValues struct {
 	ClusterID                         string
 	Organization                      string
 	IngressControllerMigrationEnabled bool
-	IngressControllerServiceEnabled   bool
 	WorkerCount                       int
 }

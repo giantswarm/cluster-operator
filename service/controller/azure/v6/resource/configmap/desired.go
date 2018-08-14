@@ -21,11 +21,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ClusterID: key.ClusterID(clusterGuestConfig),
 		// Migration is disabled because Azure is already migrated.
 		IngressControllerMigrationEnabled: false,
-		// Controller Service is enabled because it is created by the chart not
-		// by k8scloudconfig.
-		IngressControllerServiceEnabled: true,
-		Organization:                    key.ClusterOrganization(clusterGuestConfig),
-		WorkerCount:                     azurekey.WorkerCount(customObject),
+		Organization:                      key.ClusterOrganization(clusterGuestConfig),
+		WorkerCount:                       azurekey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)
 	if err != nil {

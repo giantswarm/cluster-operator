@@ -18,69 +18,54 @@ const (
 	basicMatchJSON = `
 	{
 		"controller": {
-			"replicas": 3,
-			"image": {
-				"registry": "quay.io"
-			},
-			"service": {
-				"enabled": true
-			}
+			"replicas": 3
 		},
 		"global": {
 			"controller": {
 				"replicas": 3
 			},
 			"migration": {
-				"job": {
-					"enabled": true
-				}
+				"enabled": true
 			}
+		},
+		"image": {
+			"registry": "quay.io"
 		}
 	}	
 	`
 	differentWorkerCountJSON = `
 	{
 		"controller": {
-			"replicas": 7,
-			"image": {
-				"registry": "quay.io"
-			},
-			"service": {
-				"enabled": true
-			}
+			"replicas": 7
 		},
 		"global": {
 			"controller": {
 				"replicas": 7
 			},
 			"migration": {
-				"job": {
-					"enabled": true
-				}
+				"enabled": true
 			}
+		},
+		"image": {
+			"registry": "quay.io"
 		}
 	}	
 	`
 	differentSettingsJSON = `
 	{
 		"controller": {
-			"replicas": 3,
-			"image": {
-				"registry": "quay.io"
-			},
-			"service": {
-				"enabled": false
-			}
+			"replicas": 3
 		},
 		"global": {
 			"controller": {
 				"replicas": 3
 			},
 			"migration": {
-				"job": {
-					"enabled": true
-				}
+				"enabled": false
 			}
+		},
+		"image": {
+			"registry": "quay.io"
 		}
 	}	
 	`
@@ -97,7 +82,6 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: true,
-				IngressControllerServiceEnabled:   true,
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},
@@ -158,7 +142,6 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				ClusterID:                         "5xchu",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
-				IngressControllerServiceEnabled:   true,
 				WorkerCount:                       7,
 			},
 			expectedConfigMaps: []*corev1.ConfigMap{
@@ -216,8 +199,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			name: "case 2: different ingress controller settings",
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerServiceEnabled:   false,
+				IngressControllerMigrationEnabled: false,
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},

@@ -23,10 +23,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		// Migration is enabled so existing k8scloudconfig resources are
 		// replaced.
 		IngressControllerMigrationEnabled: true,
-		// Controller Service is disabled because it is created by
-		// k8scloudconfig during the migration process.
-		IngressControllerServiceEnabled: false,
-		WorkerCount:                     kvmkey.WorkerCount(customObject),
+		WorkerCount:                       kvmkey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)
 	if err != nil {

@@ -24,12 +24,7 @@ type IngressController struct {
 }
 
 type IngressControllerController struct {
-	Replicas int                                `json:"replicas"`
-	Service  IngressControllerControllerService `json:"service"`
-}
-
-type IngressControllerControllerService struct {
-	Enabled bool `json:"enabled"`
+	Replicas int `json:"replicas"`
 }
 
 type IngressControllerGlobal struct {
@@ -42,10 +37,6 @@ type IngressControllerGlobalController struct {
 }
 
 type IngressControllerGlobalMigration struct {
-	Job IngressControllerGlobalMigrationJob `json:"job"`
-}
-
-type IngressControllerGlobalMigrationJob struct {
 	Enabled bool `json:"enabled"`
 }
 
@@ -81,21 +72,13 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
-			Image: Image{
-				Registry: s.registryDomain,
-			},
-			Service: IngressControllerControllerService{
-				Enabled: configMapValues.IngressControllerServiceEnabled,
-			},
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
 				Replicas: configMapValues.WorkerCount,
 			},
 			Migration: IngressControllerGlobalMigration{
-				Job: IngressControllerGlobalMigrationJob{
-					Enabled: configMapValues.IngressControllerMigrationEnabled,
-				},
+				Enabled: configMapValues.IngressControllerMigrationEnabled,
 			},
 		},
 		Image: Image{
