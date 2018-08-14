@@ -10,7 +10,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "cluster-operator",
 				Description: "Added monitoring for charts managed by chart-operator.",
-				Kind:        versionbundle.KindChanged,
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
