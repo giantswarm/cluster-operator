@@ -20,10 +20,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	configMapValues := configmap.ConfigMapValues{
 		ClusterID:    key.ClusterID(clusterGuestConfig),
 		Organization: key.ClusterOrganization(clusterGuestConfig),
-		// TODO Better comments and issue.
+		// Migration is enabled so existing k8scloudconfig resources are
+		// replaced.
 		IngressControllerMigrationEnabled: true,
-		IngressControllerServiceEnabled:   false,
-		WorkerCount:                       awskey.WorkerCount(customObject),
+		// Controller Service is disabled because it is created by
+		// k8scloudconfig during the migration process.
+		IngressControllerServiceEnabled: false,
+		WorkerCount:                     awskey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)
 	if err != nil {
