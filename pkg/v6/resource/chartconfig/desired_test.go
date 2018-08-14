@@ -35,6 +35,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			expectedChartConfigNames: []string{
 				"kubernetes-node-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-nginx-ingress-controller-chart",
 			},
 		},
 		{

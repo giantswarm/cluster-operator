@@ -20,7 +20,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	configMapValues := configmap.ConfigMapValues{
 		ClusterID:    key.ClusterID(clusterGuestConfig),
 		Organization: key.ClusterOrganization(clusterGuestConfig),
-		WorkerCount:  awskey.WorkerCount(customObject),
+		// TODO Better comments and issue.
+		IngressControllerMigrationEnabled: true,
+		IngressControllerServiceEnabled:   false,
+		WorkerCount:                       awskey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)
 	if err != nil {

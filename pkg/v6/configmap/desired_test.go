@@ -20,9 +20,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		{
 			name: "case 0: basic match",
 			configMapValues: ConfigMapValues{
-				ClusterID:    "5xchu",
-				Organization: "giantswarm",
-				WorkerCount:  3,
+				ClusterID:                         "5xchu",
+				IngressControllerMigrationEnabled: true,
+				IngressControllerServiceEnabled:   true,
+				Organization:                      "giantswarm",
+				WorkerCount:                       3,
 			},
 			expectedConfigMaps: []*corev1.ConfigMap{
 				&corev1.ConfigMap{
@@ -38,7 +40,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": "{\"controller\":{\"replicas\":3,\"image\":{\"registry\":\"quay.io\"}}}",
+						"values.json": "{\"controller\":{\"replicas\":3,\"image\":{\"registry\":\"quay.io\"},\"service\":{\"enabled\":true}},\"global\":{\"controller\":{\"replicas\":3},\"migration\":{\"job\":{\"enabled\":true}}}}",
 					},
 				},
 				&corev1.ConfigMap{
@@ -78,9 +80,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		{
 			name: "case 1: different worker count",
 			configMapValues: ConfigMapValues{
-				ClusterID:    "5xchu",
-				Organization: "giantswarm",
-				WorkerCount:  7,
+				ClusterID:                         "5xchu",
+				IngressControllerMigrationEnabled: true,
+				IngressControllerServiceEnabled:   true,
+				Organization:                      "giantswarm",
+				WorkerCount:                       7,
 			},
 			expectedConfigMaps: []*corev1.ConfigMap{
 				&corev1.ConfigMap{
@@ -96,7 +100,67 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": "{\"controller\":{\"replicas\":7,\"image\":{\"registry\":\"quay.io\"}}}",
+						"values.json": "{\"controller\":{\"replicas\":7,\"image\":{\"registry\":\"quay.io\"},\"service\":{\"enabled\":true}},\"global\":{\"controller\":{\"replicas\":7},\"migration\":{\"job\":{\"enabled\":true}}}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kube-state-metrics-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "kube-state-metrics",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "node-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "node-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+			},
+		},
+		{
+			name: "case 2: different ingress controller settings",
+			configMapValues: ConfigMapValues{
+				ClusterID:                         "5xchu",
+				IngressControllerMigrationEnabled: true,
+				IngressControllerServiceEnabled:   false,
+				Organization:                      "giantswarm",
+				WorkerCount:                       3,
+			},
+			expectedConfigMaps: []*corev1.ConfigMap{
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "nginx-ingress-controller-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "nginx-ingress-controller",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"controller\":{\"replicas\":3,\"image\":{\"registry\":\"quay.io\"},\"service\":{\"enabled\":false}},\"global\":{\"controller\":{\"replicas\":3},\"migration\":{\"job\":{\"enabled\":true}}}}",
 					},
 				},
 				&corev1.ConfigMap{
