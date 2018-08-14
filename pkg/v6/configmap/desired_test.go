@@ -69,7 +69,7 @@ const (
 				"registry": "quay.io"
 			},
 			"service": {
-				"enabled": true
+				"enabled": false
 			}
 		},
 		"global": {
@@ -78,7 +78,7 @@ const (
 			},
 			"migration": {
 				"job": {
-					"enabled": false
+					"enabled": true
 				}
 			}
 		}
