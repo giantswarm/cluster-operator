@@ -69,8 +69,8 @@
 [[projects]]
   name = "github.com/cenkalti/backoff"
   packages = ["."]
-  revision = "61153c768f31ee5f130071d08fc82b85208528de"
-  version = "v1.1.0"
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
 
 [[projects]]
   name = "github.com/coreos/go-semver"
@@ -188,18 +188,24 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/backoff"
+  packages = ["."]
+  revision = "889af437b4d98f8a1ccb66cb85b93de13d8c666e"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   revision = "e91f12dea59971a68d08a48479014e33d1b90540"
 
 [[projects]]
+  branch = "master"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
     "pkg/framework",
     "pkg/harness"
   ]
-  revision = "0195240d6f11565e602721d796bd0ced9a972605"
-  version = "0195240"
+  revision = "e4b3a2c22571076a898e46873b392382507bd223"
 
 [[projects]]
   branch = "master"
@@ -306,7 +312,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "b549537227f0b5de6525ed65361a4bc660ba90c4"
+  revision = "cab216362f2654c41cafa849d273e09ee6277ce0"
 
 [[projects]]
   branch = "master"
@@ -1275,6 +1281,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e76bdf25ffb5a4afb6267bbdea44ac9803d02293bd00d84554b765a45ef801d2"
+  inputs-digest = "67d19ce1ee2c99cb9087755cd49938410cafdb79def3f46b61a23f00a19d4fd1"
   solver-name = "gps-cdcl"
   solver-version = 1
