@@ -20,11 +20,11 @@ type BasicConfigMap struct {
 type IngressController struct {
 	Controller IngressControllerController `json:"controller"`
 	Global     IngressControllerGlobal     `json:"global"`
+	Image      Image                       `json:"image"`
 }
 
 type IngressControllerController struct {
 	Replicas int                                `json:"replicas"`
-	Image    Image                              `json:"image"`
 	Service  IngressControllerControllerService `json:"service"`
 }
 
@@ -97,6 +97,9 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 					Enabled: configMapValues.IngressControllerMigrationEnabled,
 				},
 			},
+		},
+		Image: Image{
+			Registry: s.registryDomain,
 		},
 	}
 	json, err := json.Marshal(values)
