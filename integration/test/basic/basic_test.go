@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -56,13 +56,9 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		}
 		return nil
 	}
-	b := &backoff.ExponentialBackOff{
-		InitialInterval:     backoff.DefaultInitialInterval,
-		RandomizationFactor: backoff.DefaultRandomizationFactor,
-		Multiplier:          backoff.DefaultMultiplier,
-		MaxInterval:         backoff.DefaultMaxInterval,
-		MaxElapsedTime:      30 * time.Minute,
-		Clock:               backoff.SystemClock,
+	b := backoff.NewExponential{
+		MaxInterval:    60 * time.Second,
+		MaxElapsedTime: 30 * time.Minute,
 	}
 	n := func(err error, delay time.Duration) {
 		log.Printf("failed fetching release content %#v", err)

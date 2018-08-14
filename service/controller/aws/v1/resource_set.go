@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -96,10 +95,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	// Wrap resources with retry and metrics.
 	{
-		retryWrapConfig := retryresource.WrapConfig{}
-
-		retryWrapConfig.BackOffFactory = func() backoff.BackOff { return backoff.WithMaxTries(backoff.NewExponentialBackOff(), ResourceRetries) }
-		retryWrapConfig.Logger = config.Logger
+		retryWrapConfig := retryresource.WrapConfig{
+			Logger: config.Logger,
+		}
 
 		resources, err = retryresource.Wrap(resources, retryWrapConfig)
 		if err != nil {
