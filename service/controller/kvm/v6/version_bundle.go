@@ -9,12 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Set chart-operator channel to 0-2-stable.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Set ChartConfigs version bundle version to 0.3.0.",
+				Description: "Added monitoring for charts managed by chart-operator.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
