@@ -78,7 +78,7 @@ const (
 			},
 			"migration": {
 				"job": {
-					"enabled": true
+					"enabled": false
 				}
 			}
 		}
