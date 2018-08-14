@@ -95,11 +95,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	// Wrap resources with retry and metrics.
 	{
-		retryWrapConfig := retryresource.WrapConfig{
+		c := retryresource.WrapConfig{
 			Logger: config.Logger,
 		}
 
-		resources, err = retryresource.Wrap(resources, retryWrapConfig)
+		resources, err = retryresource.Wrap(resources, c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
