@@ -33,6 +33,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			},
 			provider: label.ProviderAWS,
 			expectedChartConfigNames: []string{
+				"kubernetes-nginx-ingress-controller-chart",
 				"kubernetes-node-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
 			},
