@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Added monitoring for charts managed by chart-operator.",
+				Component:   "chart-operator",
+				Description: "Added monitoring for managed charts.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
