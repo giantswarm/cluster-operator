@@ -59,6 +59,22 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
+						Name:      "net-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "net-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
 						Name:      "node-exporter-values",
 						Namespace: metav1.NamespaceSystem,
 						Labels: map[string]string{
@@ -113,6 +129,22 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					},
 					Data: map[string]string{
 						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "net-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "net-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
 					},
 				},
 				&corev1.ConfigMap{
