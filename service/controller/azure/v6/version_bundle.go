@@ -8,8 +8,13 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "nginx-ingress-controller",
-				Description: "Disabled HSTS headers.",
+				Component:   "cluster-operator",
+				Description: "Set chart-operator channel to 0-2-stable.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "cluster-operator",
+				Description: "Set ChartConfigs version bundle version to 0.3.0.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
