@@ -18,9 +18,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	clusterGuestConfig := azurekey.ClusterGuestConfig(customObject)
 	configMapValues := configmap.ConfigMapValues{
-		ClusterID:    key.ClusterID(clusterGuestConfig),
-		Organization: key.ClusterOrganization(clusterGuestConfig),
-		WorkerCount:  azurekey.WorkerCount(customObject),
+		ClusterID: key.ClusterID(clusterGuestConfig),
+		// Migration is disabled because Azure is already migrated.
+		IngressControllerMigrationEnabled: false,
+		Organization:                      key.ClusterOrganization(clusterGuestConfig),
+		WorkerCount:                       azurekey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)
 	if err != nil {
