@@ -267,7 +267,7 @@ func installAWSOperator(h *framework.Host) error {
 
 	}
 
-	err = h.InstallBranchOperator("aws-operator", "awsconfig", values)
+	err = h.InstallStableOperator("aws-operator", "awsconfig", values)
 	if err != nil {
 		return microerror.Mask(err)
 	}
