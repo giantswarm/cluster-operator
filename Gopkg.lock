@@ -216,7 +216,11 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/e2etemplates"
-  packages = ["pkg/e2etemplates"]
+  packages = [
+    "internal/render",
+    "pkg/chartvalues",
+    "pkg/e2etemplates"
+  ]
   revision = "2d78ba87e4847f916732d40333b5bebd36274417"
 
 [[projects]]
@@ -1283,6 +1287,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "60b19e34a2332629073810b948d7117f943ffa37c89fb355d9b564273b686cc2"
+  inputs-digest = "ca2fc646e17dd9aa0da879b2df5dfe012984a92819b9f42a00890d50216291b6"
   solver-name = "gps-cdcl"
   solver-version = 1
