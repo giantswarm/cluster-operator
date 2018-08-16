@@ -45,6 +45,10 @@ type Image struct {
 	Registry string `json:"registry"`
 }
 
+type CertExporter struct {
+	Namespace string `json:"namespace"`
+}
+
 type NetExporter struct {
 	Namespace string `json:"namespace"`
 }
@@ -53,6 +57,7 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapValues ConfigMap
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
 
 	generators := []configMapGenerator{
+		s.newCertExporterConfigMap,
 		s.newIngressControllerConfigMap,
 		s.newKubeStateMetricsConfigMap,
 		s.newNetExporterConfigMap,
@@ -68,6 +73,34 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapValues ConfigMap
 	}
 
 	return desiredConfigMaps, nil
+}
+
+func (s *Service) newCertExporterConfigMap(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
+	configMapName := "cert-exporter-values"
+	appName := "cert-exporter"
+	labels := newConfigMapLabels(configMapValues, appName, projectName)
+
+	values := CertExporter{
+		Namespace: apismetav1.NamespaceSystem,
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	data := map[string]string{
+		"values.json": string(json),
+	}
+
+	newConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapName,
+			Namespace: metav1.NamespaceSystem,
+			Labels:    labels,
+		},
+		Data: data,
+	}
+
+	return newConfigMap, nil
 }
 
 func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
