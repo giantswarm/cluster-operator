@@ -23,6 +23,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		// Migration is enabled so existing k8scloudconfig resources are
 		// replaced.
 		IngressControllerMigrationEnabled: true,
+		IngressControllerUseProxyProtocol: false,
 		WorkerCount:                       kvmkey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)

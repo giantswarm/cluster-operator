@@ -21,6 +21,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		ClusterID: key.ClusterID(clusterGuestConfig),
 		// Migration is disabled because Azure is already migrated.
 		IngressControllerMigrationEnabled: false,
+		IngressControllerUseProxyProtocol: false,
 		Organization:                      key.ClusterOrganization(clusterGuestConfig),
 		WorkerCount:                       azurekey.WorkerCount(customObject),
 	}
