@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -135,7 +134,7 @@ func (s *Service) newNetExporterConfigMap(ctx context.Context, configMapValues C
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
 
 	values := NetExporter{
-		Namespace: apismetav1.NamespaceSystem,
+		Namespace: metav1.NamespaceSystem,
 	}
 	json, err := json.Marshal(values)
 	if err != nil {
