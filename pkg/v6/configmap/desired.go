@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -54,11 +55,16 @@ type NetExporter struct {
 	Namespace string `json:"namespace"`
 }
 
-func (s *Service) GetDesiredState(ctx context.Context, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
+func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
 
+	configMap, err := s.newIngressControllerConfigMap(ctx, configMapConfig, configMapValues, s.projectName)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	desiredConfigMaps = append(desiredConfigMaps, configMap)
 	generators := []configMapGenerator{
-		s.newIngressControllerConfigMap,
 		s.newKubeStateMetricsConfigMap,
 		s.newNetExporterConfigMap,
 		s.newNodeExporterConfigMap,
@@ -75,7 +81,7 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapValues ConfigMap
 	return desiredConfigMaps, nil
 }
 
-func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
+func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
 	configMapName := "nginx-ingress-controller-values"
 	appName := "nginx-ingress-controller"
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
@@ -83,6 +89,19 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 	// controllerServiceEnabled needs to be set separately for the chart
 	// migration logic but is the reverse of migration enabled.
 	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+
+	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
+	if migrationEnabled {
+		releaseExists, err := s.checkHelmReleaseExists(ctx, appName, configMapConfig)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		// Release exists so don't repeat the migration process.
+		if releaseExists {
+			migrationEnabled = false
+		}
+	}
 
 	values := IngressController{
 		Controller: IngressControllerController{
@@ -97,7 +116,7 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
-				Enabled: configMapValues.IngressControllerMigrationEnabled,
+				Enabled: migrationEnabled,
 			},
 		},
 		Image: Image{
@@ -187,6 +206,22 @@ func (s *Service) newBasicConfigMap(ctx context.Context, configMapValues ConfigM
 	}
 
 	return newConfigMap, nil
+}
+
+func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, configMapConfig ConfigMapConfig) (bool, error) {
+	guestHelmClient, err := s.guest.NewHelmClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	_, err = guestHelmClient.GetReleaseContent(releaseName)
+	if helmclient.IsReleaseNotFound(err) {
+		return false, nil
+	} else if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	return true, nil
 }
 
 func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
