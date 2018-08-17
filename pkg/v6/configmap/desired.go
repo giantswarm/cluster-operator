@@ -25,7 +25,12 @@ type IngressController struct {
 }
 
 type IngressControllerController struct {
-	Replicas int `json:"replicas"`
+	Replicas int                                `json:"replicas"`
+	Service  IngressControllerControllerService `json:"service"`
+}
+
+type IngressControllerControllerService struct {
+	Enabled bool `json:"enabled"`
 }
 
 type IngressControllerGlobal struct {
@@ -76,9 +81,16 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 	appName := "nginx-ingress-controller"
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
 
+	// controllerServiceEnabled needs to be set separately for the chart
+	// migration logic but is the reverse of migration enabled.
+	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
+			Service: IngressControllerControllerService{
+				Enabled: controllerServiceEnabled,
+			},
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{

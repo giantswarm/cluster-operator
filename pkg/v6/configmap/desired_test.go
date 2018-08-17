@@ -18,7 +18,10 @@ const (
 	basicMatchJSON = `
 	{
 		"controller": {
-			"replicas": 3
+			"replicas": 3,
+			"service": {
+				"enabled": false
+			}
 		},
 		"global": {
 			"controller": {
@@ -37,7 +40,10 @@ const (
 	differentWorkerCountJSON = `
 	{
 		"controller": {
-			"replicas": 7
+			"replicas": 7,
+			"service": {
+				"enabled": false
+			}
 		},
 		"global": {
 			"controller": {
@@ -56,7 +62,10 @@ const (
 	differentSettingsJSON = `
 	{
 		"controller": {
-			"replicas": 3
+			"replicas": 3,
+			"service": {
+				"enabled": true
+			}
 		},
 		"global": {
 			"controller": {
