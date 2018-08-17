@@ -22,7 +22,8 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3
+				"replicas": 3,
+				"useProxyProtocol": true
 			},
 			"migration": {
 				"enabled": true
@@ -40,7 +41,8 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 7
+				"replicas": 7,
+				"useProxyProtocol": true
 			},
 			"migration": {
 				"enabled": true
@@ -58,7 +60,8 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3
+				"replicas": 3,
+				"useProxyProtocol": false
 			},
 			"migration": {
 				"enabled": false
@@ -82,6 +85,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},
@@ -142,6 +146,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				ClusterID:                         "5xchu",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
 				WorkerCount:                       7,
 			},
 			expectedConfigMaps: []*corev1.ConfigMap{
@@ -200,6 +205,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: false,
+				IngressControllerUseProxyProtocol: false,
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},

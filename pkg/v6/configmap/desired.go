@@ -33,7 +33,8 @@ type IngressControllerGlobal struct {
 }
 
 type IngressControllerGlobalController struct {
-	Replicas int `json:"replicas"`
+	Replicas         int  `json:"replicas"`
+	UseProxyProtocol bool `json:"useProxyProtocol"`
 }
 
 type IngressControllerGlobalMigration struct {
@@ -75,7 +76,8 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				Replicas: configMapValues.WorkerCount,
+				Replicas:         configMapValues.WorkerCount,
+				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
 				Enabled: configMapValues.IngressControllerMigrationEnabled,
