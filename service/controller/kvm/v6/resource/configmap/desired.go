@@ -23,6 +23,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		// Migration is enabled so existing k8scloudconfig resources are
 		// replaced.
 		IngressControllerMigrationEnabled: true,
+		// Proxy protocol is disabled for KVM clusters.
 		IngressControllerUseProxyProtocol: false,
 		WorkerCount:                       kvmkey.WorkerCount(customObject),
 	}
