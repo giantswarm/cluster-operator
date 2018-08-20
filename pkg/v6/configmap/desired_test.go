@@ -81,6 +81,28 @@ const (
 		}
 	}
 	`
+	ingressMigratedSettingsJSON = `
+	{
+		"controller": {
+			"replicas": 3,
+			"service": {
+				"enabled": false
+			}
+		},
+		"global": {
+			"controller": {
+				"replicas": 3,
+				"useProxyProtocol": false
+			},
+			"migration": {
+				"enabled": false
+			}
+		},
+		"image": {
+			"registry": "quay.io"
+		}
+	}
+	`
 )
 
 func Test_ConfigMap_GetDesiredState(t *testing.T) {
@@ -365,7 +387,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						},
 					},
 					Data: map[string]string{
-						"values.json": differentSettingsJSON,
+						"values.json": ingressMigratedSettingsJSON,
 					},
 				},
 				&corev1.ConfigMap{
