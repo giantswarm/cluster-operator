@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -25,7 +24,12 @@ type IngressController struct {
 }
 
 type IngressControllerController struct {
-	Replicas int `json:"replicas"`
+	Replicas int                                `json:"replicas"`
+	Service  IngressControllerControllerService `json:"service"`
+}
+
+type IngressControllerControllerService struct {
+	Enabled bool `json:"enabled"`
 }
 
 type IngressControllerGlobal struct {
@@ -34,7 +38,8 @@ type IngressControllerGlobal struct {
 }
 
 type IngressControllerGlobalController struct {
-	Replicas int `json:"replicas"`
+	Replicas         int  `json:"replicas"`
+	UseProxyProtocol bool `json:"useProxyProtocol"`
 }
 
 type IngressControllerGlobalMigration struct {
@@ -75,13 +80,21 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 	appName := "nginx-ingress-controller"
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
 
+	// controllerServiceEnabled needs to be set separately for the chart
+	// migration logic but is the reverse of migration enabled.
+	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
+			Service: IngressControllerControllerService{
+				Enabled: controllerServiceEnabled,
+			},
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				Replicas: configMapValues.WorkerCount,
+				Replicas:         configMapValues.WorkerCount,
+				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
 				Enabled: configMapValues.IngressControllerMigrationEnabled,
@@ -121,7 +134,7 @@ func (s *Service) newNetExporterConfigMap(ctx context.Context, configMapValues C
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
 
 	values := NetExporter{
-		Namespace: apismetav1.NamespaceSystem,
+		Namespace: metav1.NamespaceSystem,
 	}
 	json, err := json.Marshal(values)
 	if err != nil {
