@@ -86,7 +86,7 @@ func (s *Service) newCertExporterConfigMap(ctx context.Context, configMapValues 
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
 
 	values := CertExporter{
-		Namespace: apismetav1.NamespaceSystem,
+		Namespace: metav1.NamespaceSystem,
 	}
 	json, err := json.Marshal(values)
 	if err != nil {
