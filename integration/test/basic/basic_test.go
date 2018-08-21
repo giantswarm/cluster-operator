@@ -61,7 +61,7 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		RandomizationFactor: backoff.DefaultRandomizationFactor,
 		Multiplier:          backoff.DefaultMultiplier,
 		MaxInterval:         backoff.DefaultMaxInterval,
-		MaxElapsedTime:      30 * time.Minute,
+		MaxElapsedTime:      40 * time.Minute,
 		Clock:               backoff.SystemClock,
 	}
 	n := func(err error, delay time.Duration) {
