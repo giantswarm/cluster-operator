@@ -25,7 +25,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3,
+				"tempReplicas": 2,
 				"useProxyProtocol": true
 			},
 			"migration": {
@@ -47,7 +47,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 7,
+				"tempReplicas": 4,
 				"useProxyProtocol": true
 			},
 			"migration": {
@@ -62,14 +62,14 @@ const (
 	differentSettingsJSON = `
 	{
 		"controller": {
-			"replicas": 3,
+			"replicas": 1,
 			"service": {
 				"enabled": true
 			}
 		},
 		"global": {
 			"controller": {
-				"replicas": 3,
+				"tempReplicas": 1,
 				"useProxyProtocol": false
 			},
 			"migration": {
@@ -280,7 +280,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				IngressControllerMigrationEnabled: false,
 				IngressControllerUseProxyProtocol: false,
 				Organization:                      "giantswarm",
-				WorkerCount:                       3,
+				WorkerCount:                       1,
 			},
 			expectedConfigMaps: []*corev1.ConfigMap{
 				&corev1.ConfigMap{
@@ -415,6 +415,62 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						t.Fatal("expected", expectedValues, "got", values)
 					}
 				}
+			}
+		})
+	}
+}
+
+func Test_ConfigMap_setIngressControllerTempReplicas(t *testing.T) {
+	testCases := []struct {
+		name                 string
+		workerCount          int
+		expectedTempReplicas int
+		errorMatcher         func(error) bool
+	}{
+		{
+			name:                 "case 0: basic match",
+			workerCount:          3,
+			expectedTempReplicas: 2,
+		},
+		{
+			name:                 "case 1: single node",
+			workerCount:          1,
+			expectedTempReplicas: 1,
+		},
+		{
+			name:                 "case 2: large cluster",
+			workerCount:          20,
+			expectedTempReplicas: 10,
+		},
+		{
+			name:                 "case 3: larger cluster",
+			workerCount:          50,
+			expectedTempReplicas: 25,
+		},
+		{
+			name:         "case 4: 0 workers",
+			workerCount:  0,
+			errorMatcher: IsInvalidExecution,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tempReplicas, err := setIngressControllerTempReplicas(tc.workerCount)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			if tempReplicas != tc.expectedTempReplicas {
+				t.Fatal("expected", tc.expectedTempReplicas, "got", tempReplicas)
 			}
 		})
 	}
