@@ -25,7 +25,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3,
+				"replicas": 2,
 				"useProxyProtocol": true
 			},
 			"migration": {
@@ -47,7 +47,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 7,
+				"replicas": 2,
 				"useProxyProtocol": true
 			},
 			"migration": {
@@ -69,7 +69,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3,
+				"replicas": 2,
 				"useProxyProtocol": false
 			},
 			"migration": {
@@ -91,7 +91,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3,
+				"replicas": 2,
 				"useProxyProtocol": false
 			},
 			"migration": {
