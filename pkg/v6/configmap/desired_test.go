@@ -91,7 +91,7 @@ const (
 		},
 		"global": {
 			"controller": {
-				"replicas": 3,
+				"tempReplicas": 2,
 				"useProxyProtocol": false
 			},
 			"migration": {
