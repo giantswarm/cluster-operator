@@ -112,8 +112,7 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapCo
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				// Replicas:         configMapValues.WorkerCount,
-				Replicas:         2,
+				Replicas:         configMapValues.WorkerCount,
 				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
