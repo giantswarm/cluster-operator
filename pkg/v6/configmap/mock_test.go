@@ -63,6 +63,10 @@ func (h *helmMock) InstallFromTarball(path, ns string, options ...helm.InstallOp
 	return nil
 }
 
+func (h *helmMock) PingTiller() error {
+	return nil
+}
+
 func (h *helmMock) RunReleaseTest(releaseName string, options ...helm.ReleaseTestOption) error {
 	return nil
 }
