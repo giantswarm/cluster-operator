@@ -12,6 +12,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added monitoring for managed charts.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Added support for deploying cert-exporter.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "cluster-operator",
+				Description: "Added support for deploying net-exporter.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
