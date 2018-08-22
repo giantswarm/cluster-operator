@@ -56,7 +56,7 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		}
 		return nil
 	}
-	b := backoff.NewExponential(40*time.Minute, 60*time.Second)
+	b := backoff.NewExponential(30*time.Minute, 60*time.Second)
 	n := func(err error, delay time.Duration) {
 		log.Printf("failed fetching release content %#v", err)
 	}
