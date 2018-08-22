@@ -10,8 +10,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	awsclient "github.com/giantswarm/e2eclients/aws"
 	"github.com/giantswarm/e2etemplates/pkg/e2etemplates"
@@ -236,7 +236,7 @@ func installCredential(h *framework.Host) error {
 
 		return nil
 	}
-	b := framework.NewExponentialBackoff(framework.ShortMaxWait, framework.ShortMaxInterval)
+	b := backoff.NewExponential(framework.ShortMaxWait, framework.ShortMaxInterval)
 	n := func(err error, delay time.Duration) {
 		log.Println("level", "debug", "message", err.Error())
 	}
