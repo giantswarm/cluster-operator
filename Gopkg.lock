@@ -69,8 +69,8 @@
 [[projects]]
   name = "github.com/cenkalti/backoff"
   packages = ["."]
-  revision = "61153c768f31ee5f130071d08fc82b85208528de"
-  version = "v1.1.0"
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
 
 [[projects]]
   name = "github.com/coreos/go-semver"
@@ -184,7 +184,13 @@
   branch = "master"
   name = "github.com/giantswarm/apprclient"
   packages = ["."]
-  revision = "96bf5b8e512b112c7fdfb0b5a7f0725ea7f4f9ce"
+  revision = "30620a9d0ecdb133f82257768ece76ebc1b6f8ef"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/giantswarm/backoff"
+  packages = ["."]
+  revision = "889af437b4d98f8a1ccb66cb85b93de13d8c666e"
 
 [[projects]]
   branch = "master"
@@ -193,13 +199,13 @@
   revision = "e91f12dea59971a68d08a48479014e33d1b90540"
 
 [[projects]]
+  branch = "master"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
     "pkg/framework",
     "pkg/harness"
   ]
-  revision = "0195240d6f11565e602721d796bd0ced9a972605"
-  version = "0195240"
+  revision = "e4b3a2c22571076a898e46873b392382507bd223"
 
 [[projects]]
   branch = "master"
@@ -217,19 +223,19 @@
   branch = "master"
   name = "github.com/giantswarm/errors"
   packages = ["guest"]
-  revision = "9e78ca0e32a019481beb21ae3e158d1bb150730d"
+  revision = "51a7ca6b403dc133497da26a0a30684a5df56752"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/guestcluster"
   packages = ["."]
-  revision = "6118d8f8ce7bcbaa0ab502371acd2058ed2d976d"
+  revision = "af4b0eb24a293b1950709ac8099fa377e9702266"
 
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "382dab3023ef7ed0de57a13607a1dad541b397a0"
+  revision = "95121dddf902715f9b1799fc64dbf7119d471dec"
 
 [[projects]]
   branch = "master"
@@ -306,7 +312,7 @@
     "controller/resource/retryresource",
     "informer"
   ]
-  revision = "b549537227f0b5de6525ed65361a4bc660ba90c4"
+  revision = "cab216362f2654c41cafa849d273e09ee6277ce0"
 
 [[projects]]
   branch = "master"
@@ -1275,6 +1281,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e76bdf25ffb5a4afb6267bbdea44ac9803d02293bd00d84554b765a45ef801d2"
+  inputs-digest = "5f5f5134469c67997aec6ac0e5b88c48fbf6f6692f1eb72ef431afd892c3f4c7"
   solver-name = "gps-cdcl"
   solver-version = 1
