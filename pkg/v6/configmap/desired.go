@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -26,7 +25,12 @@ type IngressController struct {
 }
 
 type IngressControllerController struct {
-	Replicas int `json:"replicas"`
+	Replicas int                                `json:"replicas"`
+	Service  IngressControllerControllerService `json:"service"`
+}
+
+type IngressControllerControllerService struct {
+	Enabled bool `json:"enabled"`
 }
 
 type IngressControllerGlobal struct {
@@ -35,7 +39,8 @@ type IngressControllerGlobal struct {
 }
 
 type IngressControllerGlobalController struct {
-	Replicas int `json:"replicas"`
+	Replicas         int  `json:"replicas"`
+	UseProxyProtocol bool `json:"useProxyProtocol"`
 }
 
 type IngressControllerGlobalMigration struct {
@@ -44,6 +49,10 @@ type IngressControllerGlobalMigration struct {
 
 type Image struct {
 	Registry string `json:"registry"`
+}
+
+type CertExporter struct {
+	Namespace string `json:"namespace"`
 }
 
 type NetExporter struct {
@@ -60,6 +69,7 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMap
 
 	desiredConfigMaps = append(desiredConfigMaps, configMap)
 	generators := []configMapGenerator{
+		s.newCertExporterConfigMap,
 		s.newKubeStateMetricsConfigMap,
 		s.newNetExporterConfigMap,
 		s.newNodeExporterConfigMap,
@@ -76,10 +86,42 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMap
 	return desiredConfigMaps, nil
 }
 
+func (s *Service) newCertExporterConfigMap(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
+	configMapName := "cert-exporter-values"
+	appName := "cert-exporter"
+	labels := newConfigMapLabels(configMapValues, appName, projectName)
+
+	values := CertExporter{
+		Namespace: metav1.NamespaceSystem,
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	data := map[string]string{
+		"values.json": string(json),
+	}
+
+	newConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapName,
+			Namespace: metav1.NamespaceSystem,
+			Labels:    labels,
+		},
+		Data: data,
+	}
+
+	return newConfigMap, nil
+}
+
 func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
 	configMapName := "nginx-ingress-controller-values"
 	appName := "nginx-ingress-controller"
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
+
+	// controllerServiceEnabled needs to be set separately for the chart
+	// migration logic but is the reverse of migration enabled.
+	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
 
 	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
 	if migrationEnabled {
@@ -97,10 +139,14 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapCo
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
+			Service: IngressControllerControllerService{
+				Enabled: controllerServiceEnabled,
+			},
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				Replicas: configMapValues.WorkerCount,
+				Replicas:         configMapValues.WorkerCount,
+				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
 				Enabled: migrationEnabled,
@@ -140,7 +186,7 @@ func (s *Service) newNetExporterConfigMap(ctx context.Context, configMapValues C
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
 
 	values := NetExporter{
-		Namespace: apismetav1.NamespaceSystem,
+		Namespace: metav1.NamespaceSystem,
 	}
 	json, err := json.Marshal(values)
 	if err != nil {

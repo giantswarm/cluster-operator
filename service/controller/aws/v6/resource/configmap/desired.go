@@ -33,6 +33,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		// Migration is enabled so existing k8scloudconfig resources are
 		// replaced.
 		IngressControllerMigrationEnabled: true,
+		// Proxy protocol is enabled for AWS clusters.
+		IngressControllerUseProxyProtocol: true,
 		WorkerCount:                       awskey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapConfig, configMapValues)

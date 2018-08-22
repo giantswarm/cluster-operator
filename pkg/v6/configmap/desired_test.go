@@ -18,11 +18,15 @@ const (
 	basicMatchJSON = `
 	{
 		"controller": {
-			"replicas": 3
+			"replicas": 3,
+			"service": {
+				"enabled": false
+			}
 		},
 		"global": {
 			"controller": {
-				"replicas": 3
+				"replicas": 3,
+				"useProxyProtocol": true
 			},
 			"migration": {
 				"enabled": true
@@ -36,11 +40,15 @@ const (
 	differentWorkerCountJSON = `
 	{
 		"controller": {
-			"replicas": 7
+			"replicas": 7,
+			"service": {
+				"enabled": false
+			}
 		},
 		"global": {
 			"controller": {
-				"replicas": 7
+				"replicas": 7,
+				"useProxyProtocol": true
 			},
 			"migration": {
 				"enabled": true
@@ -54,11 +62,15 @@ const (
 	differentSettingsJSON = `
 	{
 		"controller": {
-			"replicas": 3
+			"replicas": 3,
+			"service": {
+				"enabled": true
+			}
 		},
 		"global": {
 			"controller": {
-				"replicas": 3
+				"replicas": 3,
+				"useProxyProtocol": false
 			},
 			"migration": {
 				"enabled": false
@@ -89,11 +101,28 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},
 			ingressControllerReleasePresent: false,
 			expectedConfigMaps: []*corev1.ConfigMap{
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cert-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "cert-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
+					},
+				},
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",
@@ -171,10 +200,27 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				ClusterID:                         "5xchu",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
 				WorkerCount:                       7,
 			},
 			ingressControllerReleasePresent: false,
 			expectedConfigMaps: []*corev1.ConfigMap{
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cert-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "cert-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
+					},
+				},
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",
@@ -251,6 +297,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: false,
+				IngressControllerUseProxyProtocol: false,
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},
@@ -337,6 +384,22 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			ingressControllerReleasePresent: true,
 			expectedConfigMaps: []*corev1.ConfigMap{
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cert-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "cert-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
+					},
+				},
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",

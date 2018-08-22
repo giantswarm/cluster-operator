@@ -26,10 +26,14 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		}
 
 		for _, chartConfigToCreate := range chartConfigsToCreate {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chartconfig %#q", chartConfigToCreate.Name))
+
 			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
 			if apierrors.IsAlreadyExists(err) {
-				// fall through
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not create chartconfig %#q", chartConfigToCreate.Name))
+				r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig already exists")
 			} else if guest.IsAPINotAvailable(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not create chartconfig %#q", chartConfigToCreate.Name))
 				r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
 
 				// We should not hammer guest API if it is not available, the guest cluster
@@ -41,6 +45,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created chartconfig %#q", chartConfigToCreate.Name))
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "created chartconfigs")
