@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cenkalti/backoff"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -56,14 +56,7 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		}
 		return nil
 	}
-	b := &backoff.ExponentialBackOff{
-		InitialInterval:     backoff.DefaultInitialInterval,
-		RandomizationFactor: backoff.DefaultRandomizationFactor,
-		Multiplier:          backoff.DefaultMultiplier,
-		MaxInterval:         backoff.DefaultMaxInterval,
-		MaxElapsedTime:      30 * time.Minute,
-		Clock:               backoff.SystemClock,
-	}
+	b := backoff.NewExponential(30*time.Minute, 60*time.Second)
 	n := func(err error, delay time.Duration) {
 		log.Printf("failed fetching release content %#v", err)
 	}
@@ -158,8 +151,7 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 		log.Printf("getting chart configs %s: %v", t, err)
 	}
 
-	maxInterval := 5 * time.Minute
-	b := framework.NewExponentialBackoff(maxInterval, framework.LongMaxInterval)
+	b := backoff.NewExponential(5*time.Minute, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
@@ -184,7 +176,7 @@ func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, st
 		log.Printf("getting release status %s: %v", t, err)
 	}
 
-	b := framework.NewExponentialBackoff(framework.ShortMaxWait, framework.LongMaxInterval)
+	b := backoff.NewExponential(framework.ShortMaxWait, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
