@@ -22,11 +22,20 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added support for deploying net-exporter.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Added support for deploying nginx-ingress-controller.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "kube-state-metrics",
 				Version: "1.3.1",
+			},
+			{
+				Name:    "nginx-ingress-controller",
+				Version: "0.12.0",
 			},
 			{
 				Name:    "node-exporter",
