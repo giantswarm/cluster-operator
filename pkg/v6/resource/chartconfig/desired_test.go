@@ -34,8 +34,9 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			provider: label.ProviderAWS,
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
-				"kubernetes-node-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-nginx-ingress-controller-chart",
+				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
 			},
 		},
@@ -49,8 +50,8 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			provider: label.ProviderKVM,
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
-				"kubernetes-node-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
 			},
 		},
@@ -64,10 +65,10 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			provider: label.ProviderAzure,
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
-				"kubernetes-node-exporter-chart",
+				"kubernetes-external-dns-chart",
 				"kubernetes-kube-state-metrics-chart",
 				"kubernetes-nginx-ingress-controller-chart",
-				"kubernetes-external-dns-chart",
+				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
 			},
 		},
