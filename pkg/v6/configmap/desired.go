@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"encoding/json"
+	"math"
 
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -39,7 +40,7 @@ type IngressControllerGlobal struct {
 }
 
 type IngressControllerGlobalController struct {
-	Replicas         int  `json:"replicas"`
+	TempReplicas     int  `json:"tempReplicas"`
 	UseProxyProtocol bool `json:"useProxyProtocol"`
 }
 
@@ -136,6 +137,13 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapCo
 		}
 	}
 
+	// tempReplicas is set to 50% of the worker count to ensure all pods can be
+	// scheduled.
+	tempReplicas, err := setIngressControllerTempReplicas(configMapValues.WorkerCount)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
@@ -145,7 +153,7 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapCo
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				Replicas:         configMapValues.WorkerCount,
+				TempReplicas:     tempReplicas,
 				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
@@ -265,4 +273,16 @@ func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName st
 		label.Organization: configMapValues.Organization,
 		label.ServiceType:  label.ServiceTypeManaged,
 	}
+}
+
+// setIngressControllerTempReplicas sets the temp replicas to 50% of the worker
+// count to ensure all pods can be scheduled.
+func setIngressControllerTempReplicas(workerCount int) (int, error) {
+	if workerCount == 0 {
+		return 0, microerror.Maskf(invalidExecutionError, "worker count must not be 0")
+	}
+
+	tempReplicas := float64(workerCount) * float64(0.5)
+
+	return int(math.Round(tempReplicas)), nil
 }
