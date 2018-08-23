@@ -32,10 +32,11 @@ func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cl
 
 		err := helmClient.DeleteRelease(item, helm.DeletePurge(true))
 		if err != nil {
+			log.Printf("failed to delete release %#q %#v", item, err)
 			errors = append(errors, err)
+		} else {
+			log.Printf("deleted release %#q", item)
 		}
-
-		log.Printf("deleted release %#q", item)
 	}
 
 	if len(errors) != 0 {
