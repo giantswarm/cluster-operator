@@ -16,6 +16,7 @@ import (
 )
 
 func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
+	errors := make([]error, 0)
 	items := []string{
 		"cluster-operator",
 		"apiextensions-aws-cluster-config-e2e",
@@ -27,10 +28,18 @@ func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cl
 	}
 
 	for _, item := range items {
+		log.Printf("deleting release %#q", item)
+
 		err := helmClient.DeleteRelease(item, helm.DeletePurge(true))
 		if err != nil {
-			return microerror.Mask(err)
+			errors = append(errors, err)
 		}
+
+		log.Printf("deleted release %#q", item)
+	}
+
+	if len(errors) != 0 {
+		return errors[0]
 	}
 
 	return nil
