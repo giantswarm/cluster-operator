@@ -89,15 +89,10 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 
 	guestNamespace := "giantswarm"
-	logger, err := micrologger.New(micrologger.Config{})
-	if err != nil {
-		t.Fatalf("could not create logger %v", err)
-	}
-
 	guestG8sClient := g.G8sClient()
 
 	// Wait for chart configs as they may not have been created yet.
-	err = waitForChartConfigs(guestG8sClient)
+	err := waitForChartConfigs(guestG8sClient)
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
@@ -111,27 +106,6 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	// components have been migrated.
 	if len(chartConfigList.Items) == 0 {
 		t.Fatalf("expected at least 1 chartconfigs: %d found", len(chartConfigList.Items))
-	}
-
-	ch := helmclient.Config{
-		Logger:          logger,
-		K8sClient:       g.K8sClient(),
-		RestConfig:      g.RestConfig(),
-		TillerNamespace: guestNamespace,
-	}
-	guestHelmClient, err := helmclient.New(ch)
-	if err != nil {
-		t.Fatalf("could not create guest helm client %v", err)
-	}
-
-	for _, chart := range chartConfigList.Items {
-		releaseName := chart.Spec.Chart.Release
-		expectedStatus := "DEPLOYED"
-
-		err = waitForReleaseStatus(guestHelmClient, releaseName, expectedStatus)
-		if err != nil {
-			t.Fatalf("could not get release status of %q %v", releaseName, err)
-		}
 	}
 }
 
@@ -157,29 +131,5 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 		return microerror.Mask(err)
 	}
 
-	return nil
-}
-
-func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, status string) error {
-	operation := func() error {
-		rc, err := guestHelmClient.GetReleaseContent(release)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		if rc.Status != status {
-			return microerror.Maskf(releaseStatusNotMatchingError, "waiting for %q, current %q", status, rc.Status)
-		}
-		return nil
-	}
-
-	notify := func(err error, t time.Duration) {
-		log.Printf("getting release status %s: %v", t, err)
-	}
-
-	b := backoff.NewExponential(5*time.Minute, framework.LongMaxInterval)
-	err := backoff.RetryNotify(operation, b, notify)
-	if err != nil {
-		return microerror.Mask(err)
-	}
 	return nil
 }
