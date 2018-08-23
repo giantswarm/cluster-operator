@@ -40,7 +40,7 @@ func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cl
 	}
 
 	if len(errors) != 0 {
-		return errors[0]
+		return microerror.Mask(errors[0])
 	}
 
 	return nil
