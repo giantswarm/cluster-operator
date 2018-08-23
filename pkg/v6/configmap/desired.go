@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 
 	"github.com/giantswarm/microerror"
@@ -125,6 +126,8 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 		return nil, microerror.Mask(err)
 	}
 
+	s.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("DEBUG: IC temp replicas %d", tempReplicas))
+
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
@@ -161,6 +164,8 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapVa
 		},
 		Data: data,
 	}
+
+	s.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("DEBUG: IC configmap %#v", newConfigMap))
 
 	return newConfigMap, nil
 }

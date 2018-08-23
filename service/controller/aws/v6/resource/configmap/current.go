@@ -2,6 +2,7 @@ package configmap
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
@@ -41,6 +42,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("DEBUG: current configmaps %#v", configMaps))
 
 	return configMaps, nil
 }
