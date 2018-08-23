@@ -48,34 +48,9 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		t.Fatalf("could not create guest helm client %v", err)
 	}
 
-	var releaseContent *helmclient.ReleaseContent
-	o := func() error {
-		releaseContent, err = guestHelmClient.GetReleaseContent(releaseName)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	b := backoff.NewExponential(30*time.Minute, 60*time.Second)
-	n := func(err error, delay time.Duration) {
-		log.Printf("failed fetching release content %#v", err)
-	}
-
-	err = backoff.RetryNotify(o, b, n)
+	err = waitForReleaseStatus(guestHelmClient, releaseName, "DEPLOYED")
 	if err != nil {
-		t.Fatalf("could not fetch release content %#v", err)
-	}
-
-	expectedName := releaseName
-	actualName := releaseContent.Name
-	if expectedName != actualName {
-		t.Fatalf("bad release name, want %q, got %q", expectedName, actualName)
-	}
-
-	expectedStatus := "DEPLOYED"
-	actualStatus := releaseContent.Status
-	if expectedStatus != actualStatus {
-		t.Fatalf("bad release status, want %q, got %q", expectedStatus, actualStatus)
+		t.Fatalf("failed to get DEPLOYED status for release %#q", releaseName)
 	}
 }
 
@@ -131,5 +106,29 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 		return microerror.Mask(err)
 	}
 
+	return nil
+}
+
+func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, status string) error {
+	operation := func() error {
+		rc, err := guestHelmClient.GetReleaseContent(release)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		if rc.Status != status {
+			return microerror.Maskf(releaseStatusNotMatchingError, "waiting for %q, current %q", status, rc.Status)
+		}
+		return nil
+	}
+
+	notify := func(err error, t time.Duration) {
+		log.Printf("getting release status %s: %v", t, err)
+	}
+
+	b := backoff.NewExponential(20*time.Minute, framework.LongMaxInterval)
+	err := backoff.RetryNotify(operation, b, notify)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 	return nil
 }
