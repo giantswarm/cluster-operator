@@ -176,7 +176,7 @@ func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, st
 		log.Printf("getting release status %s: %v", t, err)
 	}
 
-	b := backoff.NewExponential(framework.ShortMaxWait, framework.LongMaxInterval)
+	b := backoff.NewExponential(5*time.Minute, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)

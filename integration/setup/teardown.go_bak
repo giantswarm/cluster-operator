@@ -1,0 +1,59 @@
+// +build k8srequired
+
+package setup
+
+import (
+	"log"
+	"os"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/giantswarm/microerror"
+	"k8s.io/helm/pkg/helm"
+)
+
+func teardown(config Config) error {
+	var err error
+	var errors []error
+
+	items := []string{
+		"cluster-operator",
+		"apiextensions-aws-cluster-config-e2e",
+		"cert-operator",
+		"cert-config-e2e",
+		"aws-operator",
+		"apiextensions-aws-config-e2e",
+		"node-operator",
+	}
+
+	for _, item := range items {
+		err = config.helmClient.DeleteRelease(item, helm.DeletePurge(true))
+		if err != nil {
+			errors = append(errors, microerror.Mask(err))
+		}
+	}
+
+	if len(errors) > 0 {
+		return microerror.Mask(errors[0])
+	}
+
+	err = deleteHostPeerVPC(config)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func deleteHostPeerVPC(config Config) error {
+	log.Printf("Deleting Host Peer VPC stack")
+
+	_, err := config.AWSClient.CloudFormation.DeleteStack(&cloudformation.DeleteStackInput{
+		StackName: aws.String("host-peer-" + os.Getenv("CLUSTER_NAME")),
+	})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
