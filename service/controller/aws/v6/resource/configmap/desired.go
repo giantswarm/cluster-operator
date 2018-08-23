@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 
@@ -28,16 +27,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		IngressControllerUseProxyProtocol: true,
 		WorkerCount:                       awskey.WorkerCount(customObject),
 	}
-
-	r.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("DEBUG: clusterGuestConfig %#v", clusterGuestConfig))
-	r.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("DEBUG: configMapValues %#v", configMapValues))
-
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapValues)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	r.logger.LogCtx(ctx, "level", "debug", fmt.Sprintf("DEBUG: desired configmaps %#v", desiredConfigMaps))
 
 	return desiredConfigMaps, nil
 }
