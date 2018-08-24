@@ -48,34 +48,9 @@ func TestChartOperatorBootstrap(t *testing.T) {
 		t.Fatalf("could not create guest helm client %v", err)
 	}
 
-	var releaseContent *helmclient.ReleaseContent
-	o := func() error {
-		releaseContent, err = guestHelmClient.GetReleaseContent(releaseName)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	b := backoff.NewExponential(30*time.Minute, 60*time.Second)
-	n := func(err error, delay time.Duration) {
-		log.Printf("failed fetching release content %#v", err)
-	}
-
-	err = backoff.RetryNotify(o, b, n)
+	err = waitForReleaseStatus(guestHelmClient, releaseName, "DEPLOYED")
 	if err != nil {
-		t.Fatalf("could not fetch release content %#v", err)
-	}
-
-	expectedName := releaseName
-	actualName := releaseContent.Name
-	if expectedName != actualName {
-		t.Fatalf("bad release name, want %q, got %q", expectedName, actualName)
-	}
-
-	expectedStatus := "DEPLOYED"
-	actualStatus := releaseContent.Status
-	if expectedStatus != actualStatus {
-		t.Fatalf("bad release status, want %q, got %q", expectedStatus, actualStatus)
+		t.Fatalf("failed to get DEPLOYED status for release %#q", releaseName)
 	}
 }
 
@@ -89,15 +64,10 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 
 	guestNamespace := "giantswarm"
-	logger, err := micrologger.New(micrologger.Config{})
-	if err != nil {
-		t.Fatalf("could not create logger %v", err)
-	}
-
 	guestG8sClient := g.G8sClient()
 
 	// Wait for chart configs as they may not have been created yet.
-	err = waitForChartConfigs(guestG8sClient)
+	err := waitForChartConfigs(guestG8sClient)
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
@@ -111,27 +81,6 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	// components have been migrated.
 	if len(chartConfigList.Items) == 0 {
 		t.Fatalf("expected at least 1 chartconfigs: %d found", len(chartConfigList.Items))
-	}
-
-	ch := helmclient.Config{
-		Logger:          logger,
-		K8sClient:       g.K8sClient(),
-		RestConfig:      g.RestConfig(),
-		TillerNamespace: guestNamespace,
-	}
-	guestHelmClient, err := helmclient.New(ch)
-	if err != nil {
-		t.Fatalf("could not create guest helm client %v", err)
-	}
-
-	for _, chart := range chartConfigList.Items {
-		releaseName := chart.Spec.Chart.Release
-		expectedStatus := "DEPLOYED"
-
-		err = waitForReleaseStatus(guestHelmClient, releaseName, expectedStatus)
-		if err != nil {
-			t.Fatalf("could not get release status of %q %v", releaseName, err)
-		}
 	}
 }
 
@@ -176,7 +125,7 @@ func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, st
 		log.Printf("getting release status %s: %v", t, err)
 	}
 
-	b := backoff.NewExponential(5*time.Minute, framework.LongMaxInterval)
+	b := backoff.NewExponential(20*time.Minute, framework.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)

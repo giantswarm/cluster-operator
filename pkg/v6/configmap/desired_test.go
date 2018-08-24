@@ -81,16 +81,45 @@ const (
 		}
 	}
 	`
+	alreadyMigratedJSON = `
+	{
+		"controller": {
+			"replicas": 3,
+			"service": {
+				"enabled": false
+			}
+		},
+		"global": {
+			"controller": {
+				"tempReplicas": 2,
+				"useProxyProtocol": false
+			},
+			"migration": {
+				"enabled": false
+			}
+		},
+		"image": {
+			"registry": "quay.io"
+		}
+	}
+	`
 )
 
 func Test_ConfigMap_GetDesiredState(t *testing.T) {
 	testCases := []struct {
-		name               string
-		configMapValues    ConfigMapValues
-		expectedConfigMaps []*corev1.ConfigMap
+		name                            string
+		configMapConfig                 ConfigMapConfig
+		configMapValues                 ConfigMapValues
+		ingressControllerReleasePresent bool
+		expectedConfigMaps              []*corev1.ConfigMap
 	}{
 		{
 			name: "case 0: basic match",
+			configMapConfig: ConfigMapConfig{
+				ClusterID:      "5xchu",
+				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+				Namespaces:     []string{},
+			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: true,
@@ -98,6 +127,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Organization:                      "giantswarm",
 				WorkerCount:                       3,
 			},
+			ingressControllerReleasePresent: false,
 			expectedConfigMaps: []*corev1.ConfigMap{
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
@@ -183,6 +213,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		},
 		{
 			name: "case 1: different worker count",
+			configMapConfig: ConfigMapConfig{
+				ClusterID:      "5xchu",
+				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+				Namespaces:     []string{},
+			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				Organization:                      "giantswarm",
@@ -190,6 +225,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				IngressControllerUseProxyProtocol: true,
 				WorkerCount:                       7,
 			},
+			ingressControllerReleasePresent: false,
 			expectedConfigMaps: []*corev1.ConfigMap{
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
@@ -275,6 +311,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		},
 		{
 			name: "case 2: different ingress controller settings",
+			configMapConfig: ConfigMapConfig{
+				ClusterID:      "5xchu",
+				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+				Namespaces:     []string{},
+			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: false,
@@ -282,6 +323,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Organization:                      "giantswarm",
 				WorkerCount:                       1,
 			},
+			ingressControllerReleasePresent: false,
 			expectedConfigMaps: []*corev1.ConfigMap{
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
@@ -365,12 +407,116 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 3: ingress controller already migrated",
+			configMapConfig: ConfigMapConfig{
+				ClusterID:      "5xchu",
+				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+				Namespaces:     []string{},
+			},
+			configMapValues: ConfigMapValues{
+				ClusterID:                         "5xchu",
+				IngressControllerMigrationEnabled: true,
+				Organization:                      "giantswarm",
+				WorkerCount:                       3,
+			},
+			ingressControllerReleasePresent: true,
+			expectedConfigMaps: []*corev1.ConfigMap{
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cert-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "cert-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "nginx-ingress-controller-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "nginx-ingress-controller",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": alreadyMigratedJSON,
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kube-state-metrics-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "kube-state-metrics",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "net-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "net-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"namespace\":\"kube-system\"}",
+					},
+				},
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "node-exporter-values",
+						Namespace: metav1.NamespaceSystem,
+						Labels: map[string]string{
+							label.App:          "node-exporter",
+							label.Cluster:      "5xchu",
+							label.ManagedBy:    "cluster-operator",
+							label.Organization: "giantswarm",
+							label.ServiceType:  "managed",
+						},
+					},
+					Data: map[string]string{
+						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			helmClient := &helmMock{}
+			if !tc.ingressControllerReleasePresent {
+				helmClient.defaultError = microerror.Newf("No such release: nginx-ingress-controller")
+			}
+
 			c := Config{
-				Guest:          &guestMock{},
+				Guest: &guestMock{
+					fakeGuestHelmClient: helmClient,
+				},
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
@@ -380,7 +526,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			configMaps, err := newService.GetDesiredState(context.TODO(), tc.configMapValues)
+			configMaps, err := newService.GetDesiredState(context.TODO(), tc.configMapConfig, tc.configMapValues)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}

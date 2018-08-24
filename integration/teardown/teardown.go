@@ -3,6 +3,7 @@
 package teardown
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -16,6 +17,9 @@ import (
 )
 
 func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
+	errors := make([]error, 0)
+
+	targetNamespace := "default"
 	items := []string{
 		"cluster-operator",
 		"apiextensions-aws-cluster-config-e2e",
@@ -27,10 +31,20 @@ func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cl
 	}
 
 	for _, item := range items {
-		err := helmClient.DeleteRelease(item, helm.DeletePurge(true))
+		releaseName := fmt.Sprintf("%s-%s", targetNamespace, item)
+		log.Printf("deleting release %#q", releaseName)
+
+		err := helmClient.DeleteRelease(releaseName, helm.DeletePurge(true))
 		if err != nil {
-			return microerror.Mask(err)
+			log.Printf("failed to delete release %#q %#v", releaseName, err)
+			errors = append(errors, err)
+		} else {
+			log.Printf("deleted release %#q", releaseName)
 		}
+	}
+
+	if len(errors) != 0 {
+		return microerror.Mask(errors[0])
 	}
 
 	return nil
