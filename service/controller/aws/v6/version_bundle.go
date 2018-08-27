@@ -27,6 +27,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added support for deploying nginx-ingress-controller.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Updated to 0.15.0.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -35,7 +40,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.12.0",
+				Version: "0.15.0",
 			},
 			{
 				Name:    "node-exporter",

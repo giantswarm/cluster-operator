@@ -22,11 +22,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added support for deploying net-exporter.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Updated to 0.15.0.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.12.0",
+				Version: "0.15.0",
 			},
 			{
 				Name:    "external-dns",
