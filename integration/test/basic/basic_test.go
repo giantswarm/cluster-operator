@@ -116,22 +116,42 @@ func TestChartConfigPatch(t *testing.T) {
 	}
 	log.Printf("CHARTCONFIG:: %v", chartConfig)
 
-	type patchStringValue struct {
-		Op    string `json:"op"`
-		Path  string `json:"path"`
-		Value string `json:"value"`
+	type ChartConfigMergePatch struct {
+		Spec Spec `json:"spec"`
 	}
-	payload := []patchStringValue{{
-		Op:    "replace",
-		Path:  "/spec/labels/giantswarm.io/managed-by",
-		Value: "e2e-test",
-	}}
-	payloadBytes, err := json.Marshal(payload)
+
+	type Spec struct {
+		Chart Chart `json:"chart"`
+	}
+
+	type Chart struct {
+		Channel string `json:"channel"`
+	}
+
+	patch := ChartConfigMergePatch{
+		Spec{
+			Chart{
+				Channel: "0-1-beta",
+			},
+		},
+	}
+	jsonPatch, err := json.Marshal(patch)
 	if err != nil {
 		t.Fatalf("could not marshal json patch %v", err)
 	}
 
-	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Patch(chartConfigName, types.JSONPatchType, payloadBytes)
+	// payload := []patchStringValue{{
+	// 	Op:    "replace",
+	// 	Path:  "/spec/labels/giantswarm.io\/managed-by",
+	// 	Value: "e2e-test",
+	// }}
+
+	// payloadBytes, err := json.Marshal(payload)
+	// if err != nil {
+	// 	t.Fatalf("could not marshal json patch %v", err)
+	// }
+
+	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Patch(chartConfigName, types.MergePatchType, jsonPatch)
 	if err != nil {
 		t.Fatalf("could not patch chartconfig %v", err)
 	}
