@@ -132,7 +132,7 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 	}
 
 	notify := func(err error, t time.Duration) {
-		log.Printf("getting chart configs %s: %v", t, err)
+		l.Log("level", "debug", "message", fmt.Sprintf("getting chart configs %s: %v", t, err))
 	}
 
 	b := backoff.NewExponential(10*time.Minute, framework.LongMaxInterval)
@@ -157,7 +157,7 @@ func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, st
 	}
 
 	notify := func(err error, t time.Duration) {
-		log.Printf("getting release status %s: %v", t, err)
+		l.Log("level", "debug", "message", fmt.Sprintf("getting release status %s: %v", t, err))
 	}
 
 	b := backoff.NewExponential(20*time.Minute, framework.LongMaxInterval)
