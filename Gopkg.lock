@@ -332,7 +332,7 @@
 
 [[projects]]
   branch = "add-debug-server"
-  digest = "1:c40bb2c9e4f1af25793d07aab87ac4c575d72d73e0ea0eef67d3c982ab34aad4"
+  digest = "1:10c75b4b3bd932906072ef8f1118c1e208af0d42bd6ec8ec70dd52a8fbb6deeb"
   name = "github.com/giantswarm/microkit"
   packages = [
     "command",
@@ -351,7 +351,7 @@
     "tls",
   ]
   pruneopts = "UT"
-  revision = "306ce457a1e70fcd402b7ad34877ee465163c30c"
+  revision = "73d15d56ac279091bb7b1afb7f98116d58446af0"
 
 [[projects]]
   branch = "master"
