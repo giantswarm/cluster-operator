@@ -5,7 +5,6 @@ package basic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 	"time"
@@ -15,7 +14,6 @@ import (
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 )
@@ -26,11 +24,6 @@ const (
 )
 
 func TestChartOperatorBootstrap(t *testing.T) {
-	logger, err := micrologger.New(micrologger.Config{})
-	if err != nil {
-		t.Fatalf("could not create logger %v", err)
-	}
-
 	tillerNamespace := "giantswarm"
 
 	// This version bundle uses kube-system because it doesn't have the
@@ -41,7 +34,7 @@ func TestChartOperatorBootstrap(t *testing.T) {
 	}
 
 	ch := helmclient.Config{
-		Logger:          logger,
+		Logger:          l,
 		K8sClient:       g.K8sClient(),
 		RestConfig:      g.RestConfig(),
 		TillerNamespace: tillerNamespace,
