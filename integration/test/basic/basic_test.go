@@ -128,12 +128,12 @@ func TestChartConfigPatch(t *testing.T) {
 		Chart Chart `json:"chart"`
 	}
 
-	type ChartConfigMergePatch struct {
+	type ChartConfigDeployPatch struct {
 		Spec     Spec     `json:"spec"`
 		Metadata Metadata `json:"metadata"`
 	}
 
-	patch := ChartConfigMergePatch{
+	patch := ChartConfigDeployPatch{
 		Spec{
 			Chart: Chart{
 				Channel: "0-1-beta",
