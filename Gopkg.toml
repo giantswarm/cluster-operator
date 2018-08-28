@@ -88,7 +88,7 @@ required = [
   name = "github.com/giantswarm/microerror"
 
 [[constraint]]
-  branch = "master"
+  branch = "add-debug-server"
   name = "github.com/giantswarm/microkit"
 
 [[constraint]]
