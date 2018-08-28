@@ -84,6 +84,30 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 }
 
+func TestChartConfigPatch(t *testing.T) {
+	// These versions have no chartconfigs so we return early.
+	clusterOperatorVersion := os.Getenv("CLOP_VERSION_BUNDLE_VERSION")
+	if clusterOperatorVersion == "0.1.0" || clusterOperatorVersion == "0.2.0" {
+		return
+	}
+
+	guestNamespace := "giantswarm"
+	guestG8sClient := g.G8sClient()
+
+	// Wait for chart configs as they may not have been created yet.
+	err := waitForChartConfigs(guestG8sClient)
+	if err != nil {
+		t.Fatalf("could not get chartconfigs %v", err)
+	}
+
+	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
+	if err != nil {
+		t.Fatalf("could not get chartconfigs %v", err)
+	}
+
+	log.Printf("CHARTCONFIG: %s", chartConfigList.Items[0].Spec.Chart.Name)
+}
+
 func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 	operation := func() error {
 		cc, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
