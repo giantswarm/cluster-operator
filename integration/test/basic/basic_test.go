@@ -123,8 +123,8 @@ func TestChartConfigPatch(t *testing.T) {
 	}
 	payload := []patchStringValue{{
 		Op:    "replace",
-		Path:  "/spec/chart/release",
-		Value: "e2e-test-release",
+		Path:  "/spec/labels/giantswarm.io/managed-by",
+		Value: "e2e-test",
 	}}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
