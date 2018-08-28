@@ -3,6 +3,7 @@
 package basic
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"testing"
@@ -15,6 +16,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	types "k8s.io/apimachinery/pkg/types"
 )
 
 const (
@@ -104,8 +106,36 @@ func TestChartConfigPatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
+	log.Printf("CHARTCONFIG_LIST: %v", chartConfigList)
+	log.Printf("CHARTCONFIG_0: %s", chartConfigList.Items[0].Spec.Chart.Name)
 
-	log.Printf("CHARTCONFIG: %s", chartConfigList.Items[0].Spec.Chart.Name)
+	chartConfigName := chartConfigList.Items[0].Spec.Chart.Name
+	chartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Get(chartConfigName, metav1.GetOptions{})
+	if err != nil {
+		t.Fatalf("could not get chartconfigs %v", err)
+	}
+	log.Printf("CHARTCONFIG:: %v", chartConfig)
+
+	type patchStringValue struct {
+		Op    string `json:"op"`
+		Path  string `json:"path"`
+		Value string `json:"value"`
+	}
+	payload := []patchStringValue{{
+		Op:    "replace",
+		Path:  "/spec/chart/release",
+		Value: "e2e-test-release",
+	}}
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("could not marshal json patch %v", err)
+	}
+
+	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Patch(chartConfigName, types.JSONPatchType, payloadBytes)
+	if err != nil {
+		t.Fatalf("could not patch chartconfig %v", err)
+	}
+	log.Printf("CHARTCONFIG_PATCH: %v", patchedChartConfig)
 }
 
 func waitForChartConfigs(guestG8sClient versioned.Interface) error {
