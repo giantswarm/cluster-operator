@@ -120,36 +120,33 @@ func TestChartConfigPatch(t *testing.T) {
 		Channel string `json:"channel"`
 	}
 
+	type Metadata struct {
+		Labels map[string]string `json:"labels"`
+	}
+
 	type Spec struct {
 		Chart Chart `json:"chart"`
 	}
 
 	type ChartConfigMergePatch struct {
-		Spec Spec `json:"spec"`
+		Spec     Spec     `json:"spec"`
+		Metadata Metadata `json:"metadata"`
 	}
 
 	patch := ChartConfigMergePatch{
 		Spec{
-			Chart{
+			Chart: Chart{
 				Channel: "0-1-beta",
 			},
+		},
+		Metadata{
+			Labels: map[string]string{"giantswarm.io/managed-by": "e2e"},
 		},
 	}
 	jsonPatch, err := json.Marshal(patch)
 	if err != nil {
 		t.Fatalf("could not marshal json patch %v", err)
 	}
-
-	// payload := []patchStringValue{{
-	// 	Op:    "replace",
-	// 	Path:  "/spec/labels/giantswarm.io\/managed-by",
-	// 	Value: "e2e-test",
-	// }}
-
-	// payloadBytes, err := json.Marshal(payload)
-	// if err != nil {
-	// 	t.Fatalf("could not marshal json patch %v", err)
-	// }
 
 	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Patch(chartConfigName, types.MergePatchType, jsonPatch)
 	if err != nil {
