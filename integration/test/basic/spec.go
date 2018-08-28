@@ -1,6 +1,6 @@
 // +build k8srequired
 
-package deploy
+package basic
 
 type Chart struct {
 	Channel string `json:"channel"`
