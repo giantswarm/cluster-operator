@@ -73,17 +73,6 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
-
-	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
-	if err != nil {
-		t.Fatalf("could not get chartconfigs %v", err)
-	}
-
-	// At least 1 chartconfig is expected. Actual number depends on how many
-	// components have been migrated.
-	if len(chartConfigList.Items) == 0 {
-		t.Fatalf("expected at least 1 chartconfigs: %d found", len(chartConfigList.Items))
-	}
 }
 
 func TestChartConfigPatchDeploy(t *testing.T) {
