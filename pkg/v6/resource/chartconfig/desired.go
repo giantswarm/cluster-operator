@@ -19,6 +19,8 @@ const (
 	chartConfigVersionBundleVersion = "0.3.0"
 )
 
+type chartConfigGenerator func(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error)
+
 // GetDesiredState returns all desired ChartConfigs for managed guest resources.
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
@@ -32,29 +34,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	desiredChartConfigs := make([]*v1alpha1.ChartConfig, 0)
-	{
-		chartConfig, err := r.newCertExporterChartConfig(ctx, clusterConfig, r.projectName)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
+	generators := []chartConfigGenerator{
+		r.newCertExporterChartConfig,
+		r.newKubeStateMetricsChartConfig,
+		r.newNodeExporterChartConfig,
+		r.newNetExporterChartConfig,
 	}
-	{
-		chartConfig, err := r.newKubeStateMetricsChartConfig(ctx, clusterConfig, r.projectName)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
-	}
-	{
-		chartConfig, err := r.newNodeExporterChartConfig(ctx, clusterConfig, r.projectName)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
-	}
-	{
-		chartConfig, err := r.newNetExporterChartConfig(ctx, clusterConfig, r.projectName)
+
+	for _, g := range generators {
+		chartConfig, err := g(ctx, clusterConfig, r.projectName)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
