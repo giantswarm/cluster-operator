@@ -116,16 +116,16 @@ func TestChartConfigPatch(t *testing.T) {
 	}
 	log.Printf("CHARTCONFIG:: %v", chartConfig)
 
-	type ChartConfigMergePatch struct {
-		Spec Spec `json:"spec"`
+	type Chart struct {
+		Channel string `json:"channel"`
 	}
 
 	type Spec struct {
 		Chart Chart `json:"chart"`
 	}
 
-	type Chart struct {
-		Channel string `json:"channel"`
+	type ChartConfigMergePatch struct {
+		Spec Spec `json:"spec"`
 	}
 
 	patch := ChartConfigMergePatch{
