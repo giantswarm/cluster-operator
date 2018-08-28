@@ -4,6 +4,7 @@ package basic
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -94,20 +95,15 @@ func TestChartConfigPatchDeploy(t *testing.T) {
 
 	guestG8sClient := g.G8sClient()
 
-	// Wait for chart configs as they may not have been created yet.
-	err := waitForChartConfigs(guestG8sClient)
-	if err != nil {
-		t.Fatalf("could not get chartconfigs %v", err)
-	}
-
 	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
+	// At least 1 chartconfig is required.
+	if len(chartConfigList.Items) == 0 {
+		t.Fatalf("expected at least 1 chartconfigs: %d found", len(chartConfigList.Items))
+	}
 	chartConfigName := chartConfigList.Items[0].Spec.Chart.Name
-
-	log.Printf("CHARTCONFIG_LIST: %v", chartConfigList)
-	log.Printf("CHARTCONFIG_0: %s", chartConfigName)
 
 	patch := ChartConfigDeployPatch{
 		Spec{
@@ -126,11 +122,12 @@ func TestChartConfigPatchDeploy(t *testing.T) {
 		t.Fatalf("could not marshal json patch %v", err)
 	}
 
+	l.Log("level", "debug", "message", fmt.Sprintf("patching chartconfig %s", chartConfigName))
 	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Patch(chartConfigName, types.MergePatchType, jsonPatch)
 	if err != nil {
 		t.Fatalf("could not patch chartconfig %v", err)
 	}
-	log.Printf("CHARTCONFIG_PATCH: %v", patchedChartConfig)
+	l.Log("level", "debug", "message", fmt.Sprintf("succesfully patched chartconfig %s with %s", chartConfigName, patchedChartConfig))
 }
 
 func waitForChartConfigs(guestG8sClient versioned.Interface) error {
