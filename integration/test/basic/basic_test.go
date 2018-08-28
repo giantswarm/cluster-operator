@@ -65,7 +65,6 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 		return
 	}
 
-	guestNamespace := "giantswarm"
 	guestG8sClient := g.G8sClient()
 
 	// Wait for chart configs as they may not have been created yet.
@@ -86,14 +85,13 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 	}
 }
 
-func TestChartConfigPatch(t *testing.T) {
+func TestChartConfigPatchDeploy(t *testing.T) {
 	// These versions have no chartconfigs so we return early.
 	clusterOperatorVersion := os.Getenv("CLOP_VERSION_BUNDLE_VERSION")
 	if clusterOperatorVersion == "0.1.0" || clusterOperatorVersion == "0.2.0" {
 		return
 	}
 
-	guestNamespace := "giantswarm"
 	guestG8sClient := g.G8sClient()
 
 	// Wait for chart configs as they may not have been created yet.
@@ -106,23 +104,20 @@ func TestChartConfigPatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
-	log.Printf("CHARTCONFIG_LIST: %v", chartConfigList)
-	log.Printf("CHARTCONFIG_0: %s", chartConfigList.Items[0].Spec.Chart.Name)
-
 	chartConfigName := chartConfigList.Items[0].Spec.Chart.Name
-	chartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Get(chartConfigName, metav1.GetOptions{})
-	if err != nil {
-		t.Fatalf("could not get chartconfigs %v", err)
-	}
-	log.Printf("CHARTCONFIG:: %v", chartConfig)
+
+	log.Printf("CHARTCONFIG_LIST: %v", chartConfigList)
+	log.Printf("CHARTCONFIG_0: %s", chartConfigName)
 
 	patch := ChartConfigDeployPatch{
 		Spec{
 			Chart: Chart{
+				// The new channel we want to deploy
 				Channel: "0-1-beta",
 			},
 		},
 		Metadata{
+			// We don't want cluster-operator to revert our patch in its reconcile loop
 			Labels: map[string]string{"giantswarm.io/managed-by": "e2e"},
 		},
 	}
