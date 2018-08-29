@@ -2,7 +2,9 @@ package configmap
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,8 +28,12 @@ func (s *Service) GetCurrentState(ctx context.Context, config ConfigMapConfig) (
 		namespaces[namespace] = true
 	}
 
+	listOptions := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s, %s=%s", label.ServiceType, label.ServiceTypeManaged, label.ManagedBy, s.projectName),
+	}
+
 	for namespace := range namespaces {
-		configMapList, err := guestK8sClient.CoreV1().ConfigMaps(namespace).List(metav1.ListOptions{})
+		configMapList, err := guestK8sClient.CoreV1().ConfigMaps(namespace).List(listOptions)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
