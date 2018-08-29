@@ -15,7 +15,7 @@ type Spec struct {
 }
 
 // ChartConfigDeployPatch is used to patch a chartconfig resource
-// in order to deploy a chart from a new channel
+// in order to deploy a chart from a new channel.
 type ChartConfigDeployPatch struct {
 	Spec     Spec     `json:"spec"`
 	Metadata Metadata `json:"metadata"`
