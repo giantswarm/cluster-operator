@@ -36,9 +36,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	desiredChartConfigs := make([]*v1alpha1.ChartConfig, 0)
 	generators := []chartConfigGenerator{
 		r.newCertExporterChartConfig,
+		r.newIngressControllerChartConfig,
 		r.newKubeStateMetricsChartConfig,
-		r.newNodeExporterChartConfig,
 		r.newNetExporterChartConfig,
+		r.newNodeExporterChartConfig,
 	}
 
 	for _, g := range generators {
@@ -46,16 +47,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
-	}
-
-	// Enable Ingress Controller for Azure and AWS.
-	if r.provider == label.ProviderAzure || r.provider == label.ProviderAWS {
-		chartConfig, err := r.newIngressControllerChartConfig(ctx, clusterConfig)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
 		desiredChartConfigs = append(desiredChartConfigs, chartConfig)
 	}
 
@@ -105,12 +96,12 @@ func (r *Resource) newCertExporterChartConfig(ctx context.Context, clusterConfig
 	return chartConfigCR, nil
 }
 
-func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterConfig cluster.Config) (*v1alpha1.ChartConfig, error) {
+func (r *Resource) newIngressControllerChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-nginx-ingress-controller-chart"
 	channelName := "0-2-stable"
 	configMapName := "nginx-ingress-controller-values"
 	releaseName := "nginx-ingress-controller"
-	labels := newChartConfigLabels(clusterConfig, releaseName, r.projectName)
+	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
 	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
 	if err != nil {
