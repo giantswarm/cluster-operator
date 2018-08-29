@@ -90,12 +90,12 @@ func TestChartConfigPatchDeploy(t *testing.T) {
 	patch := ChartConfigDeployPatch{
 		Spec{
 			Chart: Chart{
-				// The new channel we want to deploy
+				// The new channel we want to deploy from
 				Channel: "0-1-beta",
 			},
 		},
 		Metadata{
-			// We don't want cluster-operator to revert our patch in its reconcile loop
+			// Tell cluster-operator to not reconcile this chartconfig anymore
 			Labels: map[string]string{"giantswarm.io/managed-by": "e2e"},
 		},
 	}
