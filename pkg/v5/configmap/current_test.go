@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,6 +40,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "test-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -50,6 +55,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			expectedConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "test-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -69,6 +78,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "test-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -78,6 +91,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				},
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "another-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -89,6 +106,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			expectedConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "test-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -98,6 +119,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				},
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "another-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -119,6 +144,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "giantswarm-configmap",
 						Namespace: "giantswarm",
 					},
@@ -130,6 +159,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			expectedConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "giantswarm-configmap",
 						Namespace: "giantswarm",
 					},
@@ -151,6 +184,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "giantswarm-configmap",
 						Namespace: "giantswarm",
 					},
@@ -160,6 +197,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				},
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "test-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
@@ -171,6 +212,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			expectedConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "giantswarm-configmap",
 						Namespace: "giantswarm",
 					},
@@ -180,6 +225,166 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				},
 				{
 					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "test-configmap",
+						Namespace: metav1.NamespaceSystem,
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+			},
+		},
+		{
+			name: "case 5: multiple namespaces, multiple results, omitting ones without required labels",
+			config: ConfigMapConfig{
+				ClusterID:      "5xchu",
+				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+				Namespaces: []string{
+					"giantswarm",
+				},
+			},
+			presentConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "giantswarm-configmap",
+						Namespace: "giantswarm",
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "test-configmap",
+						Namespace: metav1.NamespaceSystem,
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+						},
+						Name:      "test-configmap2",
+						Namespace: metav1.NamespaceSystem,
+					},
+					Data: map[string]string{
+						"test": "test2",
+					},
+				},
+			},
+			expectedConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "giantswarm-configmap",
+						Namespace: "giantswarm",
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "test-configmap",
+						Namespace: metav1.NamespaceSystem,
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+			},
+		},
+		{
+			name: "case 6: as case 5, but different label: multiple namespaces, multiple results, omitting ones without required labels",
+			config: ConfigMapConfig{
+				ClusterID:      "5xchu",
+				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+				Namespaces: []string{
+					"giantswarm",
+				},
+			},
+			presentConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "giantswarm-configmap",
+						Namespace: "giantswarm",
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "test-configmap",
+						Namespace: metav1.NamespaceSystem,
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ManagedBy: "cluster-operator",
+						},
+						Name:      "test-configmap2",
+						Namespace: metav1.NamespaceSystem,
+					},
+					Data: map[string]string{
+						"test": "test2",
+					},
+				},
+			},
+			expectedConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
+						Name:      "giantswarm-configmap",
+						Namespace: "giantswarm",
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							label.ServiceType: label.ServiceTypeManaged,
+							label.ManagedBy:   "cluster-operator",
+						},
 						Name:      "test-configmap",
 						Namespace: metav1.NamespaceSystem,
 					},
