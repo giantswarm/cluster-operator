@@ -10,7 +10,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "cluster-operator",
 				Description: "Add your changes here.",
-				Kind:        versionbundle.KindChanges,
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
