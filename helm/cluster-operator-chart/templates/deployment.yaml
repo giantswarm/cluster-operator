@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: cluster-operator
-  namespace: giantswarm
+  namespace: {{ .Values.namespace }}
   labels:
     app: cluster-operator
 spec:
