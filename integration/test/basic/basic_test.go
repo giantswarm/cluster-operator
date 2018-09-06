@@ -5,7 +5,6 @@ package basic
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -19,25 +18,16 @@ import (
 )
 
 const (
-	guestNamespace = "giantswarm"
-	releaseName    = "chart-operator"
+	namespace   = "giantswarm"
+	releaseName = "chart-operator"
 )
 
 func TestChartOperatorBootstrap(t *testing.T) {
-	tillerNamespace := "giantswarm"
-
-	// This version bundle uses kube-system because it doesn't have the
-	// namespace resource that creates the giantswarm namespace. All future
-	// version will use the giantswarm namespace.
-	if os.Getenv("CLOP_VERSION_BUNDLE_VERSION") == "0.2.0" {
-		tillerNamespace = "kube-system"
-	}
-
 	ch := helmclient.Config{
 		Logger:          l,
 		K8sClient:       g.K8sClient(),
 		RestConfig:      g.RestConfig(),
-		TillerNamespace: tillerNamespace,
+		TillerNamespace: namespace,
 	}
 	guestHelmClient, err := helmclient.New(ch)
 	if err != nil {
@@ -53,12 +43,6 @@ func TestChartOperatorBootstrap(t *testing.T) {
 // TestChartConfigChartsInstalled checks that the charts for any chartconfig
 // CRs installed in the cluster have been deployed.
 func TestChartConfigChartsInstalled(t *testing.T) {
-	// These versions have no chartconfigs so we return early.
-	clusterOperatorVersion := os.Getenv("CLOP_VERSION_BUNDLE_VERSION")
-	if clusterOperatorVersion == "0.1.0" || clusterOperatorVersion == "0.2.0" {
-		return
-	}
-
 	guestG8sClient := g.G8sClient()
 
 	// Wait for chart configs as they may not have been created yet.
@@ -69,15 +53,9 @@ func TestChartConfigChartsInstalled(t *testing.T) {
 }
 
 func TestChartConfigPatchDeploy(t *testing.T) {
-	// These versions have no chartconfigs so we return early.
-	clusterOperatorVersion := os.Getenv("CLOP_VERSION_BUNDLE_VERSION")
-	if clusterOperatorVersion == "0.1.0" || clusterOperatorVersion == "0.2.0" {
-		return
-	}
-
 	guestG8sClient := g.G8sClient()
 
-	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
+	chartConfigList, err := guestG8sClient.CoreV1alpha1().ChartConfigs(namespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("could not get chartconfigs %v", err)
 	}
@@ -105,7 +83,7 @@ func TestChartConfigPatchDeploy(t *testing.T) {
 	}
 
 	l.Log("level", "debug", "message", fmt.Sprintf("patching chartconfig %s", chartConfigName))
-	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).Patch(chartConfigName, types.MergePatchType, jsonPatch)
+	patchedChartConfig, err := guestG8sClient.CoreV1alpha1().ChartConfigs(namespace).Patch(chartConfigName, types.MergePatchType, jsonPatch)
 	if err != nil {
 		t.Fatalf("could not patch chartconfig %v", err)
 	}
@@ -114,7 +92,7 @@ func TestChartConfigPatchDeploy(t *testing.T) {
 
 func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 	operation := func() error {
-		cc, err := guestG8sClient.CoreV1alpha1().ChartConfigs(guestNamespace).List(metav1.ListOptions{})
+		cc, err := guestG8sClient.CoreV1alpha1().ChartConfigs(namespace).List(metav1.ListOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		} else if len(cc.Items) == 0 {
