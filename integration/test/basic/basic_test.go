@@ -65,19 +65,21 @@ func TestChartConfigPatchDeploy(t *testing.T) {
 	}
 	chartConfigName := chartConfigList.Items[0].Spec.Chart.Name
 
-	patch := ChartConfigDeployPatch{
-		Spec{
-			Chart: Chart{
-				// The new channel we want to deploy from
-				Channel: "0-1-beta",
+	patches := []Patch{
+		{
+			Spec: Spec{
+				Chart: Chart{
+					// The new channel we want to deploy from
+					Channel: "0-1-beta",
+				},
+			},
+			Metadata: Metadata{
+				// Tell cluster-operator to not reconcile this chartconfig anymore
+				Labels: map[string]string{"giantswarm.io/managed-by": "e2e"},
 			},
 		},
-		Metadata{
-			// Tell cluster-operator to not reconcile this chartconfig anymore
-			Labels: map[string]string{"giantswarm.io/managed-by": "e2e"},
-		},
 	}
-	jsonPatch, err := json.Marshal(patch)
+	jsonPatch, err := json.Marshal(patches)
 	if err != nil {
 		t.Fatalf("could not marshal json patch %v", err)
 	}
