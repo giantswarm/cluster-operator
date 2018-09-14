@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cluster-operator-configmap
-  namespace: giantswarm
+  namespace: {{ .Values.namespace }}
 data:
   config.yml: |
     server:
