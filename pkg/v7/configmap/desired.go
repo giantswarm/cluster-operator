@@ -327,12 +327,12 @@ func (s *Service) newBasicConfigMap(ctx context.Context, configMapValues ConfigM
 }
 
 func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, configMapConfig ConfigMapConfig) (bool, error) {
-	guestHelmClient, err := s.guest.NewHelmClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+	tenantHelmClient, err := s.tenant.NewHelmClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
 
-	_, err = guestHelmClient.GetReleaseContent(releaseName)
+	_, err = tenantHelmClient.GetReleaseContent(releaseName)
 	if helmclient.IsReleaseNotFound(err) {
 		return false, nil
 	} else if err != nil {

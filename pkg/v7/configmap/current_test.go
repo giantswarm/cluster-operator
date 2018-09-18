@@ -403,14 +403,15 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				objs = append(objs, cc)
 			}
 
-			fakeGuestK8sClient := fake.NewSimpleClientset(objs...)
-			guestService := &guestMock{
-				fakeGuestK8sClient: fakeGuestK8sClient,
+			fakeTenantK8sClient := fake.NewSimpleClientset(objs...)
+			tenantService := &tenantMock{
+				fakeTenantK8sClient: fakeTenantK8sClient,
 			}
 
 			c := Config{
-				Guest:              guestService,
-				Logger:             microloggertest.New(),
+				Logger: microloggertest.New(),
+				Tenant: tenantService,
+
 				CalicoAddress:      "172.20.0.0",
 				CalicoPrefixLength: "16",
 				ClusterIPRange:     "172.31.0.0/16",

@@ -3,16 +3,16 @@ package configmap
 import (
 	"reflect"
 
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 )
 
 // Config represents the configuration used to create a new configmap service.
 type Config struct {
-	Guest  guestcluster.Interface
 	Logger micrologger.Logger
+	Tenant tenantcluster.Interface
 
 	CalicoAddress      string
 	CalicoPrefixLength string
@@ -23,8 +23,8 @@ type Config struct {
 
 // Service provides shared functionality for managing configmaps.
 type Service struct {
-	guest  guestcluster.Interface
 	logger micrologger.Logger
+	tenant tenantcluster.Interface
 
 	calicoAddress      string
 	calicoPrefixLength string
@@ -35,11 +35,11 @@ type Service struct {
 
 // New creates a new configmap service.
 func New(config Config) (*Service, error) {
-	if config.Guest == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+	if config.Tenant == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
 
 	if config.ClusterIPRange == "" {
@@ -53,8 +53,9 @@ func New(config Config) (*Service, error) {
 	}
 
 	s := &Service{
-		guest:              config.Guest,
-		logger:             config.Logger,
+		logger: config.Logger,
+		tenant: config.Tenant,
+
 		calicoAddress:      config.CalicoAddress,
 		calicoPrefixLength: config.CalicoPrefixLength,
 		clusterIPRange:     config.ClusterIPRange,
