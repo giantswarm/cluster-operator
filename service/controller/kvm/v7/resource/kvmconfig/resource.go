@@ -9,7 +9,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "kvmconfigv2"
+	Name = "kvmconfigv7"
 )
 
 // Config represents the configuration used to create a new cloud config resource.
