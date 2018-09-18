@@ -19,15 +19,15 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v6/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v6/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v6/resource/awsconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v6/resource/configmap"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
