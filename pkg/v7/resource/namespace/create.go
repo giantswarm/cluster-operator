@@ -19,12 +19,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if namespaceToCreate != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the guest cluster")
 
-		guestK8sClient, err := r.getGuestK8sClient(ctx, obj)
+		tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		_, err = guestK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
+		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
 		} else if guest.IsAPINotAvailable(err) {
