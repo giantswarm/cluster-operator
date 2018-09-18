@@ -78,6 +78,9 @@ func New(config Config) (*Service, error) {
 	var err error
 
 	registryDomain := config.Viper.GetString(config.Flag.Service.RegistryDomain)
+	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
+	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
+	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 
 	var restConfig *rest.Config
 	{
@@ -161,10 +164,13 @@ func New(config Config) (*Service, error) {
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
+			Logger:            config.Logger,
 
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
-			RegistryDomain: registryDomain,
+			ClusterIPRange:     clusterIPRange,
+			CalicoAddress:      calicoAddress,
+			CalicoPrefixLength: calicoPrefixLength,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     registryDomain,
 		}
 
 		awsClusterController, err = aws.NewCluster(c)
@@ -188,10 +194,13 @@ func New(config Config) (*Service, error) {
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
+			Logger:            config.Logger,
 
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
-			RegistryDomain: registryDomain,
+			ClusterIPRange:     clusterIPRange,
+			CalicoAddress:      calicoAddress,
+			CalicoPrefixLength: calicoPrefixLength,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     registryDomain,
 		}
 
 		azureClusterController, err = azure.NewCluster(c)
@@ -228,10 +237,13 @@ func New(config Config) (*Service, error) {
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
+			Logger:            config.Logger,
 
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
-			RegistryDomain: registryDomain,
+			ClusterIPRange:     clusterIPRange,
+			CalicoAddress:      calicoAddress,
+			CalicoPrefixLength: calicoPrefixLength,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     registryDomain,
 		}
 
 		kvmClusterController, err = kvm.NewCluster(c)
