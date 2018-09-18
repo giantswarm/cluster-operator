@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	// defaultDNSLastOctect is the last octect for the DNS service IP, the first
-	// 3 octects come from the cluster IP range.
-	defaultDNSLastOctect = 10
+	// defaultDNSLastOctet is the last octect for the DNS service IP, the first
+	// 3 octets come from the cluster IP range.
+	defaultDNSLastOctet = 10
 )
 
 // APIAltNames returns the alt names for API certs.
@@ -72,7 +72,7 @@ func DNSIP(clusterIPRange string) (string, error) {
 		return "", microerror.Mask(invalidConfigError)
 	}
 
-	ip[3] = defaultDNSLastOctect
+	ip[3] = defaultDNSLastOctet
 
 	return ip.String(), nil
 }
