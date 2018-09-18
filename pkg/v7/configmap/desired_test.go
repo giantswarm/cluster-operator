@@ -514,12 +514,12 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				Guest: &guestMock{
-					fakeGuestHelmClient: helmClient,
-				},
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
+				Tenant: &tenantMock{
+					fakeTenantHelmClient: helmClient,
+				},
 			}
 			newService, err := New(c)
 			if err != nil {
