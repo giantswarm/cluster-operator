@@ -188,7 +188,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
-	
+
 	var v7ResourceSet *controller.ResourceSet
 	{
 		c := v7.ResourceSetConfig{
