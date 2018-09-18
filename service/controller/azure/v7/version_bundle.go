@@ -8,23 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "chart-operator",
-				Description: "Added monitoring for managed charts.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
 				Component:   "cluster-operator",
-				Description: "Added support for deploying cert-exporter.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Added support for deploying net-exporter.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Updated to 0.15.0.",
+				Description: "Add your changes here.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -48,6 +33,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
-		Version:  "0.6.0",
+		Version:  "0.7.0",
 	}
 }
