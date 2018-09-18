@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v4"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v5"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -189,6 +190,26 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v7ResourceSet *controller.ResourceSet
+	{
+		c := v7.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+		}
+
+		v7ResourceSet, err = v7.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -203,6 +224,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v4ResourceSet,
 				v5ResourceSet,
 				v6ResourceSet,
+				v7ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 

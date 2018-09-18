@@ -1,4 +1,4 @@
-package azureconfig
+package kvmconfig
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
@@ -9,7 +9,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "azureconfigv6"
+	Name = "kvmconfigv7"
 )
 
 // Config represents the configuration used to create a new cloud config resource.
@@ -27,18 +27,19 @@ type Resource struct {
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
 	}
 	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
 	}
 
-	r := &Resource{
+	newService := &Resource{
+		// Dependencies.
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 	}
 
-	return r, nil
+	return newService, nil
 }
 
 // Name returns name of the Resource.
@@ -46,15 +47,15 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func toAzureConfig(v interface{}) (*v1alpha1.AzureConfig, error) {
+func toKvmConfig(v interface{}) (*v1alpha1.KVMConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
 
-	azureConfig, ok := v.(*v1alpha1.AzureConfig)
+	kvmConfig, ok := v.(*v1alpha1.KVMConfig)
 	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.AzureConfig{}, v)
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.KVMConfig{}, v)
 	}
 
-	return azureConfig, nil
+	return kvmConfig, nil
 }
