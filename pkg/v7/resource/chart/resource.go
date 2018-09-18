@@ -7,10 +7,10 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"
 
@@ -35,11 +35,11 @@ type Config struct {
 	BaseClusterConfig        cluster.Config
 	Fs                       afero.Fs
 	G8sClient                versioned.Interface
-	Guest                    guestcluster.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
 	RegistryDomain           string
+	Tenant                   tenantcluster.Interface
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
@@ -49,11 +49,11 @@ type Resource struct {
 	baseClusterConfig        cluster.Config
 	fs                       afero.Fs
 	g8sClient                versioned.Interface
-	guest                    guestcluster.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
 	registryDomain           string
+	tenant                   tenantcluster.Interface
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
@@ -71,9 +71,6 @@ func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
-	if config.Guest == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -86,20 +83,23 @@ func New(config Config) (*Resource, error) {
 	if config.RegistryDomain == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
 	}
+	if config.Tenant == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
+	}
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
 
 	newResource := &Resource{
-		apprClient:               config.ApprClient,
-		baseClusterConfig:        config.BaseClusterConfig,
-		fs:                       config.Fs,
-		g8sClient:                config.G8sClient,
-		guest:                    config.Guest,
-		k8sClient:                config.K8sClient,
-		logger:                   config.Logger,
-		projectName:              config.ProjectName,
-		registryDomain:           config.RegistryDomain,
+		apprClient:        config.ApprClient,
+		baseClusterConfig: config.BaseClusterConfig,
+		fs:                config.Fs,
+		g8sClient:         config.G8sClient,
+		k8sClient:         config.K8sClient,
+		logger:            config.Logger,
+		projectName:       config.ProjectName,
+		registryDomain:    config.RegistryDomain,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
@@ -111,7 +111,7 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (helmclient.Interface, error) {
+func (r *Resource) getTenantHelmClient(ctx context.Context, obj interface{}) (helmclient.Interface, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -127,17 +127,17 @@ func (r *Resource) getGuestHelmClient(ctx context.Context, obj interface{}) (hel
 		return nil, microerror.Mask(err)
 	}
 
-	guestHelmClient, err := r.guest.NewHelmClient(ctx, clusterConfig.ClusterID, guestAPIDomain)
+	tenantHelmClient, err := r.tenant.NewHelmClient(ctx, clusterConfig.ClusterID, guestAPIDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	err = guestHelmClient.EnsureTillerInstalled()
+	err = tenantHelmClient.EnsureTillerInstalled()
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	return guestHelmClient, nil
+	return tenantHelmClient, nil
 }
 
 func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
