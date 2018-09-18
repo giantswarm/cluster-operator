@@ -144,9 +144,9 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				objs = append(objs, cc)
 			}
 
-			fakeGuestG8sClient := fake.NewSimpleClientset(objs...)
-			guestService := &guestMock{
-				fakeGuestG8sClient: fakeGuestG8sClient,
+			fakeTenantG8sClient := fake.NewSimpleClientset(objs...)
+			tenantService := &tenantMock{
+				fakeTenantG8sClient: fakeTenantG8sClient,
 			}
 
 			c := Config{
@@ -154,11 +154,11 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 					ClusterID: "test-cluster",
 				},
 				G8sClient:   fake.NewSimpleClientset(),
-				Guest:       guestService,
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
 				Provider:    label.ProviderAWS,
+				Tenant:      tenantService,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

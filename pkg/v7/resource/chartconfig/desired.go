@@ -275,12 +275,12 @@ func (r *Resource) newNodeExporterChartConfig(ctx context.Context, clusterConfig
 }
 
 func (r *Resource) getConfigMapSpec(ctx context.Context, guestConfig cluster.Config, configMapName, namespace string) (*v1alpha1.ChartConfigSpecConfigMap, error) {
-	guestK8sClient, err := r.getGuestK8sClient(ctx, guestConfig)
+	tenantK8sClient, err := r.gettenantK8sClient(ctx, guestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMap, err := guestK8sClient.CoreV1().ConfigMaps(namespace).Get(configMapName, apismetav1.GetOptions{})
+	configMap, err := tenantK8sClient.CoreV1().ConfigMaps(namespace).Get(configMapName, apismetav1.GetOptions{})
 	if apierrors.IsNotFound(err) || guest.IsAPINotAvailable(err) {
 		// Cannot get configmap resource version so leave it unset. We will
 		// check again after the next resync period.
