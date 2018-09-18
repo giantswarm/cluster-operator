@@ -194,10 +194,13 @@ func New(config Config) (*Service, error) {
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
+			Logger:            config.Logger,
 
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
-			RegistryDomain: registryDomain,
+			ClusterIPRange:     clusterIPRange,
+			CalicoAddress:      calicoAddress,
+			CalicoPrefixLength: calicoPrefixLength,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     registryDomain,
 		}
 
 		azureClusterController, err = azure.NewCluster(c)
@@ -234,10 +237,13 @@ func New(config Config) (*Service, error) {
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
+			Logger:            config.Logger,
 
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
-			RegistryDomain: registryDomain,
+			ClusterIPRange:     clusterIPRange,
+			CalicoAddress:      calicoAddress,
+			CalicoPrefixLength: calicoPrefixLength,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     registryDomain,
 		}
 
 		kvmClusterController, err = kvm.NewCluster(c)
