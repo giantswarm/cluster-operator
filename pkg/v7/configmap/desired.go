@@ -11,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
 type configMapGenerator func(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error)
@@ -60,6 +61,33 @@ type NetExporter struct {
 	Namespace string `json:"namespace"`
 }
 
+type CoreDNS struct {
+	Cluster CoreDNSCluster `json:"cluster"`
+	Image   Image          `json:"image"`
+}
+
+type CoreDNSCluster struct {
+	Calico     CoreDNSClusterCalico     `json:"calico"`
+	Kubernetes CoreDNSClusterKubernetes `json:"kubernetes"`
+}
+
+type CoreDNSClusterCalico struct {
+	CIDR string `json:"cidr"`
+}
+
+type CoreDNSClusterKubernetes struct {
+	API CoreDNSClusterKubernetesAPI `json:"api"`
+	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
+}
+
+type CoreDNSClusterKubernetesAPI struct {
+	ClusterIPRange string `json:"clusterIPRange"`
+}
+
+type CoreDNSClusterKubernetesDNS struct {
+	IP string `json:"ip"`
+}
+
 func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
 
@@ -71,6 +99,7 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMap
 	desiredConfigMaps = append(desiredConfigMaps, configMap)
 	generators := []configMapGenerator{
 		s.newCertExporterConfigMap,
+		s.newCoreDNSConfigMap,
 		s.newKubeStateMetricsConfigMap,
 		s.newNetExporterConfigMap,
 		s.newNodeExporterConfigMap,
@@ -94,6 +123,54 @@ func (s *Service) newCertExporterConfigMap(ctx context.Context, configMapValues 
 
 	values := CertExporter{
 		Namespace: metav1.NamespaceSystem,
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	data := map[string]string{
+		"values.json": string(json),
+	}
+
+	newConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapName,
+			Namespace: metav1.NamespaceSystem,
+			Labels:    labels,
+		},
+		Data: data,
+	}
+
+	return newConfigMap, nil
+}
+
+func (s *Service) newCoreDNSConfigMap(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
+	configMapName := "coredns-values"
+	appName := "coredns"
+	labels := newConfigMapLabels(configMapValues, appName, projectName)
+
+	calicoCIDRBlock := key.CIDRBlock(s.calicoAddress, s.calicoPrefixLength)
+	DNSIP, err := key.DNSIP(s.clusterIPRange)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	values := CoreDNS{
+		Cluster: CoreDNSCluster{
+			Calico: CoreDNSClusterCalico{
+				CIDR: calicoCIDRBlock,
+			},
+			Kubernetes: CoreDNSClusterKubernetes{
+				API: CoreDNSClusterKubernetesAPI{
+					ClusterIPRange: s.clusterIPRange,
+				},
+				DNS: CoreDNSClusterKubernetesDNS{
+					IP: DNSIP,
+				},
+			},
+		},
+		Image: Image{
+			Registry: s.registryDomain,
+		},
 	}
 	json, err := json.Marshal(values)
 	if err != nil {
