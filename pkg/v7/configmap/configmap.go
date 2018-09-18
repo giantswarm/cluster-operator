@@ -14,8 +14,11 @@ type Config struct {
 	Guest  guestcluster.Interface
 	Logger micrologger.Logger
 
-	ProjectName    string
-	RegistryDomain string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	ProjectName        string
+	RegistryDomain     string
 }
 
 // Service provides shared functionality for managing configmaps.
@@ -23,8 +26,11 @@ type Service struct {
 	guest  guestcluster.Interface
 	logger micrologger.Logger
 
-	projectName    string
-	registryDomain string
+	calicoAddress      string
+	calicoPrefixLength string
+	clusterIPRange     string
+	projectName        string
+	registryDomain     string
 }
 
 // New creates a new configmap service.
@@ -36,6 +42,15 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.CalicoAddress == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
+	}
+	if config.CalicoPrefixLength == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
+	}
+	if config.ClusterIPRange == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -44,10 +59,13 @@ func New(config Config) (*Service, error) {
 	}
 
 	s := &Service{
-		guest:          config.Guest,
-		logger:         config.Logger,
-		projectName:    config.ProjectName,
-		registryDomain: config.RegistryDomain,
+		guest:              config.Guest,
+		logger:             config.Logger,
+		calicoAddress:      config.CalicoAddress,
+		calicoPrefixLength: config.CalicoPrefixLength,
+		clusterIPRange:     config.ClusterIPRange,
+		projectName:        config.ProjectName,
+		registryDomain:     config.RegistryDomain,
 	}
 
 	return s, nil
