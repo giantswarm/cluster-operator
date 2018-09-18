@@ -42,12 +42,12 @@ func Test_Resource_Namespace_GetDesiredState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				Guest:       &guestMock{},
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
+				Tenant: &tenantMock{},
 				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
 					return v.(apismetav1.ObjectMeta), nil
 				},

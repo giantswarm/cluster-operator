@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/errors/guest"
-	"github.com/giantswarm/guestcluster"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -32,8 +32,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	guestK8sClient, err := r.getGuestK8sClient(ctx, obj)
-	if guestcluster.IsTimeout(err) {
+	tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
+	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the guest cluster")
 
 		// We can't continue without a K8s client. We will retry during the
@@ -51,7 +51,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Lookup the current state of the namespace.
 	var namespace *apiv1.Namespace
 	{
-		manifest, err := guestK8sClient.CoreV1().Namespaces().Get(namespaceName, apismetav1.GetOptions{})
+		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, apismetav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the guest cluster")
 			// fall through
