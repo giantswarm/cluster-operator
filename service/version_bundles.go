@@ -10,11 +10,7 @@ import (
 	awsv5 "github.com/giantswarm/cluster-operator/service/controller/aws/v5"
 	awsv6 "github.com/giantswarm/cluster-operator/service/controller/aws/v6"
 	awsv7 "github.com/giantswarm/cluster-operator/service/controller/aws/v7"
-	azurev1 "github.com/giantswarm/cluster-operator/service/controller/azure/v1"
-	azurev2 "github.com/giantswarm/cluster-operator/service/controller/azure/v2"
-	azurev3 "github.com/giantswarm/cluster-operator/service/controller/azure/v3"
 	azurev4 "github.com/giantswarm/cluster-operator/service/controller/azure/v4"
-	azurev5 "github.com/giantswarm/cluster-operator/service/controller/azure/v5"
 	azurev6 "github.com/giantswarm/cluster-operator/service/controller/azure/v6"
 	azurev7 "github.com/giantswarm/cluster-operator/service/controller/azure/v7"
 	kvmv1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
@@ -30,15 +26,12 @@ func NewVersionBundles() []versionbundle.Bundle {
 	var versionBundles []versionbundle.Bundle
 
 	versionBundles = append(versionBundles, awsv1.VersionBundle())
-	versionBundles = append(versionBundles, azurev1.VersionBundle())
 	versionBundles = append(versionBundles, kvmv1.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv2.VersionBundle())
-	versionBundles = append(versionBundles, azurev2.VersionBundle())
 	versionBundles = append(versionBundles, kvmv2.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv3.VersionBundle())
-	versionBundles = append(versionBundles, azurev3.VersionBundle())
 	versionBundles = append(versionBundles, kvmv3.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv4.VersionBundle())
@@ -46,7 +39,6 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, kvmv4.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv5.VersionBundle())
-	versionBundles = append(versionBundles, azurev5.VersionBundle())
 	versionBundles = append(versionBundles, kvmv5.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv6.VersionBundle())
