@@ -7,12 +7,12 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -38,9 +38,9 @@ type ResourceSetConfig struct {
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	G8sClient         versioned.Interface
-	Guest             guestcluster.Interface
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	HandledVersionBundles []string
 	ProjectName           string
@@ -125,16 +125,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestClusterService guestcluster.Interface
+	var tenantClusterService tenantcluster.Interface
 	{
-		c := guestcluster.Config{
+		c := tenantcluster.Config{
 			CertsSearcher: config.CertSearcher,
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
 		}
 
-		guestClusterService, err = guestcluster.New(c)
+		tenantClusterService, err = tenantcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -143,10 +143,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Guest:                    guestClusterService,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -165,15 +165,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
@@ -191,8 +191,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapService configmapservice.Interface
 	{
 		c := configmapservice.Config{
-			Guest:          guestClusterService,
-			Logger:         config.Logger,
+			Logger: config.Logger,
+			Tenant: tenantClusterService,
+
 			ProjectName:    config.ProjectName,
 			RegistryDomain: config.RegistryDomain,
 		}
@@ -206,10 +207,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapResource controller.Resource
 	{
 		c := configmap.Config{
-			ConfigMap:   configMapService,
-			Guest:       guestClusterService,
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
+			ConfigMap: configMapService,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+			Tenant:    tenantClusterService,
+
 			ProjectName: config.ProjectName,
 		}
 
@@ -227,13 +229,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartConfigResource controller.Resource
 	{
 		c := chartconfig.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Provider:                 label.ProviderAzure,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Provider:          label.ProviderAzure,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
