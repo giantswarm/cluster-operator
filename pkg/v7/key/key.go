@@ -2,6 +2,7 @@ package key
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -9,6 +10,12 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/versionbundle"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+const (
+	// defaultDNSLastOctet is the last octect for the DNS service IP, the first
+	// 3 octets come from the cluster IP range.
+	defaultDNSLastOctet = 10
 )
 
 // APIAltNames returns the alt names for API certs.
@@ -32,6 +39,11 @@ func CertConfigVersionBundleVersion(customObject v1alpha1.CertConfig) string {
 	return customObject.Spec.VersionBundle.Version
 }
 
+// CIDRBlock returns a CIDR block for the given address and prefix.
+func CIDRBlock(address, prefix string) string {
+	return fmt.Sprintf("%s/%s", address, prefix)
+}
+
 // ClusterID returns cluster ID for given guest cluster config.
 func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.ID
@@ -40,6 +52,29 @@ func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 // ClusterOrganization returns the org for given guest cluster config.
 func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.Owner
+}
+
+// DNSIP returns the IP of the DNS service given a cluster IP range.
+func DNSIP(clusterIPRange string) (string, error) {
+	ip, _, err := net.ParseCIDR(clusterIPRange)
+	if err != nil {
+		return "", microerror.Maskf(invalidConfigError, err.Error())
+	}
+
+	// Only IPV4 CIDRs are supported.
+	ip = ip.To4()
+	if ip == nil {
+		return "", microerror.Mask(invalidConfigError)
+	}
+
+	// IP must be a network address.
+	if ip[3] != 0 {
+		return "", microerror.Mask(invalidConfigError)
+	}
+
+	ip[3] = defaultDNSLastOctet
+
+	return ip.String(), nil
 }
 
 // DNSZone returns common domain for guest cluster.
