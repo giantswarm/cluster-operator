@@ -86,15 +86,15 @@ func Test_Resource_Chart_newUpdate(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				Fs:        afero.NewMemMapFs(),
-				G8sClient: fake.NewSimpleClientset(),
-				Guest: &guestMock{
-					fakeGuestHelmClient: helmClient,
-				},
+				Fs:             afero.NewMemMapFs(),
+				G8sClient:      fake.NewSimpleClientset(),
 				K8sClient:      clientgofake.NewSimpleClientset(),
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
+				Tenant: &tenantMock{
+					fakeTenantHelmClient: helmClient,
+				},
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

@@ -50,11 +50,11 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 				},
 				Fs:             afero.NewMemMapFs(),
 				G8sClient:      fake.NewSimpleClientset(),
-				Guest:          &guestMock{},
 				K8sClient:      clientgofake.NewSimpleClientset(),
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
+				Tenant:         &tenantMock{},
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
