@@ -32,8 +32,11 @@ type ClusterConfig struct {
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 
-	ProjectName    string
-	RegistryDomain string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	ProjectName        string
+	RegistryDomain     string
 }
 
 type Cluster struct {
@@ -123,8 +126,12 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		v7ResourceSet, err = v7.NewResourceSet(c)
