@@ -7,15 +7,15 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
-// ClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig.
-func ClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
-	return awsClusterConfig.Spec.Guest.ClusterGuestConfig
-}
-
 // ChartSpecs returns charts installed only for AWS.
 func ChartSpecs() []key.ChartSpec {
 	// Add any provider specific charts here.
 	return []key.ChartSpec{}
+}
+
+// ClusterGuestConfig extracts ClusterGuestConfig from AWSClusterConfig.
+func ClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.ClusterGuestConfig {
+	return awsClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
 // ToCustomObject converts value to v1alpha1.AWSClusterConfig and returns it or

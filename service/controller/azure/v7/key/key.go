@@ -8,11 +8,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
-// ClusterGuestConfig extracts ClusterGuestConfig from AzureClusterConfig.
-func ClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1.ClusterGuestConfig {
-	return azureClusterConfig.Spec.Guest.ClusterGuestConfig
-}
-
 // ChartSpecs returns charts installed only for Azure.
 func ChartSpecs() []key.ChartSpec {
 	return []key.ChartSpec{
@@ -24,6 +19,11 @@ func ChartSpecs() []key.ChartSpec {
 			ReleaseName: "external-dns",
 		},
 	}
+}
+
+// ClusterGuestConfig extracts ClusterGuestConfig from AzureClusterConfig.
+func ClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1.ClusterGuestConfig {
+	return azureClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
 // ToCustomObject converts value to v1alpha1.AzureClusterConfig and returns it or

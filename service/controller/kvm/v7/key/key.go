@@ -7,6 +7,12 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
+// ChartSpecs returns charts installed only for KVM.
+func ChartSpecs() []key.ChartSpec {
+	// Add any provider specific charts here.
+	return []key.ChartSpec{}
+}
+
 // ClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
 func ClusterGuestConfig(kvmClusterConfig v1alpha1.KVMClusterConfig) v1alpha1.ClusterGuestConfig {
 	return kvmClusterConfig.Spec.Guest.ClusterGuestConfig
@@ -15,12 +21,6 @@ func ClusterGuestConfig(kvmClusterConfig v1alpha1.KVMClusterConfig) v1alpha1.Clu
 // ClusterID extracts clusterID from v1alpha1.KVMClusterConfig.
 func ClusterID(customObject v1alpha1.KVMClusterConfig) string {
 	return customObject.Spec.Guest.ClusterGuestConfig.ID
-}
-
-// ChartSpecs returns charts installed only for KVM.
-func ChartSpecs() []key.ChartSpec {
-	// Add any provider specific charts here.
-	return []key.ChartSpec{}
 }
 
 // ToClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
