@@ -3,6 +3,7 @@ package configmap
 import (
 	"reflect"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
@@ -18,6 +19,7 @@ type Config struct {
 	CalicoPrefixLength string
 	ClusterIPRange     string
 	ProjectName        string
+	Provider           string
 	RegistryDomain     string
 }
 
@@ -30,6 +32,7 @@ type Service struct {
 	calicoPrefixLength string
 	clusterIPRange     string
 	projectName        string
+	provider           string
 	registryDomain     string
 }
 
@@ -42,12 +45,29 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
 
+	// Azure manages Calico CIDR blocks differently, and the installations
+	// settings can be empty.
+	if config.Provider != label.ProviderAzure {
+		if config.CalicoAddress == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
+		}
+		if config.CalicoPrefixLength == "" {
+			return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
+		}
+	}
+
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
+
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
+
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+
 	if config.RegistryDomain == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
 	}
@@ -60,6 +80,7 @@ func New(config Config) (*Service, error) {
 		calicoPrefixLength: config.CalicoPrefixLength,
 		clusterIPRange:     config.ClusterIPRange,
 		projectName:        config.ProjectName,
+		provider:           config.Provider,
 		registryDomain:     config.RegistryDomain,
 	}
 

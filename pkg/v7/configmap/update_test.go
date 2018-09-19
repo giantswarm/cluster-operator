@@ -242,6 +242,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 		CalicoPrefixLength: "16",
 		ClusterIPRange:     "172.31.0.0/16",
 		ProjectName:        "cluster-operator",
+		Provider:           "aws",
 		RegistryDomain:     "quay.io",
 	}
 	newService, err := New(c)
