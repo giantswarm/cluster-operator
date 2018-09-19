@@ -6,17 +6,17 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/errors/guest"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/tenantcluster"
 	"k8s.io/helm/pkg/helm"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if guestcluster.IsTimeout(err) {
+	tenantHelmClient, err := r.getTenantHelmClient(ctx, obj)
+	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
 		// A not found error here means that the cluster-operator certificate for
@@ -77,7 +77,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		//      executing "cnr-server-chart/templates/deployment.yaml" at <.Values.image.reposi...>: can't evaluate field repository in type interface {}
 		//     }
 		//
-		err = guestHelmClient.UpdateReleaseFromTarball(updateState.ReleaseName, tarballPath,
+		err = tenantHelmClient.UpdateReleaseFromTarball(updateState.ReleaseName, tarballPath,
 			helm.UpdateValueOverrides([]byte("{}")))
 		if err != nil {
 			return microerror.Mask(err)

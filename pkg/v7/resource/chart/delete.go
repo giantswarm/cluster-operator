@@ -5,11 +5,11 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/errors/guest"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/tenantcluster"
 	"k8s.io/helm/pkg/helm"
 )
 
@@ -19,8 +19,8 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		return microerror.Mask(err)
 	}
 
-	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if guestcluster.IsTimeout(err) {
+	tenantHelmClient, err := r.getTenantHelmClient(ctx, obj)
+	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
 		// A not found error here means that the cluster-operator certificate for
@@ -56,7 +56,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if deleteState.ReleaseName != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting chart-operator chart")
 
-		guestHelmClient.DeleteRelease(deleteState.ReleaseName, helm.DeletePurge(true))
+		tenantHelmClient.DeleteRelease(deleteState.ReleaseName, helm.DeletePurge(true))
 		if err != nil {
 			return microerror.Mask(err)
 		}
