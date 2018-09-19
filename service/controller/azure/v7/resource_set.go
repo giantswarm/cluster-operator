@@ -146,10 +146,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Tenant:                   tenantClusterService,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -168,15 +168,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
-			Tenant:                   tenantClusterService,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
@@ -190,7 +190,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
-	
+
 	var guestClusterService guestcluster.Interface
 	{
 		c := guestcluster.Config{
@@ -205,7 +205,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 	}
-
 
 	var configMapService configmapservice.Interface
 	{
