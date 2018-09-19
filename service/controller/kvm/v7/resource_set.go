@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -171,7 +172,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			BaseClusterConfig: *config.BaseClusterConfig,
 			Fs:                config.Fs,
 			G8sClient:         config.G8sClient,
-			Guest:             guestClusterService,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
 			ProjectName:       config.ProjectName,
