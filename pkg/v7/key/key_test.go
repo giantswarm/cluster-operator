@@ -152,6 +152,12 @@ func Test_CIDRBlock(t *testing.T) {
 			prefix:            "32",
 			expectedCIDRBlock: "127.0.0.0/32",
 		},
+		{
+			description:       "empty address and prefix",
+			address:           "",
+			prefix:            "",
+			expectedCIDRBlock: "",
+		},
 	}
 
 	for _, tc := range testCases {
