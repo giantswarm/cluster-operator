@@ -1,7 +1,6 @@
 package configmap
 
 import (
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -17,19 +16,19 @@ const (
 
 // Config represents the configuration used to create a new chart config resource.
 type Config struct {
-	ConfigMap   configmap.Interface
-	Guest       guestcluster.Interface
-	K8sClient   kubernetes.Interface
-	Logger      micrologger.Logger
+	ConfigMap configmap.Interface
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
+
 	ProjectName string
 }
 
 // Resource implements the chart config resource.
 type Resource struct {
-	configMap   configmap.Interface
-	guest       guestcluster.Interface
-	k8sClient   kubernetes.Interface
-	logger      micrologger.Logger
+	configMap configmap.Interface
+	k8sClient kubernetes.Interface
+	logger    micrologger.Logger
+
 	projectName string
 }
 
@@ -38,24 +37,22 @@ func New(config Config) (*Resource, error) {
 	if config.ConfigMap == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ConfigMap must not be empty", config)
 	}
-	if config.Guest == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
 	r := &Resource{
-		configMap:   config.ConfigMap,
-		guest:       config.Guest,
-		k8sClient:   config.K8sClient,
-		logger:      config.Logger,
+		configMap: config.ConfigMap,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
+
 		projectName: config.ProjectName,
 	}
 

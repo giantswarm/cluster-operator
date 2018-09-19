@@ -13,13 +13,13 @@ func (s *Service) ApplyCreateChange(ctx context.Context, configMapConfig ConfigM
 	if len(configMapsToCreate) > 0 {
 		s.logger.LogCtx(ctx, "level", "debug", "message", "creating configmaps")
 
-		guestK8sClient, err := s.guest.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+		tenantK8sClient, err := s.tenant.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, configMapToCreate := range configMapsToCreate {
-			_, err := guestK8sClient.CoreV1().ConfigMaps(configMapToCreate.Namespace).Create(configMapToCreate)
+			_, err := tenantK8sClient.CoreV1().ConfigMaps(configMapToCreate.Namespace).Create(configMapToCreate)
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
 			} else if err != nil {
