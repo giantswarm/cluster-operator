@@ -201,6 +201,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			CalicoPrefixLength: config.CalicoPrefixLength,
 			ClusterIPRange:     config.ClusterIPRange,
 			ProjectName:        config.ProjectName,
+			Provider:           label.ProviderAWS,
 			RegistryDomain:     config.RegistryDomain,
 		}
 
