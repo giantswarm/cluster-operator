@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/versionbundle"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -54,6 +54,62 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 	return clusterGuestConfig.Owner
 }
 
+// CommonChartSpecs returns charts installed for all providers.
+// Note: When adding chart specs you also need to add the chart name to the
+// desired state test in the chartconfig service.
+func CommonChartSpecs() []ChartSpec {
+	return []ChartSpec{
+		{
+			AppName:       "cert-exporter",
+			ChannelName:   "stable",
+			ChartName:     "cert-exporter-chart",
+			ConfigMapName: "cert-exporter-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "cert-exporter",
+		},
+		{
+			AppName:       "coredns",
+			ChannelName:   "0-1-stable",
+			ChartName:     "kubernetes-coredns-chart",
+			ConfigMapName: "coredns-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "coredns",
+		},
+		{
+			AppName:       "kube-state-metrics",
+			ChannelName:   "0-1-stable",
+			ChartName:     "kubernetes-kube-state-metrics-chart",
+			ConfigMapName: "kube-state-metrics-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "kube-state-metrics",
+		},
+		{
+			AppName:       "net-exporter",
+			ChannelName:   "stable",
+			ChartName:     "net-exporter-chart",
+			ConfigMapName: "net-exporter-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "net-exporter",
+		},
+		{
+			AppName:       "nginx-ingress-controller",
+			ChannelName:   "0-2-stable",
+			ChartName:     "kubernetes-nginx-ingress-controller-chart",
+			ConfigMapName: "nginx-ingress-controller-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "nginx-ingress-controller",
+		},
+		{
+			AppName:       "node-exporter",
+			ChannelName:   "0-1-stable",
+			ChartName:     "kubernetes-node-exporter-chart",
+			ConfigMapName: "node-exporter-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "node-exporter",
+		},
+	}
+}
+
 // DNSIP returns the IP of the DNS service given a cluster IP range.
 func DNSIP(clusterIPRange string) (string, error) {
 	ip, _, err := net.ParseCIDR(clusterIPRange)
@@ -90,7 +146,7 @@ func EncryptionKeySecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) str
 
 // IsDeleted returns true if the Kubernetes resource has been marked for
 // deletion.
-func IsDeleted(objectMeta apismetav1.ObjectMeta) bool {
+func IsDeleted(objectMeta metav1.ObjectMeta) bool {
 	return objectMeta.DeletionTimestamp != nil
 }
 
