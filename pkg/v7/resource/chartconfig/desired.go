@@ -36,6 +36,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	desiredChartConfigs := make([]*v1alpha1.ChartConfig, 0)
 	generators := []chartConfigGenerator{
 		r.newCertExporterChartConfig,
+		r.newCoreDNSChartConfig,
 		r.newIngressControllerChartConfig,
 		r.newKubeStateMetricsChartConfig,
 		r.newNetExporterChartConfig,
@@ -64,6 +65,43 @@ func (r *Resource) newCertExporterChartConfig(ctx context.Context, clusterConfig
 	channelName := "stable"
 	configMapName := "cert-exporter-values"
 	releaseName := "cert-exporter"
+	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
+
+	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	chartConfigCR := &v1alpha1.ChartConfig{
+		TypeMeta: apismetav1.TypeMeta{
+			Kind:       chartConfigKind,
+			APIVersion: chartConfigAPIVersion,
+		},
+		ObjectMeta: apismetav1.ObjectMeta{
+			Name:   chartName,
+			Labels: labels,
+		},
+		Spec: v1alpha1.ChartConfigSpec{
+			Chart: v1alpha1.ChartConfigSpecChart{
+				Name:      chartName,
+				Channel:   channelName,
+				ConfigMap: *configMapSpec,
+				Namespace: apismetav1.NamespaceSystem,
+				Release:   releaseName,
+			},
+			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
+				Version: chartConfigVersionBundleVersion,
+			},
+		},
+	}
+	return chartConfigCR, nil
+}
+
+func (r *Resource) newCoreDNSChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
+	chartName := "kubernetes-coredns-chart"
+	channelName := "0-1-stable"
+	configMapName := "coredns-values"
+	releaseName := "coredns"
 	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
 
 	configMapSpec, err := r.getConfigMapSpec(ctx, clusterConfig, configMapName, apismetav1.NamespaceSystem)
