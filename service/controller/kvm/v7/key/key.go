@@ -3,6 +3,8 @@ package key
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
+
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
 // ClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
@@ -13,6 +15,12 @@ func ClusterGuestConfig(kvmClusterConfig v1alpha1.KVMClusterConfig) v1alpha1.Clu
 // ClusterID extracts clusterID from v1alpha1.KVMClusterConfig.
 func ClusterID(customObject v1alpha1.KVMClusterConfig) string {
 	return customObject.Spec.Guest.ClusterGuestConfig.ID
+}
+
+// ChartSpecs returns charts installed only for KVM.
+func ChartSpecs() []key.ChartSpec {
+	// Add any provider specific charts here.
+	return []key.ChartSpec{}
 }
 
 // ToClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
