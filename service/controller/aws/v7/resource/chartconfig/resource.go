@@ -43,7 +43,6 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		chartConfig: config.ChartConfig,
-		k8sClient:   config.K8sClient,
 		logger:      config.Logger,
 
 		projectName: config.ProjectName,
