@@ -20,13 +20,13 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	if len(chartConfigsToUpdate) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating chartconfigs")
 
-		guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
+		tenantG8sClient, err := r.getTenantG8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
-			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
+			_, err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
 			if guest.IsAPINotAvailable(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
 

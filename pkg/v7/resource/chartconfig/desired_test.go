@@ -84,14 +84,14 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				G8sClient: fake.NewSimpleClientset(),
-				Guest: &guestMock{
-					fakeGuestK8sClient: clientgofake.NewSimpleClientset(),
-				},
+				G8sClient:   fake.NewSimpleClientset(),
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
 				Provider:    tc.provider,
+				Tenant: &tenantMock{
+					fakeTenantK8sClient: clientgofake.NewSimpleClientset(),
+				},
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
@@ -265,9 +265,9 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 				objs = append(objs, cm)
 			}
 
-			fakeGuestK8sClient := clientgofake.NewSimpleClientset(objs...)
-			guestService := &guestMock{
-				fakeGuestK8sClient: fakeGuestK8sClient,
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset(objs...)
+			tenantService := &tenantMock{
+				fakeTenantK8sClient: fakeTenantK8sClient,
 			}
 
 			c := Config{
@@ -275,11 +275,11 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 					ClusterID: "test-cluster",
 				},
 				G8sClient:   fake.NewSimpleClientset(),
-				Guest:       guestService,
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
 				Provider:    label.ProviderAWS,
+				Tenant:      tenantService,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

@@ -235,8 +235,9 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 	}
 
 	c := Config{
-		Guest:              &guestMock{},
-		Logger:             microloggertest.New(),
+		Logger: microloggertest.New(),
+		Tenant: &tenantMock{},
+
 		CalicoAddress:      "172.20.0.0",
 		CalicoPrefixLength: "16",
 		ClusterIPRange:     "172.31.0.0/16",

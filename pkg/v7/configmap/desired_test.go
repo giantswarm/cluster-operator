@@ -599,10 +599,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				Guest: &guestMock{
-					fakeGuestHelmClient: helmClient,
+				Logger: microloggertest.New(),
+				Tenant: &tenantMock{
+					fakeTenantHelmClient: helmClient,
 				},
-				Logger:             microloggertest.New(),
+
 				CalicoAddress:      "172.20.0.0",
 				CalicoPrefixLength: "16",
 				ClusterIPRange:     "172.31.0.0/16",

@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -39,9 +38,9 @@ type ResourceSetConfig struct {
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	G8sClient         versioned.Interface
-	Guest             guestcluster.Interface
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	CalicoAddress         string
 	CalicoPrefixLength    string
@@ -209,8 +208,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapService configmapservice.Interface
 	{
 		c := configmapservice.Config{
-			Guest:  guestClusterService,
 			Logger: config.Logger,
+			Tenant: tenantClusterService,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -228,10 +227,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapResource controller.Resource
 	{
 		c := configmap.Config{
-			ConfigMap:   configMapService,
-			Guest:       guestClusterService,
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
+			ConfigMap: configMapService,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+			Tenant:    tenantClusterService,
+
 			ProjectName: config.ProjectName,
 		}
 
@@ -249,13 +249,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartConfigResource controller.Resource
 	{
 		c := chartconfig.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Provider:                 label.ProviderKVM,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Provider:          label.ProviderKVM,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 

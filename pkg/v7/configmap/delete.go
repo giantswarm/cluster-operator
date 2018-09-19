@@ -15,13 +15,13 @@ func (s *Service) ApplyDeleteChange(ctx context.Context, configMapConfig ConfigM
 	if len(configMapsToDelete) > 0 {
 		s.logger.LogCtx(ctx, "level", "debug", "message", "deleting configmaps")
 
-		guestK8sClient, err := s.guest.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+		tenantK8sClient, err := s.tenant.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, configMap := range configMapsToDelete {
-			err := guestK8sClient.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
+			err := tenantK8sClient.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {

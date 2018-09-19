@@ -22,13 +22,13 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if len(chartConfigsToCreate) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting chartconfigs")
 
-		guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
+		tenantG8sClient, err := r.getTenantG8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, chartConfig := range chartConfigsToCreate {
-			err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
+			err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if guest.IsAPINotAvailable(err) {
