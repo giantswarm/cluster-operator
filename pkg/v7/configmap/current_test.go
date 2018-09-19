@@ -409,10 +409,15 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			}
 
 			c := Config{
-				Logger:         microloggertest.New(),
-				ProjectName:    "cluster-operator",
-				RegistryDomain: "quay.io",
-				Tenant:         tenantService,
+				Guest:  guestService,
+				Logger: microloggertest.New(),
+				Tenant: tenantService,
+
+				CalicoAddress:      "172.20.0.0",
+				CalicoPrefixLength: "16",
+				ClusterIPRange:     "172.31.0.0/16",
+				ProjectName:        "cluster-operator",
+				RegistryDomain:     "quay.io",
 			}
 			newService, err := New(c)
 			if err != nil {

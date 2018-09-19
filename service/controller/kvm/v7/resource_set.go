@@ -42,6 +42,9 @@ type ResourceSetConfig struct {
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
+	CalicoAddress         string
+	CalicoPrefixLength    string
+	ClusterIPRange        string
 	HandledVersionBundles []string
 	ProjectName           string
 	RegistryDomain        string
@@ -193,8 +196,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger: config.Logger,
 			Tenant: tenantClusterService,
 
-			ProjectName:    config.ProjectName,
-			RegistryDomain: config.RegistryDomain,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		configMapService, err = configmapservice.New(c)
