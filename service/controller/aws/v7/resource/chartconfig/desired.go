@@ -28,7 +28,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		Organization: key.ClusterOrganization(clusterGuestConfig),
 	}
 
-	desiredConfigMaps, err := r.chartconfig.GetDesiredState(ctx, clusterConfig, awskey.ChartSpecs())
+	desiredConfigMaps, err := r.chartConfig.GetDesiredState(ctx, clusterConfig, awskey.ChartSpecs())
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

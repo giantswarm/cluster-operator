@@ -11,12 +11,12 @@ import (
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	customObject, err := awskey.ToCustomObject(obj)
+	customObject, err := kvmkey.ToCustomObject(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
+	clusterGuestConfig := kvmkey.ClusterGuestConfig(customObject)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -28,7 +28,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		Organization: key.ClusterOrganization(clusterGuestConfig),
 	}
 
-	desiredConfigMaps, err := r.chartconfig.GetDesiredState(ctx, clusterConfig, kvmkey.ChartSpecs())
+	desiredConfigMaps, err := r.chartConfig.GetDesiredState(ctx, clusterConfig, kvmkey.ChartSpecs())
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

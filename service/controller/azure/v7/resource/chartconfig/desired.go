@@ -11,12 +11,12 @@ import (
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	customObject, err := awskey.ToCustomObject(obj)
+	customObject, err := azurekey.ToCustomObject(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
+	clusterGuestConfig := azurekey.ClusterGuestConfig(customObject)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -28,7 +28,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		Organization: key.ClusterOrganization(clusterGuestConfig),
 	}
 
-	desiredConfigMaps, err := r.chartconfig.GetDesiredState(ctx, clusterConfig, azurekey.ChartSpecs())
+	desiredConfigMaps, err := r.chartConfig.GetDesiredState(ctx, clusterConfig, azurekey.ChartSpecs())
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

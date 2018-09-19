@@ -33,7 +33,7 @@ type Resource struct {
 
 // New creates a new configured chartconfig resource.
 func New(config Config) (*Resource, error) {
-	if config.ConfigMap == nil {
+	if config.ChartConfig == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ChartConfig must not be empty", config)
 	}
 	if config.K8sClient == nil {
