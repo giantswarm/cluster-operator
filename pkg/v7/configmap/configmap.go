@@ -53,21 +53,14 @@ func New(config Config) (*Service, error) {
 	}
 
 	s := &Service{
-<<<<<<< HEAD
 		logger: config.Logger,
 		tenant: config.Tenant,
 
-		projectName:    config.ProjectName,
-		registryDomain: config.RegistryDomain,
-=======
-		guest:              config.Guest,
-		logger:             config.Logger,
 		calicoAddress:      config.CalicoAddress,
 		calicoPrefixLength: config.CalicoPrefixLength,
 		clusterIPRange:     config.ClusterIPRange,
 		projectName:        config.ProjectName,
 		registryDomain:     config.RegistryDomain,
->>>>>>> master
 	}
 
 	return s, nil
