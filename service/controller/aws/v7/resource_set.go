@@ -216,7 +216,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ConfigMap: configMapService,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			Tenant:    tenantClusterService,
 
 			ProjectName: config.ProjectName,
 		}
