@@ -4,18 +4,18 @@ import (
 	"context"
 
 	"github.com/giantswarm/errors/guest"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/tenantcluster"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	r.logger.LogCtx(ctx, "level", "debug", "message", "finding chart-operator chart in the guest cluster")
 
-	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if guestcluster.IsTimeout(err) {
+	tenantHelmClient, err := r.getTenantHelmClient(ctx, obj)
+	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
 		// We can't continue without a Helm client. We will retry during the
@@ -37,7 +37,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	releaseContent, err := guestHelmClient.GetReleaseContent(chartOperatorRelease)
+	releaseContent, err := tenantHelmClient.GetReleaseContent(chartOperatorRelease)
 	if helmclient.IsReleaseNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chart-operator chart in the guest cluster")
 		return nil, nil
@@ -54,7 +54,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	releaseHistory, err := guestHelmClient.GetReleaseHistory(chartOperatorRelease)
+	releaseHistory, err := tenantHelmClient.GetReleaseHistory(chartOperatorRelease)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

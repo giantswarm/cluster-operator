@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -127,16 +128,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestClusterService guestcluster.Interface
+	var tenantClusterService tenantcluster.Interface
 	{
-		c := guestcluster.Config{
+		c := tenantcluster.Config{
 			CertsSearcher: config.CertSearcher,
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
 		}
 
-		guestClusterService, err = guestcluster.New(c)
+		tenantClusterService, err = tenantcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -145,10 +146,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Guest:                    guestClusterService,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -167,15 +168,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
@@ -185,6 +186,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		chartResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var guestClusterService guestcluster.Interface
+	{
+		c := guestcluster.Config{
+			CertsSearcher: config.CertSearcher,
+			Logger:        config.Logger,
+
+			CertID: certs.ClusterOperatorAPICert,
+		}
+
+		guestClusterService, err = guestcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
