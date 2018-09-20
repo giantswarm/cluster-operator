@@ -135,18 +135,21 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			objs := make([]runtime.Object, 0, len(allChartSpecs))
 
 			for _, cs := range allChartSpecs {
-				cm := &corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:            cs.ConfigMapName,
-						Namespace:       cs.Namespace,
-						ResourceVersion: "12345",
-					},
-					Data: map[string]string{
-						"key": "value",
-					},
-				}
+				if cs.ConfigMapName != "" {
 
-				objs = append(objs, cm)
+					cm := &corev1.ConfigMap{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:            cs.ConfigMapName,
+							Namespace:       cs.Namespace,
+							ResourceVersion: "12345",
+						},
+						Data: map[string]string{
+							"key": "value",
+						},
+					}
+
+					objs = append(objs, cm)
+				}
 			}
 
 			fakeTenantK8sClient := clientgofake.NewSimpleClientset(objs...)
@@ -235,7 +238,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 	}
 }
 
-func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
+func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 	testCases := []struct {
 		name                  string
 		clusterConfig         ClusterConfig
