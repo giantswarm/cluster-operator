@@ -397,7 +397,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			result, err := cc.getConfigMapSpec(context.TODO(), tc.clusterConfig, tc.chartSpec)
+			result, err := cc.newConfigMapSpec(context.TODO(), tc.clusterConfig, tc.chartSpec)
 			if err != nil {
 				t.Fatalf("expected nil, got %#v", err)
 			}
