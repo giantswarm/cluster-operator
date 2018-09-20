@@ -36,7 +36,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	desiredChartConfigs := make([]*v1alpha1.ChartConfig, 0)
 	generators := []chartConfigGenerator{
 		r.newCertExporterChartConfig,
-		r.newCoreDNSChartConfig,
+		// r.newCoreDNSChartConfig,
 		r.newIngressControllerChartConfig,
 		r.newKubeStateMetricsChartConfig,
 		r.newNetExporterChartConfig,
