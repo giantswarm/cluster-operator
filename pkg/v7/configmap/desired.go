@@ -99,7 +99,7 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMap
 	desiredConfigMaps = append(desiredConfigMaps, configMap)
 	generators := []configMapGenerator{
 		s.newCertExporterConfigMap,
-		// s.newCoreDNSConfigMap,
+		s.newCoreDNSConfigMap,
 		s.newKubeStateMetricsConfigMap,
 		s.newNetExporterConfigMap,
 		s.newNodeExporterConfigMap,
