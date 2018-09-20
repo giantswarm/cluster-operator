@@ -72,12 +72,12 @@ type CoreDNSCluster struct {
 }
 
 type CoreDNSClusterCalico struct {
-	CIDR string `json:"cidr"`
+	CIDR string `json:"CIDR"`
 }
 
 type CoreDNSClusterKubernetes struct {
-	API CoreDNSClusterKubernetesAPI `json:"api"`
-	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
+	API CoreDNSClusterKubernetesAPI `json:"API"`
+	DNS CoreDNSClusterKubernetesDNS `json:"DNS"`
 }
 
 type CoreDNSClusterKubernetesAPI struct {
@@ -85,7 +85,7 @@ type CoreDNSClusterKubernetesAPI struct {
 }
 
 type CoreDNSClusterKubernetesDNS struct {
-	IP string `json:"ip"`
+	IP string `json:"IP"`
 }
 
 func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
@@ -99,7 +99,7 @@ func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMap
 	desiredConfigMaps = append(desiredConfigMaps, configMap)
 	generators := []configMapGenerator{
 		s.newCertExporterConfigMap,
-		// s.newCoreDNSConfigMap,
+		s.newCoreDNSConfigMap,
 		s.newKubeStateMetricsConfigMap,
 		s.newNetExporterConfigMap,
 		s.newNodeExporterConfigMap,
