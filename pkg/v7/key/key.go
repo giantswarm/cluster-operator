@@ -41,6 +41,9 @@ func CertConfigVersionBundleVersion(customObject v1alpha1.CertConfig) string {
 
 // CIDRBlock returns a CIDR block for the given address and prefix.
 func CIDRBlock(address, prefix string) string {
+	if address == "" && prefix == "" {
+		return ""
+	}
 	return fmt.Sprintf("%s/%s", address, prefix)
 }
 
