@@ -18,8 +18,8 @@ type Config struct {
 	ProjectName string
 }
 
-// Service provides shared functionality for managing chartconfigs.
-type Service struct {
+// ChartConfig provides shared functionality for managing chartconfigs.
+type ChartConfig struct {
 	logger micrologger.Logger
 	tenant tenantcluster.Interface
 
@@ -27,7 +27,7 @@ type Service struct {
 }
 
 // New creates a new chartconfig service.
-func New(config Config) (*Service, error) {
+func New(config Config) (*ChartConfig, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -39,7 +39,7 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 
-	s := &Service{
+	s := &ChartConfig{
 		logger: config.Logger,
 		tenant: config.Tenant,
 
@@ -47,6 +47,15 @@ func New(config Config) (*Service, error) {
 	}
 
 	return s, nil
+}
+
+func (c *ChartConfig) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
+	tenantK8sClient, err := c.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return tenantK8sClient, nil
 }
 
 func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.ChartConfig, error) {
@@ -57,13 +66,4 @@ func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.
 	}
 
 	return nil, microerror.Mask(notFoundError)
-}
-
-func (s *Service) getTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
-	tenantK8sClient, err := s.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return tenantK8sClient, nil
 }
