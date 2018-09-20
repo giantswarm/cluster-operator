@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	// resourceNamespace is the resource where the chartconfig CRs are created.
+	// resourceNamespace is the namespace where the chartconfig CRs are created.
 	resourceNamespace = "giantswarm"
 )
 
