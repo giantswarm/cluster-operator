@@ -4,7 +4,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
 )
@@ -17,7 +16,6 @@ const (
 // Config represents the configuration used to create a new chart config resource.
 type Config struct {
 	ConfigMap configmap.Interface
-	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
 	ProjectName string
@@ -26,7 +24,6 @@ type Config struct {
 // Resource implements the chart config resource.
 type Resource struct {
 	configMap configmap.Interface
-	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 
 	projectName string
@@ -36,9 +33,6 @@ type Resource struct {
 func New(config Config) (*Resource, error) {
 	if config.ConfigMap == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ConfigMap must not be empty", config)
-	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -50,7 +44,6 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		configMap: config.ConfigMap,
-		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		projectName: config.ProjectName,
