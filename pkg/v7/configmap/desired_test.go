@@ -166,22 +166,24 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						"values.json": "{\"namespace\":\"kube-system\"}",
 					},
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
+				/*
+					&corev1.ConfigMap{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "coredns-values",
+							Namespace: metav1.NamespaceSystem,
+							Labels: map[string]string{
+								label.App:          "coredns",
+								label.Cluster:      "5xchu",
+								label.ManagedBy:    "cluster-operator",
+								label.Organization: "giantswarm",
+								label.ServiceType:  "managed",
+							},
+						},
+						Data: map[string]string{
+							"values.json": coreDNSJSON,
 						},
 					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
-				},
+				*/
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",
@@ -280,22 +282,24 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						"values.json": "{\"namespace\":\"kube-system\"}",
 					},
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
+				/*
+					&corev1.ConfigMap{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "coredns-values",
+							Namespace: metav1.NamespaceSystem,
+							Labels: map[string]string{
+								label.App:          "coredns",
+								label.Cluster:      "5xchu",
+								label.ManagedBy:    "cluster-operator",
+								label.Organization: "giantswarm",
+								label.ServiceType:  "managed",
+							},
+						},
+						Data: map[string]string{
+							"values.json": coreDNSJSON,
 						},
 					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
-				},
+				*/
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",
@@ -394,22 +398,24 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						"values.json": "{\"namespace\":\"kube-system\"}",
 					},
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
+				/*
+					&corev1.ConfigMap{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "coredns-values",
+							Namespace: metav1.NamespaceSystem,
+							Labels: map[string]string{
+								label.App:          "coredns",
+								label.Cluster:      "5xchu",
+								label.ManagedBy:    "cluster-operator",
+								label.Organization: "giantswarm",
+								label.ServiceType:  "managed",
+							},
+						},
+						Data: map[string]string{
+							"values.json": coreDNSJSON,
 						},
 					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
-				},
+				*/
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",
@@ -507,22 +513,24 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 						"values.json": "{\"namespace\":\"kube-system\"}",
 					},
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
+				/*
+					&corev1.ConfigMap{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "coredns-values",
+							Namespace: metav1.NamespaceSystem,
+							Labels: map[string]string{
+								label.App:          "coredns",
+								label.Cluster:      "5xchu",
+								label.ManagedBy:    "cluster-operator",
+								label.Organization: "giantswarm",
+								label.ServiceType:  "managed",
+							},
+						},
+						Data: map[string]string{
+							"values.json": coreDNSJSON,
 						},
 					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
-				},
+				*/
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "nginx-ingress-controller-values",
