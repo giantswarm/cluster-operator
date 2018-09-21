@@ -268,6 +268,20 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 	return true, nil
 }
 
+
+func defaultValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := DefaultConfigMap{
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
 func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	data := make(map[string]string)
 
