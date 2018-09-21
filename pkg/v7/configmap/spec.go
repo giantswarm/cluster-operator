@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -12,7 +13,7 @@ type Interface interface {
 	ApplyDeleteChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToDelete []*corev1.ConfigMap) error
 	ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToUpdate []*corev1.ConfigMap) error
 	GetCurrentState(ctx context.Context, configMapConfig ClusterConfig) ([]*corev1.ConfigMap, error)
-	GetDesiredState(ctx context.Context, configMapConfig ClusterConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error)
+	GetDesiredState(ctx context.Context, configMapConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error)
 	NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
 	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
 }
