@@ -25,18 +25,18 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	clusterGuestConfig := kvmkey.ClusterGuestConfig(customObject)
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	configMapConfig := configmap.ConfigMapConfig{
-		ClusterID:      key.ClusterID(clusterGuestConfig),
-		GuestAPIDomain: guestAPIDomain,
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
-	err = r.configMap.ApplyDeleteChange(ctx, configMapConfig, configMapsToDelete)
+	err = r.configMap.ApplyDeleteChange(ctx, clusterConfig, configMapsToDelete)
 	if guest.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
 		// We can't continue without a successful K8s connection. Cluster
 		// may not be up yet. We will retry during the next execution.
