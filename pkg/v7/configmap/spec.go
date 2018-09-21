@@ -25,6 +25,15 @@ type ClusterConfig struct {
 	Namespaces []string
 }
 
+// ConfigMapSpec is used to generate the desired state.
+type ConfigMapSpec struct {
+	App        string
+	Labels     map[string]string
+	Name       string
+	Namespace  string
+	ValuesJSON string
+}
+
 // ConfigMapValues is used by the configmap resources to provide data to the
 // configmap service.
 type ConfigMapValues struct {

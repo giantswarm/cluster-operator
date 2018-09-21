@@ -268,6 +268,26 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 	return true, nil
 }
 
+func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
+	data := make(map[string]string)
+
+	// Values are only set for system configmaps.
+	if configMapSpec.ValuesJSON != "" {
+		data["values.json"] = configMapSpec.ValuesJSON
+	}
+
+	newConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapSpec.Name,
+			Namespace: configMapSpec.Namespace,
+			Labels:    configMapSpec.Labels,
+		},
+		Data: data,
+	}
+
+	return newConfigMap
+}
+
 func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
 	return map[string]string{
 		label.App:          appName,
