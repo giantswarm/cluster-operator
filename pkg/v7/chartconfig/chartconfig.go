@@ -2,6 +2,7 @@ package chartconfig
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -73,6 +74,16 @@ func (c *ChartConfig) newTenantK8sClient(ctx context.Context, clusterConfig Clus
 	return tenantK8sClient, nil
 }
 
+func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
+	for _, l := range list {
+		if reflect.DeepEqual(item, l) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.ChartConfig, error) {
 	for _, l := range list {
 		if l.Name == name {
@@ -81,4 +92,17 @@ func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.
 	}
 
 	return nil, microerror.Mask(notFoundError)
+}
+
+func isChartConfigModified(a, b *v1alpha1.ChartConfig) bool {
+	// If the Spec section has changed we need to update.
+	if !reflect.DeepEqual(a.Spec, b.Spec) {
+		return true
+	}
+	// If the Labels have changed we also need to update.
+	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return true
+	}
+
+	return false
 }
