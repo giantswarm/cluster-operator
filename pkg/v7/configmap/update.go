@@ -9,11 +9,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (s *Service) ApplyUpdateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToUpdate []*corev1.ConfigMap) error {
+func (s *Service) ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToUpdate []*corev1.ConfigMap) error {
 	if len(configMapsToUpdate) > 0 {
 		s.logger.LogCtx(ctx, "level", "debug", "message", "updating configmaps")
 
-		tenantK8sClient, err := s.tenant.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+		tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
