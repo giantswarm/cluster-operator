@@ -71,14 +71,6 @@ func CommonChartSpecs() []ChartSpec {
 			ReleaseName:   "cert-exporter",
 		},
 		{
-			AppName:       "coredns",
-			ChannelName:   "0-1-stable",
-			ChartName:     "kubernetes-coredns-chart",
-			ConfigMapName: "coredns-values",
-			Namespace:     metav1.NamespaceSystem,
-			ReleaseName:   "coredns",
-		},
-		{
 			AppName:       "kube-state-metrics",
 			ChannelName:   "0-1-stable",
 			ChartName:     "kubernetes-kube-state-metrics-chart",
