@@ -282,6 +282,18 @@ func defaultValues(configMapValues ConfigMapValues) ([]byte, error) {
 
 	return json, nil
 }
+
+func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := ExporterValues{
+		Namespace: metav1.NamespaceSystem,
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
 func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	data := make(map[string]string)
 

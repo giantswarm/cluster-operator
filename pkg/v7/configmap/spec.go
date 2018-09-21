@@ -90,6 +90,10 @@ type Image struct {
 	Registry string `json:"registry"`
 }
 
+type ExporterValues struct {
+	Namespace string `json:"namespace"`
+}
+
 type CertExporter struct {
 	Namespace string `json:"namespace"`
 }
