@@ -236,7 +236,6 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 
 			configMapSpecs = append(configMapSpecs, configMapSpec)
 		}
-
 	}
 
 	return configMapSpecs
