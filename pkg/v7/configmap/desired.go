@@ -15,28 +15,51 @@ import (
 )
 
 func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {
+	var err error
+
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
+	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
 
-	configMap, err := s.newIngressControllerConfigMap(ctx, clusterConfig, configMapValues, s.projectName)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	for _, spec := range configMapSpecs {
+		values := []byte{}
 
-	desiredConfigMaps = append(desiredConfigMaps, configMap)
-	generators := []configMapGenerator{
-		s.newCertExporterConfigMap,
-		// s.newCoreDNSConfigMap,
-		s.newKubeStateMetricsConfigMap,
-		s.newNetExporterConfigMap,
-		s.newNodeExporterConfigMap,
-	}
+		switch spec.App {
+		case "cert-exporter":
+			values, err = exporterValues(configMapValues)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		case "coredns":
+			values, err = coreDNSValues(configMapValues)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		case "net-exporter":
+			values, err = exporterValues(configMapValues)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		case "nginx-ingress-controller":
+			releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 
-	for _, g := range generators {
-		configMap, err := g(ctx, configMapValues, s.projectName)
-		if err != nil {
-			return nil, microerror.Mask(err)
+			values, err = ingressControllerValues(configMapValues, releaseExists)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		default:
+			values, err = defaultValues(configMapValues)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 		}
-		desiredConfigMaps = append(desiredConfigMaps, configMap)
+
+		spec.Labels = newConfigMapLabels(configMapValues, spec.App, s.projectName)
+		spec.ValuesJSON = string(values)
+
+		desiredConfigMaps = append(desiredConfigMaps, newConfigMap(spec))
 	}
 
 	return desiredConfigMaps, nil
