@@ -756,6 +756,50 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 	}
 }
 
+func Test_ConfigMap_coreDNSValues(t *testing.T) {
+	testCases := []struct {
+		name               string
+		configMapValues    ConfigMapValues
+		errorMatcher       func(error) bool
+		expectedValuesJSON string
+	}{
+		{
+			name: "case 0: basic match",
+			configMapValues: ConfigMapValues{
+				CalicoAddress:      "172.20.0.0",
+				CalicoPrefixLength: "16",
+				ClusterIPRange:     "172.31.0.0/16",
+				RegistryDomain:     "quay.io",
+			},
+			expectedValuesJSON: coreDNSJSON,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			values, err := coreDNSValues(tc.configMapValues)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			equalValues, err := compareValuesJSON(tc.expectedValuesJSON, values)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+			if !equalValues {
+				t.Fatal("expected", tc.expectedValuesJSON, "got", string(values))
+			}
+		})
+	}
+}
 
 func Test_ConfigMap_defaultValues(t *testing.T) {
 	testCases := []struct {

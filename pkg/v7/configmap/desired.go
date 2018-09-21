@@ -268,6 +268,38 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 	return true, nil
 }
 
+func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
+	calicoCIDRBlock := key.CIDRBlock(configMapValues.CalicoAddress, configMapValues.CalicoPrefixLength)
+	DNSIP, err := key.DNSIP(configMapValues.ClusterIPRange)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values := CoreDNS{
+		Cluster: CoreDNSCluster{
+			Calico: CoreDNSClusterCalico{
+				CIDR: calicoCIDRBlock,
+			},
+			Kubernetes: CoreDNSClusterKubernetes{
+				API: CoreDNSClusterKubernetesAPI{
+					ClusterIPRange: configMapValues.ClusterIPRange,
+				},
+				DNS: CoreDNSClusterKubernetesDNS{
+					IP: DNSIP,
+				},
+			},
+		},
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
 
 func defaultValues(configMapValues ConfigMapValues) ([]byte, error) {
 	values := DefaultConfigMap{

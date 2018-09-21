@@ -37,7 +37,10 @@ type ConfigMapSpec struct {
 // ConfigMapValues is used by the configmap resources to provide data to the
 // configmap service.
 type ConfigMapValues struct {
+	CalicoAddress                     string
+	CalicoPrefixLength                string
 	ClusterID                         string
+	ClusterIPRange                    string
 	Organization                      string
 	IngressControllerMigrationEnabled bool
 	IngressControllerUseProxyProtocol bool
