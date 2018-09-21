@@ -4,10 +4,16 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
+)
+
+const (
+	// resourceNamespace is the namespace where the chartconfig CRs are created.
+	resourceNamespace = "giantswarm"
 )
 
 // Config represents the configuration used to create a new chartconfig service.
@@ -47,6 +53,15 @@ func New(config Config) (*ChartConfig, error) {
 	}
 
 	return s, nil
+}
+
+func (c *ChartConfig) newTenantG8sClient(ctx context.Context, clusterConfig ClusterConfig) (versioned.Interface, error) {
+	tenantG8sClient, err := c.tenant.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return tenantG8sClient, nil
 }
 
 func (c *ChartConfig) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
