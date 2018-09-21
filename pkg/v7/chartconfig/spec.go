@@ -9,6 +9,7 @@ import (
 )
 
 type Interface interface {
+	ApplyCreateChange(ctx context.Context, clusterConfig ClusterConfig, chartConfigsToCreate []*v1alpha1.ChartConfig) error
 	GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, providerChartSpecs []key.ChartSpec) ([]*v1alpha1.ChartConfig, error)
 }
 
