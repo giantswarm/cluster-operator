@@ -11,6 +11,6 @@ func (c *ChartConfig) ApplyDeleteChange(ctx context.Context, clusterConfig Clust
 	return nil
 }
 
-func (c *ChartConfig) NewUpdatePatch(ctx context.Context, currentState, desiredState []*v1alpha1.ChartConfig) (*controller.Patch, error) {
+func (c *ChartConfig) NewDeletePatch(ctx context.Context, currentState, desiredState []*v1alpha1.ChartConfig) (*controller.Patch, error) {
 	return nil, nil
 }
