@@ -438,9 +438,10 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 	for _, chartSpec := range chartSpecs {
 		if chartSpec.ConfigMapName != "" {
 			configMapSpec := ConfigMapSpec{
-				App:       chartSpec.AppName,
-				Name:      chartSpec.ConfigMapName,
-				Namespace: chartSpec.Namespace,
+				App:         chartSpec.AppName,
+				Name:        chartSpec.ConfigMapName,
+				Namespace:   chartSpec.Namespace,
+				ReleaseName: chartSpec.ReleaseName,
 			}
 
 			configMapSpecs = append(configMapSpecs, configMapSpec)
