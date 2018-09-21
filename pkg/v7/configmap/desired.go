@@ -298,6 +298,29 @@ func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName st
 	}
 }
 
+func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
+	configMapSpecs := make([]ConfigMapSpec, 0)
+
+	// Add common and provider specific chart specs.
+	chartSpecs := key.CommonChartSpecs()
+	chartSpecs = append(chartSpecs, providerChartSpecs...)
+
+	for _, chartSpec := range chartSpecs {
+		if chartSpec.ConfigMapName != "" {
+			configMapSpec := ConfigMapSpec{
+				App:       chartSpec.AppName,
+				Name:      chartSpec.ConfigMapName,
+				Namespace: chartSpec.Namespace,
+			}
+
+			configMapSpecs = append(configMapSpecs, configMapSpec)
+		}
+
+	}
+
+	return configMapSpecs
+}
+
 // setIngressControllerTempReplicas sets the temp replicas to 50% of the worker
 // count to ensure all pods can be scheduled.
 func setIngressControllerTempReplicas(workerCount int) (int, error) {
