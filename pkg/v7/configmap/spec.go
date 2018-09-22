@@ -50,7 +50,7 @@ type ConfigMapValues struct {
 	WorkerCount                       int
 }
 
-// Types below are used for generating values JSON for system configmaps.
+// Types below are used for generating values JSON for app configmaps.
 
 type DefaultConfigMap struct {
 	Image Image `json:"image"`
