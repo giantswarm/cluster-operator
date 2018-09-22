@@ -82,8 +82,8 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 }
 
 func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
-	calicoCIDRBlock := key.CIDRBlock(configMapValues.CalicoAddress, configMapValues.CalicoPrefixLength)
-	DNSIP, err := key.DNSIP(configMapValues.ClusterIPRange)
+	calicoCIDRBlock := key.CIDRBlock(configMapValues.CoreDNS.CalicoAddress, configMapValues.CoreDNS.CalicoPrefixLength)
+	DNSIP, err := key.DNSIP(configMapValues.CoreDNS.ClusterIPRange)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -95,7 +95,7 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 			},
 			Kubernetes: CoreDNSClusterKubernetes{
 				API: CoreDNSClusterKubernetesAPI{
-					ClusterIPRange: configMapValues.ClusterIPRange,
+					ClusterIPRange: configMapValues.CoreDNS.ClusterIPRange,
 				},
 				DNS: CoreDNSClusterKubernetesDNS{
 					IP: DNSIP,
@@ -143,9 +143,9 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool) ([]byte, error) {
 	// controllerServiceEnabled needs to be set separately for the chart
 	// migration logic but is the reverse of migration enabled.
-	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+	controllerServiceEnabled := !configMapValues.IngressController.MigrationEnabled
 
-	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
+	migrationEnabled := configMapValues.IngressController.MigrationEnabled
 	if migrationEnabled {
 		// Release exists so don't repeat the migration process.
 		if releaseExists {
@@ -170,7 +170,7 @@ func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
 				TempReplicas:     tempReplicas,
-				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
+				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
 				Enabled: migrationEnabled,
