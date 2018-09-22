@@ -142,12 +142,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				Organization:                      "giantswarm",
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  1,
 			},
 			expectedConfigMapSpecs: []ConfigMapSpec{
 				{
@@ -180,12 +177,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				Organization:                      "giantswarm",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  1,
 			},
 			providerChartSpecs: []key.ChartSpec{
 				{
@@ -225,12 +219,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				Organization:                      "giantswarm",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  1,
 			},
 			providerChartSpecs: []key.ChartSpec{
 				{
@@ -277,11 +268,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					fakeTenantHelmClient: &helmMock{},
 				},
 
-				CalicoAddress:      "172.20.0.0",
-				CalicoPrefixLength: "16",
-				ClusterIPRange:     "172.31.0.0/16",
-				ProjectName:        "cluster-operator",
-				RegistryDomain:     "quay.io",
+				ProjectName: "cluster-operator",
 			}
 			newService, err := New(c)
 			if err != nil {
