@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -68,7 +69,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			}
 		}()
 
+		clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 		v := &Values{
+			ClusterDNSIP: clusterDNSIP,
 			Image: Image{
 				Registry: r.registryDomain,
 			},
