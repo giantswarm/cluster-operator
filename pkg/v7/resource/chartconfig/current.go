@@ -16,7 +16,6 @@ import (
 // GetCurrentState returns the ChartConfig resources present in the guest
 // cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the guest cluster")
 
 	guestG8sClient, err := r.getGuestG8sClient(ctx, obj)

@@ -23,6 +23,7 @@ import (
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/clustercr"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v7/key"
@@ -269,7 +270,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterCRResource controller.Resource
+	{
+		c := clustercr.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCRResource, err = clustercr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
+		clusterCRResource,
 		// Put encryptionKeyResource first because it executes faster than
 		// azureConfigResource and could introduce dependency during cluster
 		// creation.
