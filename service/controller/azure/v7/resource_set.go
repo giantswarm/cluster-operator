@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -24,6 +23,7 @@ import (
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/clustercr"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v7/key"
@@ -40,7 +40,6 @@ type ResourceSetConfig struct {
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	G8sClient         versioned.Interface
-	Guest             guestcluster.Interface
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
 
@@ -218,7 +217,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ConfigMap: configMapService,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		ops, err := configmap.New(c)
@@ -267,7 +270,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterCRResource controller.Resource
+	{
+		c := clustercr.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCRResource, err = clustercr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
+		clusterCRResource,
 		// Put encryptionKeyResource first because it executes faster than
 		// azureConfigResource and could introduce dependency during cluster
 		// creation.

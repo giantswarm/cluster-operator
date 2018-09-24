@@ -17,26 +17,30 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	clusterGuestConfig := azurekey.ClusterGuestConfig(customObject)
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMapConfig := configmap.ConfigMapConfig{
-		ClusterID:      key.ClusterID(clusterGuestConfig),
-		GuestAPIDomain: guestAPIDomain,
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
 
 	configMapValues := configmap.ConfigMapValues{
-		ClusterID: key.ClusterID(clusterGuestConfig),
+		CalicoAddress:      r.calicoAddress,
+		CalicoPrefixLength: r.calicoPrefixLength,
+		ClusterID:          key.ClusterID(clusterGuestConfig),
+		ClusterIPRange:     r.clusterIPRange,
 		// Migration is disabled because Azure is already migrated.
 		IngressControllerMigrationEnabled: false,
 		// Proxy protocol is disabled for Azure clusters.
 		IngressControllerUseProxyProtocol: false,
 		Organization:                      key.ClusterOrganization(clusterGuestConfig),
+		RegistryDomain:                    r.registryDomain,
 		WorkerCount:                       azurekey.WorkerCount(customObject),
 	}
-	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapConfig, configMapValues)
+	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, clusterConfig, configMapValues, azurekey.ChartSpecs())
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

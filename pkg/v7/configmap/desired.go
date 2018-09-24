@@ -14,84 +14,10 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
-type configMapGenerator func(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error)
-
-type BasicConfigMap struct {
-	Image Image `json:"image"`
-}
-
-type IngressController struct {
-	Controller IngressControllerController `json:"controller"`
-	Global     IngressControllerGlobal     `json:"global"`
-	Image      Image                       `json:"image"`
-}
-
-type IngressControllerController struct {
-	Replicas int                                `json:"replicas"`
-	Service  IngressControllerControllerService `json:"service"`
-}
-
-type IngressControllerControllerService struct {
-	Enabled bool `json:"enabled"`
-}
-
-type IngressControllerGlobal struct {
-	Controller IngressControllerGlobalController `json:"controller"`
-	Migration  IngressControllerGlobalMigration  `json:"migration"`
-}
-
-type IngressControllerGlobalController struct {
-	TempReplicas     int  `json:"tempReplicas"`
-	UseProxyProtocol bool `json:"useProxyProtocol"`
-}
-
-type IngressControllerGlobalMigration struct {
-	Enabled bool `json:"enabled"`
-}
-
-type Image struct {
-	Registry string `json:"registry"`
-}
-
-type CertExporter struct {
-	Namespace string `json:"namespace"`
-}
-
-type NetExporter struct {
-	Namespace string `json:"namespace"`
-}
-
-type CoreDNS struct {
-	Cluster CoreDNSCluster `json:"cluster"`
-	Image   Image          `json:"image"`
-}
-
-type CoreDNSCluster struct {
-	Calico     CoreDNSClusterCalico     `json:"calico"`
-	Kubernetes CoreDNSClusterKubernetes `json:"kubernetes"`
-}
-
-type CoreDNSClusterCalico struct {
-	CIDR string `json:"cidr"`
-}
-
-type CoreDNSClusterKubernetes struct {
-	API CoreDNSClusterKubernetesAPI `json:"api"`
-	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
-}
-
-type CoreDNSClusterKubernetesAPI struct {
-	ClusterIPRange string `json:"clusterIPRange"`
-}
-
-type CoreDNSClusterKubernetesDNS struct {
-	IP string `json:"ip"`
-}
-
-func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
+func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
 
-	configMap, err := s.newIngressControllerConfigMap(ctx, configMapConfig, configMapValues, s.projectName)
+	configMap, err := s.newIngressControllerConfigMap(ctx, clusterConfig, configMapValues, s.projectName)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -192,7 +118,7 @@ func (s *Service) newCoreDNSConfigMap(ctx context.Context, configMapValues Confi
 	return newConfigMap, nil
 }
 
-func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
+func (s *Service) newIngressControllerConfigMap(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
 	configMapName := "nginx-ingress-controller-values"
 	appName := "nginx-ingress-controller"
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
@@ -203,7 +129,7 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapCo
 
 	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
 	if migrationEnabled {
-		releaseExists, err := s.checkHelmReleaseExists(ctx, appName, configMapConfig)
+		releaseExists, err := s.checkHelmReleaseExists(ctx, appName, clusterConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -326,8 +252,8 @@ func (s *Service) newBasicConfigMap(ctx context.Context, configMapValues ConfigM
 	return newConfigMap, nil
 }
 
-func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, configMapConfig ConfigMapConfig) (bool, error) {
-	tenantHelmClient, err := s.tenant.NewHelmClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
+	tenantHelmClient, err := s.newTenantHelmClient(ctx, clusterConfig)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
@@ -342,6 +268,133 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 	return true, nil
 }
 
+func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
+	calicoCIDRBlock := key.CIDRBlock(configMapValues.CalicoAddress, configMapValues.CalicoPrefixLength)
+	DNSIP, err := key.DNSIP(configMapValues.ClusterIPRange)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values := CoreDNS{
+		Cluster: CoreDNSCluster{
+			Calico: CoreDNSClusterCalico{
+				CIDR: calicoCIDRBlock,
+			},
+			Kubernetes: CoreDNSClusterKubernetes{
+				API: CoreDNSClusterKubernetesAPI{
+					ClusterIPRange: configMapValues.ClusterIPRange,
+				},
+				DNS: CoreDNSClusterKubernetesDNS{
+					IP: DNSIP,
+				},
+			},
+		},
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func defaultValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := DefaultConfigMap{
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := ExporterValues{
+		Namespace: metav1.NamespaceSystem,
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool) ([]byte, error) {
+	// controllerServiceEnabled needs to be set separately for the chart
+	// migration logic but is the reverse of migration enabled.
+	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+
+	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
+	if migrationEnabled {
+		// Release exists so don't repeat the migration process.
+		if releaseExists {
+			migrationEnabled = false
+		}
+	}
+
+	// tempReplicas is set to 50% of the worker count to ensure all pods can be
+	// scheduled.
+	tempReplicas, err := setIngressControllerTempReplicas(configMapValues.WorkerCount)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values := IngressController{
+		Controller: IngressControllerController{
+			Replicas: configMapValues.WorkerCount,
+			Service: IngressControllerControllerService{
+				Enabled: controllerServiceEnabled,
+			},
+		},
+		Global: IngressControllerGlobal{
+			Controller: IngressControllerGlobalController{
+				TempReplicas:     tempReplicas,
+				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
+			},
+			Migration: IngressControllerGlobalMigration{
+				Enabled: migrationEnabled,
+			},
+		},
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
+	data := make(map[string]string)
+
+	// Values are only set for app configmaps.
+	if configMapSpec.ValuesJSON != "" {
+		data["values.json"] = configMapSpec.ValuesJSON
+	}
+
+	newConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapSpec.Name,
+			Namespace: configMapSpec.Namespace,
+			Labels:    configMapSpec.Labels,
+		},
+		Data: data,
+	}
+
+	return newConfigMap
+}
+
 func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
 	return map[string]string{
 		label.App:          appName,
@@ -350,6 +403,29 @@ func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName st
 		label.Organization: configMapValues.Organization,
 		label.ServiceType:  label.ServiceTypeManaged,
 	}
+}
+
+func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
+	configMapSpecs := make([]ConfigMapSpec, 0)
+
+	// Add common and provider specific chart specs.
+	chartSpecs := key.CommonChartSpecs()
+	chartSpecs = append(chartSpecs, providerChartSpecs...)
+
+	for _, chartSpec := range chartSpecs {
+		if chartSpec.ConfigMapName != "" {
+			configMapSpec := ConfigMapSpec{
+				App:       chartSpec.AppName,
+				Name:      chartSpec.ConfigMapName,
+				Namespace: chartSpec.Namespace,
+			}
+
+			configMapSpecs = append(configMapSpecs, configMapSpec)
+		}
+
+	}
+
+	return configMapSpecs
 }
 
 // setIngressControllerTempReplicas sets the temp replicas to 50% of the worker

@@ -17,27 +17,31 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMapConfig := configmap.ConfigMapConfig{
-		ClusterID:      key.ClusterID(clusterGuestConfig),
-		GuestAPIDomain: guestAPIDomain,
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
 
 	configMapValues := configmap.ConfigMapValues{
-		ClusterID:    key.ClusterID(clusterGuestConfig),
-		Organization: key.ClusterOrganization(clusterGuestConfig),
+		CalicoAddress:      r.calicoAddress,
+		CalicoPrefixLength: r.calicoPrefixLength,
+		ClusterID:          key.ClusterID(clusterGuestConfig),
+		ClusterIPRange:     r.clusterIPRange,
 		// Migration is enabled so existing k8scloudconfig resources are
 		// replaced.
 		IngressControllerMigrationEnabled: true,
 		// Proxy protocol is enabled for AWS clusters.
 		IngressControllerUseProxyProtocol: true,
+		Organization:                      key.ClusterOrganization(clusterGuestConfig),
+		RegistryDomain:                    r.registryDomain,
 		WorkerCount:                       awskey.WorkerCount(customObject),
 	}
-	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapConfig, configMapValues)
+	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, clusterConfig, configMapValues, awskey.ChartSpecs())
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

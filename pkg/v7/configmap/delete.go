@@ -11,11 +11,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (s *Service) ApplyDeleteChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToDelete []*corev1.ConfigMap) error {
+func (s *Service) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToDelete []*corev1.ConfigMap) error {
 	if len(configMapsToDelete) > 0 {
 		s.logger.LogCtx(ctx, "level", "debug", "message", "deleting configmaps")
 
-		tenantK8sClient, err := s.tenant.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+		tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}

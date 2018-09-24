@@ -18,7 +18,11 @@ type Config struct {
 	ConfigMap configmap.Interface
 	Logger    micrologger.Logger
 
-	ProjectName string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	ProjectName        string
+	RegistryDomain     string
 }
 
 // Resource implements the chart config resource.
@@ -26,7 +30,11 @@ type Resource struct {
 	configMap configmap.Interface
 	logger    micrologger.Logger
 
-	projectName string
+	calicoAddress      string
+	calicoPrefixLength string
+	clusterIPRange     string
+	projectName        string
+	registryDomain     string
 }
 
 // New creates a new configured chart config resource.
@@ -38,15 +46,25 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.ClusterIPRange == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
+	if config.RegistryDomain == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
 	}
 
 	r := &Resource{
 		configMap: config.ConfigMap,
 		logger:    config.Logger,
 
-		projectName: config.ProjectName,
+		calicoAddress:      config.CalicoAddress,
+		calicoPrefixLength: config.CalicoPrefixLength,
+		clusterIPRange:     config.ClusterIPRange,
+		projectName:        config.ProjectName,
+		registryDomain:     config.RegistryDomain,
 	}
 
 	return r, nil
