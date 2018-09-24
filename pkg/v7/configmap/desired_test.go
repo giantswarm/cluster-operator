@@ -129,17 +129,17 @@ const (
 func Test_ConfigMap_GetDesiredState(t *testing.T) {
 	testCases := []struct {
 		name                            string
-		configMapConfig                 ConfigMapConfig
+		configMapConfig                 ClusterConfig
 		configMapValues                 ConfigMapValues
 		ingressControllerReleasePresent bool
 		expectedConfigMaps              []*corev1.ConfigMap
 	}{
 		{
 			name: "case 0: basic match",
-			configMapConfig: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			configMapConfig: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
@@ -252,10 +252,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		},
 		{
 			name: "case 1: different worker count",
-			configMapConfig: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			configMapConfig: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
@@ -368,10 +368,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		},
 		{
 			name: "case 2: different ingress controller settings",
-			configMapConfig: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			configMapConfig: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
@@ -484,10 +484,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		},
 		{
 			name: "case 3: ingress controller already migrated",
-			configMapConfig: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			configMapConfig: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
