@@ -245,7 +245,7 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 		if chartSpec.UserConfigMapName != "" {
 			configMapSpec := ConfigMapSpec{
 				App:         chartSpec.AppName,
-				Name:        chartSpec.ConfigMapName,
+				Name:        chartSpec.UserConfigMapName,
 				Namespace:   chartSpec.Namespace,
 				ReleaseName: chartSpec.ReleaseName,
 				Type:        userConfigMapType,
