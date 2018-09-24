@@ -236,6 +236,19 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 				Name:        chartSpec.ConfigMapName,
 				Namespace:   chartSpec.Namespace,
 				ReleaseName: chartSpec.ReleaseName,
+				Type:        appConfigMapType,
+			}
+
+			configMapSpecs = append(configMapSpecs, configMapSpec)
+		}
+
+		if chartSpec.UserConfigMapName != "" {
+			configMapSpec := ConfigMapSpec{
+				App:         chartSpec.AppName,
+				Name:        chartSpec.ConfigMapName,
+				Namespace:   chartSpec.Namespace,
+				ReleaseName: chartSpec.ReleaseName,
+				Type:        userConfigMapType,
 			}
 
 			configMapSpecs = append(configMapSpecs, configMapSpec)
