@@ -34,3 +34,79 @@ type ConfigMapValues struct {
 	IngressControllerUseProxyProtocol bool
 	WorkerCount                       int
 }
+
+type configMapGenerator func(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error)
+
+// Types below are used for generating values JSON for system configmaps.
+
+type BasicConfigMap struct {
+	Image Image `json:"image"`
+}
+
+type IngressController struct {
+	Controller IngressControllerController `json:"controller"`
+	Global     IngressControllerGlobal     `json:"global"`
+	Image      Image                       `json:"image"`
+}
+
+type IngressControllerController struct {
+	Replicas int                                `json:"replicas"`
+	Service  IngressControllerControllerService `json:"service"`
+}
+
+type IngressControllerControllerService struct {
+	Enabled bool `json:"enabled"`
+}
+
+type IngressControllerGlobal struct {
+	Controller IngressControllerGlobalController `json:"controller"`
+	Migration  IngressControllerGlobalMigration  `json:"migration"`
+}
+
+type IngressControllerGlobalController struct {
+	TempReplicas     int  `json:"tempReplicas"`
+	UseProxyProtocol bool `json:"useProxyProtocol"`
+}
+
+type IngressControllerGlobalMigration struct {
+	Enabled bool `json:"enabled"`
+}
+
+type Image struct {
+	Registry string `json:"registry"`
+}
+
+type CertExporter struct {
+	Namespace string `json:"namespace"`
+}
+
+type NetExporter struct {
+	Namespace string `json:"namespace"`
+}
+
+type CoreDNS struct {
+	Cluster CoreDNSCluster `json:"cluster"`
+	Image   Image          `json:"image"`
+}
+
+type CoreDNSCluster struct {
+	Calico     CoreDNSClusterCalico     `json:"calico"`
+	Kubernetes CoreDNSClusterKubernetes `json:"kubernetes"`
+}
+
+type CoreDNSClusterCalico struct {
+	CIDR string `json:"cidr"`
+}
+
+type CoreDNSClusterKubernetes struct {
+	API CoreDNSClusterKubernetesAPI `json:"api"`
+	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
+}
+
+type CoreDNSClusterKubernetesAPI struct {
+	ClusterIPRange string `json:"clusterIPRange"`
+}
+
+type CoreDNSClusterKubernetesDNS struct {
+	IP string `json:"ip"`
+}
