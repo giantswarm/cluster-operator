@@ -263,6 +263,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
+		clusterCRResource,
 		// Put encryptionKeyResource first because it executes faster than
 		// azureConfigResource and could introduce dependency during cluster
 		// creation.
@@ -275,10 +276,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		chartResource,
 		configMapResource,
 		chartConfigResource,
-
-		// TODO remove clustercr resource once all tenant clusters have an
-		// associated Cluster CR.
-		clusterCRResource,
 	}
 
 	// Wrap resources with retry and metrics.
