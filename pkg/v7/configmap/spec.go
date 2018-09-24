@@ -37,10 +37,14 @@ type ConfigMapSpec struct {
 // ConfigMapValues is used by the configmap resources to provide data to the
 // configmap service.
 type ConfigMapValues struct {
+	CalicoAddress                     string
+	CalicoPrefixLength                string
 	ClusterID                         string
+	ClusterIPRange                    string
 	Organization                      string
 	IngressControllerMigrationEnabled bool
 	IngressControllerUseProxyProtocol bool
+	RegistryDomain                    string
 	WorkerCount                       int
 }
 
@@ -49,6 +53,10 @@ type configMapGenerator func(ctx context.Context, configMapValues ConfigMapValue
 // Types below are used for generating values JSON for app configmaps.
 
 type BasicConfigMap struct {
+	Image Image `json:"image"`
+}
+
+type DefaultConfigMap struct {
 	Image Image `json:"image"`
 }
 
@@ -83,6 +91,10 @@ type IngressControllerGlobalMigration struct {
 
 type Image struct {
 	Registry string `json:"registry"`
+}
+
+type ExporterValues struct {
+	Namespace string `json:"namespace"`
 }
 
 type CertExporter struct {

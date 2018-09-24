@@ -268,6 +268,113 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 	return true, nil
 }
 
+func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
+	calicoCIDRBlock := key.CIDRBlock(configMapValues.CalicoAddress, configMapValues.CalicoPrefixLength)
+	DNSIP, err := key.DNSIP(configMapValues.ClusterIPRange)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values := CoreDNS{
+		Cluster: CoreDNSCluster{
+			Calico: CoreDNSClusterCalico{
+				CIDR: calicoCIDRBlock,
+			},
+			Kubernetes: CoreDNSClusterKubernetes{
+				API: CoreDNSClusterKubernetesAPI{
+					ClusterIPRange: configMapValues.ClusterIPRange,
+				},
+				DNS: CoreDNSClusterKubernetesDNS{
+					IP: DNSIP,
+				},
+			},
+		},
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func defaultValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := DefaultConfigMap{
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := ExporterValues{
+		Namespace: metav1.NamespaceSystem,
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool) ([]byte, error) {
+	// controllerServiceEnabled needs to be set separately for the chart
+	// migration logic but is the reverse of migration enabled.
+	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+
+	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
+	if migrationEnabled {
+		// Release exists so don't repeat the migration process.
+		if releaseExists {
+			migrationEnabled = false
+		}
+	}
+
+	// tempReplicas is set to 50% of the worker count to ensure all pods can be
+	// scheduled.
+	tempReplicas, err := setIngressControllerTempReplicas(configMapValues.WorkerCount)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values := IngressController{
+		Controller: IngressControllerController{
+			Replicas: configMapValues.WorkerCount,
+			Service: IngressControllerControllerService{
+				Enabled: controllerServiceEnabled,
+			},
+		},
+		Global: IngressControllerGlobal{
+			Controller: IngressControllerGlobalController{
+				TempReplicas:     tempReplicas,
+				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
+			},
+			Migration: IngressControllerGlobalMigration{
+				Enabled: migrationEnabled,
+			},
+		},
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
 func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	data := make(map[string]string)
 

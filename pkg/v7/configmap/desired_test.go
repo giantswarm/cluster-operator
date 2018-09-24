@@ -756,6 +756,225 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 	}
 }
 
+func Test_ConfigMap_coreDNSValues(t *testing.T) {
+	testCases := []struct {
+		name               string
+		configMapValues    ConfigMapValues
+		errorMatcher       func(error) bool
+		expectedValuesJSON string
+	}{
+		{
+			name: "case 0: basic match",
+			configMapValues: ConfigMapValues{
+				CalicoAddress:      "172.20.0.0",
+				CalicoPrefixLength: "16",
+				ClusterIPRange:     "172.31.0.0/16",
+				RegistryDomain:     "quay.io",
+			},
+			expectedValuesJSON: coreDNSJSON,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			values, err := coreDNSValues(tc.configMapValues)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			equalValues, err := compareValuesJSON(tc.expectedValuesJSON, values)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+			if !equalValues {
+				t.Fatal("expected", tc.expectedValuesJSON, "got", string(values))
+			}
+		})
+	}
+}
+
+func Test_ConfigMap_defaultValues(t *testing.T) {
+	testCases := []struct {
+		name               string
+		configMapValues    ConfigMapValues
+		errorMatcher       func(error) bool
+		expectedValuesJSON string
+	}{
+		{
+			name: "case 0: basic match",
+			configMapValues: ConfigMapValues{
+				RegistryDomain: "quay.io",
+			},
+			expectedValuesJSON: `{ "image": { "registry": "quay.io" } }`,
+		},
+		{
+			name: "case 1: different registry",
+			configMapValues: ConfigMapValues{
+				RegistryDomain: "gcr.io",
+			},
+			expectedValuesJSON: `{ "image": { "registry": "gcr.io" } }`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			values, err := defaultValues(tc.configMapValues)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			equalValues, err := compareValuesJSON(tc.expectedValuesJSON, values)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+			if !equalValues {
+				t.Fatal("expected", tc.expectedValuesJSON, "got", string(values))
+			}
+		})
+	}
+}
+
+func Test_ConfigMap_exporterValues(t *testing.T) {
+	testCases := []struct {
+		name               string
+		configMapValues    ConfigMapValues
+		errorMatcher       func(error) bool
+		expectedValuesJSON string
+	}{
+		{
+			name:               "case 0: basic match",
+			configMapValues:    ConfigMapValues{},
+			expectedValuesJSON: `{ "namespace": "kube-system" }`,
+		},
+		{
+			name:               "case 1: different registry",
+			configMapValues:    ConfigMapValues{},
+			expectedValuesJSON: `{ "namespace": "kube-system" }`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			values, err := exporterValues(tc.configMapValues)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			equalValues, err := compareValuesJSON(tc.expectedValuesJSON, values)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+			if !equalValues {
+				t.Fatalf("expected JSON: \n %s \n got JSON: \n %s", tc.expectedValuesJSON, values)
+			}
+		})
+	}
+}
+
+func Test_ConfigMap_ingressControllerValues(t *testing.T) {
+	testCases := []struct {
+		name               string
+		configMapValues    ConfigMapValues
+		releaseExists      bool
+		errorMatcher       func(error) bool
+		expectedValuesJSON string
+	}{
+		{
+			name: "case 0: basic match",
+			configMapValues: ConfigMapValues{
+				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       3,
+			},
+			releaseExists:      false,
+			expectedValuesJSON: basicMatchJSON,
+		},
+		{
+			name: "case 1: different worker count",
+			configMapValues: ConfigMapValues{
+				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       7,
+			},
+			releaseExists:      false,
+			expectedValuesJSON: differentWorkerCountJSON,
+		},
+		{
+			name: "case 2: different settings",
+			configMapValues: ConfigMapValues{
+				IngressControllerMigrationEnabled: false,
+				IngressControllerUseProxyProtocol: false,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       1,
+			},
+			releaseExists:      false,
+			expectedValuesJSON: differentSettingsJSON,
+		},
+		{
+			name: "case 3: already migrated",
+			configMapValues: ConfigMapValues{
+				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: false,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       3,
+			},
+			releaseExists:      true,
+			expectedValuesJSON: alreadyMigratedJSON,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			values, err := ingressControllerValues(tc.configMapValues, tc.releaseExists)
+
+			switch {
+			case err == nil && tc.errorMatcher == nil:
+				// correct; carry on
+			case err != nil && tc.errorMatcher == nil:
+				t.Fatalf("error == %#v, want nil", err)
+			case err == nil && tc.errorMatcher != nil:
+				t.Fatalf("error == nil, want non-nil")
+			case !tc.errorMatcher(err):
+				t.Fatalf("error == %#v, want matching", err)
+			}
+
+			equalValues, err := compareValuesJSON(tc.expectedValuesJSON, values)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+			if !equalValues {
+				t.Fatalf("expected JSON: \n %s \n got JSON: \n %s", tc.expectedValuesJSON, values)
+			}
+		})
+	}
+}
+
 func Test_ConfigMap_setIngressControllerTempReplicas(t *testing.T) {
 	testCases := []struct {
 		name                 string
@@ -828,4 +1047,22 @@ func compareJSON(expectedJSON, valuesJSON string) (bool, error) {
 	}
 
 	return reflect.DeepEqual(expectedValues, values), nil
+}
+
+func compareValuesJSON(expectedJSON string, values []byte) (bool, error) {
+	var err error
+
+	expectedValuesMap := make(map[string]interface{})
+	err = json.Unmarshal([]byte(expectedJSON), &expectedValuesMap)
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	valuesMap := make(map[string]interface{})
+	err = json.Unmarshal(values, &valuesMap)
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	return reflect.DeepEqual(expectedValuesMap, valuesMap), nil
 }
