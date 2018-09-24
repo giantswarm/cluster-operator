@@ -17,14 +17,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMapConfig := configmap.ConfigMapConfig{
-		ClusterID:      key.ClusterID(clusterGuestConfig),
-		GuestAPIDomain: guestAPIDomain,
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
 
 	configMapValues := configmap.ConfigMapValues{
@@ -37,7 +37,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		IngressControllerUseProxyProtocol: true,
 		WorkerCount:                       awskey.WorkerCount(customObject),
 	}
-	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapConfig, configMapValues)
+	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, clusterConfig, configMapValues)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

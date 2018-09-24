@@ -19,18 +19,18 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	}
 
 	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMapConfig := configmap.ConfigMapConfig{
-		ClusterID:      key.ClusterID(clusterGuestConfig),
-		GuestAPIDomain: guestAPIDomain,
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
-	configMaps, err := r.configMap.GetCurrentState(ctx, configMapConfig)
+	configMaps, err := r.configMap.GetCurrentState(ctx, clusterConfig)
 	if guest.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
 		// We can't continue without a successful K8s connection. Cluster
 		// may not be up yet. We will retry during the next execution.

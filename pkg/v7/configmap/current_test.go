@@ -16,26 +16,26 @@ import (
 func Test_ConfigMap_GetCurrentState(t *testing.T) {
 	testCases := []struct {
 		name               string
-		config             ConfigMapConfig
+		config             ClusterConfig
 		presentConfigMaps  []*corev1.ConfigMap
 		expectedConfigMaps []*corev1.ConfigMap
 	}{
 		{
 			name: "case 0: no results",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			config: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			presentConfigMaps:  []*corev1.ConfigMap{},
 			expectedConfigMaps: []*corev1.ConfigMap{},
 		},
 		{
 			name: "case 1: single result",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			config: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
@@ -70,10 +70,10 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 		},
 		{
 			name: "case 2: multiple results",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
-				Namespaces:     []string{},
+			config: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
 			},
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
@@ -134,9 +134,9 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 		},
 		{
 			name: "case 3: multiple namespaces, single result",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+			config: ClusterConfig{
+				APIDomain: "5xchu.aws.giantswarm.io",
+				ClusterID: "5xchu",
 				Namespaces: []string{
 					"giantswarm",
 				},
@@ -174,9 +174,9 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 		},
 		{
 			name: "case 4: multiple namespaces, multiple results",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+			config: ClusterConfig{
+				APIDomain: "5xchu.aws.giantswarm.io",
+				ClusterID: "5xchu",
 				Namespaces: []string{
 					"giantswarm",
 				},
@@ -240,9 +240,9 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 		},
 		{
 			name: "case 5: multiple namespaces, multiple results, omitting ones without required labels",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+			config: ClusterConfig{
+				APIDomain: "5xchu.aws.giantswarm.io",
+				ClusterID: "5xchu",
 				Namespaces: []string{
 					"giantswarm",
 				},
@@ -318,9 +318,9 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 		},
 		{
 			name: "case 6: as case 5, but different label: multiple namespaces, multiple results, omitting ones without required labels",
-			config: ConfigMapConfig{
-				ClusterID:      "5xchu",
-				GuestAPIDomain: "5xchu.aws.giantswarm.io",
+			config: ClusterConfig{
+				APIDomain: "5xchu.aws.giantswarm.io",
+				ClusterID: "5xchu",
 				Namespaces: []string{
 					"giantswarm",
 				},

@@ -14,10 +14,10 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
-func (s *Service) GetDesiredState(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
+func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues) ([]*corev1.ConfigMap, error) {
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
 
-	configMap, err := s.newIngressControllerConfigMap(ctx, configMapConfig, configMapValues, s.projectName)
+	configMap, err := s.newIngressControllerConfigMap(ctx, clusterConfig, configMapValues, s.projectName)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -118,7 +118,7 @@ func (s *Service) newCoreDNSConfigMap(ctx context.Context, configMapValues Confi
 	return newConfigMap, nil
 }
 
-func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapConfig ConfigMapConfig, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
+func (s *Service) newIngressControllerConfigMap(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error) {
 	configMapName := "nginx-ingress-controller-values"
 	appName := "nginx-ingress-controller"
 	labels := newConfigMapLabels(configMapValues, appName, projectName)
@@ -129,7 +129,7 @@ func (s *Service) newIngressControllerConfigMap(ctx context.Context, configMapCo
 
 	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
 	if migrationEnabled {
-		releaseExists, err := s.checkHelmReleaseExists(ctx, appName, configMapConfig)
+		releaseExists, err := s.checkHelmReleaseExists(ctx, appName, clusterConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -252,8 +252,8 @@ func (s *Service) newBasicConfigMap(ctx context.Context, configMapValues ConfigM
 	return newConfigMap, nil
 }
 
-func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, configMapConfig ConfigMapConfig) (bool, error) {
-	tenantHelmClient, err := s.tenant.NewHelmClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
+	tenantHelmClient, err := s.newTenantHelmClient(ctx, clusterConfig)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}

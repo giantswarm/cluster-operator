@@ -9,11 +9,11 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
-func (s *Service) ApplyCreateChange(ctx context.Context, configMapConfig ConfigMapConfig, configMapsToCreate []*corev1.ConfigMap) error {
+func (s *Service) ApplyCreateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToCreate []*corev1.ConfigMap) error {
 	if len(configMapsToCreate) > 0 {
 		s.logger.LogCtx(ctx, "level", "debug", "message", "creating configmaps")
 
-		tenantK8sClient, err := s.tenant.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+		tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}

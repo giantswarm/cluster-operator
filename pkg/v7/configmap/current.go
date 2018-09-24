@@ -10,10 +10,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (s *Service) GetCurrentState(ctx context.Context, config ConfigMapConfig) ([]*corev1.ConfigMap, error) {
+func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*corev1.ConfigMap, error) {
 	var currentConfigMaps []*corev1.ConfigMap
 
-	tenantK8sClient, err := s.tenant.NewK8sClient(ctx, config.ClusterID, config.GuestAPIDomain)
+	tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -24,7 +24,7 @@ func (s *Service) GetCurrentState(ctx context.Context, config ConfigMapConfig) (
 	}
 
 	// Add any provider specific namespaces.
-	for _, namespace := range config.Namespaces {
+	for _, namespace := range clusterConfig.Namespaces {
 		namespaces[namespace] = true
 	}
 

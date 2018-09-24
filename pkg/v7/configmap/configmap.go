@@ -1,12 +1,15 @@
 package configmap
 
 import (
+	"context"
 	"reflect"
 
+	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 // Config represents the configuration used to create a new configmap service.
@@ -64,6 +67,24 @@ func New(config Config) (*Service, error) {
 	}
 
 	return s, nil
+}
+
+func (s *Service) newTenantHelmClient(ctx context.Context, clusterConfig ClusterConfig) (helmclient.Interface, error) {
+	tenantK8sClient, err := s.tenant.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return tenantK8sClient, nil
+}
+
+func (s *Service) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
+	tenantK8sClient, err := s.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return tenantK8sClient, nil
 }
 
 func containsConfigMap(list []*corev1.ConfigMap, item *corev1.ConfigMap) bool {
