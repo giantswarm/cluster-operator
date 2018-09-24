@@ -30,6 +30,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				Organization: "giantswarm",
 			},
 			expectedChartConfigNames: []string{
+				"coredns-chart",
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
 				"kubernetes-nginx-ingress-controller-chart",
@@ -54,6 +55,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				},
 			},
 			expectedChartConfigNames: []string{
+				"coredns-chart",
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
 				"kubernetes-nginx-ingress-controller-chart",
@@ -80,6 +82,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				},
 			},
 			expectedChartConfigNames: []string{
+				"coredns-chart",
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
 				"kubernetes-nginx-ingress-controller-chart",
@@ -114,6 +117,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				},
 			},
 			expectedChartConfigNames: []string{
+				"coredns-chart",
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
 				"kubernetes-nginx-ingress-controller-chart",
