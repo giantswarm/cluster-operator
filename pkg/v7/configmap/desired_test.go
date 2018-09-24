@@ -663,6 +663,99 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 	}
 }
 
+func Test_ConfigMap_newConfigMap(t *testing.T) {
+	testCases := []struct {
+		name              string
+		configMapSpec     ConfigMapSpec
+		expectedConfigMap *corev1.ConfigMap
+	}{
+		{
+			name: "case 0: basic match with no labels or values",
+			configMapSpec: ConfigMapSpec{
+				App:       "test-app",
+				Name:      "test-app-values",
+				Namespace: metav1.NamespaceSystem,
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				Data: map[string]string{},
+			},
+		},
+		{
+			name: "case 1: has labels but no values",
+			configMapSpec: ConfigMapSpec{
+				App:       "test-app",
+				Name:      "test-app-values",
+				Namespace: metav1.NamespaceSystem,
+				Labels: map[string]string{
+					"app": "test-app",
+					"giantswarm.io/cluster": "5xchu",
+				},
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-values",
+					Namespace: metav1.NamespaceSystem,
+					Labels: map[string]string{
+						"app": "test-app",
+						"giantswarm.io/cluster": "5xchu",
+					},
+				},
+				Data: map[string]string{},
+			},
+		},
+		{
+			name: "case 2: has labels and values",
+			configMapSpec: ConfigMapSpec{
+				App:       "test-app",
+				Name:      "test-app-values",
+				Namespace: metav1.NamespaceSystem,
+				Labels: map[string]string{
+					"app": "test-app",
+					"giantswarm.io/cluster": "5xchu",
+				},
+				ValuesJSON: "{\"image\":{\"registry\":\"quay.io\"}}",
+			},
+			expectedConfigMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-app-values",
+					Namespace: metav1.NamespaceSystem,
+					Labels: map[string]string{
+						"app": "test-app",
+						"giantswarm.io/cluster": "5xchu",
+					},
+				},
+				Data: map[string]string{
+					"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			configMap := newConfigMap(tc.configMapSpec)
+
+			if configMap.Name != tc.expectedConfigMap.Name {
+				t.Fatalf("expected name %#q got %#q", tc.expectedConfigMap.Name, configMap.Name)
+			}
+			if configMap.Namespace != tc.expectedConfigMap.Namespace {
+				t.Fatalf("expected namespace %#q got %#q", tc.expectedConfigMap.Namespace, configMap.Namespace)
+			}
+			if !reflect.DeepEqual(configMap.Labels, tc.expectedConfigMap.Labels) {
+				t.Fatalf("expected labels %#v got %#v", tc.expectedConfigMap.Labels, configMap.Labels)
+			}
+
+			if !reflect.DeepEqual(configMap.Data, tc.expectedConfigMap.Data) {
+				t.Fatalf("expected data %#v got %#v", tc.expectedConfigMap.Data, configMap.Data)
+			}
+		})
+	}
+}
+
 func Test_ConfigMap_setIngressControllerTempReplicas(t *testing.T) {
 	testCases := []struct {
 		name                 string

@@ -25,6 +25,15 @@ type ClusterConfig struct {
 	Namespaces []string
 }
 
+// ConfigMapSpec is used to generate the desired state.
+type ConfigMapSpec struct {
+	App        string
+	Labels     map[string]string
+	Name       string
+	Namespace  string
+	ValuesJSON string
+}
+
 // ConfigMapValues is used by the configmap resources to provide data to the
 // configmap service.
 type ConfigMapValues struct {
@@ -37,7 +46,7 @@ type ConfigMapValues struct {
 
 type configMapGenerator func(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error)
 
-// Types below are used for generating values JSON for system configmaps.
+// Types below are used for generating values JSON for app configmaps.
 
 type BasicConfigMap struct {
 	Image Image `json:"image"`

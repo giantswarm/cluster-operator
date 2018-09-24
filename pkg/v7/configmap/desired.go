@@ -268,6 +268,26 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 	return true, nil
 }
 
+func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
+	data := make(map[string]string)
+
+	// Values are only set for app configmaps.
+	if configMapSpec.ValuesJSON != "" {
+		data["values.json"] = configMapSpec.ValuesJSON
+	}
+
+	newConfigMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapSpec.Name,
+			Namespace: configMapSpec.Namespace,
+			Labels:    configMapSpec.Labels,
+		},
+		Data: data,
+	}
+
+	return newConfigMap
+}
+
 func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
 	return map[string]string{
 		label.App:          appName,
@@ -276,6 +296,29 @@ func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName st
 		label.Organization: configMapValues.Organization,
 		label.ServiceType:  label.ServiceTypeManaged,
 	}
+}
+
+func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
+	configMapSpecs := make([]ConfigMapSpec, 0)
+
+	// Add common and provider specific chart specs.
+	chartSpecs := key.CommonChartSpecs()
+	chartSpecs = append(chartSpecs, providerChartSpecs...)
+
+	for _, chartSpec := range chartSpecs {
+		if chartSpec.ConfigMapName != "" {
+			configMapSpec := ConfigMapSpec{
+				App:       chartSpec.AppName,
+				Name:      chartSpec.ConfigMapName,
+				Namespace: chartSpec.Namespace,
+			}
+
+			configMapSpecs = append(configMapSpecs, configMapSpec)
+		}
+
+	}
+
+	return configMapSpecs
 }
 
 // setIngressControllerTempReplicas sets the temp replicas to 50% of the worker
