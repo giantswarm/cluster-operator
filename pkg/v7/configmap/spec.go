@@ -51,7 +51,7 @@ type ConfigMapValues struct {
 
 type configMapGenerator func(ctx context.Context, configMapValues ConfigMapValues, projectName string) (*corev1.ConfigMap, error)
 
-// Types below are used for generating values JSON for system configmaps.
+// Types below are used for generating values JSON for app configmaps.
 
 type BasicConfigMap struct {
 	Image Image `json:"image"`

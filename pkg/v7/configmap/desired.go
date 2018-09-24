@@ -378,7 +378,7 @@ func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool
 func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	data := make(map[string]string)
 
-	// Values are only set for system configmaps.
+	// Values are only set for app configmaps.
 	if configMapSpec.ValuesJSON != "" {
 		data["values.json"] = configMapSpec.ValuesJSON
 	}
