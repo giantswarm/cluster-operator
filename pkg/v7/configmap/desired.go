@@ -21,43 +21,47 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
 
 	for _, spec := range configMapSpecs {
-		values := []byte{}
-
-		switch spec.App {
-		case "cert-exporter":
-			values, err = exporterValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "coredns":
-			values, err = coreDNSValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "net-exporter":
-			values, err = exporterValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "nginx-ingress-controller":
-			releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-
-			values, err = ingressControllerValues(configMapValues, releaseExists)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		default:
-			values, err = defaultValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		}
-
 		spec.Labels = newConfigMapLabels(configMapValues, spec.App, s.projectName)
-		spec.ValuesJSON = string(values)
+
+		// Values are only set for app configmaps.
+		if spec.Type == appConfigMapType {
+			values := []byte{}
+
+			switch spec.App {
+			case "cert-exporter":
+				values, err = exporterValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "coredns":
+				values, err = coreDNSValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "net-exporter":
+				values, err = exporterValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "nginx-ingress-controller":
+				releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+
+				values, err = ingressControllerValues(configMapValues, releaseExists)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			default:
+				values, err = defaultValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			}
+
+			spec.ValuesJSON = string(values)
+		}
 
 		desiredConfigMaps = append(desiredConfigMaps, newConfigMap(spec))
 	}

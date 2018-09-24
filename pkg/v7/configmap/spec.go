@@ -18,6 +18,14 @@ type Interface interface {
 	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
 }
 
+const (
+	// appConfigMapType is for values configmaps managed by the operator.
+	appConfigMapType = "app"
+	// userConfigMapType is for user configmaps. These are created by the
+	// operator but managed by users to override per cluster values.
+	userConfigMapType = "user"
+)
+
 // ClusterConfig is used by the configmap resources to provide config to
 // calculate the current state.
 type ClusterConfig struct {
@@ -33,6 +41,7 @@ type ConfigMapSpec struct {
 	Name        string
 	Namespace   string
 	ReleaseName string
+	Type        string
 	ValuesJSON  string
 }
 
