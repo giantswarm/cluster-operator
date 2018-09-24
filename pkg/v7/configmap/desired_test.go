@@ -12,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
 const (
@@ -623,7 +624,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			configMaps, err := newService.GetDesiredState(context.TODO(), tc.configMapConfig, tc.configMapValues)
+			configMaps, err := newService.GetDesiredState(context.TODO(), tc.configMapConfig, tc.configMapValues, []key.ChartSpec{})
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}

@@ -216,7 +216,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ConfigMap: configMapService,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		ops, err := configmap.New(c)
