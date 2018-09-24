@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -11,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/v1/resource/clustercr"
 	"github.com/giantswarm/cluster-operator/pkg/v1/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v1/key"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v1/resource/kvmconfig"
@@ -25,6 +27,7 @@ const (
 // ResourceSetConfig contains necessary dependencies and settings for
 // KVMClusterConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
+	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
@@ -84,12 +87,29 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterCRResource controller.Resource
+	{
+		c := clustercr.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCRResource, err = clustercr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// kvmConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		kvmConfigResource,
+
+		// TODO remove clustercr resource once all tenant clusters have an
+		// associated Cluster CR.
+		clusterCRResource,
 	}
 
 	// Wrap resources with retry and metrics.

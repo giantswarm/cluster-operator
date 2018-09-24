@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v4/resource/clustercr"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v4/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v4/key"
@@ -205,6 +206,19 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterCRResource controller.Resource
+	{
+		c := clustercr.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCRResource, err = clustercr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// awsConfigResource and could introduce dependency during cluster
@@ -217,6 +231,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		namespaceResource,
 		chartResource,
 		chartConfigResource,
+
+		// TODO remove clustercr resource once all tenant clusters have an
+		// associated Cluster CR.
+		clusterCRResource,
 	}
 
 	// Wrap resources with retry and metrics.
