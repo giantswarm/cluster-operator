@@ -188,6 +188,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/giantswarm/aws-operator"
+  packages = ["integration/env"]
+  revision = "9ae8ce5db0acb49f4e9deb4ebe3e6e393a39ae09"
+
+[[projects]]
+  branch = "master"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
   revision = "889af437b4d98f8a1ccb66cb85b93de13d8c666e"
@@ -204,6 +210,7 @@
   packages = [
     "pkg/framework",
     "pkg/framework/filelogger",
+    "pkg/framework/resource",
     "pkg/harness"
   ]
   revision = "403620aa641c24772e883babe9857b6d10afabec"
@@ -217,7 +224,11 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/e2etemplates"
-  packages = ["pkg/e2etemplates"]
+  packages = [
+    "internal/render",
+    "pkg/chartvalues",
+    "pkg/e2etemplates"
+  ]
   revision = "56099c7613bccacc3a694a0cf9c8d83d43d0d84d"
 
 [[projects]]
@@ -1314,6 +1325,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d8fdcc14d37e555d054136b752a004da6d4217f3cfda5923136b5c7549c4ca76"
+  inputs-digest = "e0d128461dbbf9ac253ce71a121312b4d8de177a17b29e79c88569afca5a815a"
   solver-name = "gps-cdcl"
   solver-version = 1
