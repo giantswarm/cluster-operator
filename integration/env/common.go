@@ -13,7 +13,6 @@ import (
 const (
 	EnvVarCircleCI             = "CIRCLECI"
 	EnvVarCircleSHA            = "CIRCLE_SHA1"
-	EnvVarCommonDomain         = "COMMON_DOMAIN"
 	EnvVarGithubBotToken       = "GITHUB_BOT_TOKEN"
 	EnvVarIDRSAPub             = "IDRSA_PUB"
 	EnvVarKeepResources        = "KEEP_RESOURCES"
@@ -25,7 +24,6 @@ const (
 var (
 	circleCI             string
 	circleSHA            string
-	commonDomain         string
 	testDir              string
 	testedVersion        string
 	keepResources        string
@@ -49,11 +47,6 @@ func init() {
 	}
 
 	testDir = os.Getenv(EnvVarTestDir)
-
-	commonDomain = os.Getenv(EnvVarCommonDomain)
-	if commonDomain == "" {
-		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarCommonDomain))
-	}
 
 	token := os.Getenv(EnvVarGithubBotToken)
 	params := &framework.VBVParams{
@@ -105,10 +98,6 @@ func ClusterID() string {
 	}
 
 	return strings.Join(parts, "-")
-}
-
-func CommonDomain() string {
-	return commonDomain
 }
 
 func KeepResources() string {
