@@ -17,11 +17,7 @@ type Config struct {
 	Logger micrologger.Logger
 	Tenant tenantcluster.Interface
 
-	CalicoAddress      string
-	CalicoPrefixLength string
-	ClusterIPRange     string
-	ProjectName        string
-	RegistryDomain     string
+	ProjectName string
 }
 
 // Service provides shared functionality for managing configmaps.
@@ -29,11 +25,7 @@ type Service struct {
 	logger micrologger.Logger
 	tenant tenantcluster.Interface
 
-	calicoAddress      string
-	calicoPrefixLength string
-	clusterIPRange     string
-	projectName        string
-	registryDomain     string
+	projectName string
 }
 
 // New creates a new configmap service.
@@ -45,25 +37,15 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
 
-	if config.ClusterIPRange == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
-	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
-	if config.RegistryDomain == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
 	}
 
 	s := &Service{
 		logger: config.Logger,
 		tenant: config.Tenant,
 
-		calicoAddress:      config.CalicoAddress,
-		calicoPrefixLength: config.CalicoPrefixLength,
-		clusterIPRange:     config.ClusterIPRange,
-		projectName:        config.ProjectName,
-		registryDomain:     config.RegistryDomain,
+		projectName: config.ProjectName,
 	}
 
 	return s, nil
