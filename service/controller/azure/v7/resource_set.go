@@ -199,11 +199,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger: config.Logger,
 			Tenant: tenantClusterService,
 
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
+			ProjectName:    config.ProjectName,
+			RegistryDomain: config.RegistryDomain,
 		}
 
 		configMapService, err = configmapservice.New(c)

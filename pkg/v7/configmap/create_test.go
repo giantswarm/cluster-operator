@@ -158,11 +158,8 @@ func Test_ConfigMap_newCreateChange(t *testing.T) {
 		Logger: microloggertest.New(),
 		Tenant: &tenantMock{},
 
-		CalicoAddress:      "172.20.0.0",
-		CalicoPrefixLength: "16",
-		ClusterIPRange:     "172.31.0.0/16",
-		ProjectName:        "cluster-operator",
-		RegistryDomain:     "quay.io",
+		ProjectName:    "cluster-operator",
+		RegistryDomain: "quay.io",
 	}
 	newService, err := New(c)
 	if err != nil {
