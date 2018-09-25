@@ -21,11 +21,13 @@ func teardown(ctx context.Context, config Config) error {
 	{
 		releases := []string{
 			fmt.Sprintf("%s-aws-operator", config.Host.TargetNamespace()),
+			fmt.Sprintf("%s-cluster-operator", config.Host.TargetNamespace()),
 			fmt.Sprintf("%s-cert-operator", config.Host.TargetNamespace()),
 			fmt.Sprintf("%s-node-operator", config.Host.TargetNamespace()),
 
 			fmt.Sprintf("%s-cert-config-e2e", config.Host.TargetNamespace()),
 			fmt.Sprintf("%s-aws-config-e2e", config.Host.TargetNamespace()),
+			fmt.Sprintf("%s-aws-cluster-config-e2e", config.Host.TargetNamespace()),
 		}
 
 		for _, release := range releases {
