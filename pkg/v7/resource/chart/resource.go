@@ -23,7 +23,7 @@ const (
 	Name = "chartv7"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-2-stable"
+	chartOperatorChannel       = "0-3-stable"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
@@ -33,6 +33,7 @@ const (
 type Config struct {
 	ApprClient               apprclient.Interface
 	BaseClusterConfig        cluster.Config
+	ClusterIPRange           string
 	Fs                       afero.Fs
 	G8sClient                versioned.Interface
 	K8sClient                kubernetes.Interface
@@ -47,6 +48,7 @@ type Config struct {
 type Resource struct {
 	apprClient               apprclient.Interface
 	baseClusterConfig        cluster.Config
+	clusterIPRange           string
 	fs                       afero.Fs
 	g8sClient                versioned.Interface
 	k8sClient                kubernetes.Interface
@@ -64,6 +66,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
+	}
+	if config.ClusterIPRange == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
 	if config.Fs == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Fs must not be empty", config)
@@ -93,6 +98,7 @@ func New(config Config) (*Resource, error) {
 	newResource := &Resource{
 		apprClient:        config.ApprClient,
 		baseClusterConfig: config.BaseClusterConfig,
+		clusterIPRange:    config.ClusterIPRange,
 		fs:                config.Fs,
 		g8sClient:         config.G8sClient,
 		k8sClient:         config.K8sClient,

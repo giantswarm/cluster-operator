@@ -172,6 +172,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := chart.Config{
 			ApprClient:        config.ApprClient,
 			BaseClusterConfig: *config.BaseClusterConfig,
+			ClusterIPRange:    config.ClusterIPRange,
 			Fs:                config.Fs,
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
