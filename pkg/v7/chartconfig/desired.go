@@ -38,7 +38,15 @@ func (c *ChartConfig) GetDesiredState(ctx context.Context, clusterConfig Cluster
 }
 
 func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterConfig, chartSpec key.ChartSpec) (*v1alpha1.ChartConfig, error) {
-	configMapSpec, err := c.newConfigMapSpec(ctx, clusterConfig, chartSpec)
+	// App configmaps are managed by the operator.
+	configMapSpec, err := c.newConfigMapSpec(ctx, clusterConfig, chartSpec.ConfigMapName, chartSpec.Namespace)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// User configmaps are created by the operator and edited by users to
+	// override chart values.
+	userConfigMapSpec, err := c.newConfigMapSpec(ctx, clusterConfig, chartSpec.UserConfigMapName, chartSpec.Namespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -58,8 +66,10 @@ func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterC
 				Name:      chartSpec.ChartName,
 				Namespace: chartSpec.Namespace,
 				Channel:   chartSpec.ChannelName,
-				ConfigMap: *configMapSpec,
 				Release:   chartSpec.ReleaseName,
+
+				ConfigMap:     *configMapSpec,
+				UserConfigMap: *userConfigMapSpec,
 			},
 			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
 				Version: chartConfigVersionBundleVersion,
