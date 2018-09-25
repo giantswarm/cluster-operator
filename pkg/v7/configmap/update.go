@@ -65,7 +65,8 @@ func (s *Service) newUpdateChange(ctx context.Context, currentConfigMaps, desire
 			return nil, microerror.Mask(err)
 		}
 
-		if isConfigMapModified(desiredConfigMap, currentConfigMap) {
+		configMapType, _ := currentConfigMap.Labels[configMapTypeLabel]
+		if configMapType != userConfigMapType && isConfigMapModified(desiredConfigMap, currentConfigMap) {
 			// Make a copy and set the resource version so the CR can be updated.
 			configMapToUpdate := desiredConfigMap.DeepCopy()
 			configMapToUpdate.ObjectMeta.ResourceVersion = currentConfigMap.ObjectMeta.ResourceVersion

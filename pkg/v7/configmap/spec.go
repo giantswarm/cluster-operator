@@ -24,6 +24,8 @@ const (
 	// userConfigMapType is for user configmaps. These are created by the
 	// operator but managed by users to override per cluster values.
 	userConfigMapType = "user"
+
+	configMapTypeLabel = "configmap.giantswarm.io/type"
 )
 
 // ClusterConfig is used by the configmap resources to provide config to

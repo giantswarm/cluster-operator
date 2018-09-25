@@ -21,7 +21,7 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
 
 	for _, spec := range configMapSpecs {
-		spec.Labels = newConfigMapLabels(configMapValues, spec.App, s.projectName)
+		spec.Labels = newConfigMapLabels(spec, configMapValues, s.projectName)
 
 		// Values are only set for app configmaps.
 		if spec.Type == appConfigMapType {
@@ -212,13 +212,14 @@ func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	return newConfigMap
 }
 
-func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
+func newConfigMapLabels(configMapSpec ConfigMapSpec, configMapValues ConfigMapValues, projectName string) map[string]string {
 	return map[string]string{
-		label.App:          appName,
+		label.App:          configMapSpec.App,
 		label.Cluster:      configMapValues.ClusterID,
 		label.ManagedBy:    projectName,
 		label.Organization: configMapValues.Organization,
 		label.ServiceType:  label.ServiceTypeManaged,
+		configMapTypeLabel: configMapSpec.Type,
 	}
 }
 
