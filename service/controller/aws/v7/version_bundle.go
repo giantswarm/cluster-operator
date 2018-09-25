@@ -8,9 +8,14 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Add your changes here.",
-				Kind:        versionbundle.KindChanged,
+				Component:   "chart-operator",
+				Description: "Added support for user configmaps.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Made ingress-nginx configmap configurable.",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
