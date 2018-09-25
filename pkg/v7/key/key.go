@@ -65,7 +65,7 @@ func CommonChartSpecs() []ChartSpec {
 		{
 			AppName:       "coredns",
 			ChannelName:   "0-1-stable",
-			ChartName:     "coredns-chart",
+			ChartName:     "kubernetes-coredns-chart",
 			ConfigMapName: "coredns-values",
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "coredns",
