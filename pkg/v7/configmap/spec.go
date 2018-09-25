@@ -60,8 +60,43 @@ type IngressControllerValues struct {
 
 // Types below are used for generating values JSON for app configmaps.
 
-type DefaultConfigMap struct {
+type CoreDNS struct {
+	Cluster CoreDNSCluster `json:"cluster"`
+	Image   Image          `json:"image"`
+}
+
+type CoreDNSCluster struct {
+	Calico     CoreDNSClusterCalico     `json:"calico"`
+	Kubernetes CoreDNSClusterKubernetes `json:"kubernetes"`
+}
+
+type CoreDNSClusterCalico struct {
+	CIDR string `json:"cidr"`
+}
+
+type CoreDNSClusterKubernetes struct {
+	API CoreDNSClusterKubernetesAPI `json:"api"`
+	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
+}
+
+type CoreDNSClusterKubernetesAPI struct {
+	ClusterIPRange string `json:"clusterIPRange"`
+}
+
+type CoreDNSClusterKubernetesDNS struct {
+	IP string `json:"ip"`
+}
+
+type DefaultValues struct {
 	Image Image `json:"image"`
+}
+
+type ExporterValues struct {
+	Namespace string `json:"namespace"`
+}
+
+type Image struct {
+	Registry string `json:"registry"`
 }
 
 type IngressController struct {
@@ -91,47 +126,4 @@ type IngressControllerGlobalController struct {
 
 type IngressControllerGlobalMigration struct {
 	Enabled bool `json:"enabled"`
-}
-
-type Image struct {
-	Registry string `json:"registry"`
-}
-
-type ExporterValues struct {
-	Namespace string `json:"namespace"`
-}
-
-type CertExporter struct {
-	Namespace string `json:"namespace"`
-}
-
-type NetExporter struct {
-	Namespace string `json:"namespace"`
-}
-
-type CoreDNS struct {
-	Cluster CoreDNSCluster `json:"cluster"`
-	Image   Image          `json:"image"`
-}
-
-type CoreDNSCluster struct {
-	Calico     CoreDNSClusterCalico     `json:"calico"`
-	Kubernetes CoreDNSClusterKubernetes `json:"kubernetes"`
-}
-
-type CoreDNSClusterCalico struct {
-	CIDR string `json:"cidr"`
-}
-
-type CoreDNSClusterKubernetes struct {
-	API CoreDNSClusterKubernetesAPI `json:"api"`
-	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
-}
-
-type CoreDNSClusterKubernetesAPI struct {
-	ClusterIPRange string `json:"clusterIPRange"`
-}
-
-type CoreDNSClusterKubernetesDNS struct {
-	IP string `json:"ip"`
 }

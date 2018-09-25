@@ -115,7 +115,7 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 }
 
 func defaultValues(configMapValues ConfigMapValues) ([]byte, error) {
-	values := DefaultConfigMap{
+	values := DefaultValues{
 		Image: Image{
 			Registry: configMapValues.RegistryDomain,
 		},
