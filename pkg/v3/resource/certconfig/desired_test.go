@@ -28,7 +28,6 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 			managedCertificates: []certs.Cert{
 				certs.APICert,
 				certs.CalicoEtcdClientCert,
-				certs.CalicoEtcdClientCert,
 				certs.ClusterOperatorAPICert,
 				certs.EtcdCert,
 				certs.NodeOperatorCert,
@@ -44,7 +43,6 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 			managedCertificates: []certs.Cert{
 				certs.APICert,
 				certs.CalicoEtcdClientCert,
-				certs.CalicoEtcdClientCert,
 				certs.ClusterOperatorAPICert,
 				certs.EtcdCert,
 				certs.NodeOperatorCert,
@@ -59,7 +57,6 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 			provider: "kvm",
 			managedCertificates: []certs.Cert{
 				certs.APICert,
-				certs.CalicoEtcdClientCert,
 				certs.CalicoEtcdClientCert,
 				certs.ClusterOperatorAPICert,
 				certs.EtcdCert,
