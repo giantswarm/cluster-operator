@@ -11,50 +11,24 @@ import (
 )
 
 const (
-	// EnvVarCircleCI is the process environment variable representing the
-	// CIRCLECI env var.
-	EnvVarCircleCI = "CIRCLECI"
-	// EnvVarCircleSHA is the process environment variable representing the
-	// CIRCLE_SHA1 env var.
-	EnvVarCircleSHA = "CIRCLE_SHA1"
-	// EnvVarClusterID is the process environment variable representing the
-	// CLUSTER_NAME env var.
-	//
-	// TODO rename to CLUSTER_ID. Note this also had to be changed in the
-	// framework package of e2e-harness.
-	EnvVarClusterID = "CLUSTER_NAME"
-	// EnvVarCommonDomain is the process environment variable representing the
-	// COMMON_DOMAIN env var.
-	EnvVarCommonDomain = "COMMON_DOMAIN"
-	// EnvVarGithubBotToken is the process environment variable representing
-	// the GITHUB_BOT_TOKEN env var.
-	EnvVarGithubBotToken = "GITHUB_BOT_TOKEN"
-	// EnvVarKeepResources is the process environment variable representing the
-	// KEEP_RESOURCES env var.
-	EnvVarKeepResources = "KEEP_RESOURCES"
-	// EnvVarTestedVersion is the process environment variable representing the
-	// TESTED_VERSION env var.
-	EnvVarTestedVersion = "TESTED_VERSION"
-	// EnvVarTestDir is the process environment variable representing the
-	// TEST_DIR env var.
-	EnvVarTestDir = "TEST_DIR"
-	// EnvVaultToken is the process environment variable representing the
-	// VAULT_TOKEN env var.
-	EnvVaultToken = "VAULT_TOKEN"
-	// EnvVarVersionBundleVersion is the process environment variable representing
-	// the VERSION_BUNDLE_VERSION env var.
+	EnvVarCircleCI             = "CIRCLECI"
+	EnvVarCircleSHA            = "CIRCLE_SHA1"
+	EnvVarCommonDomain         = "COMMON_DOMAIN"
+	EnvVarGithubBotToken       = "GITHUB_BOT_TOKEN"
+	EnvVarIDRSAPub             = "IDRSA_PUB"
+	EnvVarKeepResources        = "KEEP_RESOURCES"
+	EnvVarTestedVersion        = "TESTED_VERSION"
+	EnvVarTestDir              = "TEST_DIR"
 	EnvVarVersionBundleVersion = "VERSION_BUNDLE_VERSION"
 )
 
 var (
 	circleCI             string
 	circleSHA            string
-	clusterID            string
 	commonDomain         string
 	testDir              string
 	testedVersion        string
 	keepResources        string
-	vaultToken           string
 	versionBundleVersion string
 )
 
@@ -76,21 +50,9 @@ func init() {
 
 	testDir = os.Getenv(EnvVarTestDir)
 
-	// NOTE that implications of changing the order of initialization here means
-	// breaking the initialization behaviour.
-	clusterID := os.Getenv(EnvVarClusterID)
-	if clusterID == "" {
-		os.Setenv(EnvVarClusterID, ClusterID())
-	}
-
 	commonDomain = os.Getenv(EnvVarCommonDomain)
 	if commonDomain == "" {
 		panic(fmt.Sprintf("env var '%s' must not be empty", EnvVarCommonDomain))
-	}
-
-	vaultToken = os.Getenv(EnvVaultToken)
-	if vaultToken == "" {
-		panic(fmt.Sprintf("env var %q must not be empty", EnvVaultToken))
 	}
 
 	token := os.Getenv(EnvVarGithubBotToken)
@@ -171,10 +133,6 @@ func TestHash() string {
 	s := fmt.Sprintf("%x", h.Sum(nil))[0:5]
 
 	return s
-}
-
-func VaultToken() string {
-	return vaultToken
 }
 
 func VersionBundleVersion() string {
