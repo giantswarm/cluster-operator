@@ -143,6 +143,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
 				Organization:                      "giantswarm",
@@ -185,6 +186,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
@@ -234,6 +236,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
