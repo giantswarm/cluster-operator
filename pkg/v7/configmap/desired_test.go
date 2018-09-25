@@ -142,12 +142,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				Organization:                      "giantswarm",
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  1,
 			},
 			expectedConfigMapSpecs: []ConfigMapSpec{
 				{
@@ -180,12 +177,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				Organization:                      "giantswarm",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  1,
 			},
 			providerChartSpecs: []key.ChartSpec{
 				{
@@ -225,12 +219,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				Organization:                      "giantswarm",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  1,
 			},
 			providerChartSpecs: []key.ChartSpec{
 				{
@@ -408,10 +399,12 @@ func Test_ConfigMap_coreDNSValues(t *testing.T) {
 		{
 			name: "case 0: basic match",
 			configMapValues: ConfigMapValues{
-				CalicoAddress:      "172.20.0.0",
-				CalicoPrefixLength: "16",
-				ClusterIPRange:     "172.31.0.0/16",
-				RegistryDomain:     "quay.io",
+				CoreDNS: CoreDNSValues{
+					CalicoAddress:      "172.20.0.0",
+					CalicoPrefixLength: "16",
+					ClusterIPRange:     "172.31.0.0/16",
+				},
+				RegistryDomain: "quay.io",
 			},
 			expectedValuesJSON: coreDNSJSON,
 		},
@@ -548,10 +541,12 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 		{
 			name: "case 0: basic match",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: true,
+					UseProxyProtocol: true,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    3,
 			},
 			releaseExists:      false,
 			expectedValuesJSON: basicMatchJSON,
@@ -559,10 +554,12 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 		{
 			name: "case 1: different worker count",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: true,
+					UseProxyProtocol: true,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    7,
 			},
 			releaseExists:      false,
 			expectedValuesJSON: differentWorkerCountJSON,
@@ -570,10 +567,12 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 		{
 			name: "case 2: different settings",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: false,
-				IngressControllerUseProxyProtocol: false,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       1,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: false,
+					UseProxyProtocol: false,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    1,
 			},
 			releaseExists:      false,
 			expectedValuesJSON: differentSettingsJSON,
@@ -581,10 +580,12 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 		{
 			name: "case 3: already migrated",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: false,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: true,
+					UseProxyProtocol: false,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    3,
 			},
 			releaseExists:      true,
 			expectedValuesJSON: alreadyMigratedJSON,
