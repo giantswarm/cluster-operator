@@ -412,8 +412,7 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				Logger: microloggertest.New(),
 				Tenant: tenantService,
 
-				ProjectName:    "cluster-operator",
-				RegistryDomain: "quay.io",
+				ProjectName: "cluster-operator",
 			}
 			newService, err := New(c)
 			if err != nil {

@@ -222,8 +222,7 @@ func Test_ConfigMap_newDeleteChangeForDeletePatch(t *testing.T) {
 		Logger: microloggertest.New(),
 		Tenant: &tenantMock{},
 
-		ProjectName:    "cluster-operator",
-		RegistryDomain: "quay.io",
+		ProjectName: "cluster-operator",
 	}
 	newService, err := New(c)
 	if err != nil {

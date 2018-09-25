@@ -200,8 +200,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger: config.Logger,
 			Tenant: tenantClusterService,
 
-			ProjectName:    config.ProjectName,
-			RegistryDomain: config.RegistryDomain,
+			ProjectName: config.ProjectName,
 		}
 
 		configMapService, err = configmapservice.New(c)

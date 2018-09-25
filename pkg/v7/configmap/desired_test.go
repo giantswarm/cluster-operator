@@ -277,8 +277,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					fakeTenantHelmClient: &helmMock{},
 				},
 
-				ProjectName:    "cluster-operator",
-				RegistryDomain: "quay.io",
+				ProjectName: "cluster-operator",
 			}
 			newService, err := New(c)
 			if err != nil {
