@@ -116,6 +116,7 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
+				ClusterIPRange: "172.31.0.0/16",
 				Fs:             afero.NewMemMapFs(),
 				G8sClient:      fake.NewSimpleClientset(),
 				K8sClient:      clientgofake.NewSimpleClientset(),

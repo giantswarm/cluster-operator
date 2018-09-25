@@ -11,7 +11,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
@@ -129,464 +128,163 @@ const (
 
 func Test_ConfigMap_GetDesiredState(t *testing.T) {
 	testCases := []struct {
-		name                            string
-		configMapConfig                 ClusterConfig
-		configMapValues                 ConfigMapValues
-		ingressControllerReleasePresent bool
-		expectedConfigMaps              []*corev1.ConfigMap
+		name                   string
+		clusterConfig          ClusterConfig
+		configMapValues        ConfigMapValues
+		providerChartSpecs     []key.ChartSpec
+		expectedConfigMapSpecs []ConfigMapSpec
 	}{
 		{
 			name: "case 0: basic match",
-			configMapConfig: ClusterConfig{
+			clusterConfig: ClusterConfig{
 				APIDomain:  "5xchu.aws.giantswarm.io",
 				ClusterID:  "5xchu",
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
+				CalicoAddress:                     "172.20.0.0",
+				CalicoPrefixLength:                "16",
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
 				Organization:                      "giantswarm",
+				RegistryDomain:                    "quay.io",
 				WorkerCount:                       3,
 			},
-			ingressControllerReleasePresent: false,
-			expectedConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "cert-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "cert-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
+			expectedConfigMapSpecs: []ConfigMapSpec{
+				{
+					Name:      "coredns-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
+				{
+					Name:      "cert-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "nginx-ingress-controller-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "nginx-ingress-controller",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": basicMatchJSON,
-					},
+				{
+					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "kube-state-metrics-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "kube-state-metrics",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
+				{
+					Name:      "net-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "net-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "net-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
+				{
+					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "node-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "node-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
+				{
+					Name:      "node-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
 			},
 		},
 		{
-			name: "case 1: different worker count",
-			configMapConfig: ClusterConfig{
+			name: "case 1: provider chart without configmap",
+			clusterConfig: ClusterConfig{
 				APIDomain:  "5xchu.aws.giantswarm.io",
 				ClusterID:  "5xchu",
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
+				CalicoAddress:                     "172.20.0.0",
+				CalicoPrefixLength:                "16",
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
+				RegistryDomain:                    "quay.io",
 				WorkerCount:                       7,
 			},
-			ingressControllerReleasePresent: false,
-			expectedConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "cert-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "cert-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
+			providerChartSpecs: []key.ChartSpec{
+				{
+					AppName:   "test-app",
+					ChartName: "test-app-chart",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
+			},
+			expectedConfigMapSpecs: []ConfigMapSpec{
+				{
+					Name:      "coredns-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "nginx-ingress-controller-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "nginx-ingress-controller",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": differentWorkerCountJSON,
-					},
+				{
+					Name:      "cert-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "kube-state-metrics-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "kube-state-metrics",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
+				{
+					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "net-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "net-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
+				{
+					Name:      "net-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "node-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "node-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
+				{
+					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "node-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
 			},
 		},
 		{
-			name: "case 2: different ingress controller settings",
-			configMapConfig: ClusterConfig{
+			name: "case 2: provider chart with configmap in different namespace",
+			clusterConfig: ClusterConfig{
 				APIDomain:  "5xchu.aws.giantswarm.io",
 				ClusterID:  "5xchu",
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
+				CalicoAddress:                     "172.20.0.0",
+				CalicoPrefixLength:                "16",
 				ClusterID:                         "5xchu",
-				IngressControllerMigrationEnabled: false,
-				IngressControllerUseProxyProtocol: false,
+				ClusterIPRange:                    "172.31.0.0/16",
 				Organization:                      "giantswarm",
-				WorkerCount:                       1,
-			},
-			ingressControllerReleasePresent: false,
-			expectedConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "cert-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "cert-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
-				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
-				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "nginx-ingress-controller-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "nginx-ingress-controller",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": differentSettingsJSON,
-					},
-				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "kube-state-metrics-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "kube-state-metrics",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
-				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "net-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "net-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
-				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "node-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "node-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
-				},
-			},
-		},
-		{
-			name: "case 3: ingress controller already migrated",
-			configMapConfig: ClusterConfig{
-				APIDomain:  "5xchu.aws.giantswarm.io",
-				ClusterID:  "5xchu",
-				Namespaces: []string{},
-			},
-			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
 				IngressControllerMigrationEnabled: true,
-				Organization:                      "giantswarm",
-				WorkerCount:                       3,
+				IngressControllerUseProxyProtocol: true,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       7,
 			},
-			ingressControllerReleasePresent: true,
-			expectedConfigMaps: []*corev1.ConfigMap{
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "cert-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "cert-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
+			providerChartSpecs: []key.ChartSpec{
+				{
+					AppName:       "test-app",
+					ChartName:     "test-app-chart",
+					ConfigMapName: "test-app-values",
+					Namespace:     "giantswarm",
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "coredns-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "coredns",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": coreDNSJSON,
-					},
+			},
+			expectedConfigMapSpecs: []ConfigMapSpec{
+				{
+					Name:      "coredns-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "nginx-ingress-controller-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "nginx-ingress-controller",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": alreadyMigratedJSON,
-					},
+				{
+					Name:      "cert-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "kube-state-metrics-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "kube-state-metrics",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
+				{
+					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "net-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "net-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"namespace\":\"kube-system\"}",
-					},
+				{
+					Name:      "net-exporter-values",
+					Namespace: metav1.NamespaceSystem,
 				},
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "node-exporter-values",
-						Namespace: metav1.NamespaceSystem,
-						Labels: map[string]string{
-							label.App:          "node-exporter",
-							label.Cluster:      "5xchu",
-							label.ManagedBy:    "cluster-operator",
-							label.Organization: "giantswarm",
-							label.ServiceType:  "managed",
-						},
-					},
-					Data: map[string]string{
-						"values.json": "{\"image\":{\"registry\":\"quay.io\"}}",
-					},
+				{
+					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "node-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "test-app-values",
+					Namespace: "giantswarm",
 				},
 			},
 		},
@@ -594,62 +292,38 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			helmClient := &helmMock{}
-			if !tc.ingressControllerReleasePresent {
-				helmClient.defaultError = microerror.Newf("No such release: nginx-ingress-controller")
-			}
-
 			c := Config{
 				Logger: microloggertest.New(),
 				Tenant: &tenantMock{
-					fakeTenantHelmClient: helmClient,
+					fakeTenantHelmClient: &helmMock{},
 				},
-
 				CalicoAddress:      "172.20.0.0",
 				CalicoPrefixLength: "16",
 				ClusterIPRange:     "172.31.0.0/16",
-				ProjectName:        "cluster-operator",
-				RegistryDomain:     "quay.io",
+
+				ProjectName:    "cluster-operator",
+				RegistryDomain: "quay.io",
 			}
 			newService, err := New(c)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			configMaps, err := newService.GetDesiredState(context.TODO(), tc.configMapConfig, tc.configMapValues, []key.ChartSpec{})
+			configMaps, err := newService.GetDesiredState(context.TODO(), tc.clusterConfig, tc.configMapValues, tc.providerChartSpecs)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			if len(configMaps) != len(tc.expectedConfigMaps) {
-				t.Fatal("expected", len(tc.expectedConfigMaps), "got", len(configMaps))
+			if len(configMaps) != len(tc.expectedConfigMapSpecs) {
+				t.Fatal("expected", len(tc.expectedConfigMapSpecs), "got", len(configMaps))
 			}
 
-			for _, expectedConfigMap := range tc.expectedConfigMaps {
-				configMap, err := getConfigMapByNameAndNamespace(configMaps, expectedConfigMap.Name, expectedConfigMap.Namespace)
+			for _, expectedSpec := range tc.expectedConfigMapSpecs {
+				_, err := getConfigMapByNameAndNamespace(configMaps, expectedSpec.Name, expectedSpec.Namespace)
 				if IsNotFound(err) {
-					t.Fatalf("expected config map '%s' not found", expectedConfigMap.Name)
+					t.Fatalf("expected chart %#q/%#q not found", expectedSpec.Namespace, expectedSpec.Name)
 				} else if err != nil {
 					t.Fatalf("expected nil, got %#v", err)
-				}
-
-				if !reflect.DeepEqual(configMap.ObjectMeta.Labels, expectedConfigMap.ObjectMeta.Labels) {
-					t.Fatalf("expected config map labels %#v, got %#v", expectedConfigMap.ObjectMeta.Labels, configMap.ObjectMeta.Labels)
-				}
-
-				for expectedKey, expectedValues := range expectedConfigMap.Data {
-					values, ok := configMap.Data[expectedKey]
-					if !ok {
-						t.Fatalf("expected key '%s' not found", expectedKey)
-					}
-
-					equalValues, err := compareJSON(expectedValues, values)
-					if err != nil {
-						t.Fatal("expected", nil, "got", err)
-					}
-					if !equalValues {
-						t.Fatal("expected", expectedValues, "got", values)
-					}
 				}
 			}
 		})
