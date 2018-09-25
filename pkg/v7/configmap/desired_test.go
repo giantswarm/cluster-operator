@@ -168,6 +168,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
+					Name:      "nginx-ingress-controller-user-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
 					Name:      "node-exporter-values",
 					Namespace: metav1.NamespaceSystem,
 				},
@@ -210,6 +214,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				{
 					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "nginx-ingress-controller-user-values",
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
@@ -256,6 +264,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				{
 					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "nginx-ingress-controller-user-values",
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
