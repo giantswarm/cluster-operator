@@ -59,10 +59,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoCert, objectMeta.Namespace, r.projectName)
-		desiredCertConfigs = append(desiredCertConfigs, certConfig)
-	}
-	{
 		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
@@ -111,7 +107,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoCert)
+	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoEtcdClientCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
@@ -181,40 +177,6 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, 
 				DisableRegeneration: false,
 				IPSANs:              []string{clusterConfig.IP.API.String()},
 				Organizations:       []string{systemMastersOrganization},
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
-	}
-}
-
-func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
-	certName := string(cert)
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: certName,
-				label.ManagedBy:       projectName,
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    certName,
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.Calico,
-				DisableRegeneration: false,
 				TTL:                 clusterConfig.CertTTL,
 			},
 			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{

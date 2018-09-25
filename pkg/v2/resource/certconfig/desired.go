@@ -53,7 +53,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoCert, r.projectName)
+		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
@@ -97,7 +97,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoCert)
+	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoEtcdClientCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
@@ -170,7 +170,7 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName
 	}
 }
 
-func newCalicoCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
+func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
