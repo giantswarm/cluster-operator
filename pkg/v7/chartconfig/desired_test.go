@@ -242,7 +242,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 	testCases := []struct {
 		name                  string
 		clusterConfig         ClusterConfig
-		chartSpec             key.ChartSpec
+		configMapName         string
+		namespace             string
 		presentConfigMaps     []*corev1.ConfigMap
 		expectedConfigMapSpec *v1alpha1.ChartConfigSpecConfigMap
 	}{
@@ -251,10 +252,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 			clusterConfig: ClusterConfig{
 				ClusterID: "5xchu",
 			},
-			chartSpec: key.ChartSpec{
-				ConfigMapName: "ingress-controller-values",
-				Namespace:     metav1.NamespaceSystem,
-			},
+			configMapName:     "ingress-controller-values",
+			namespace:         metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{},
 			expectedConfigMapSpec: &v1alpha1.ChartConfigSpecConfigMap{
 				Name:      "ingress-controller-values",
@@ -266,10 +265,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 			clusterConfig: ClusterConfig{
 				ClusterID: "5xchu",
 			},
-			chartSpec: key.ChartSpec{
-				ConfigMapName: "ingress-controller-values",
-				Namespace:     metav1.NamespaceSystem,
-			},
+			configMapName: "ingress-controller-values",
+			namespace:     metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -291,10 +288,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 			clusterConfig: ClusterConfig{
 				ClusterID: "5xchu",
 			},
-			chartSpec: key.ChartSpec{
-				ConfigMapName: "ingress-controller-values",
-				Namespace:     metav1.NamespaceSystem,
-			},
+			configMapName: "ingress-controller-values",
+			namespace:     metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -317,10 +312,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 			clusterConfig: ClusterConfig{
 				ClusterID: "5xchu",
 			},
-			chartSpec: key.ChartSpec{
-				ConfigMapName: "ingress-controller-values",
-				Namespace:     metav1.NamespaceSystem,
-			},
+			configMapName: "ingress-controller-values",
+			namespace:     metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -344,10 +337,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 			clusterConfig: ClusterConfig{
 				ClusterID: "5xchu",
 			},
-			chartSpec: key.ChartSpec{
-				ConfigMapName: "ingress-controller-values",
-				Namespace:     metav1.NamespaceSystem,
-			},
+			configMapName: "ingress-controller-values",
+			namespace:     metav1.NamespaceSystem,
 			presentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -400,7 +391,7 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			result, err := cc.newConfigMapSpec(context.TODO(), tc.clusterConfig, tc.chartSpec)
+			result, err := cc.newConfigMapSpec(context.TODO(), tc.clusterConfig, tc.configMapName, tc.namespace)
 			if err != nil {
 				t.Fatalf("expected nil, got %#v", err)
 			}

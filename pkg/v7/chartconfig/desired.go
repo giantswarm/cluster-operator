@@ -38,7 +38,15 @@ func (c *ChartConfig) GetDesiredState(ctx context.Context, clusterConfig Cluster
 }
 
 func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterConfig, chartSpec key.ChartSpec) (*v1alpha1.ChartConfig, error) {
-	configMapSpec, err := c.newConfigMapSpec(ctx, clusterConfig, chartSpec)
+	// App configmaps are managed by the operator.
+	configMapSpec, err := c.newConfigMapSpec(ctx, clusterConfig, chartSpec.ConfigMapName, chartSpec.Namespace)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// User configmaps are created by the operator and edited by users to
+	// override chart values.
+	userConfigMapSpec, err := c.newConfigMapSpec(ctx, clusterConfig, chartSpec.UserConfigMapName, chartSpec.Namespace)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -58,8 +66,10 @@ func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterC
 				Name:      chartSpec.ChartName,
 				Namespace: chartSpec.Namespace,
 				Channel:   chartSpec.ChannelName,
-				ConfigMap: *configMapSpec,
 				Release:   chartSpec.ReleaseName,
+
+				ConfigMap:     *configMapSpec,
+				UserConfigMap: *userConfigMapSpec,
 			},
 			VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
 				Version: chartConfigVersionBundleVersion,
@@ -70,8 +80,8 @@ func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterC
 	return chartConfigCR, nil
 }
 
-func (c *ChartConfig) newConfigMapSpec(ctx context.Context, clusterConfig ClusterConfig, chartSpec key.ChartSpec) (*v1alpha1.ChartConfigSpecConfigMap, error) {
-	if chartSpec.ConfigMapName == "" {
+func (c *ChartConfig) newConfigMapSpec(ctx context.Context, clusterConfig ClusterConfig, configMapName, configMapNamespace string) (*v1alpha1.ChartConfigSpecConfigMap, error) {
+	if configMapName == "" {
 		// Return early. Nothing to do.
 		return &v1alpha1.ChartConfigSpecConfigMap{}, nil
 	}
@@ -81,13 +91,13 @@ func (c *ChartConfig) newConfigMapSpec(ctx context.Context, clusterConfig Cluste
 		return nil, microerror.Mask(err)
 	}
 
-	configMap, err := tenantK8sClient.CoreV1().ConfigMaps(chartSpec.Namespace).Get(chartSpec.ConfigMapName, metav1.GetOptions{})
+	configMap, err := tenantK8sClient.CoreV1().ConfigMaps(configMapNamespace).Get(configMapName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) || guest.IsAPINotAvailable(err) {
 		// Cannot get configmap resource version so leave it unset. We will
 		// check again after the next resync period.
 		configMapSpec := &v1alpha1.ChartConfigSpecConfigMap{
-			Name:      chartSpec.ConfigMapName,
-			Namespace: chartSpec.Namespace,
+			Name:      configMapName,
+			Namespace: configMapNamespace,
 		}
 
 		return configMapSpec, nil
@@ -99,8 +109,8 @@ func (c *ChartConfig) newConfigMapSpec(ctx context.Context, clusterConfig Cluste
 	// an update event for chart-operator. chart-operator will recalculate the
 	// desired state including any updated config map values.
 	configMapSpec := &v1alpha1.ChartConfigSpecConfigMap{
-		Name:            chartSpec.ConfigMapName,
-		Namespace:       chartSpec.Namespace,
+		Name:            configMapName,
+		Namespace:       configMapNamespace,
 		ResourceVersion: configMap.ResourceVersion,
 	}
 
