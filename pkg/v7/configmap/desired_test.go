@@ -6,11 +6,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
 const (
@@ -148,7 +149,6 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				RegistryDomain:                    "quay.io",
 				WorkerCount:                       3,
 			},
-			providerChartSpecs: []key.ChartSpec{},
 			expectedConfigMapSpecs: []ConfigMapSpec{
 				{
 					Name:      "cert-exporter-values",
@@ -169,6 +169,101 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				{
 					Name:      "node-exporter-values",
 					Namespace: metav1.NamespaceSystem,
+				},
+			},
+		},
+		{
+			name: "case 1: provider chart without configmap",
+			clusterConfig: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
+			},
+			configMapValues: ConfigMapValues{
+				ClusterID:                         "5xchu",
+				Organization:                      "giantswarm",
+				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       7,
+			},
+			providerChartSpecs: []key.ChartSpec{
+				{
+					AppName:   "test-app",
+					ChartName: "test-app-chart",
+					Namespace: metav1.NamespaceSystem,
+				},
+			},
+			expectedConfigMapSpecs: []ConfigMapSpec{
+				{
+					Name:      "cert-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "net-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "node-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+			},
+		},
+		{
+			name: "case 2: provider chart with configmap in different namespace",
+			clusterConfig: ClusterConfig{
+				APIDomain:  "5xchu.aws.giantswarm.io",
+				ClusterID:  "5xchu",
+				Namespaces: []string{},
+			},
+			configMapValues: ConfigMapValues{
+				ClusterID:                         "5xchu",
+				Organization:                      "giantswarm",
+				IngressControllerMigrationEnabled: true,
+				IngressControllerUseProxyProtocol: true,
+				RegistryDomain:                    "quay.io",
+				WorkerCount:                       7,
+			},
+			providerChartSpecs: []key.ChartSpec{
+				{
+					AppName:       "test-app",
+					ChartName:     "test-app-chart",
+					ConfigMapName: "test-app-values",
+					Namespace:     "giantswarm",
+				},
+			},
+			expectedConfigMapSpecs: []ConfigMapSpec{
+				{
+					Name:      "cert-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "net-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "node-exporter-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "test-app-values",
+					Namespace: "giantswarm",
 				},
 			},
 		},
