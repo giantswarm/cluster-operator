@@ -9,6 +9,17 @@ const (
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
 
+	// ConfigMapType is a type of configmap used for tenant clusters.
+	ConfigMapType = "configmap.giantswarm.io/type"
+
+	// ConfigMapTypeApp is a label value for app configmaps managed by the
+	// operator.
+	ConfigMapTypeApp = "app"
+
+	// ConfigMapTypeUser is a label value for user configmaps created by the
+	// operator and edited by users to override chart values.
+	ConfigMapTypeUser = "user"
+
 	// LegacyClusterID is an old style label for ClusterID
 	LegacyClusterID = "clusterID"
 

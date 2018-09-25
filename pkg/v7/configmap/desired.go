@@ -208,13 +208,14 @@ func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	return newConfigMap
 }
 
-func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
+func newConfigMapLabels(configMapSpec ConfigMapSpec, configMapValues ConfigMapValues, projectName string) map[string]string {
 	return map[string]string{
-		label.App:          appName,
-		label.Cluster:      configMapValues.ClusterID,
-		label.ManagedBy:    projectName,
-		label.Organization: configMapValues.Organization,
-		label.ServiceType:  label.ServiceTypeManaged,
+		label.App:           configMapSpec.App,
+		label.Cluster:       configMapValues.ClusterID,
+		label.ConfigMapType: configMapSpec.Type,
+		label.ManagedBy:     projectName,
+		label.Organization:  configMapValues.Organization,
+		label.ServiceType:   label.ServiceTypeManaged,
 	}
 }
 
