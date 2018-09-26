@@ -10,7 +10,7 @@ const (
 	Cluster = "giantswarm.io/cluster"
 
 	// ConfigMapType is a type of configmap used for tenant clusters.
-	ConfigMapType = "configmap.giantswarm.io/type"
+	ConfigMapType = "cluster-operator.giantswarm.io/configmap-type"
 
 	// ConfigMapTypeApp is a label value for app configmaps managed by the
 	// operator.
