@@ -151,15 +151,15 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 	return json, nil
 }
 
-func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool) ([]byte, error) {
+func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressController bool) ([]byte, error) {
 	// controllerServiceEnabled needs to be set separately for the chart
 	// migration logic but is the reverse of migration enabled.
 	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
 
 	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
 	if migrationEnabled {
-		// Release exists so don't repeat the migration process.
-		if releaseExists {
+		// No legacy ingress controller. So don't need to run the migration process.
+		if hasLegacyIngressController == false {
 			migrationEnabled = false
 		}
 	}
