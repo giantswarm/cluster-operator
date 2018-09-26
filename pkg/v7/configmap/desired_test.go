@@ -161,6 +161,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
+					Name:      "metrics-server-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
 					Name:      "net-exporter-values",
 					Namespace: metav1.NamespaceSystem,
 				},
@@ -207,6 +211,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				{
 					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "metrics-server-values",
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
@@ -257,6 +265,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				{
 					Name:      "kube-state-metrics-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "metrics-server-values",
 					Namespace: metav1.NamespaceSystem,
 				},
 				{

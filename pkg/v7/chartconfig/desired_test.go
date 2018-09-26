@@ -32,6 +32,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-metrics-server-chart",
 				"kubernetes-nginx-ingress-controller-chart",
 				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
@@ -56,6 +57,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-metrics-server-chart",
 				"kubernetes-nginx-ingress-controller-chart",
 				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
@@ -82,6 +84,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-metrics-server-chart",
 				"kubernetes-nginx-ingress-controller-chart",
 				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
@@ -116,6 +119,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 			expectedChartConfigNames: []string{
 				"cert-exporter-chart",
 				"kubernetes-kube-state-metrics-chart",
+				"kubernetes-metrics-server-chart",
 				"kubernetes-nginx-ingress-controller-chart",
 				"kubernetes-node-exporter-chart",
 				"net-exporter-chart",
