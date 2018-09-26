@@ -5,22 +5,23 @@ package basic
 import (
 	"testing"
 
-	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
+	"github.com/giantswarm/e2e-harness/pkg/framework/resource"
+	e2eclient "github.com/giantswarm/e2eclients/aws"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/micrologger"
-	"github.com/spf13/afero"
 
 	"github.com/giantswarm/cluster-operator/integration/env"
 	"github.com/giantswarm/cluster-operator/integration/setup"
 )
 
 var (
+	c          *e2eclient.Client
 	g          *framework.Guest
 	h          *framework.Host
-	l          micrologger.Logger
-	apprClient *apprclient.Client
 	helmClient *helmclient.Client
+	l          micrologger.Logger
+	r          *resource.Resource
 )
 
 func init() {
@@ -65,11 +66,11 @@ func init() {
 
 	{
 		c := helmclient.Config{
-			Logger:     l,
-			K8sClient:  h.K8sClient(),
-			RestConfig: h.RestConfig(),
+			Logger:          l,
+			K8sClient:       h.K8sClient(),
+			RestConfig:      h.RestConfig(),
+			TillerNamespace: "giantswarm",
 		}
-
 		helmClient, err = helmclient.New(c)
 		if err != nil {
 			panic(err.Error())
@@ -77,15 +78,19 @@ func init() {
 	}
 
 	{
-		c := apprclient.Config{
-			Fs:     afero.NewOsFs(),
-			Logger: l,
-
-			Address:      "https://quay.io",
-			Organization: "giantswarm",
+		c := resource.Config{
+			Logger:     l,
+			HelmClient: helmClient,
+			Namespace:  "giantswarm",
 		}
+		r, err = resource.New(c)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
 
-		apprClient, err = apprclient.New(c)
+	{
+		c, err = e2eclient.NewClient()
 		if err != nil {
 			panic(err.Error())
 		}
@@ -95,5 +100,15 @@ func init() {
 // TestMain allows us to have common setup and teardown steps that are run
 // once for all the tests https://golang.org/pkg/testing/#hdr-Main.
 func TestMain(m *testing.M) {
-	setup.WrapTestMain(g, h, helmClient, apprClient, m)
+	{
+		c := setup.Config{
+			AWSClient: c,
+			Guest:     g,
+			Host:      h,
+			Logger:    l,
+			Resource:  r,
+		}
+
+		setup.Setup(m, c)
+	}
 }
