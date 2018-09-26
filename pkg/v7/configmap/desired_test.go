@@ -11,6 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
@@ -167,6 +168,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
+					Name:      "nginx-ingress-controller-user-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
 					Name:      "node-exporter-values",
 					Namespace: metav1.NamespaceSystem,
 				},
@@ -209,6 +214,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				{
 					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "nginx-ingress-controller-user-values",
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
@@ -255,6 +264,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				},
 				{
 					Name:      "nginx-ingress-controller-values",
+					Namespace: metav1.NamespaceSystem,
+				},
+				{
+					Name:      "nginx-ingress-controller-user-values",
 					Namespace: metav1.NamespaceSystem,
 				},
 				{
@@ -393,6 +406,67 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 
 			if !reflect.DeepEqual(configMap.Data, tc.expectedConfigMap.Data) {
 				t.Fatalf("expected data %#v got %#v", tc.expectedConfigMap.Data, configMap.Data)
+			}
+		})
+	}
+}
+
+func Test_ConfigMap_newConfigMapLabels(t *testing.T) {
+	testCases := []struct {
+		name            string
+		configMapSpec   ConfigMapSpec
+		configMapValues ConfigMapValues
+		projectName     string
+		expectedLabels  map[string]string
+	}{
+		{
+			name: "case 0: basic match",
+			configMapSpec: ConfigMapSpec{
+				App:  "test-app",
+				Type: label.ConfigMapTypeApp,
+			},
+			configMapValues: ConfigMapValues{
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+			},
+			projectName: "cluster-operator",
+			expectedLabels: map[string]string{
+				label.App:           "test-app",
+				label.Cluster:       "5xchu",
+				label.ConfigMapType: label.ConfigMapTypeApp,
+				label.ManagedBy:     "cluster-operator",
+				label.Organization:  "giantswarm",
+				label.ServiceType:   label.ServiceTypeManaged,
+			},
+		},
+		{
+			name: "case 1: user configmap",
+			configMapSpec: ConfigMapSpec{
+				App:  "test-app",
+				Type: label.ConfigMapTypeUser,
+			},
+			configMapValues: ConfigMapValues{
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+			},
+			projectName: "cluster-operator",
+			expectedLabels: map[string]string{
+				label.App:           "test-app",
+				label.Cluster:       "5xchu",
+				label.ConfigMapType: label.ConfigMapTypeUser,
+				label.ManagedBy:     "cluster-operator",
+				label.Organization:  "giantswarm",
+				label.ServiceType:   label.ServiceTypeManaged,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			labels := newConfigMapLabels(tc.configMapSpec, tc.configMapValues, tc.projectName)
+
+			if !reflect.DeepEqual(labels, tc.expectedLabels) {
+				t.Fatalf("expected labels %#v got %#v", tc.expectedLabels, labels)
 			}
 		})
 	}

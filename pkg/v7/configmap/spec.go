@@ -33,6 +33,7 @@ type ConfigMapSpec struct {
 	Name        string
 	Namespace   string
 	ReleaseName string
+	Type        string
 	ValuesJSON  string
 }
 

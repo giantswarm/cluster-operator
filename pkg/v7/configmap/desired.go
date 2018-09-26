@@ -21,43 +21,47 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
 
 	for _, spec := range configMapSpecs {
-		values := []byte{}
+		spec.Labels = newConfigMapLabels(spec, configMapValues, s.projectName)
 
-		switch spec.App {
-		case "cert-exporter":
-			values, err = exporterValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "coredns":
-			values, err = coreDNSValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "net-exporter":
-			values, err = exporterValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "nginx-ingress-controller":
-			releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
+		// Values are only set for app configmaps.
+		if spec.Type == label.ConfigMapTypeApp {
+			values := []byte{}
+
+			switch spec.App {
+			case "cert-exporter":
+				values, err = exporterValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "coredns":
+				values, err = coreDNSValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "net-exporter":
+				values, err = exporterValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "nginx-ingress-controller":
+				releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+
+				values, err = ingressControllerValues(configMapValues, releaseExists)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			default:
+				values, err = defaultValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
 			}
 
-			values, err = ingressControllerValues(configMapValues, releaseExists)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		default:
-			values, err = defaultValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
+			spec.ValuesJSON = string(values)
 		}
-
-		spec.Labels = newConfigMapLabels(configMapValues, spec.App, s.projectName)
-		spec.ValuesJSON = string(values)
 
 		desiredConfigMaps = append(desiredConfigMaps, newConfigMap(spec))
 	}
@@ -208,13 +212,14 @@ func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	return newConfigMap
 }
 
-func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
+func newConfigMapLabels(configMapSpec ConfigMapSpec, configMapValues ConfigMapValues, projectName string) map[string]string {
 	return map[string]string{
-		label.App:          appName,
-		label.Cluster:      configMapValues.ClusterID,
-		label.ManagedBy:    projectName,
-		label.Organization: configMapValues.Organization,
-		label.ServiceType:  label.ServiceTypeManaged,
+		label.App:           configMapSpec.App,
+		label.Cluster:       configMapValues.ClusterID,
+		label.ConfigMapType: configMapSpec.Type,
+		label.ManagedBy:     projectName,
+		label.Organization:  configMapValues.Organization,
+		label.ServiceType:   label.ServiceTypeManaged,
 	}
 }
 
@@ -232,11 +237,23 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 				Name:        chartSpec.ConfigMapName,
 				Namespace:   chartSpec.Namespace,
 				ReleaseName: chartSpec.ReleaseName,
+				Type:        label.ConfigMapTypeApp,
 			}
 
 			configMapSpecs = append(configMapSpecs, configMapSpec)
 		}
 
+		if chartSpec.UserConfigMapName != "" {
+			configMapSpec := ConfigMapSpec{
+				App:         chartSpec.AppName,
+				Name:        chartSpec.UserConfigMapName,
+				Namespace:   chartSpec.Namespace,
+				ReleaseName: chartSpec.ReleaseName,
+				Type:        label.ConfigMapTypeUser,
+			}
+
+			configMapSpecs = append(configMapSpecs, configMapSpec)
+		}
 	}
 
 	return configMapSpecs

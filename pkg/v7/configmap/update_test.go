@@ -232,6 +232,72 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 7: user configmaps are not updated",
+			currentConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-app-values-configmap",
+						Labels: map[string]string{
+							label.ConfigMapType: label.ConfigMapTypeApp,
+						},
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-app-user-values-configmap",
+						Labels: map[string]string{
+							label.ConfigMapType: label.ConfigMapTypeUser,
+						},
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+			},
+			desiredConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-app-values-configmap",
+						Labels: map[string]string{
+							label.ConfigMapType: label.ConfigMapTypeApp,
+						},
+					},
+					Data: map[string]string{
+						"test":          "test",
+						"another-value": "test",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-app-user-values-configmap",
+						Labels: map[string]string{
+							label.ConfigMapType: label.ConfigMapTypeUser,
+						},
+					},
+					Data: map[string]string{
+						"test": "test",
+					},
+				},
+			},
+			expectedConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-app-values-configmap",
+						Labels: map[string]string{
+							label.ConfigMapType: label.ConfigMapTypeApp,
+						},
+					},
+					Data: map[string]string{
+						"test":          "test",
+						"another-value": "test",
+					},
+				},
+			},
+		},
 	}
 
 	c := Config{
