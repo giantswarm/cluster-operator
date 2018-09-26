@@ -52,7 +52,7 @@ const (
 				"useProxyProtocol": true
 			},
 			"migration": {
-				"enabled": true
+				"enabled": false
 			}
 		},
 		"image": {
@@ -74,7 +74,7 @@ const (
 				"useProxyProtocol": true
 			},
 			"migration": {
-				"enabled": true
+				"enabled": false
 			}
 		},
 		"image": {
@@ -678,7 +678,7 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain:                    "quay.io",
 				WorkerCount:                       3,
 			},
-			releaseExists:      true,
+			releaseExists:      false,
 			expectedValuesJSON: alreadyMigratedJSON,
 		},
 	}
