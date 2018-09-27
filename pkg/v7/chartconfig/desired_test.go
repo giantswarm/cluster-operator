@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 )
 
@@ -126,6 +127,161 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				} else if err != nil {
 					t.Fatalf("expected nil, got %#v", err)
 				}
+			}
+		})
+	}
+}
+
+func Test_ChartConfig_newChartConfig(t *testing.T) {
+	testCases := []struct {
+		name                string
+		clusterConfig       ClusterConfig
+		chartSpec           key.ChartSpec
+		expectedChartConfig *v1alpha1.ChartConfig
+	}{
+		{
+			name: "case 0: basic match",
+			clusterConfig: ClusterConfig{
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+			},
+			chartSpec: key.ChartSpec{
+				AppName:       "kube-state-metrics",
+				ChannelName:   "0-1-stable",
+				ChartName:     "kubernetes-kube-state-metrics-chart",
+				ConfigMapName: "kube-state-metrics-values",
+				Namespace:     metav1.NamespaceSystem,
+				ReleaseName:   "kube-state-metrics",
+			},
+			expectedChartConfig: &v1alpha1.ChartConfig{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "kubernetes-kube-state-metrics-chart",
+					Labels: map[string]string{
+						label.App:          "kube-state-metrics",
+						label.Cluster:      "5xchu",
+						label.ManagedBy:    "cluster-operator",
+						label.Organization: "giantswarm",
+						label.ServiceType:  label.ServiceTypeManaged,
+					},
+				},
+				Spec: v1alpha1.ChartConfigSpec{
+					Chart: v1alpha1.ChartConfigSpecChart{
+						Name:      "kubernetes-kube-state-metrics-chart",
+						Namespace: metav1.NamespaceSystem,
+						Channel:   "0-1-stable",
+						Release:   "kube-state-metrics",
+
+						ConfigMap: v1alpha1.ChartConfigSpecConfigMap{
+							Name:            "kube-state-metrics-values",
+							Namespace:       metav1.NamespaceSystem,
+							ResourceVersion: "",
+						},
+						Secret: v1alpha1.ChartConfigSpecSecret{
+							Name:            "",
+							Namespace:       "",
+							ResourceVersion: "",
+						},
+						UserConfigMap: v1alpha1.ChartConfigSpecConfigMap{
+							Name:            "",
+							Namespace:       "",
+							ResourceVersion: "",
+						},
+					},
+					VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
+						Version: chartConfigVersionBundleVersion,
+					},
+				},
+			},
+		},
+		{
+			name: "case 1: basic match with user configmap",
+			clusterConfig: ClusterConfig{
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+			},
+			chartSpec: key.ChartSpec{
+				AppName:           "nginx-ingress-controller",
+				ChannelName:       "0-3-stable",
+				ChartName:         "kubernetes-nginx-ingress-controller-chart",
+				ConfigMapName:     "nginx-ingress-controller-values",
+				Namespace:         metav1.NamespaceSystem,
+				ReleaseName:       "nginx-ingress-controller",
+				UserConfigMapName: "nginx-ingress-controller-user-values",
+			},
+			expectedChartConfig: &v1alpha1.ChartConfig{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "kubernetes-nginx-ingress-controller-chart",
+					Labels: map[string]string{
+						label.App:          "nginx-ingress-controller",
+						label.Cluster:      "5xchu",
+						label.ManagedBy:    "cluster-operator",
+						label.Organization: "giantswarm",
+						label.ServiceType:  label.ServiceTypeManaged,
+					},
+				},
+				Spec: v1alpha1.ChartConfigSpec{
+					Chart: v1alpha1.ChartConfigSpecChart{
+						Name:      "kubernetes-nginx-ingress-controller-chart",
+						Namespace: metav1.NamespaceSystem,
+						Channel:   "0-3-stable",
+						Release:   "nginx-ingress-controller",
+
+						ConfigMap: v1alpha1.ChartConfigSpecConfigMap{
+							Name:            "nginx-ingress-controller-values",
+							Namespace:       metav1.NamespaceSystem,
+							ResourceVersion: "",
+						},
+						Secret: v1alpha1.ChartConfigSpecSecret{
+							Name:            "",
+							Namespace:       "",
+							ResourceVersion: "",
+						},
+						UserConfigMap: v1alpha1.ChartConfigSpecConfigMap{
+							Name:            "nginx-ingress-controller-user-values",
+							Namespace:       metav1.NamespaceSystem,
+							ResourceVersion: "",
+						},
+					},
+					VersionBundle: v1alpha1.ChartConfigSpecVersionBundle{
+						Version: chartConfigVersionBundleVersion,
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
+
+			c := Config{
+				Logger: microloggertest.New(),
+				Tenant: &tenantMock{
+					fakeTenantK8sClient: fakeTenantK8sClient,
+				},
+
+				ProjectName: "cluster-operator",
+			}
+			cc, err := New(c)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+
+			result, err := cc.newChartConfig(context.TODO(), tc.clusterConfig, tc.chartSpec)
+			if err != nil {
+				t.Fatalf("expected nil, got %#v", err)
+			}
+
+			if result.Name != tc.expectedChartConfig.Name {
+				t.Fatalf("expected chart config name %#q, got %#q", tc.expectedChartConfig.Name, result.Name)
+			}
+
+			if !reflect.DeepEqual(result.Spec, tc.expectedChartConfig.Spec) {
+				t.Fatalf("expected chart config spec %#v, got %#v", tc.expectedChartConfig.Spec, result.Spec)
+			}
+
+			if !reflect.DeepEqual(result.Labels, tc.expectedChartConfig.Labels) {
+				t.Fatalf("expected chart config labels %#v, got %#v", tc.expectedChartConfig.Labels, result.Labels)
 			}
 		})
 	}
