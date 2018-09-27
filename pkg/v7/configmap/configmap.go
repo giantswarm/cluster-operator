@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
@@ -49,15 +48,6 @@ func New(config Config) (*Service, error) {
 	}
 
 	return s, nil
-}
-
-func (s *Service) newTenantHelmClient(ctx context.Context, clusterConfig ClusterConfig) (helmclient.Interface, error) {
-	tenantK8sClient, err := s.tenant.NewHelmClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return tenantK8sClient, nil
 }
 
 func (s *Service) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
