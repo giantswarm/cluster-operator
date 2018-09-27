@@ -63,14 +63,6 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 func CommonChartSpecs() []ChartSpec {
 	return []ChartSpec{
 		{
-			AppName:       "coredns",
-			ChannelName:   "0-1-stable",
-			ChartName:     "kubernetes-coredns-chart",
-			ConfigMapName: "coredns-values",
-			Namespace:     metav1.NamespaceSystem,
-			ReleaseName:   "coredns",
-		},
-		{
 			AppName:       "cert-exporter",
 			ChannelName:   "stable",
 			ChartName:     "cert-exporter-chart",
