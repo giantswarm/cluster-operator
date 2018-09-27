@@ -21,14 +21,14 @@ const (
   {
     "cluster": {
       "calico": {
-        "cidr": "172.20.0.0/16"
+        "CIDR": "172.20.0.0/16"
       },
       "kubernetes": {
-        "api": {
+        "API": {
           "clusterIPRange": "172.31.0.0/16"
         },
-        "dns": {
-          "ip": "172.31.0.10"
+        "DNS": {
+          "IP": "172.31.0.10"
         }
       }
     },
@@ -176,6 +176,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
 				Organization:                      "giantswarm",
@@ -193,6 +194,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
@@ -217,6 +219,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			},
 			configMapValues: ConfigMapValues{
 				ClusterID:                         "5xchu",
+				ClusterIPRange:                    "172.31.0.0/16",
 				Organization:                      "giantswarm",
 				IngressControllerMigrationEnabled: true,
 				IngressControllerUseProxyProtocol: true,
