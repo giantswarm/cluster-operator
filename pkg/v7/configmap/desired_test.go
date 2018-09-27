@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
@@ -237,10 +238,12 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
+
 			c := Config{
 				Logger: microloggertest.New(),
 				Tenant: &tenantMock{
-					fakeTenantHelmClient: &helmMock{},
+					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
 
 				ProjectName: "cluster-operator",
@@ -569,7 +572,7 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 	testCases := []struct {
 		name               string
 		configMapValues    ConfigMapValues
-		releaseExists      bool
+		hasLegacyIC        bool
 		errorMatcher       func(error) bool
 		expectedValuesJSON string
 	}{
@@ -581,7 +584,7 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain:                    "quay.io",
 				WorkerCount:                       3,
 			},
-			releaseExists:      false,
+			hasLegacyIC:        true,
 			expectedValuesJSON: basicMatchJSON,
 		},
 		{
@@ -592,7 +595,7 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain:                    "quay.io",
 				WorkerCount:                       7,
 			},
-			releaseExists:      false,
+			hasLegacyIC:        true,
 			expectedValuesJSON: differentWorkerCountJSON,
 		},
 		{
@@ -603,7 +606,7 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain:                    "quay.io",
 				WorkerCount:                       1,
 			},
-			releaseExists:      false,
+			hasLegacyIC:        true,
 			expectedValuesJSON: differentSettingsJSON,
 		},
 		{
@@ -614,14 +617,14 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain:                    "quay.io",
 				WorkerCount:                       3,
 			},
-			releaseExists:      true,
+			hasLegacyIC:        false,
 			expectedValuesJSON: alreadyMigratedJSON,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			values, err := ingressControllerValues(tc.configMapValues, tc.releaseExists)
+			values, err := ingressControllerValues(tc.configMapValues, tc.hasLegacyIC)
 
 			switch {
 			case err == nil && tc.errorMatcher == nil:
