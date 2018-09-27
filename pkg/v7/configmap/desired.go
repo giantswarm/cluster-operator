@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"math"
 
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -21,43 +21,47 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
 
 	for _, spec := range configMapSpecs {
-		values := []byte{}
+		spec.Labels = newConfigMapLabels(spec, configMapValues, s.projectName)
 
-		switch spec.App {
-		case "cert-exporter":
-			values, err = exporterValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "coredns":
-			values, err = coreDNSValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "net-exporter":
-			values, err = exporterValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		case "nginx-ingress-controller":
-			releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
-			if err != nil {
-				return nil, microerror.Mask(err)
+		// Values are only set for app configmaps.
+		if spec.Type == label.ConfigMapTypeApp {
+			values := []byte{}
+
+			switch spec.App {
+			case "cert-exporter":
+				values, err = exporterValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "coredns":
+				values, err = coreDNSValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "net-exporter":
+				values, err = exporterValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			case "nginx-ingress-controller":
+				hasLegacyIC, err := s.hasLegacyIngressController(ctx, spec.ReleaseName, clusterConfig)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+
+				values, err = ingressControllerValues(configMapValues, hasLegacyIC)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			default:
+				values, err = defaultValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
 			}
 
-			values, err = ingressControllerValues(configMapValues, releaseExists)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		default:
-			values, err = defaultValues(configMapValues)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
+			spec.ValuesJSON = string(values)
 		}
-
-		spec.Labels = newConfigMapLabels(configMapValues, spec.App, s.projectName)
-		spec.ValuesJSON = string(values)
 
 		desiredConfigMaps = append(desiredConfigMaps, newConfigMap(spec))
 	}
@@ -65,20 +69,31 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	return desiredConfigMaps, nil
 }
 
-func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
-	tenantHelmClient, err := s.newTenantHelmClient(ctx, clusterConfig)
+// hasLegacyIngressController checks if the Ingress Controller deployment
+// exists and was created via k8scloudconfig. If so the chart migration
+// logic must be enabled.
+func (s *Service) hasLegacyIngressController(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
+	tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
 
-	_, err = tenantHelmClient.GetReleaseContent(releaseName)
-	if helmclient.IsReleaseNotFound(err) {
+	ingressControllerDeploy, err := tenantK8sClient.Extensions().Deployments(metav1.NamespaceSystem).Get("nginx-ingress-controller", metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// No deployment. So nothing to migrate.
 		return false, nil
 	} else if err != nil {
 		return false, microerror.Mask(err)
 	}
 
-	return true, nil
+	// ServiceType label is only present on deployments created via
+	// chart-operator.
+	serviceType, ok := ingressControllerDeploy.Labels[label.ServiceType]
+	if !ok || serviceType != label.ServiceTypeManaged {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
@@ -140,15 +155,15 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 	return json, nil
 }
 
-func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool) ([]byte, error) {
+func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressController bool) ([]byte, error) {
 	// controllerServiceEnabled needs to be set separately for the chart
 	// migration logic but is the reverse of migration enabled.
 	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
 
 	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
 	if migrationEnabled {
-		// Release exists so don't repeat the migration process.
-		if releaseExists {
+		// No legacy ingress controller. So no need for the migration process.
+		if hasLegacyIngressController == false {
 			migrationEnabled = false
 		}
 	}
@@ -208,13 +223,14 @@ func newConfigMap(configMapSpec ConfigMapSpec) *corev1.ConfigMap {
 	return newConfigMap
 }
 
-func newConfigMapLabels(configMapValues ConfigMapValues, appName, projectName string) map[string]string {
+func newConfigMapLabels(configMapSpec ConfigMapSpec, configMapValues ConfigMapValues, projectName string) map[string]string {
 	return map[string]string{
-		label.App:          appName,
-		label.Cluster:      configMapValues.ClusterID,
-		label.ManagedBy:    projectName,
-		label.Organization: configMapValues.Organization,
-		label.ServiceType:  label.ServiceTypeManaged,
+		label.App:           configMapSpec.App,
+		label.Cluster:       configMapValues.ClusterID,
+		label.ConfigMapType: configMapSpec.Type,
+		label.ManagedBy:     projectName,
+		label.Organization:  configMapValues.Organization,
+		label.ServiceType:   label.ServiceTypeManaged,
 	}
 }
 
@@ -232,11 +248,23 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 				Name:        chartSpec.ConfigMapName,
 				Namespace:   chartSpec.Namespace,
 				ReleaseName: chartSpec.ReleaseName,
+				Type:        label.ConfigMapTypeApp,
 			}
 
 			configMapSpecs = append(configMapSpecs, configMapSpec)
 		}
 
+		if chartSpec.UserConfigMapName != "" {
+			configMapSpec := ConfigMapSpec{
+				App:         chartSpec.AppName,
+				Name:        chartSpec.UserConfigMapName,
+				Namespace:   chartSpec.Namespace,
+				ReleaseName: chartSpec.ReleaseName,
+				Type:        label.ConfigMapTypeUser,
+			}
+
+			configMapSpecs = append(configMapSpecs, configMapSpec)
+		}
 	}
 
 	return configMapSpecs
