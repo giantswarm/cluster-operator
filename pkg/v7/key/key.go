@@ -79,6 +79,14 @@ func CommonChartSpecs() []ChartSpec {
 			ReleaseName:   "kube-state-metrics",
 		},
 		{
+			AppName:       "metrics-server",
+			ChannelName:   "0-1-stable",
+			ChartName:     "kubernetes-metrics-server-chart",
+			ConfigMapName: "metrics-server-values",
+			Namespace:     metav1.NamespaceSystem,
+			ReleaseName:   "metrics-server",
+		},
+		{
 			AppName:       "net-exporter",
 			ChannelName:   "stable",
 			ChartName:     "net-exporter-chart",
