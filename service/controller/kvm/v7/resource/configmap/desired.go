@@ -28,18 +28,22 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	configMapValues := configmap.ConfigMapValues{
-		CalicoAddress:      r.calicoAddress,
-		CalicoPrefixLength: r.calicoPrefixLength,
-		ClusterID:          key.ClusterID(clusterGuestConfig),
-		ClusterIPRange:     r.clusterIPRange,
-		// Migration is enabled so existing k8scloudconfig resources are
-		// replaced.
-		IngressControllerMigrationEnabled: true,
-		// Proxy protocol is disabled for KVM clusters.
-		IngressControllerUseProxyProtocol: false,
-		Organization:                      key.ClusterOrganization(clusterGuestConfig),
-		RegistryDomain:                    r.registryDomain,
-		WorkerCount:                       kvmkey.WorkerCount(customObject),
+		ClusterID: key.ClusterID(clusterGuestConfig),
+		CoreDNS: configmap.CoreDNSValues{
+			CalicoAddress:      r.calicoAddress,
+			CalicoPrefixLength: r.calicoPrefixLength,
+			ClusterIPRange:     r.clusterIPRange,
+		},
+		IngressController: configmap.IngressControllerValues{
+			// Migration is enabled so existing k8scloudconfig resources are
+			// replaced.
+			MigrationEnabled: true,
+			// Proxy protocol is disabled for KVM clusters.
+			UseProxyProtocol: false,
+		},
+		Organization:   key.ClusterOrganization(clusterGuestConfig),
+		RegistryDomain: r.registryDomain,
+		WorkerCount:    kvmkey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, clusterConfig, configMapValues, kvmkey.ChartSpecs())
 	if err != nil {

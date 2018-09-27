@@ -59,7 +59,7 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 
 // CommonChartSpecs returns charts installed for all providers.
 // Note: When adding chart specs you also need to add the chart name to the
-// desired state test in the chartconfig service.
+// desired state tests in the chartconfig and configmap services.
 func CommonChartSpecs() []ChartSpec {
 	return []ChartSpec{
 		{
