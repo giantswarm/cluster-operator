@@ -236,7 +236,7 @@
   branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "dcf18385d5b9b07e6825c24c023b11ebd81705b6"
+  revision = "8c3425d2c09be34df48ee947302b34bd76f75804"
 
 [[projects]]
   branch = "master"
@@ -1107,8 +1107,8 @@
     "pkg/sympath",
     "pkg/version"
   ]
-  revision = "20adb27c7c5868466912eebdf6664e7390ebe710"
-  version = "v2.9.1"
+  revision = "a80231648a1473929271764b920a8e346f6de844"
+  version = "v2.8.2"
 
 [[projects]]
   branch = "master"
