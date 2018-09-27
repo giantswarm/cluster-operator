@@ -124,12 +124,12 @@ type CoreDNSCluster struct {
 }
 
 type CoreDNSClusterCalico struct {
-	CIDR string `json:"cidr"`
+	CIDR string `json:"CIDR"`
 }
 
 type CoreDNSClusterKubernetes struct {
-	API CoreDNSClusterKubernetesAPI `json:"api"`
-	DNS CoreDNSClusterKubernetesDNS `json:"dns"`
+	API CoreDNSClusterKubernetesAPI `json:"API"`
+	DNS CoreDNSClusterKubernetesDNS `json:"DNS"`
 }
 
 type CoreDNSClusterKubernetesAPI struct {
@@ -137,5 +137,5 @@ type CoreDNSClusterKubernetesAPI struct {
 }
 
 type CoreDNSClusterKubernetesDNS struct {
-	IP string `json:"ip"`
+	IP string `json:"IP"`
 }
