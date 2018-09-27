@@ -235,17 +235,6 @@ func installResources(config Config, vpcPeerID string) error {
 	}
 
 	{
-		err = config.Host.InstallCertResource()
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		err = installCredential(config)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	{
 		err = installAWSConfig(config, vpcPeerID)
 		if err != nil {
 			return microerror.Mask(err)
