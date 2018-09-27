@@ -16,11 +16,19 @@ import (
 )
 
 func Test_ChartConfig_GetDesiredState(t *testing.T) {
+	commonChartConfigNames := []string{
+		"cert-exporter-chart",
+		"kubernetes-kube-state-metrics-chart",
+		"kubernetes-nginx-ingress-controller-chart",
+		"kubernetes-node-exporter-chart",
+		"net-exporter-chart",
+	}
+
 	testCases := []struct {
-		name                     string
-		clusterConfig            ClusterConfig
-		providerChartSpecs       []key.ChartSpec
-		expectedChartConfigNames []string
+		name                             string
+		clusterConfig                    ClusterConfig
+		providerChartSpecs               []key.ChartSpec
+		expectedProviderChartConfigNames []string
 	}{
 		{
 			name: "case 0: basic match",
@@ -29,16 +37,10 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				ClusterID:    "5xchu",
 				Organization: "giantswarm",
 			},
-			expectedChartConfigNames: []string{
-				"cert-exporter-chart",
-				"kubernetes-kube-state-metrics-chart",
-				"kubernetes-nginx-ingress-controller-chart",
-				"kubernetes-node-exporter-chart",
-				"net-exporter-chart",
-			},
+			expectedProviderChartConfigNames: []string{},
 		},
 		{
-			name: "case 1: provider chart without configmap",
+			name: "case 1: single provider chart",
 			clusterConfig: ClusterConfig{
 				APIDomain:    "api.eggs2.azure.giantswarm.io",
 				ClusterID:    "eggs2",
@@ -53,43 +55,12 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 					ReleaseName: "test-app",
 				},
 			},
-			expectedChartConfigNames: []string{
-				"cert-exporter-chart",
-				"kubernetes-kube-state-metrics-chart",
-				"kubernetes-nginx-ingress-controller-chart",
-				"kubernetes-node-exporter-chart",
-				"net-exporter-chart",
+			expectedProviderChartConfigNames: []string{
 				"test-app-chart",
 			},
 		},
 		{
-			name: "case 2: provider chart with configmap",
-			clusterConfig: ClusterConfig{
-				APIDomain:    "api.eggs2.azure.giantswarm.io",
-				ClusterID:    "eggs2",
-				Organization: "giantswarm",
-			},
-			providerChartSpecs: []key.ChartSpec{
-				{
-					AppName:       "test-app",
-					ChannelName:   "0-1-stable",
-					ChartName:     "test-app-chart",
-					ConfigMapName: "test-app-values",
-					Namespace:     metav1.NamespaceSystem,
-					ReleaseName:   "test-app",
-				},
-			},
-			expectedChartConfigNames: []string{
-				"cert-exporter-chart",
-				"kubernetes-kube-state-metrics-chart",
-				"kubernetes-nginx-ingress-controller-chart",
-				"kubernetes-node-exporter-chart",
-				"net-exporter-chart",
-				"test-app-chart",
-			},
-		},
-		{
-			name: "case 3: multiple provider charts",
+			name: "case 2: multiple provider charts",
 			clusterConfig: ClusterConfig{
 				APIDomain:    "api.eggs2.azure.giantswarm.io",
 				ClusterID:    "eggs2",
@@ -113,12 +84,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 					ReleaseName:   "test-app2",
 				},
 			},
-			expectedChartConfigNames: []string{
-				"cert-exporter-chart",
-				"kubernetes-kube-state-metrics-chart",
-				"kubernetes-nginx-ingress-controller-chart",
-				"kubernetes-node-exporter-chart",
-				"net-exporter-chart",
+			expectedProviderChartConfigNames: []string{
 				"test-app-chart",
 				"test-app2-chart",
 			},
@@ -127,28 +93,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			allChartSpecs := append(key.CommonChartSpecs(), tc.providerChartSpecs...)
-			objs := make([]runtime.Object, 0, len(allChartSpecs))
-
-			for _, cs := range allChartSpecs {
-				if cs.ConfigMapName != "" {
-
-					cm := &corev1.ConfigMap{
-						ObjectMeta: metav1.ObjectMeta{
-							Name:            cs.ConfigMapName,
-							Namespace:       cs.Namespace,
-							ResourceVersion: "12345",
-						},
-						Data: map[string]string{
-							"key": "value",
-						},
-					}
-
-					objs = append(objs, cm)
-				}
-			}
-
-			fakeTenantK8sClient := clientgofake.NewSimpleClientset(objs...)
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
 
 			c := Config{
 				Logger: microloggertest.New(),
@@ -168,66 +113,17 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			if len(chartConfigs) != len(tc.expectedChartConfigNames) {
-				t.Fatal("expected", len(tc.expectedChartConfigNames), "got", len(chartConfigs))
+			expectedChartConfigNames := append(commonChartConfigNames, tc.expectedProviderChartConfigNames...)
+			if len(chartConfigs) != len(expectedChartConfigNames) {
+				t.Fatal("expected", len(expectedChartConfigNames), "got", len(chartConfigs))
 			}
 
-			for _, expectedName := range tc.expectedChartConfigNames {
+			for _, expectedName := range expectedChartConfigNames {
 				_, err := getChartConfigByName(chartConfigs, expectedName)
 				if IsNotFound(err) {
 					t.Fatalf("expected chart %s not found", expectedName)
 				} else if err != nil {
 					t.Fatalf("expected nil, got %#v", err)
-				}
-			}
-
-			for _, spec := range tc.providerChartSpecs {
-				chartConfig, err := getChartConfigByName(chartConfigs, spec.ChartName)
-				if err != nil {
-					t.Fatalf("expected nil, got %#v", err)
-				}
-
-				if chartConfig.TypeMeta.Kind != chartConfigKind {
-					t.Fatalf("expected kind %#q got %#q", chartConfigKind, chartConfig.TypeMeta.Kind)
-				}
-				if chartConfig.TypeMeta.APIVersion != chartConfigAPIVersion {
-					t.Fatalf("expected api version %#q got %#q", chartConfigAPIVersion, chartConfig.TypeMeta.APIVersion)
-				}
-
-				if spec.ChartName != chartConfig.ObjectMeta.Name {
-					t.Fatalf("expected chart name %#q got %#q", spec.ChartName, chartConfig.ObjectMeta.Name)
-				}
-				if spec.AppName != chartConfig.ObjectMeta.Labels["app"] {
-					t.Fatalf("expected app label %#q got %#q", spec.AppName, chartConfig.ObjectMeta.Labels["app"])
-				}
-
-				if spec.ChannelName != chartConfig.Spec.Chart.Channel {
-					t.Fatalf("expected channel name %#q got %#q", spec.ChannelName, chartConfig.Spec.Chart.Channel)
-				}
-				if spec.ChartName != chartConfig.Spec.Chart.Name {
-					t.Fatalf("expected chart name %#q got %#q", spec.ChartName, chartConfig.Spec.Chart.Name)
-				}
-				if spec.Namespace != chartConfig.Spec.Chart.Namespace {
-					t.Fatalf("expected chart namespace %#q got %#q", spec.Namespace, chartConfig.Spec.Chart.Namespace)
-				}
-				if spec.ReleaseName != chartConfig.Spec.Chart.Release {
-					t.Fatalf("expected release name %#q got %#q", spec.ReleaseName, chartConfig.Spec.Chart.Release)
-				}
-
-				if spec.ConfigMapName != "" {
-					if spec.ConfigMapName != chartConfig.Spec.Chart.ConfigMap.Name {
-						t.Fatalf("expected configmap name %#q got %#q", spec.ConfigMapName, chartConfig.Spec.Chart.ConfigMap.Name)
-					}
-					if chartConfig.Spec.Chart.ConfigMap.ResourceVersion != "12345" {
-						t.Fatalf("expected configmap resource version '12345' got %#q", chartConfig.Spec.Chart.ConfigMap.ResourceVersion)
-					}
-					if spec.Namespace != chartConfig.Spec.Chart.ConfigMap.Namespace {
-						t.Fatalf("expected configmap namespace %#q got %#q", spec.Namespace, chartConfig.Spec.Chart.ConfigMap.Namespace)
-					}
-				}
-
-				if chartConfig.Spec.VersionBundle.Version != chartConfigVersionBundleVersion {
-					t.Fatalf("expected version bundle version %#q got %#q", chartConfigVersionBundleVersion, chartConfig.Spec.VersionBundle.Version)
 				}
 			}
 		})
