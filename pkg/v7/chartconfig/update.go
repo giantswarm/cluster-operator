@@ -44,11 +44,15 @@ func (c *ChartConfig) NewUpdatePatch(ctx context.Context, currentState, desiredS
 		return nil, microerror.Mask(err)
 	}
 
+	delete, err := c.newDeleteChangeForUpdatePatch(ctx, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
-	// TODO
-	// patch.SetDeleteChange(delete)
+	patch.SetDeleteChange(delete)
 
 	return patch, nil
 }
