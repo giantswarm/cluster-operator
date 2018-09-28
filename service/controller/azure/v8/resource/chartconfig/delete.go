@@ -10,7 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v7/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v7/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v8/key"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {

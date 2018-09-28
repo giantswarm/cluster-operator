@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v7/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v8/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
