@@ -49,7 +49,7 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv7.VersionBundle())
 	versionBundles = append(versionBundles, azurev7.VersionBundle())
 	versionBundles = append(versionBundles, kvmv7.VersionBundle())
-	
+
 	versionBundles = append(versionBundles, awsv8.VersionBundle())
 
 	return versionBundles
