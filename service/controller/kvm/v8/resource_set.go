@@ -1,4 +1,4 @@
-package v7
+package v8
 
 import (
 	"context"
@@ -27,10 +27,10 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/clustercr"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7/resource/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7/resource/kvmconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8/resource/kvmconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for

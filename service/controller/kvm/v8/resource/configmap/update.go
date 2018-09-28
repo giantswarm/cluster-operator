@@ -10,7 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v7/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v8/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
