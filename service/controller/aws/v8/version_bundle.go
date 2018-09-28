@@ -8,23 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "chart-operator",
-				Description: "Added support for user configmaps.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "metrics-server",
-				Description: "Added metrics-server managed service.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Made ingress-nginx configmap configurable.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "coredns",
-				Description: "Added coredns chartconfig.",
+				Component:   "cluster-operator",
+				Description: "Add your changes here.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
@@ -48,6 +33,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "aws",
-		Version:  "0.7.0",
+		Version:  "0.8.0",
 	}
 }
