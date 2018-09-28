@@ -176,6 +176,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v4ResourceSet,
 				v6ResourceSet,
 				v7ResourceSet,
+				v8ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
