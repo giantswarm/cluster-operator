@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v4"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v7"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v8"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -135,6 +136,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 
 		v7ResourceSet, err = v7.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var v8ResourceSet *controller.ResourceSet
+	{
+		c := v8.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v8ResourceSet, err = v8.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
