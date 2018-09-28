@@ -57,12 +57,6 @@ func Setup(m *testing.M, config Config) {
 		v = 1
 	}
 
-	err = setVersionBundlesEnvironment()
-	if err != nil {
-		log.Printf("%#v\n", err)
-		v = 1
-	}
-
 	err = installResources(config, vpcPeerID)
 	if err != nil {
 		log.Printf("%#v\n", err)
@@ -261,40 +255,6 @@ func installResources(config Config, vpcPeerID string) error {
 		err = config.Host.InstallResource("apiextensions-aws-cluster-config-e2e", template.ClusterOperatorResourceChartValues, ":stable")
 		if err != nil {
 			return microerror.Mask(err)
-		}
-	}
-
-	return nil
-}
-
-func setVersionBundlesEnvironment() error {
-	token := os.Getenv("GITHUB_BOT_TOKEN")
-	vType := os.Getenv("TESTED_VERSION")
-	params := &framework.VBVParams{
-		Provider: "aws",
-		Token:    token,
-		VType:    vType,
-	}
-	authorities, err := framework.GetAuthorities(params)
-	// do not fail on missing WIP.
-	if os.Getenv("TESTED_VERSION") == "wip" && framework.IsNotFound(err) {
-		log.Printf("WIP version not present, exiting.\n")
-		os.Exit(0)
-	}
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	for _, authority := range authorities {
-		switch authority.Name {
-		case "aws-operator":
-			os.Setenv("AWSOP_VERSION_BUNDLE_VERSION", authority.Version)
-			// next env var is required by aws-operator templates.
-			os.Setenv("VERSION_BUNDLE_VERSION", authority.Version)
-		case "cluster-operator":
-			os.Setenv("CLOP_VERSION_BUNDLE_VERSION", authority.Version)
-		case "cert-operator":
-			os.Setenv("CERTOP_VERSION_BUNDLE_VERSION", authority.Version)
 		}
 	}
 
