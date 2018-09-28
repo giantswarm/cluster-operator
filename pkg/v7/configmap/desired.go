@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"math"
 
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -44,12 +44,12 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 					return nil, microerror.Mask(err)
 				}
 			case "nginx-ingress-controller":
-				releaseExists, err := s.checkHelmReleaseExists(ctx, spec.ReleaseName, clusterConfig)
+				hasLegacyIC, err := s.hasLegacyIngressController(ctx, spec.ReleaseName, clusterConfig)
 				if err != nil {
 					return nil, microerror.Mask(err)
 				}
 
-				values, err = ingressControllerValues(configMapValues, releaseExists)
+				values, err = ingressControllerValues(configMapValues, hasLegacyIC)
 				if err != nil {
 					return nil, microerror.Mask(err)
 				}
@@ -69,25 +69,36 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	return desiredConfigMaps, nil
 }
 
-func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
-	tenantHelmClient, err := s.newTenantHelmClient(ctx, clusterConfig)
+// hasLegacyIngressController checks if the Ingress Controller deployment
+// exists and was created via k8scloudconfig. If so the chart migration
+// logic must be enabled.
+func (s *Service) hasLegacyIngressController(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
+	tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
 	if err != nil {
 		return false, microerror.Mask(err)
 	}
 
-	_, err = tenantHelmClient.GetReleaseContent(releaseName)
-	if helmclient.IsReleaseNotFound(err) {
+	ingressControllerDeploy, err := tenantK8sClient.Extensions().Deployments(metav1.NamespaceSystem).Get("nginx-ingress-controller", metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// No deployment. So nothing to migrate.
 		return false, nil
 	} else if err != nil {
 		return false, microerror.Mask(err)
 	}
 
-	return true, nil
+	// ServiceType label is only present on deployments created via
+	// chart-operator.
+	serviceType, ok := ingressControllerDeploy.Labels[label.ServiceType]
+	if !ok || serviceType != label.ServiceTypeManaged {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
-	calicoCIDRBlock := key.CIDRBlock(configMapValues.CalicoAddress, configMapValues.CalicoPrefixLength)
-	DNSIP, err := key.DNSIP(configMapValues.ClusterIPRange)
+	calicoCIDRBlock := key.CIDRBlock(configMapValues.CoreDNS.CalicoAddress, configMapValues.CoreDNS.CalicoPrefixLength)
+	DNSIP, err := key.DNSIP(configMapValues.CoreDNS.ClusterIPRange)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -99,7 +110,7 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 			},
 			Kubernetes: CoreDNSClusterKubernetes{
 				API: CoreDNSClusterKubernetesAPI{
-					ClusterIPRange: configMapValues.ClusterIPRange,
+					ClusterIPRange: configMapValues.CoreDNS.ClusterIPRange,
 				},
 				DNS: CoreDNSClusterKubernetesDNS{
 					IP: DNSIP,
@@ -144,15 +155,15 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 	return json, nil
 }
 
-func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool) ([]byte, error) {
+func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressController bool) ([]byte, error) {
 	// controllerServiceEnabled needs to be set separately for the chart
 	// migration logic but is the reverse of migration enabled.
-	controllerServiceEnabled := !configMapValues.IngressControllerMigrationEnabled
+	controllerServiceEnabled := !configMapValues.IngressController.MigrationEnabled
 
-	migrationEnabled := configMapValues.IngressControllerMigrationEnabled
+	migrationEnabled := configMapValues.IngressController.MigrationEnabled
 	if migrationEnabled {
-		// Release exists so don't repeat the migration process.
-		if releaseExists {
+		// No legacy ingress controller. So no need for the migration process.
+		if hasLegacyIngressController == false {
 			migrationEnabled = false
 		}
 	}
@@ -174,7 +185,7 @@ func ingressControllerValues(configMapValues ConfigMapValues, releaseExists bool
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
 				TempReplicas:     tempReplicas,
-				UseProxyProtocol: configMapValues.IngressControllerUseProxyProtocol,
+				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
 				Enabled: migrationEnabled,

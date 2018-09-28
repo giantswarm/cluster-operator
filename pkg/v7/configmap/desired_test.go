@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v7/key"
@@ -20,14 +21,14 @@ const (
   {
     "cluster": {
       "calico": {
-        "cidr": "172.20.0.0/16"
+        "CIDR": "172.20.0.0/16"
       },
       "kubernetes": {
-        "api": {
+        "API": {
           "clusterIPRange": "172.31.0.0/16"
         },
-        "dns": {
-          "ip": "172.31.0.10"
+        "DNS": {
+          "IP": "172.31.0.10"
         }
       }
     },
@@ -128,12 +129,43 @@ const (
 )
 
 func Test_ConfigMap_GetDesiredState(t *testing.T) {
+	commonConfigMapSpecs := []ConfigMapSpec{
+		{
+			Name:      "cert-exporter-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "kube-state-metrics-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "metrics-server-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "net-exporter-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "nginx-ingress-controller-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "nginx-ingress-controller-user-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "node-exporter-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+	}
+
 	testCases := []struct {
-		name                   string
-		clusterConfig          ClusterConfig
-		configMapValues        ConfigMapValues
-		providerChartSpecs     []key.ChartSpec
-		expectedConfigMapSpecs []ConfigMapSpec
+		name                  string
+		clusterConfig         ClusterConfig
+		configMapValues       ConfigMapValues
+		providerChartSpecs    []key.ChartSpec
+		expectedProviderSpecs []ConfigMapSpec
 	}{
 		{
 			name: "case 0: basic match",
@@ -143,39 +175,11 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				Organization:                      "giantswarm",
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  3,
 			},
-			expectedConfigMapSpecs: []ConfigMapSpec{
-				{
-					Name:      "cert-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "kube-state-metrics-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "net-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "nginx-ingress-controller-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "nginx-ingress-controller-user-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "node-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-			},
+			expectedProviderSpecs: []ConfigMapSpec{},
 		},
 		{
 			name: "case 1: provider chart without configmap",
@@ -185,12 +189,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				Organization:                      "giantswarm",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  7,
 			},
 			providerChartSpecs: []key.ChartSpec{
 				{
@@ -199,32 +200,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					Namespace: metav1.NamespaceSystem,
 				},
 			},
-			expectedConfigMapSpecs: []ConfigMapSpec{
-				{
-					Name:      "cert-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "kube-state-metrics-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "net-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "nginx-ingress-controller-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "nginx-ingress-controller-user-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "node-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-			},
+			expectedProviderSpecs: []ConfigMapSpec{},
 		},
 		{
 			name: "case 2: provider chart with configmap in different namespace",
@@ -234,12 +210,9 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:                         "5xchu",
-				Organization:                      "giantswarm",
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				ClusterID:    "5xchu",
+				Organization: "giantswarm",
+				WorkerCount:  7,
 			},
 			providerChartSpecs: []key.ChartSpec{
 				{
@@ -249,31 +222,7 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 					Namespace:     "giantswarm",
 				},
 			},
-			expectedConfigMapSpecs: []ConfigMapSpec{
-				{
-					Name:      "cert-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "kube-state-metrics-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "net-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "nginx-ingress-controller-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "nginx-ingress-controller-user-values",
-					Namespace: metav1.NamespaceSystem,
-				},
-				{
-					Name:      "node-exporter-values",
-					Namespace: metav1.NamespaceSystem,
-				},
+			expectedProviderSpecs: []ConfigMapSpec{
 				{
 					Name:      "test-app-values",
 					Namespace: "giantswarm",
@@ -284,10 +233,12 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
+
 			c := Config{
 				Logger: microloggertest.New(),
 				Tenant: &tenantMock{
-					fakeTenantHelmClient: &helmMock{},
+					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
 
 				ProjectName: "cluster-operator",
@@ -302,11 +253,12 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			if len(configMaps) != len(tc.expectedConfigMapSpecs) {
-				t.Fatal("expected", len(tc.expectedConfigMapSpecs), "got", len(configMaps))
+			expectedConfigMapSpecs := append(commonConfigMapSpecs, tc.expectedProviderSpecs...)
+			if len(configMaps) != len(expectedConfigMapSpecs) {
+				t.Fatal("expected", len(expectedConfigMapSpecs), "got", len(configMaps))
 			}
 
-			for _, expectedSpec := range tc.expectedConfigMapSpecs {
+			for _, expectedSpec := range expectedConfigMapSpecs {
 				_, err := getConfigMapByNameAndNamespace(configMaps, expectedSpec.Name, expectedSpec.Namespace)
 				if IsNotFound(err) {
 					t.Fatalf("expected chart %#q/%#q not found", expectedSpec.Namespace, expectedSpec.Name)
@@ -482,10 +434,12 @@ func Test_ConfigMap_coreDNSValues(t *testing.T) {
 		{
 			name: "case 0: basic match",
 			configMapValues: ConfigMapValues{
-				CalicoAddress:      "172.20.0.0",
-				CalicoPrefixLength: "16",
-				ClusterIPRange:     "172.31.0.0/16",
-				RegistryDomain:     "quay.io",
+				CoreDNS: CoreDNSValues{
+					CalicoAddress:      "172.20.0.0",
+					CalicoPrefixLength: "16",
+					ClusterIPRange:     "172.31.0.0/16",
+				},
+				RegistryDomain: "quay.io",
 			},
 			expectedValuesJSON: coreDNSJSON,
 		},
@@ -615,59 +569,67 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 	testCases := []struct {
 		name               string
 		configMapValues    ConfigMapValues
-		releaseExists      bool
+		hasLegacyIC        bool
 		errorMatcher       func(error) bool
 		expectedValuesJSON string
 	}{
 		{
 			name: "case 0: basic match",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: true,
+					UseProxyProtocol: true,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    3,
 			},
-			releaseExists:      false,
+			hasLegacyIC:        true,
 			expectedValuesJSON: basicMatchJSON,
 		},
 		{
 			name: "case 1: different worker count",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: true,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       7,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: true,
+					UseProxyProtocol: true,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    7,
 			},
-			releaseExists:      false,
+			hasLegacyIC:        true,
 			expectedValuesJSON: differentWorkerCountJSON,
 		},
 		{
 			name: "case 2: different settings",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: false,
-				IngressControllerUseProxyProtocol: false,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       1,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: false,
+					UseProxyProtocol: false,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    1,
 			},
-			releaseExists:      false,
+			hasLegacyIC:        true,
 			expectedValuesJSON: differentSettingsJSON,
 		},
 		{
 			name: "case 3: already migrated",
 			configMapValues: ConfigMapValues{
-				IngressControllerMigrationEnabled: true,
-				IngressControllerUseProxyProtocol: false,
-				RegistryDomain:                    "quay.io",
-				WorkerCount:                       3,
+				IngressController: IngressControllerValues{
+					MigrationEnabled: true,
+					UseProxyProtocol: false,
+				},
+				RegistryDomain: "quay.io",
+				WorkerCount:    3,
 			},
-			releaseExists:      true,
+			hasLegacyIC:        false,
 			expectedValuesJSON: alreadyMigratedJSON,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			values, err := ingressControllerValues(tc.configMapValues, tc.releaseExists)
+			values, err := ingressControllerValues(tc.configMapValues, tc.hasLegacyIC)
 
 			switch {
 			case err == nil && tc.errorMatcher == nil:
