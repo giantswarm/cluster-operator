@@ -14,6 +14,7 @@ const (
 	EnvVarCircleCI             = "CIRCLECI"
 	EnvVarCircleSHA            = "CIRCLE_SHA1"
 	EnvVarGithubBotToken       = "GITHUB_BOT_TOKEN"
+	EnvVarIDRSAPub             = "IDRSA_PUB"
 	EnvVarKeepResources        = "KEEP_RESOURCES"
 	EnvVarTestedVersion        = "TESTED_VERSION"
 	EnvVarTestDir              = "TEST_DIR"
