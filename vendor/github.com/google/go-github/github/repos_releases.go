@@ -19,26 +19,24 @@ import (
 
 // RepositoryRelease represents a GitHub release in a repository.
 type RepositoryRelease struct {
-	TagName         *string `json:"tag_name,omitempty"`
-	TargetCommitish *string `json:"target_commitish,omitempty"`
-	Name            *string `json:"name,omitempty"`
-	Body            *string `json:"body,omitempty"`
-	Draft           *bool   `json:"draft,omitempty"`
-	Prerelease      *bool   `json:"prerelease,omitempty"`
-
-	// The following fields are not used in CreateRelease or EditRelease:
-	ID          *int64         `json:"id,omitempty"`
-	CreatedAt   *Timestamp     `json:"created_at,omitempty"`
-	PublishedAt *Timestamp     `json:"published_at,omitempty"`
-	URL         *string        `json:"url,omitempty"`
-	HTMLURL     *string        `json:"html_url,omitempty"`
-	AssetsURL   *string        `json:"assets_url,omitempty"`
-	Assets      []ReleaseAsset `json:"assets,omitempty"`
-	UploadURL   *string        `json:"upload_url,omitempty"`
-	ZipballURL  *string        `json:"zipball_url,omitempty"`
-	TarballURL  *string        `json:"tarball_url,omitempty"`
-	Author      *User          `json:"author,omitempty"`
-	NodeID      *string        `json:"node_id,omitempty"`
+	ID              *int64         `json:"id,omitempty"`
+	TagName         *string        `json:"tag_name,omitempty"`
+	TargetCommitish *string        `json:"target_commitish,omitempty"`
+	Name            *string        `json:"name,omitempty"`
+	Body            *string        `json:"body,omitempty"`
+	Draft           *bool          `json:"draft,omitempty"`
+	Prerelease      *bool          `json:"prerelease,omitempty"`
+	CreatedAt       *Timestamp     `json:"created_at,omitempty"`
+	PublishedAt     *Timestamp     `json:"published_at,omitempty"`
+	URL             *string        `json:"url,omitempty"`
+	HTMLURL         *string        `json:"html_url,omitempty"`
+	AssetsURL       *string        `json:"assets_url,omitempty"`
+	Assets          []ReleaseAsset `json:"assets,omitempty"`
+	UploadURL       *string        `json:"upload_url,omitempty"`
+	ZipballURL      *string        `json:"zipball_url,omitempty"`
+	TarballURL      *string        `json:"tarball_url,omitempty"`
+	Author          *User          `json:"author,omitempty"`
+	NodeID          *string        `json:"node_id,omitempty"`
 }
 
 func (r RepositoryRelease) String() string {
@@ -81,6 +79,9 @@ func (s *RepositoriesService) ListReleases(ctx context.Context, owner, repo stri
 		return nil, nil, err
 	}
 
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
+
 	var releases []*RepositoryRelease
 	resp, err := s.client.Do(ctx, req, &releases)
 	if err != nil {
@@ -119,6 +120,9 @@ func (s *RepositoriesService) getSingleRelease(ctx context.Context, url string) 
 		return nil, nil, err
 	}
 
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
+
 	release := new(RepositoryRelease)
 	resp, err := s.client.Do(ctx, req, release)
 	if err != nil {
@@ -127,43 +131,19 @@ func (s *RepositoriesService) getSingleRelease(ctx context.Context, url string) 
 	return release, resp, nil
 }
 
-// repositoryReleaseRequest is a subset of RepositoryRelease and
-// is used internally by CreateRelease and EditRelease to pass
-// only the known fields for these endpoints.
-//
-// See https://github.com/google/go-github/issues/992 for more
-// information.
-type repositoryReleaseRequest struct {
-	TagName         *string `json:"tag_name,omitempty"`
-	TargetCommitish *string `json:"target_commitish,omitempty"`
-	Name            *string `json:"name,omitempty"`
-	Body            *string `json:"body,omitempty"`
-	Draft           *bool   `json:"draft,omitempty"`
-	Prerelease      *bool   `json:"prerelease,omitempty"`
-}
-
 // CreateRelease adds a new release for a repository.
-//
-// Note that only a subset of the release fields are used.
-// See RepositoryRelease for more information.
 //
 // GitHub API docs: https://developer.github.com/v3/repos/releases/#create-a-release
 func (s *RepositoriesService) CreateRelease(ctx context.Context, owner, repo string, release *RepositoryRelease) (*RepositoryRelease, *Response, error) {
 	u := fmt.Sprintf("repos/%s/%s/releases", owner, repo)
 
-	releaseReq := &repositoryReleaseRequest{
-		TagName:         release.TagName,
-		TargetCommitish: release.TargetCommitish,
-		Name:            release.Name,
-		Body:            release.Body,
-		Draft:           release.Draft,
-		Prerelease:      release.Prerelease,
-	}
-
-	req, err := s.client.NewRequest("POST", u, releaseReq)
+	req, err := s.client.NewRequest("POST", u, release)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
 
 	r := new(RepositoryRelease)
 	resp, err := s.client.Do(ctx, req, r)
@@ -175,26 +155,17 @@ func (s *RepositoriesService) CreateRelease(ctx context.Context, owner, repo str
 
 // EditRelease edits a repository release.
 //
-// Note that only a subset of the release fields are used.
-// See RepositoryRelease for more information.
-//
 // GitHub API docs: https://developer.github.com/v3/repos/releases/#edit-a-release
 func (s *RepositoriesService) EditRelease(ctx context.Context, owner, repo string, id int64, release *RepositoryRelease) (*RepositoryRelease, *Response, error) {
 	u := fmt.Sprintf("repos/%s/%s/releases/%d", owner, repo, id)
 
-	releaseReq := &repositoryReleaseRequest{
-		TagName:         release.TagName,
-		TargetCommitish: release.TargetCommitish,
-		Name:            release.Name,
-		Body:            release.Body,
-		Draft:           release.Draft,
-		Prerelease:      release.Prerelease,
-	}
-
-	req, err := s.client.NewRequest("PATCH", u, releaseReq)
+	req, err := s.client.NewRequest("PATCH", u, release)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
 
 	r := new(RepositoryRelease)
 	resp, err := s.client.Do(ctx, req, r)
@@ -232,6 +203,9 @@ func (s *RepositoriesService) ListReleaseAssets(ctx context.Context, owner, repo
 		return nil, nil, err
 	}
 
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
+
 	var assets []*ReleaseAsset
 	resp, err := s.client.Do(ctx, req, &assets)
 	if err != nil {
@@ -250,6 +224,9 @@ func (s *RepositoriesService) GetReleaseAsset(ctx context.Context, owner, repo s
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
 
 	asset := new(ReleaseAsset)
 	resp, err := s.client.Do(ctx, req, asset)
@@ -315,6 +292,9 @@ func (s *RepositoriesService) EditReleaseAsset(ctx context.Context, owner, repo 
 		return nil, nil, err
 	}
 
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
+
 	asset := new(ReleaseAsset)
 	resp, err := s.client.Do(ctx, req, asset)
 	if err != nil {
@@ -360,6 +340,9 @@ func (s *RepositoriesService) UploadReleaseAsset(ctx context.Context, owner, rep
 	if err != nil {
 		return nil, nil, err
 	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
 
 	asset := new(ReleaseAsset)
 	resp, err := s.client.Do(ctx, req, asset)

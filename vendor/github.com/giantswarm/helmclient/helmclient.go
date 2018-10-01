@@ -1,7 +1,6 @@
 package helmclient
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -86,16 +85,14 @@ func New(config Config) (*Client, error) {
 func (c *Client) DeleteRelease(releaseName string, options ...helmclient.DeleteOption) error {
 	o := func() error {
 		t, err := c.newTunnel()
-		if IsTillerNotFound(err) {
-			return backoff.Permanent(microerror.Mask(err))
-		} else if err != nil {
+		if err != nil {
 			return microerror.Mask(err)
 		}
 		defer c.closeTunnel(t)
 
 		_, err = c.newHelmClientFromTunnel(t).DeleteRelease(releaseName, options...)
 		if IsReleaseNotFound(err) {
-			return backoff.Permanent(microerror.Mask(err))
+			return backoff.Permanent(microerror.Maskf(releaseNotFoundError, releaseName))
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
@@ -191,31 +188,20 @@ func (c *Client) EnsureTillerInstalled() error {
 		}
 	}
 
-	// Install the tiller deployment in the tenant cluster.
+	// Install the tiller deployment in the guest cluster.
 	{
-		o := func() error {
-			i := &installer.Options{
-				ImageSpec:      tillerImageSpec,
-				MaxHistory:     defaultMaxHistory,
-				Namespace:      c.tillerNamespace,
-				ServiceAccount: tillerPodName,
-			}
-
-			err := installer.Install(c.k8sClient, i)
-			if errors.IsAlreadyExists(err) {
-				c.logger.Log("level", "debug", "message", "tiller deployment already exists")
-				// fall through
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
-
-			return nil
+		o := &installer.Options{
+			ImageSpec:      tillerImageSpec,
+			MaxHistory:     defaultMaxHistory,
+			Namespace:      c.tillerNamespace,
+			ServiceAccount: tillerPodName,
 		}
-		b := backoff.NewExponential(2*time.Minute, 5*time.Second)
-		n := backoff.NewNotifier(c.logger, context.Background())
 
-		err := backoff.RetryNotify(o, b, n)
-		if err != nil {
+		err := installer.Install(c.k8sClient, o)
+		if errors.IsAlreadyExists(err) {
+			c.logger.Log("level", "debug", "message", "tiller deployment installation failed", "stack", fmt.Sprintf("%#v", err))
+			// fall through
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}
@@ -230,9 +216,7 @@ func (c *Client) EnsureTillerInstalled() error {
 
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) {
-				return backoff.Permanent(microerror.Mask(err))
-			} else if err != nil {
+			if err != nil {
 				return microerror.Mask(err)
 			}
 			defer c.closeTunnel(t)
@@ -276,16 +260,14 @@ func (c *Client) GetReleaseContent(releaseName string) (*ReleaseContent, error) 
 	{
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) {
-				return backoff.Permanent(microerror.Mask(err))
-			} else if err != nil {
+			if err != nil {
 				return microerror.Mask(err)
 			}
 			defer c.closeTunnel(t)
 
 			resp, err = c.newHelmClientFromTunnel(t).ReleaseContent(releaseName)
 			if IsReleaseNotFound(err) {
-				return backoff.Permanent(microerror.Mask(err))
+				return backoff.Permanent(microerror.Maskf(releaseNotFoundError, releaseName))
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
@@ -331,16 +313,14 @@ func (c *Client) GetReleaseHistory(releaseName string) (*ReleaseHistory, error) 
 	{
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) {
-				return backoff.Permanent(microerror.Mask(err))
-			} else if err != nil {
+			if err != nil {
 				return microerror.Mask(err)
 			}
 			defer c.closeTunnel(t)
 
 			resp, err = c.newHelmClientFromTunnel(t).ReleaseHistory(releaseName, helmclient.WithMaxHistory(1))
 			if IsReleaseNotFound(err) {
-				return backoff.Permanent(microerror.Mask(err))
+				return backoff.Permanent(microerror.Maskf(releaseNotFoundError, releaseName))
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
@@ -384,18 +364,16 @@ func (c *Client) GetReleaseHistory(releaseName string) (*ReleaseHistory, error) 
 func (c *Client) InstallFromTarball(path, ns string, options ...helmclient.InstallOption) error {
 	o := func() error {
 		t, err := c.newTunnel()
-		if IsTillerNotFound(err) {
-			return backoff.Permanent(microerror.Mask(err))
-		} else if err != nil {
+		if err != nil {
 			return microerror.Mask(err)
 		}
 		defer c.closeTunnel(t)
 
 		release, err := c.newHelmClientFromTunnel(t).InstallRelease(path, ns, options...)
-		if IsCannotReuseRelease(err) {
-			return backoff.Permanent(microerror.Mask(err))
-		} else if IsReleaseNotFound(err) {
-			return backoff.Permanent(microerror.Mask(err))
+		if IsReleaseNotFound(err) {
+			return backoff.Permanent(releaseNotFoundError)
+		} else if IsCannotReuseRelease(err) {
+			return backoff.Permanent(cannotReuseReleaseError)
 		} else if err != nil {
 			if IsInvalidGZipHeader(err) {
 				content, readErr := ioutil.ReadFile(path)
@@ -453,7 +431,7 @@ func (c *Client) RunReleaseTest(releaseName string, options ...helmclient.Releas
 
 	resChan, errChan := c.newHelmClientFromTunnel(t).RunReleaseTest(releaseName, helmclient.ReleaseTestTimeout(int64(runReleaseTestTimout)))
 	if IsReleaseNotFound(err) {
-		return backoff.Permanent(microerror.Mask(err))
+		return backoff.Permanent(microerror.Maskf(releaseNotFoundError, releaseName))
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
@@ -485,16 +463,14 @@ func (c *Client) RunReleaseTest(releaseName string, options ...helmclient.Releas
 func (c *Client) UpdateReleaseFromTarball(releaseName, path string, options ...helmclient.UpdateOption) error {
 	o := func() error {
 		t, err := c.newTunnel()
-		if IsTillerNotFound(err) {
-			return backoff.Permanent(microerror.Mask(err))
-		} else if err != nil {
+		if err != nil {
 			return microerror.Mask(err)
 		}
 		defer c.closeTunnel(t)
 
 		release, err := c.newHelmClientFromTunnel(t).UpdateRelease(releaseName, path, options...)
 		if IsReleaseNotFound(err) {
-			return backoff.Permanent(microerror.Mask(err))
+			return backoff.Permanent(microerror.Maskf(releaseNotFoundError, releaseName))
 		} else if err != nil {
 			if IsInvalidGZipHeader(err) {
 				content, readErr := ioutil.ReadFile(path)
@@ -542,7 +518,7 @@ func (c *Client) newHelmClientFromTunnel(t *k8sportforward.Tunnel) helmclient.In
 	}
 
 	return helmclient.NewClient(
-		helmclient.Host(t.LocalAddress()),
+		helmclient.Host(newTunnelAddress(t)),
 		helmclient.ConnectTimeout(5),
 	)
 }
@@ -555,19 +531,16 @@ func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
 	}
 
 	podName, err := getPodName(c.k8sClient, tillerLabelSelector, c.tillerNamespace)
-	if IsNotFound(err) {
-		return nil, microerror.Maskf(tillerNotFoundError, "label selector: %#q namespace: %#q", tillerLabelSelector, c.tillerNamespace)
-	} else if err != nil {
+	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	var forwarder *k8sportforward.Forwarder
 	{
-		c := k8sportforward.ForwarderConfig{
+		c := k8sportforward.Config{
 			RestConfig: c.restConfig,
 		}
-
-		forwarder, err = k8sportforward.NewForwarder(c)
+		forwarder, err = k8sportforward.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -575,7 +548,13 @@ func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
 
 	var tunnel *k8sportforward.Tunnel
 	{
-		tunnel, err = forwarder.ForwardPort(c.tillerNamespace, podName, tillerPort)
+		c := k8sportforward.TunnelConfig{
+			Remote:    tillerPort,
+			Namespace: c.tillerNamespace,
+			PodName:   podName,
+		}
+
+		tunnel, err = forwarder.ForwardPort(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -597,9 +576,14 @@ func getPodName(client kubernetes.Interface, labelSelector, namespace string) (s
 		return "", microerror.Maskf(tooManyResultsError, "%d", len(pods.Items))
 	}
 	if len(pods.Items) == 0 {
-		return "", microerror.Maskf(notFoundError, "%s", labelSelector)
+		return "", microerror.Maskf(podNotFoundError, "%s", labelSelector)
 	}
 	pod := pods.Items[0]
 
 	return pod.Name, nil
+}
+
+// TODO remove when k8sportforward.Tunnel.Address() got implemented.
+func newTunnelAddress(t *k8sportforward.Tunnel) string {
+	return fmt.Sprintf("127.0.0.1:%d", t.Local)
 }

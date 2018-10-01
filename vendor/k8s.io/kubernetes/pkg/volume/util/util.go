@@ -131,7 +131,7 @@ func UnmountMountPoint(mountPath string, mounter mount.Interface, extensiveMount
 		glog.Warningf("Warning: Unmount skipped because path does not exist: %v", mountPath)
 		return nil
 	}
-	corruptedMnt := IsCorruptedMnt(pathErr)
+	corruptedMnt := isCorruptedMnt(pathErr)
 	if pathErr != nil && !corruptedMnt {
 		return fmt.Errorf("Error checking path: %v", pathErr)
 	}
@@ -187,15 +187,15 @@ func PathExists(path string) (bool, error) {
 		return true, nil
 	} else if os.IsNotExist(err) {
 		return false, nil
-	} else if IsCorruptedMnt(err) {
+	} else if isCorruptedMnt(err) {
 		return true, err
 	} else {
 		return false, err
 	}
 }
 
-// IsCorruptedMnt return true if err is about corrupted mount point
-func IsCorruptedMnt(err error) bool {
+// isCorruptedMnt return true if err is about corrupted mount point
+func isCorruptedMnt(err error) bool {
 	if err == nil {
 		return false
 	}
@@ -210,8 +210,7 @@ func IsCorruptedMnt(err error) bool {
 	case *os.SyscallError:
 		underlyingError = pe.Err
 	}
-
-	return underlyingError == syscall.ENOTCONN || underlyingError == syscall.ESTALE || underlyingError == syscall.EIO
+	return underlyingError == syscall.ENOTCONN || underlyingError == syscall.ESTALE
 }
 
 // GetSecretForPod locates secret by name in the pod's namespace and returns secret map

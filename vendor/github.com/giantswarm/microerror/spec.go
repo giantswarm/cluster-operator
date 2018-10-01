@@ -3,16 +3,10 @@ package microerror
 type Handler interface {
 	// New returns a new error with the given error message. It is
 	// a drop-in replacement for errors.New from the standard library.
-	//
-	// NOTE deprecated
-	//
 	New(s string) error
 
 	// Newf returns a new error with the given printf-formatted error
 	// message.
-	//
-	// NOTE deprecated
-	//
 	Newf(f string, v ...interface{}) error
 
 	// Cause returns the cause of the given error. If the cause of the err can not

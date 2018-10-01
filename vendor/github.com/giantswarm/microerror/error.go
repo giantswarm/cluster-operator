@@ -10,7 +10,7 @@ import "encoding/json"
 // once emitted during runtime.
 //
 //     var notEnoughWorkersError = &microerror.Error{
-//         Desc: "The amount of requested tenant cluster workers exceeds the available number of control plane nodes.",
+//         Desc: "The amount of requested guest cluster workers exceeds the available number of host cluster nodes.",
 //         Docs: "https://github.com/giantswarm/ops-recipes/blob/master/349-not-enough-workers.md",
 //         Kind: "notEnoughWorkersError",
 //     }
@@ -26,7 +26,11 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return toStringCase(e.Kind)
+	if e.Desc == "" {
+		return e.String()
+	} else {
+		return e.Desc
+	}
 }
 
 func (e *Error) GoString() string {
