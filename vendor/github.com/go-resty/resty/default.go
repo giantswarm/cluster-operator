@@ -288,7 +288,6 @@ func createClient(hc *http.Client) *Client {
 		RetryMaxWaitTime:   defaultMaxWaitTime,
 		JSONMarshal:        json.Marshal,
 		JSONUnmarshal:      json.Unmarshal,
-		jsonEscapeHTML:     true,
 		httpClient:         hc,
 		debugBodySizeLimit: math.MaxInt32,
 		pathParams:         make(map[string]string),
