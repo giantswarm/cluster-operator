@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v5"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -218,6 +219,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v8ResourceSet *controller.ResourceSet
+	{
+		c := v8.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v8ResourceSet, err = v8.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -233,6 +258,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v5ResourceSet,
 				v6ResourceSet,
 				v7ResourceSet,
+				v8ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 

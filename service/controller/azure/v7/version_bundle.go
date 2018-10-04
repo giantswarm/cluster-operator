@@ -13,8 +13,18 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindAdded,
 			},
 			{
+				Component:   "metrics-server",
+				Description: "Added metrics-server managed service.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
 				Component:   "nginx-ingress-controller",
 				Description: "Made ingress-nginx configmap configurable.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "coredns",
+				Description: "Added coredns chartconfig.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
@@ -34,6 +44,10 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "node-exporter",
 				Version: "0.15.1",
+			},
+			{
+				Name:    "coredns",
+				Version: "1.1.1",
 			},
 		},
 		Name:     "cluster-operator",

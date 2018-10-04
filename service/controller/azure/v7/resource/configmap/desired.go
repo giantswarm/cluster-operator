@@ -28,17 +28,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	configMapValues := configmap.ConfigMapValues{
-		CalicoAddress:      r.calicoAddress,
-		CalicoPrefixLength: r.calicoPrefixLength,
-		ClusterID:          key.ClusterID(clusterGuestConfig),
-		ClusterIPRange:     r.clusterIPRange,
-		// Migration is disabled because Azure is already migrated.
-		IngressControllerMigrationEnabled: false,
-		// Proxy protocol is disabled for Azure clusters.
-		IngressControllerUseProxyProtocol: false,
-		Organization:                      key.ClusterOrganization(clusterGuestConfig),
-		RegistryDomain:                    r.registryDomain,
-		WorkerCount:                       azurekey.WorkerCount(customObject),
+		ClusterID: key.ClusterID(clusterGuestConfig),
+		CoreDNS: configmap.CoreDNSValues{
+			CalicoAddress:      r.calicoAddress,
+			CalicoPrefixLength: r.calicoPrefixLength,
+			ClusterIPRange:     r.clusterIPRange,
+		},
+		IngressController: configmap.IngressControllerValues{
+			// Migration is disabled because Azure is already migrated.
+			MigrationEnabled: false,
+			// Proxy protocol is disabled for Azure clusters.
+			UseProxyProtocol: false,
+		},
+		Organization:   key.ClusterOrganization(clusterGuestConfig),
+		RegistryDomain: r.registryDomain,
+		WorkerCount:    azurekey.WorkerCount(customObject),
 	}
 	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, clusterConfig, configMapValues, azurekey.ChartSpecs())
 	if err != nil {
