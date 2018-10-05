@@ -237,7 +237,7 @@ func installCredential(h *framework.Host) error {
 
 		return nil
 	}
-	b := backoff.NewExponential(framework.ShortMaxWait, framework.ShortMaxInterval)
+	b := backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval)
 	n := func(err error, delay time.Duration) {
 		log.Println("level", "debug", "message", err.Error())
 	}

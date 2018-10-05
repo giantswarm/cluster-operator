@@ -10,7 +10,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/backoff"
-	"github.com/giantswarm/e2e-harness/pkg/framework"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -100,7 +99,7 @@ func waitForChartConfigs(guestG8sClient versioned.Interface) error {
 		log.Printf("getting chart configs %s: %v", t, err)
 	}
 
-	b := backoff.NewExponential(10*time.Minute, framework.LongMaxInterval)
+	b := backoff.NewExponential(10*time.Minute, backoff.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
@@ -125,7 +124,7 @@ func waitForReleaseStatus(guestHelmClient *helmclient.Client, release string, st
 		log.Printf("getting release status %s: %v", t, err)
 	}
 
-	b := backoff.NewExponential(20*time.Minute, framework.LongMaxInterval)
+	b := backoff.NewExponential(20*time.Minute, backoff.LongMaxInterval)
 	err := backoff.RetryNotify(operation, b, notify)
 	if err != nil {
 		return microerror.Mask(err)
