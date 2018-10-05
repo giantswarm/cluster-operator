@@ -288,11 +288,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:95ee7883468d707cb78d666a5f1153f74dd311beb34aa2cfa77b15c6e1d8840d"
+  digest = "1:a7c5636a10a5693ab1df9c432704696085df0ef00fdc06fafbe6fff315ffffa5"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dcf18385d5b9b07e6825c24c023b11ebd81705b6"
+  revision = "8c3425d2c09be34df48ee947302b34bd76f75804"
 
 [[projects]]
   branch = "master"
@@ -304,11 +304,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:78429237aae718b305097ebeef5bc6984855074c197a71c72901a47961997a31"
+  digest = "1:aff4157beb61837e21efdd4a73927fa85ceab4b21a80d1f00a092d535844c5ae"
   name = "github.com/giantswarm/k8sportforward"
   packages = ["."]
   pruneopts = "UT"
-  revision = "eae67c7a8dfb02cba708181b8066e1b11713288d"
+  revision = "3608d312c501d5f4e4390399c5e8a97866205e36"
 
 [[projects]]
   branch = "master"
@@ -1289,7 +1289,7 @@
   version = "kubernetes-1.10.4"
 
 [[projects]]
-  digest = "1:969318bbc29768308ac03ca6e31242322e3504a4a947baf8f44b9cf584984dbf"
+  digest = "1:4031c05a29b43a6ca2f8a278395f8307560eb0e3782789f518cf536b38c6985a"
   name = "k8s.io/helm"
   packages = [
     "cmd/helm/installer",
@@ -1305,8 +1305,8 @@
     "pkg/version",
   ]
   pruneopts = "UT"
-  revision = "20adb27c7c5868466912eebdf6664e7390ebe710"
-  version = "v2.9.1"
+  revision = "a80231648a1473929271764b920a8e346f6de844"
+  version = "v2.8.2"
 
 [[projects]]
   digest = "1:2af67bd2524aa5fce3cb4bd6e20fbf773b8cf5a9dfc0d1bea7441d98d55f37b5"

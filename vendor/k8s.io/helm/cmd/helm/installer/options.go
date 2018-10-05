@@ -81,11 +81,6 @@ type Options struct {
 	// Less than or equal to zero means no limit.
 	MaxHistory int
 
-	// Replicas sets the amount of Tiller replicas to start
-	//
-	// Less than or equals to 1 means 1.
-	Replicas int
-
 	// NodeSelectors determine which nodes Tiller can land on.
 	NodeSelectors string
 
@@ -112,14 +107,6 @@ func (opts *Options) pullPolicy() v1.PullPolicy {
 		return v1.PullAlways
 	}
 	return v1.PullIfNotPresent
-}
-
-func (opts *Options) getReplicas() *int32 {
-	replicas := int32(1)
-	if opts.Replicas > 1 {
-		replicas = int32(opts.Replicas)
-	}
-	return &replicas
 }
 
 func (opts *Options) tls() bool { return opts.EnableTLS || opts.VerifyTLS }
