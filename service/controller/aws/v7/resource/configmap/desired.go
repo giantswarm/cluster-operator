@@ -5,9 +5,9 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/pkg/v6/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v6/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v6/key"
+	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v7/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -17,27 +17,35 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	}
 
 	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMapConfig := configmap.ConfigMapConfig{
-		ClusterID:      key.ClusterID(clusterGuestConfig),
-		GuestAPIDomain: guestAPIDomain,
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
 
 	configMapValues := configmap.ConfigMapValues{
-		ClusterID:    key.ClusterID(clusterGuestConfig),
-		Organization: key.ClusterOrganization(clusterGuestConfig),
-		// Migration is enabled so existing k8scloudconfig resources are
-		// replaced.
-		IngressControllerMigrationEnabled: true,
-		// Proxy protocol is enabled for AWS clusters.
-		IngressControllerUseProxyProtocol: true,
-		WorkerCount:                       awskey.WorkerCount(customObject),
+		ClusterID: key.ClusterID(clusterGuestConfig),
+		CoreDNS: configmap.CoreDNSValues{
+			CalicoAddress:      r.calicoAddress,
+			CalicoPrefixLength: r.calicoPrefixLength,
+			ClusterIPRange:     r.clusterIPRange,
+		},
+		IngressController: configmap.IngressControllerValues{
+			// Migration is enabled so existing k8scloudconfig resources are
+			// replaced.
+			MigrationEnabled: true,
+			// Proxy protocol is enabled for AWS clusters.
+			UseProxyProtocol: true,
+		},
+		Organization:   key.ClusterOrganization(clusterGuestConfig),
+		RegistryDomain: r.registryDomain,
+		WorkerCount:    awskey.WorkerCount(customObject),
 	}
-	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, configMapConfig, configMapValues)
+	desiredConfigMaps, err := r.configMap.GetDesiredState(ctx, clusterConfig, configMapValues, awskey.ChartSpecs())
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

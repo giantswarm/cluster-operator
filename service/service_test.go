@@ -39,6 +39,8 @@ func Test_Service_New(t *testing.T) {
 				config.ProjectName = "test"
 				config.Source = "test"
 
+				config.Viper.Set(config.Flag.Guest.Cluster.Calico.CIDR, "16")
+				config.Viper.Set(config.Flag.Guest.Cluster.Calico.Subnet, "172.26.0.0")
 				config.Viper.Set(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange, "172.31.0.0/16")
 				config.Viper.Set(config.Flag.Service.Kubernetes.Address, "http://127.0.0.1:6443")
 				config.Viper.Set(config.Flag.Service.Kubernetes.InCluster, "false")

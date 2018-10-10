@@ -5,6 +5,9 @@ package template
 const ClusterOperatorChartValues = `Installation:
   V1:
     Guest:
+      Calico:
+        CIDR: 16
+        Subnet: 10.20.0.0
       Kubernetes:
         API:
           ClusterIPRange: 10.0.0.0/16

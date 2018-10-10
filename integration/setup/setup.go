@@ -3,6 +3,7 @@
 package setup
 
 import (
+	"context"
 	"log"
 	"os"
 	"testing"
@@ -72,6 +73,8 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	var v int
 	var err error
 
+	ctx := context.Background()
+
 	c, err := awsclient.NewClient()
 	if err != nil {
 		log.Printf("%#v\n", err)
@@ -81,10 +84,8 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 
 	defer func() {
 		if os.Getenv("KEEP_RESOURCES") != "true" {
-			name := "aws-operator"
-			customResource := "awsconfig"
-			logEntry := "deleted the guest cluster main stack"
-			h.DeleteGuestCluster(name, customResource, logEntry)
+
+			h.DeleteGuestCluster(ctx, "aws")
 
 			err := teardown.HostPeerVPC(c)
 			if err != nil {
@@ -236,7 +237,7 @@ func installCredential(h *framework.Host) error {
 
 		return nil
 	}
-	b := backoff.NewExponential(framework.ShortMaxWait, framework.ShortMaxInterval)
+	b := backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval)
 	n := func(err error, delay time.Duration) {
 		log.Println("level", "debug", "message", err.Error())
 	}

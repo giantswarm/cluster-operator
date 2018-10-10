@@ -100,6 +100,10 @@ required = [
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/tenantcluster"
+
+[[constraint]]
   name = "github.com/spf13/viper"
   version = "1.0.0"
 
@@ -122,6 +126,10 @@ required = [
 [[constraint]]
   name = "k8s.io/client-go"
   version = "kubernetes-1.10.4"
+
+[[constraint]]
+  name = "k8s.io/helm"
+  version = "=2.8.2"
 
 
 
