@@ -8,9 +8,24 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Add your changes here.",
-				Kind:        versionbundle.KindChanged,
+				Component:   "chart-operator",
+				Description: "Added support for user configmaps.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "metrics-server",
+				Description: "Added metrics-server managed service.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Made ingress-nginx configmap configurable.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "coredns",
+				Description: "Added coredns chartconfig.",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -25,6 +40,10 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "node-exporter",
 				Version: "0.15.1",
+			},
+			{
+				Name:    "coredns",
+				Version: "1.1.1",
 			},
 		},
 		Name:     "cluster-operator",

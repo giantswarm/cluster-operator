@@ -7,27 +7,29 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v6/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v6/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v6/resource/awsconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v6/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v7/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/clustercr"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/resource/awsconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -41,6 +43,9 @@ type ResourceSetConfig struct {
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
 
+	CalicoAddress         string
+	CalicoPrefixLength    string
+	ClusterIPRange        string
 	HandledVersionBundles []string
 	ProjectName           string
 	RegistryDomain        string
@@ -124,16 +129,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var guestClusterService guestcluster.Interface
+	var tenantClusterService tenantcluster.Interface
 	{
-		c := guestcluster.Config{
+		c := tenantcluster.Config{
 			CertsSearcher: config.CertSearcher,
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
 		}
 
-		guestClusterService, err = guestcluster.New(c)
+		tenantClusterService, err = tenantcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -142,10 +147,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Guest:                    guestClusterService,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -164,15 +169,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			ClusterIPRange:    config.ClusterIPRange,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
@@ -190,10 +196,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapService configmapservice.Interface
 	{
 		c := configmapservice.Config{
-			Guest:          guestClusterService,
-			Logger:         config.Logger,
-			ProjectName:    config.ProjectName,
-			RegistryDomain: config.RegistryDomain,
+			Logger: config.Logger,
+			Tenant: tenantClusterService,
+
+			ProjectName: config.ProjectName,
 		}
 
 		configMapService, err = configmapservice.New(c)
@@ -205,11 +211,14 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var configMapResource controller.Resource
 	{
 		c := configmap.Config{
-			ConfigMap:   configMapService,
-			Guest:       guestClusterService,
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
-			ProjectName: config.ProjectName,
+			ConfigMap: configMapService,
+			Logger:    config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		ops, err := configmap.New(c)
@@ -223,17 +232,28 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartConfigService chartconfigservice.Interface
+	{
+		c := chartconfigservice.Config{
+			Logger: config.Logger,
+			Tenant: tenantClusterService,
+
+			ProjectName: config.ProjectName,
+		}
+
+		chartConfigService, err = chartconfigservice.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartConfigResource controller.Resource
 	{
 		c := chartconfig.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			G8sClient:                config.G8sClient,
-			Guest:                    guestClusterService,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Provider:                 label.ProviderAWS,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ChartConfig: chartConfigService,
+			Logger:      config.Logger,
+
+			ProjectName: config.ProjectName,
 		}
 
 		ops, err := chartconfig.New(c)
@@ -247,7 +267,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterCRResource controller.Resource
+	{
+		c := clustercr.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCRResource, err = clustercr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
+		clusterCRResource,
 		// Put encryptionKeyResource first because it executes faster than
 		// awsConfigResource and could introduce dependency during cluster
 		// creation.

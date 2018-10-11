@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/giantswarm/cluster-operator/pkg/v7/key"
 	"github.com/giantswarm/errors/guest"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/tenantcluster"
 	"k8s.io/helm/pkg/helm"
 )
 
@@ -20,8 +21,8 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	guestHelmClient, err := r.getGuestHelmClient(ctx, obj)
-	if guestcluster.IsTimeout(err) {
+	tenantHelmClient, err := r.getTenantHelmClient(ctx, obj)
+	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
 
 		// A not found error here means that the cluster-operator certificate for
@@ -68,7 +69,12 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			}
 		}()
 
+		clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 		v := &Values{
+			ClusterDNSIP: clusterDNSIP,
 			Image: Image{
 				Registry: r.registryDomain,
 			},
@@ -77,7 +83,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		err = guestHelmClient.InstallFromTarball(tarballPath, chartOperatorNamespace,
+		err = tenantHelmClient.InstallFromTarball(tarballPath, chartOperatorNamespace,
 			helm.ReleaseName(createState.ReleaseName),
 			helm.ValueOverrides(b),
 			helm.InstallWait(true))

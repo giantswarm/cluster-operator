@@ -20,6 +20,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v3/guestcluster"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chart"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v3/resource/clustercr"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v3/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v3/key"
@@ -183,7 +184,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterCRResource controller.Resource
+	{
+		c := clustercr.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCRResource, err = clustercr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
+		clusterCRResource,
 		// Put encryptionKeyResource first because it executes faster than
 		// awsConfigResource and could introduce dependency during cluster
 		// creation.

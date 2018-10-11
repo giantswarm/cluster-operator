@@ -24,6 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v5"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v7"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v8"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -38,8 +39,11 @@ type ClusterConfig struct {
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 
-	ProjectName    string
-	RegistryDomain string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	ProjectName        string
+	RegistryDomain     string
 }
 
 type Cluster struct {
@@ -87,6 +91,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var v1ResourceSet *controller.ResourceSet
 	{
 		c := v1.ResourceSetConfig{
+			G8sClient:   config.G8sClient,
 			K8sClient:   config.K8sClient,
 			Logger:      config.Logger,
 			ProjectName: config.ProjectName,
@@ -205,11 +210,39 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		v7ResourceSet, err = v7.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var v8ResourceSet *controller.ResourceSet
+	{
+		c := v8.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v8ResourceSet, err = v8.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -230,6 +263,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v5ResourceSet,
 				v6ResourceSet,
 				v7ResourceSet,
+				v8ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
