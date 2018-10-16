@@ -20,7 +20,7 @@ func ChartSpecs() []key.ChartSpec {
 		},
 		{
 			AppName:           "coredns",
-			ChannelName:       "0-1-stable",
+			ChannelName:       "c5bea1db131f72cfee47038fefcd65dece13cc62-basic",
 			ChartName:         "kubernetes-coredns-chart",
 			ConfigMapName:     "coredns-values",
 			Namespace:         metav1.NamespaceSystem,
