@@ -76,7 +76,7 @@ func (c *ChartConfig) newTenantK8sClient(ctx context.Context, clusterConfig Clus
 
 func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
 	for _, l := range list {
-		if reflect.DeepEqual(item, l) {
+		if item.Name == l.Name {
 			return true
 		}
 	}

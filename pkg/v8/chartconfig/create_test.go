@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_ChartConfig_newCreateChange(t *testing.T) {
@@ -28,10 +29,8 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			description: "case 1: non-empty current, empty desired, expected empty",
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 			},
@@ -43,19 +42,15 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			description: "case 2: equal non-empty current and desired, expected empty",
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 			},
 			desiredChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 			},
@@ -67,19 +62,15 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			currentChartConfigs: []*v1alpha1.ChartConfig{},
 			desiredChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 			},
@@ -89,49 +80,37 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			description: "case 4: different non-empty current and desired, expected desired",
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart-2",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart-2",
 					},
 				},
 			},
 			desiredChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart-2",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart-2",
 					},
 				},
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart-3",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart-3",
 					},
 				},
 			},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
 					},
 				},
 				{
-					Spec: v1alpha1.ChartConfigSpec{
-						Chart: v1alpha1.ChartConfigSpecChart{
-							Name: "test-chart-3",
-						},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart-3",
 					},
 				},
 			},
