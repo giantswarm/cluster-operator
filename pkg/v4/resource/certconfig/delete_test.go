@@ -216,12 +216,12 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -231,7 +231,7 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			errorMatcher: nil,
@@ -248,7 +248,7 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
@@ -373,7 +373,7 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", "legacy-cert-1"),
 				newCertConfig("cluster-1", "legacy-cert-2"),
@@ -382,7 +382,7 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -409,7 +409,7 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
@@ -422,7 +422,7 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []string{
