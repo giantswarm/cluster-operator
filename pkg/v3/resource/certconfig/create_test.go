@@ -199,12 +199,12 @@ func Test_newCreateChange(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -228,7 +228,7 @@ func Test_newCreateChange(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []string{
@@ -251,7 +251,7 @@ func Test_newCreateChange(t *testing.T) {
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoCert),
+				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
