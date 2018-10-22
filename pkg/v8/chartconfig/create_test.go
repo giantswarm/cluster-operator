@@ -43,7 +43,8 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: "test-chart",
+						Name:      "test-chart",
+						Namespace: resourceNamespace,
 					},
 				},
 			},
@@ -81,7 +82,8 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: "test-chart-2",
+						Name:      "test-chart-2",
+						Namespace: resourceNamespace,
 					},
 				},
 			},
@@ -115,6 +117,32 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 				},
 			},
 			errorMatcher: nil,
+		},
+		{
+			// Namespace is not compared against desired state, but pkg level variable.
+			description: "case 5: different namespace current and desired, expected desired",
+			currentChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "test-chart",
+						Namespace: "foo",
+					},
+				},
+			},
+			desiredChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
+					},
+				},
+			},
+			expectedChartConfigs: []*v1alpha1.ChartConfig{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
+					},
+				},
+			},
 		},
 	}
 
