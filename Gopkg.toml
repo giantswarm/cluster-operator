@@ -55,6 +55,10 @@ required = [
   branch = "master"
   name = "github.com/giantswarm/backoff"
 
+[[override]]
+  name = "github.com/giantswarm/certs"
+  revision = "e91f12dea59971a68d08a48479014e33d1b90540"
+
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/e2e-harness"
