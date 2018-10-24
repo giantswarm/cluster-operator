@@ -59,9 +59,11 @@ func (s *Service) newTenantK8sClient(ctx context.Context, clusterConfig ClusterC
 	return tenantK8sClient, nil
 }
 
+// containsConfigMap checks if item is present within list
+// by comparing ObjectMeta Name and Namespace property between item and list objects.
 func containsConfigMap(list []*corev1.ConfigMap, item *corev1.ConfigMap) bool {
 	for _, l := range list {
-		if reflect.DeepEqual(item, l) {
+		if item.Name == l.Name && item.Namespace == l.Namespace {
 			return true
 		}
 	}
