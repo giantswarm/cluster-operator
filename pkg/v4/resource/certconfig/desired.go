@@ -59,7 +59,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoEtcdClientCert, objectMeta.Namespace, r.projectName)
+		certConfig := newCalicoCertConfig(clusterConfig, certs.CalicoCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
@@ -111,7 +111,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
-	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoEtcdClientCert)
+	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.CalicoCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}

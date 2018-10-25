@@ -29,7 +29,7 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 			provider: "aws",
 			managedCertificates: []certs.Cert{
 				certs.APICert,
-				certs.CalicoEtcdClientCert,
+				certs.CalicoCert,
 				certs.CalicoEtcdClientCert,
 				certs.ClusterOperatorAPICert,
 				certs.EtcdCert,
@@ -45,7 +45,7 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 			provider: "azure",
 			managedCertificates: []certs.Cert{
 				certs.APICert,
-				certs.CalicoEtcdClientCert,
+				certs.CalicoCert,
 				certs.CalicoEtcdClientCert,
 				certs.ClusterOperatorAPICert,
 				certs.EtcdCert,
@@ -61,7 +61,7 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 			provider: "kvm",
 			managedCertificates: []certs.Cert{
 				certs.APICert,
-				certs.CalicoEtcdClientCert,
+				certs.CalicoCert,
 				certs.CalicoEtcdClientCert,
 				certs.ClusterOperatorAPICert,
 				certs.EtcdCert,

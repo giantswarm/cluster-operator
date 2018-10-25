@@ -214,12 +214,12 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
+				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
+				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -237,12 +237,12 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.0.0"),
-				newCertConfigWithVersion("cluster-1", certs.CalicoEtcdClientCert, "1.0.0"),
+				newCertConfigWithVersion("cluster-1", certs.CalicoCert, "1.0.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.0.0"),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.2.0"),
-				newCertConfigWithVersion("cluster-1", certs.CalicoEtcdClientCert, "1.2.0"),
+				newCertConfigWithVersion("cluster-1", certs.CalicoCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.FlanneldEtcdClientCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.NodeOperatorCert, "1.2.0"),
@@ -252,7 +252,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.2.0"),
-				newCertConfigWithVersion("cluster-1", certs.CalicoEtcdClientCert, "1.2.0"),
+				newCertConfigWithVersion("cluster-1", certs.CalicoCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.2.0"),
 			},
 			errorMatcher: nil,
@@ -264,7 +264,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
+				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []string{
@@ -287,7 +287,7 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.CalicoEtcdClientCert),
+				newCertConfig("cluster-1", certs.CalicoCert),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
