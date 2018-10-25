@@ -13,17 +13,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/backoff"
+	"github.com/giantswarm/cluster-operator/integration/env"
+	"github.com/giantswarm/cluster-operator/integration/teardown"
+	"github.com/giantswarm/cluster-operator/integration/template"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	awsclient "github.com/giantswarm/e2eclients/aws"
+	"github.com/giantswarm/e2etemplates/pkg/chartvalues"
 	"github.com/giantswarm/e2etemplates/pkg/e2etemplates"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/cluster-operator/integration/env"
-	"github.com/giantswarm/cluster-operator/integration/teardown"
-	"github.com/giantswarm/cluster-operator/integration/template"
 )
 
 const (
@@ -32,7 +32,7 @@ const (
 	credentialNamespace = "giantswarm"
 )
 
-func hostPeerVPC(c *awsclient.Client) error {
+func hostPeerVPC(c *awsclient.Client) (string, error) {
 	log.Printf("Creating Host Peer VPC stack")
 
 	os.Setenv("AWS_ROUTE_TABLE_0", env.ClusterID()+"_0")
@@ -45,28 +45,29 @@ func hostPeerVPC(c *awsclient.Client) error {
 	}
 	_, err := c.CloudFormation.CreateStack(stackInput)
 	if err != nil {
-		return microerror.Mask(err)
+		return "", microerror.Mask(err)
 	}
 	err = c.CloudFormation.WaitUntilStackCreateComplete(&cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackName),
 	})
 	if err != nil {
-		return microerror.Mask(err)
+		return "", microerror.Mask(err)
 	}
 	describeOutput, err := c.CloudFormation.DescribeStacks(&cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackName),
 	})
 	if err != nil {
-		return microerror.Mask(err)
+		return "", microerror.Mask(err)
 	}
+	var vpcID string
 	for _, o := range describeOutput.Stacks[0].Outputs {
 		if *o.OutputKey == "VPCID" {
-			os.Setenv("AWS_VPC_PEER_ID", *o.OutputValue)
+			vpcID = *o.OutputValue
 			break
 		}
 	}
 	log.Printf("Host Peer VPC stack created")
-	return nil
+	return vpcID, nil
 }
 
 func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.Client, apprClient *apprclient.Client, m *testing.M) {
@@ -138,7 +139,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		}
 	}
 
-	err = hostPeerVPC(c)
+	peerVPCID, err := hostPeerVPC(c)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
@@ -152,7 +153,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		return
 	}
 
-	err = resources(h, g, helmClient)
+	err = resources(h, g, helmClient, peerVPCID)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
@@ -174,7 +175,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	v = m.Run()
 }
 
-func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
+func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Client, peerVPCID string) error {
 	err := h.InstallStableOperator("cert-operator", "certconfig", e2etemplates.CertOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
@@ -197,7 +198,7 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 		return microerror.Mask(err)
 	}
 
-	err = h.InstallResource("apiextensions-aws-config-e2e", e2etemplates.ApiextensionsAWSConfigE2EChartValues, ":stable")
+	err = installAWSConfig(h, peerVPCID)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -208,6 +209,41 @@ func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Cli
 	}
 
 	err = h.InstallResource("apiextensions-aws-cluster-config-e2e", template.ClusterOperatorResourceChartValues, ":stable")
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func installAWSConfig(h *framework.Host, peerVPCID string) error {
+	var err error
+
+	var values string
+	{
+		c := chartvalues.APIExtensionsAWSConfigE2EConfig{
+			CommonDomain:         env.CommonDomain(),
+			ClusterName:          env.ClusterID(),
+			SSHPublicKey:         env.IDRSAPub(),
+			VersionBundleVersion: env.VersionBundleVersion(),
+
+			AWS: chartvalues.APIExtensionsAWSConfigE2EConfigAWS{
+				Region:            env.AWSRegion(),
+				APIHostedZone:     env.AWSAPIHostedZoneGuest(),
+				IngressHostedZone: env.AWSIngressHostedZoneGuest(),
+				RouteTable0:       env.AWSRouteTable0(),
+				RouteTable1:       env.AWSRouteTable1(),
+				VPCPeerID:         peerVPCID,
+			},
+		}
+
+		values, err = chartvalues.NewAPIExtensionsAWSConfigE2E(c)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	err = h.InstallResource("apiextensions-aws-config-e2e", values, ":stable")
 	if err != nil {
 		return microerror.Mask(err)
 	}
