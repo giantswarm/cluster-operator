@@ -262,9 +262,13 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f6eb53c7787595a8e3bf6ea20b276390fc0306a7823f4ec7f6f50940decd62a6"
+  digest = "1:f2b40525a588e4de3a7ebfcaed237af83391551be6f5ced0d0c8c009ea83da9a"
   name = "github.com/giantswarm/e2etemplates"
-  packages = ["pkg/e2etemplates"]
+  packages = [
+    "internal/render",
+    "pkg/chartvalues",
+    "pkg/e2etemplates",
+  ]
   pruneopts = "UT"
   revision = "33b1a1239b499d811a7bf4391264eb663943784d"
 
@@ -1535,6 +1539,7 @@
     "github.com/giantswarm/certs",
     "github.com/giantswarm/e2e-harness/pkg/framework",
     "github.com/giantswarm/e2eclients/aws",
+    "github.com/giantswarm/e2etemplates/pkg/chartvalues",
     "github.com/giantswarm/e2etemplates/pkg/e2etemplates",
     "github.com/giantswarm/errors/guest",
     "github.com/giantswarm/guestcluster",
