@@ -19,12 +19,13 @@ func ChartSpecs() []key.ChartSpec {
 			ReleaseName: "external-dns",
 		},
 		{
-			AppName:       "coredns",
-			ChannelName:   "0-1-stable",
-			ChartName:     "kubernetes-coredns-chart",
-			ConfigMapName: "coredns-values",
-			Namespace:     metav1.NamespaceSystem,
-			ReleaseName:   "coredns",
+			AppName:           "coredns",
+			ChannelName:       "0-2-stable",
+			ChartName:         "kubernetes-coredns-chart",
+			ConfigMapName:     "coredns-values",
+			Namespace:         metav1.NamespaceSystem,
+			ReleaseName:       "coredns",
+			UserConfigMapName: "coredns-user-values",
 		},
 	}
 }

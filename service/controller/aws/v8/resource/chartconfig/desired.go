@@ -5,8 +5,8 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v8/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v8/key"
 )
 
