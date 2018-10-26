@@ -16,7 +16,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "certconfigv7"
+	Name = "certconfigv7patch1"
 
 	// listCertConfigLimit is the suggested maximum number of CertConfigs
 	// returned in one List() call to K8s API. Server may choose to not support

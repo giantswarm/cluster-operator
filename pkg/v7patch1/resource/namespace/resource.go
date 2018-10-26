@@ -18,7 +18,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "namespacev7"
+	Name = "namespacev7patch1"
 
 	namespaceName = "giantswarm"
 )
