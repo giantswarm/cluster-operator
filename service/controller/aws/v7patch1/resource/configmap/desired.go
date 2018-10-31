@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v7patch1/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v7/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v7patch1/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
