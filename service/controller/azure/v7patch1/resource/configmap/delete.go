@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v7patch1/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v7patch1/key"
 )
