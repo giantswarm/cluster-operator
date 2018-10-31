@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v7/key"
 )
 
