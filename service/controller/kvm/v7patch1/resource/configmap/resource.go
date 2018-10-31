@@ -5,12 +5,12 @@ import (
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/configmap"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "configmapv7"
+	Name = "configmapv7patch1"
 )
 
 // Config represents the configuration used to create a new chart config resource.

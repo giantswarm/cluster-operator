@@ -1,4 +1,4 @@
-package v7
+package v7patch1
 
 import (
 	"context"
@@ -19,17 +19,17 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v7/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/clustercr"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v7/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v7/resource/azureconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v7/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v7/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v7patch1/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7patch1/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/resource/clustercr"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch1/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v7patch1/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v7patch1/resource/azureconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v7patch1/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v7patch1/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
