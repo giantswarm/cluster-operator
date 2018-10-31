@@ -20,7 +20,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartv7"
+	Name = "chartv7patch1"
 
 	chartOperatorChart         = "chart-operator-chart"
 	chartOperatorChannel       = "0-3-stable"
