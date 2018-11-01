@@ -74,9 +74,13 @@ func (c *ChartConfig) newTenantK8sClient(ctx context.Context, clusterConfig Clus
 	return tenantK8sClient, nil
 }
 
+// containsChartConfig checks if item is present within list
+// by comparing ChartConfig.Name property between item and list objects
+// and comparing list object namespace against resourceNamespace
+// which is the destination namespace for the item ChartConfig see ApplyCreateChange.
 func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
 	for _, l := range list {
-		if reflect.DeepEqual(item, l) {
+		if item.Name == l.Name && l.Namespace == resourceNamespace {
 			return true
 		}
 	}
