@@ -70,9 +70,9 @@ func Test_CertConfigName(t *testing.T) {
 		expectedCertConfigName string
 	}{
 		{
-			description:   "empty ClusterGuestConfig value with APICert",
-			clusterConfig: v1alpha1.ClusterGuestConfig{},
-			cert:          certs.APICert,
+			description:            "empty ClusterGuestConfig value with APICert",
+			clusterConfig:          v1alpha1.ClusterGuestConfig{},
+			cert:                   certs.APICert,
 			expectedCertConfigName: fmt.Sprintf("-%s", certs.APICert),
 		},
 		{
@@ -81,7 +81,7 @@ func Test_CertConfigName(t *testing.T) {
 				ID:   "cluster-1",
 				Name: "Test cluster nr. 1",
 			},
-			cert: certs.WorkerCert,
+			cert:                   certs.WorkerCert,
 			expectedCertConfigName: fmt.Sprintf("cluster-1-%s", certs.WorkerCert),
 		},
 		{
@@ -90,7 +90,7 @@ func Test_CertConfigName(t *testing.T) {
 				ID:   "cluster-1",
 				Name: "Test cluster nr. 1",
 			},
-			cert: "",
+			cert:                   "",
 			expectedCertConfigName: "cluster-1-",
 		},
 	}

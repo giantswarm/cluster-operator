@@ -8,8 +8,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v8/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v8/key"
 )
 
