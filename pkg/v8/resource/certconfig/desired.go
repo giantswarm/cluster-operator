@@ -106,6 +106,9 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
+	// Using `certs.Cert("calico") is broken here. We should use
+	// `baseDomain` setting to construct the domains anyway. This will be
+	// sorted here https://github.com/giantswarm/giantswarm/issues/3861.
 	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.Cert("calico"))
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
