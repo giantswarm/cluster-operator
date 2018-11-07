@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "coredns",
-				Description: "Add coredns chartconfig.",
+				Description: "Allow advanced CoreDNS configuration. See https://docs.giantswarm.io/guides/advanced-coredns-configuration.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
