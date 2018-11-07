@@ -8,12 +8,21 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
+				Component:   "coredns",
+				Description: "Allow advanced CoreDNS configuration. See https://docs.giantswarm.io/guides/advanced-coredns-configuration.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
 				Component:   "cluster-operator",
 				Description: "Add your changes here.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
+			{
+				Name:    "coredns",
+				Version: "1.1.1",
+			},
 			{
 				Name:    "kube-state-metrics",
 				Version: "1.3.1",
