@@ -8,14 +8,13 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
-
-	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 )
 
 func Test_ApplyUpdateChange_Updates_updateChange(t *testing.T) {
@@ -214,12 +213,10 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -237,12 +234,10 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.0.0"),
-				newCertConfigWithVersion("cluster-1", certs.Cert("calico"), "1.0.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.0.0"),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.2.0"),
-				newCertConfigWithVersion("cluster-1", certs.Cert("calico"), "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.FlanneldEtcdClientCert, "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.NodeOperatorCert, "1.2.0"),
@@ -252,7 +247,6 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{
 				newCertConfigWithVersion("cluster-1", certs.APICert, "1.2.0"),
-				newCertConfigWithVersion("cluster-1", certs.Cert("calico"), "1.2.0"),
 				newCertConfigWithVersion("cluster-1", certs.EtcdCert, "1.2.0"),
 			},
 			errorMatcher: nil,
@@ -264,7 +258,6 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []string{
@@ -287,7 +280,6 @@ func Test_newUpdateChange_Updates_VersionBundle(t *testing.T) {
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
