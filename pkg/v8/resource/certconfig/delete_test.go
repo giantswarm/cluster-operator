@@ -8,14 +8,13 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
-
-	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 )
 
 func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
@@ -216,12 +215,10 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -231,7 +228,6 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			errorMatcher: nil,
@@ -248,7 +244,6 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
@@ -373,7 +368,6 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", "legacy-cert-1"),
 				newCertConfig("cluster-1", "legacy-cert-2"),
@@ -382,7 +376,6 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 				newCertConfig("cluster-1", certs.FlanneldEtcdClientCert),
 				newCertConfig("cluster-1", certs.NodeOperatorCert),
@@ -409,7 +402,6 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			desiredState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			expectedCertConfigs: []*v1alpha1.CertConfig{},
@@ -422,7 +414,6 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 			},
 			currentState: []*v1alpha1.CertConfig{
 				newCertConfig("cluster-1", certs.APICert),
-				newCertConfig("cluster-1", certs.Cert("calico")),
 				newCertConfig("cluster-1", certs.EtcdCert),
 			},
 			desiredState: []string{
