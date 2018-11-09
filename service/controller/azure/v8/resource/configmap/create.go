@@ -7,8 +7,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v8/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v8/key"
 )
 

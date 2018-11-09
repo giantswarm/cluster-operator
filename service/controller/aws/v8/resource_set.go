@@ -19,13 +19,13 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v7/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v7/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/clustercr"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v7/resource/namespace"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v8/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v8/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v8/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v8/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v8/resource/clustercr"
+	"github.com/giantswarm/cluster-operator/pkg/v8/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v8/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v8/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v8/resource/awsconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v8/resource/chartconfig"
@@ -147,10 +147,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig: *config.BaseClusterConfig,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			Tenant:            tenantClusterService,
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			Tenant:                   tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -169,16 +169,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: *config.BaseClusterConfig,
-			ClusterIPRange:    config.ClusterIPRange,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
-			Tenant:            tenantClusterService,
+			ApprClient:               config.ApprClient,
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			ClusterIPRange:           config.ClusterIPRange,
+			Fs:                       config.Fs,
+			G8sClient:                config.G8sClient,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			RegistryDomain:           config.RegistryDomain,
+			Tenant:                   tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 

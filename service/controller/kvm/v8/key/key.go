@@ -3,14 +3,25 @@ package key
 import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 )
 
 // ChartSpecs returns charts installed only for KVM.
 func ChartSpecs() []key.ChartSpec {
 	// Add any provider specific charts here.
-	return []key.ChartSpec{}
+	return []key.ChartSpec{
+		{
+			AppName:           "coredns",
+			ChannelName:       "0-2-stable",
+			ChartName:         "kubernetes-coredns-chart",
+			ConfigMapName:     "coredns-values",
+			Namespace:         metav1.NamespaceSystem,
+			ReleaseName:       "coredns",
+			UserConfigMapName: "coredns-user-values",
+		},
+	}
 }
 
 // ClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
