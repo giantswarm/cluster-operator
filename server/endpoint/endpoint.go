@@ -3,7 +3,6 @@ package endpoint
 import (
 	"github.com/giantswarm/microendpoint/endpoint/healthz"
 	"github.com/giantswarm/microendpoint/endpoint/version"
-	healthzservice "github.com/giantswarm/microendpoint/service/healthz"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
@@ -38,10 +37,8 @@ func New(config Config) (*Endpoint, error) {
 
 	var healthzEndpoint *healthz.Endpoint
 	{
-		c := healthz.DefaultConfig()
-		c.Logger = config.Logger
-		c.Services = []healthzservice.Service{
-			config.Service.Healthz.K8s,
+		c := healthz.Config{
+			Logger: config.Logger,
 		}
 
 		healthzEndpoint, err = healthz.New(c)
@@ -52,10 +49,12 @@ func New(config Config) (*Endpoint, error) {
 
 	var versionEndpoint *version.Endpoint
 	{
-		versionConfig := version.DefaultConfig()
-		versionConfig.Logger = config.Logger
-		versionConfig.Service = config.Service.Version
-		versionEndpoint, err = version.New(versionConfig)
+		c := version.Config{
+			Logger:  config.Logger,
+			Service: config.Service.Version,
+		}
+
+		versionEndpoint, err = version.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
