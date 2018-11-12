@@ -12,11 +12,6 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Allow advanced CoreDNS configuration. See https://docs.giantswarm.io/guides/advanced-coredns-configuration.",
 				Kind:        versionbundle.KindAdded,
 			},
-			{
-				Component:   "cluster-operator",
-				Description: "Add your changes here.",
-				Kind:        versionbundle.KindAdded,
-			},
 		},
 		Components: []versionbundle.Component{
 			{
