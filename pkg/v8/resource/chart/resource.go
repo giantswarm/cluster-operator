@@ -23,7 +23,7 @@ const (
 	Name = "chartv8"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-3-stable"
+	chartOperatorChannel       = "5fd8c9cb311b538547b7c371b71d7449731b96de"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
