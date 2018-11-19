@@ -5,12 +5,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func Test_ConfigMap_GetCurrentState(t *testing.T) {

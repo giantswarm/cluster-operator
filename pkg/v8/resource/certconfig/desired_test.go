@@ -8,12 +8,13 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 )
 
 func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T) {

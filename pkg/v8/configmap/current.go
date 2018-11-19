@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*corev1.ConfigMap, error) {

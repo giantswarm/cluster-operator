@@ -8,13 +8,14 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
+
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 )
 
 func Test_ApplyUpdateChange_Updates_updateChange(t *testing.T) {

@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/micrologger/microloggertest"
 	apiv1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/cluster"
 )
 
 func Test_Resource_Namespace_newCreateChange(t *testing.T) {

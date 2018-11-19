@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/helm/pkg/helm"
+
+	"github.com/giantswarm/cluster-operator/pkg/v8/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
