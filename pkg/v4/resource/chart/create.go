@@ -77,7 +77,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		//      executing "cnr-server-chart/templates/deployment.yaml" at <.Values.image.reposi...>: can't evaluate field repository in type interface {}
 		//     }
 		//
-		err = guestHelmClient.InstallFromTarball(tarballPath, chartOperatorNamespace,
+		err = guestHelmClient.InstallReleaseFromTarball(ctx, tarballPath, chartOperatorNamespace,
 			helm.ReleaseName(createState.ReleaseName),
 			helm.ValueOverrides([]byte("{}")),
 			helm.InstallWait(true))

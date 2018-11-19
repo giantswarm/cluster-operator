@@ -56,7 +56,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if deleteState.ReleaseName != "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting chart-operator chart")
 
-		tenantHelmClient.DeleteRelease(deleteState.ReleaseName, helm.DeletePurge(true))
+		tenantHelmClient.DeleteRelease(ctx, deleteState.ReleaseName, helm.DeletePurge(true))
 		if err != nil {
 			return microerror.Mask(err)
 		}

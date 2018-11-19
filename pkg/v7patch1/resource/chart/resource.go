@@ -138,7 +138,7 @@ func (r *Resource) getTenantHelmClient(ctx context.Context, obj interface{}) (he
 		return nil, microerror.Mask(err)
 	}
 
-	err = tenantHelmClient.EnsureTillerInstalled()
+	err = tenantHelmClient.EnsureTillerInstalled(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

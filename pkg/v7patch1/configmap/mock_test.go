@@ -59,7 +59,7 @@ func (h *helmMock) GetReleaseHistory(releaseName string) (*helmclient.ReleaseHis
 	return h.defaultReleaseHistory, nil
 }
 
-func (h *helmMock) InstallFromTarball(path, ns string, options ...helm.InstallOption) error {
+func (h *helmMock) InstallReleaseFromTarball(path, ns string, options ...helm.InstallOption) error {
 	return nil
 }
 
