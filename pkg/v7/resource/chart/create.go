@@ -78,6 +78,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			Image: Image{
 				Registry: r.registryDomain,
 			},
+			TillerNamespace: chartOperatorNamespace,
 		}
 		b, err := json.Marshal(v)
 		if err != nil {

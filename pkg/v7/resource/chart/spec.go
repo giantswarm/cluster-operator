@@ -19,8 +19,9 @@ type ResourceState struct {
 // Values represents the values to be passed to Helm commands related to
 // chart-operator chart.
 type Values struct {
-	ClusterDNSIP string `json:"clusterDNSIP"`
-	Image        Image  `json:"image"`
+	ClusterDNSIP    string `json:"clusterDNSIP"`
+	Image           Image  `json:"image"`
+	TillerNamespace string `json:"tillerNamespace"`
 }
 
 // Image holds the image settings for chart-operator chart.
