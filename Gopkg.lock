@@ -242,7 +242,7 @@
   revision = "4bf2b99ebf79cb800cb21ec1a4541e6582e3a0b7"
 
 [[projects]]
-  branch = "vendor"
+  branch = "master"
   digest = "1:7c7d23419d7f079159fc4049c5734516447248085a7f11d5d6ced8082aa5ce8f"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
@@ -251,7 +251,7 @@
     "pkg/internal/filelogger",
   ]
   pruneopts = "UT"
-  revision = "2114ff9c0d4692dfcd79265a302312e7476ccdf0"
+  revision = "8e2a7a2f5a74cf83932b2d3bebd032125a3fa8ba"
 
 [[projects]]
   branch = "master"
@@ -297,12 +297,12 @@
   revision = "81f0b6c62f4374cdb1aeb1677fa3037283776060"
 
 [[projects]]
-  branch = "ctx"
+  branch = "master"
   digest = "1:0b8a68a96c3f9e62b96e1d06157aa2759d3ba326a14aa11d81afc8502643a215"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "feee73415cc6cdff60914770014905238be4f6d3"
+  revision = "000e2420cd2989b91bc540606d829582b3f75685"
 
 [[projects]]
   branch = "master"
