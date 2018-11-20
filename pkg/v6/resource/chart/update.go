@@ -77,7 +77,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		//      executing "cnr-server-chart/templates/deployment.yaml" at <.Values.image.reposi...>: can't evaluate field repository in type interface {}
 		//     }
 		//
-		err = guestHelmClient.UpdateReleaseFromTarball(updateState.ReleaseName, tarballPath,
+		err = guestHelmClient.UpdateReleaseFromTarball(ctx, updateState.ReleaseName, tarballPath,
 			helm.UpdateValueOverrides([]byte("{}")))
 		if err != nil {
 			return microerror.Mask(err)

@@ -255,7 +255,7 @@ func (s *Service) checkHelmReleaseExists(ctx context.Context, releaseName string
 		return false, microerror.Mask(err)
 	}
 
-	_, err = guestHelmClient.GetReleaseContent(releaseName)
+	_, err = guestHelmClient.GetReleaseContent(ctx, releaseName)
 	if helmclient.IsReleaseNotFound(err) {
 		return false, nil
 	} else if err != nil {

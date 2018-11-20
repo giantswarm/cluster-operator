@@ -39,7 +39,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	releaseContent, err := guestHelmClient.GetReleaseContent(chartOperatorRelease)
+	releaseContent, err := guestHelmClient.GetReleaseContent(ctx, chartOperatorRelease)
 	if helmclient.IsReleaseNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chart-operator chart in the guest cluster")
 		return nil, nil
@@ -48,7 +48,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	releaseHistory, err := guestHelmClient.GetReleaseHistory(chartOperatorRelease)
+	releaseHistory, err := guestHelmClient.GetReleaseHistory(ctx, chartOperatorRelease)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
