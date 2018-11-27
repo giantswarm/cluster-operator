@@ -63,6 +63,10 @@ func (h *helmMock) InstallReleaseFromTarball(path, ns string, options ...helm.In
 	return nil
 }
 
+func (h *helmMock) ListReleaseContents(ctx context.Context) ([]*helmclient.ReleaseContent, error) {
+	return nil, nil
+}
+
 func (h *helmMock) PingTiller() error {
 	return nil
 }
