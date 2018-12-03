@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "coredns",
-				Description: "Allow advanced CoreDNS configuration. See https://docs.giantswarm.io/guides/advanced-coredns-configuration.",
+				Component:   "<replace me>",
+				Description: "<replace me>",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
