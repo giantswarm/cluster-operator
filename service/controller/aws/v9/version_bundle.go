@@ -8,9 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Allow advanced CoreDNS configuration. See https://docs.giantswarm.io/guides/advanced-coredns-configuration",
-				Kind:        versionbundle.KindAdded,
+				Component:   "nginx-ingress-controller",
+				Description: "Update to version 0.21.0",
+				Kind:        versionbundle.KindUpdated,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -20,7 +20,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.15.0",
+				Version: "0.21.0",
 			},
 			{
 				Name:    "node-exporter",
