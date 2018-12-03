@@ -33,6 +33,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "kvm",
-		Version:  "0.8.0",
+		Version:  "0.9.0",
 	}
 }
