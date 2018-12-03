@@ -10,7 +10,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "nginx-ingress-controller",
 				Description: "Update to version 0.21.0",
-				Kind:        versionbundle.KindAdded,
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
