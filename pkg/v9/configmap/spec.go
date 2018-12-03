@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v8/key"
+	"github.com/giantswarm/cluster-operator/pkg/v9/key"
 )
 
 type Interface interface {

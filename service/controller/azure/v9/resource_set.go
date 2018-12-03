@@ -1,4 +1,4 @@
-package v8
+package v9
 
 import (
 	"context"
@@ -19,17 +19,17 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v8/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v8/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v8/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v8/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v8/resource/clustercr"
-	"github.com/giantswarm/cluster-operator/pkg/v8/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v8/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v8/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v8/resource/azureconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v8/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v8/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v9/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v9/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v9/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v9/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v9/resource/clustercr"
+	"github.com/giantswarm/cluster-operator/pkg/v9/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v9/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v9/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v9/resource/azureconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v9/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v9/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
