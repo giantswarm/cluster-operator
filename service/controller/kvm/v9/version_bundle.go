@@ -8,9 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "<replace me>",
-				Description: "<replace me>",
-				Kind:        versionbundle.KindAdded,
+				Component:   "nginx-ingress-controller",
+				Description: "Update to version 0.21.0",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -24,7 +24,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.15.0",
+				Version: "0.21.0",
 			},
 			{
 				Name:    "node-exporter",
