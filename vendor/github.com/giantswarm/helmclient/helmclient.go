@@ -705,7 +705,7 @@ func (c *Client) newTunnel() (*k8sportforward.Tunnel, error) {
 	}
 
 	// Do not create a tunnel if tiller is outdated.
-	err = validateTillerVersion(pod, c.tillerImage)
+	err = validateTillerVersion(pod, c.tillerImage, c.logger)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -817,28 +817,37 @@ func getPodImage(pod *corev1.Pod) (string, error) {
 	return tillerImage, nil
 }
 
-func validateTillerVersion(pod *corev1.Pod, desiredImage string) error {
+func validateTillerVersion(pod *corev1.Pod, desiredImage string, logger micrologger.Logger) error {
 	currentImage, err := getPodImage(pod)
 	if err != nil {
 		return microerror.Mask(err)
 	}
+
+	logger.Log(fmt.Sprintf("currentImage: %#q", currentImage))
 
 	currentVersion, err := parseTillerVersion(currentImage)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
+	logger.Log(fmt.Sprintf("currentVersion: %#q", currentVersion))
+
 	desiredVersion, err := parseTillerVersion(desiredImage)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if currentVersion.GreaterThan(desiredVersion) {
-		return microerror.Maskf(executionFailedError, "current tiller version %#q is greater than desired tiller version %#q", currentVersion.String(), desiredVersion.String())
-	}
+	logger.Log(fmt.Sprintf("desiredVersion: %#q", desiredVersion))
+	logger.Log(fmt.Sprintf("Equal: %t", currentVersion.Equal(desiredVersion)))
+	logger.Log(fmt.Sprintf("Greater Than: %t", currentVersion.GreaterThan(desiredVersion)))
+	logger.Log(fmt.Sprintf("Less Than: %t", currentVersion.LessThan(desiredVersion)))
 
 	if currentVersion.LessThan(desiredVersion) {
 		return microerror.Maskf(tillerOutdatedError, "current tiller version %#q is lower than desired tiller version %#q", currentVersion.String(), desiredVersion.String())
+	}
+
+	if currentVersion.GreaterThan(desiredVersion) {
+		return microerror.Maskf(executionFailedError, "current tiller version %#q is greater than desired tiller version %#q", currentVersion.String(), desiredVersion.String())
 	}
 
 	return nil
