@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/versionbundle"
 
 	awsv1 "github.com/giantswarm/cluster-operator/service/controller/aws/v1"
+	awsv10 "github.com/giantswarm/cluster-operator/service/controller/aws/v10"
 	awsv2 "github.com/giantswarm/cluster-operator/service/controller/aws/v2"
 	awsv3 "github.com/giantswarm/cluster-operator/service/controller/aws/v3"
 	awsv4 "github.com/giantswarm/cluster-operator/service/controller/aws/v4"
@@ -13,6 +14,7 @@ import (
 	awsv7patch1 "github.com/giantswarm/cluster-operator/service/controller/aws/v7patch1"
 	awsv8 "github.com/giantswarm/cluster-operator/service/controller/aws/v8"
 	awsv9 "github.com/giantswarm/cluster-operator/service/controller/aws/v9"
+	azurev10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
 	azurev4 "github.com/giantswarm/cluster-operator/service/controller/azure/v4"
 	azurev6 "github.com/giantswarm/cluster-operator/service/controller/azure/v6"
 	azurev7 "github.com/giantswarm/cluster-operator/service/controller/azure/v7"
@@ -20,6 +22,7 @@ import (
 	azurev8 "github.com/giantswarm/cluster-operator/service/controller/azure/v8"
 	azurev9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 	kvmv1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
+	kvmv10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
 	kvmv2 "github.com/giantswarm/cluster-operator/service/controller/kvm/v2"
 	kvmv3 "github.com/giantswarm/cluster-operator/service/controller/kvm/v3"
 	kvmv4 "github.com/giantswarm/cluster-operator/service/controller/kvm/v4"
@@ -69,6 +72,10 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv9.VersionBundle())
 	versionBundles = append(versionBundles, azurev9.VersionBundle())
 	versionBundles = append(versionBundles, kvmv9.VersionBundle())
+
+	versionBundles = append(versionBundles, awsv10.VersionBundle())
+	versionBundles = append(versionBundles, azurev10.VersionBundle())
+	versionBundles = append(versionBundles, kvmv10.VersionBundle())
 
 	return versionBundles
 }
