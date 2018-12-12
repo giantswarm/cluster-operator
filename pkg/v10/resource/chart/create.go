@@ -13,7 +13,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/helm/pkg/helm"
 
-	"github.com/giantswarm/cluster-operator/pkg/v9/key"
+	"github.com/giantswarm/cluster-operator/pkg/v10/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
