@@ -46,7 +46,7 @@ required = [
   name = "github.com/giantswarm/certs"
 
 [[constraint]]
-  branch = "master"
+  branch = "wip-tiller-2-12"
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
