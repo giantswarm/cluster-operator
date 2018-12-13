@@ -114,6 +114,15 @@ type NetExporter struct {
 	Namespace string `json:"namespace"`
 }
 
+type ClusterAutoscaler struct {
+	Cluster ClusterAutoscalerCluster `json:"cluster"`
+	Image   Image                    `json:"image"`
+}
+
+type ClusterAutoscalerCluster struct {
+	ID string `json:"id"`
+}
+
 type CoreDNS struct {
 	Cluster CoreDNSCluster `json:"cluster"`
 	Image   Image          `json:"image"`
