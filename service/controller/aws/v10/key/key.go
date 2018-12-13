@@ -21,6 +21,15 @@ func ChartSpecs() []key.ChartSpec {
 			ReleaseName:       "coredns",
 			UserConfigMapName: "coredns-user-values",
 		},
+		{
+			AppName:           "cluster-autoscaler",
+			ChannelName:       "0-1-stable",
+			ChartName:         "kubernetes-cluster-autoscaler-chart",
+			ConfigMapName:     "cluster-autoscaler-values",
+			Namespace:         metav1.NamespaceSystem,
+			ReleaseName:       "cluster-autoscaler",
+			UserConfigMapName: "cluster-autoscaler-user-values",
+		},
 	}
 }
 

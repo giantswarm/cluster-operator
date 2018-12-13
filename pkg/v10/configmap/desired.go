@@ -33,6 +33,11 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 				if err != nil {
 					return nil, microerror.Mask(err)
 				}
+			case "cluster-autoscaler":
+				values, err = clusterAutoscalerValues(configMapValues)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
 			case "coredns":
 				values, err = coreDNSValues(configMapValues)
 				if err != nil {
@@ -94,6 +99,23 @@ func (s *Service) hasLegacyIngressController(ctx context.Context, releaseName st
 	}
 
 	return false, nil
+}
+
+func clusterAutoscalerValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := ClusterAutoscaler{
+		Cluster: ClusterAutoscalerCluster{
+			ID: configMapValues.ClusterID,
+		},
+		Image: Image{
+			Registry: configMapValues.RegistryDomain,
+		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
 }
 
 func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
