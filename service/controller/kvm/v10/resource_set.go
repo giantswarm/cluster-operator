@@ -168,16 +168,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartResource controller.Resource
 	{
 		c := chart.Config{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: *config.BaseClusterConfig,
-			ClusterIPRange:    config.ClusterIPRange,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
-			Tenant:            tenantClusterService,
+			ApprClient:               config.ApprClient,
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			ClusterIPRange:           config.ClusterIPRange,
+			Fs:                       config.Fs,
+			G8sClient:                config.G8sClient,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			RegistryDomain:           config.RegistryDomain,
+			Tenant:                   tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 

@@ -227,13 +227,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartConfigResource controller.Resource
 	{
 		c := chartconfig.Config{
-			BaseClusterConfig: *config.BaseClusterConfig,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			Provider:          label.ProviderKVM,
-			Tenant:            tenantClusterService,
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			G8sClient:                config.G8sClient,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			Provider:                 label.ProviderKVM,
+			Tenant:                   tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 

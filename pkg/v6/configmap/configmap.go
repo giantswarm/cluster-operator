@@ -20,8 +20,8 @@ type Config struct {
 
 // Service provides shared functionality for managing configmaps.
 type Service struct {
-	tenant tenantcluster.Interface
 	logger micrologger.Logger
+	tenant tenantcluster.Interface
 
 	projectName    string
 	registryDomain string
@@ -44,8 +44,9 @@ func New(config Config) (*Service, error) {
 	}
 
 	s := &Service{
-		logger:         config.Logger,
-		tenant:         config.Tenant,
+		logger: config.Logger,
+		tenant: config.Tenant,
+
 		projectName:    config.ProjectName,
 		registryDomain: config.RegistryDomain,
 	}

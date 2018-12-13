@@ -75,13 +75,13 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		baseClusterConfig: config.BaseClusterConfig,
-		g8sClient:         config.G8sClient,
-		k8sClient:         config.K8sClient,
-		logger:            config.Logger,
-		projectName:       config.ProjectName,
-		provider:          config.Provider,
-		tenant:            config.Tenant,
+		baseClusterConfig:        config.BaseClusterConfig,
+		g8sClient:                config.G8sClient,
+		k8sClient:                config.K8sClient,
+		logger:                   config.Logger,
+		projectName:              config.ProjectName,
+		provider:                 config.Provider,
+		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
