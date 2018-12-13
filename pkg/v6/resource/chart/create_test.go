@@ -85,7 +85,7 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 				},
 				Fs:        afero.NewMemMapFs(),
 				G8sClient: fake.NewSimpleClientset(),
-				Guest: &guestMock{
+				Tenant: &guestMock{
 					fakeGuestHelmClient: helmClient,
 				},
 				K8sClient:      clientgofake.NewSimpleClientset(),

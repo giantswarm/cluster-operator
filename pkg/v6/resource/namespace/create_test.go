@@ -76,7 +76,7 @@ func Test_Resource_Namespace_newCreateChange(t *testing.T) {
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
-				Guest:       &guestMock{},
+				Tenant:      &guestMock{},
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {

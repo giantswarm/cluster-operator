@@ -20,7 +20,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if len(chartConfigsToCreate) > 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating chartconfigs")
 
-		guestG8sClient, err := r.getGuestG8sClient(ctx, obj)
+		tenantG8sClient, err := r.getTenantG8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -28,7 +28,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		for _, chartConfigToCreate := range chartConfigsToCreate {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chartconfig %#q", chartConfigToCreate.Name))
 
-			_, err := guestG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
+			_, err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Create(chartConfigToCreate)
 			if apierrors.IsAlreadyExists(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not create chartconfig %#q", chartConfigToCreate.Name))
 				r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig already exists")
