@@ -82,7 +82,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 					ClusterID: "test-cluster",
 				},
 				G8sClient: fake.NewSimpleClientset(),
-				Guest: &guestMock{
+				Tenant: &guestMock{
 					fakeGuestK8sClient: clientgofake.NewSimpleClientset(),
 				},
 				K8sClient:   clientgofake.NewSimpleClientset(),
@@ -272,7 +272,7 @@ func Test_ChartConfig_getConfigMapSpec(t *testing.T) {
 					ClusterID: "test-cluster",
 				},
 				G8sClient:   fake.NewSimpleClientset(),
-				Guest:       guestService,
+				Tenant:      guestService,
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",

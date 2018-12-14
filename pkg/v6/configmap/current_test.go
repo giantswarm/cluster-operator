@@ -409,7 +409,7 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			}
 
 			c := Config{
-				Guest:          guestService,
+				Tenant:         guestService,
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",

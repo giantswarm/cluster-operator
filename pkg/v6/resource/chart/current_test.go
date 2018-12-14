@@ -118,7 +118,7 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 				},
 				Fs:        afero.NewMemMapFs(),
 				G8sClient: fake.NewSimpleClientset(),
-				Guest: &guestMock{
+				Tenant: &guestMock{
 					fakeGuestHelmClient: helmClient,
 				},
 				K8sClient:      clientgofake.NewSimpleClientset(),
