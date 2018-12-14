@@ -72,11 +72,7 @@ required = [
   name = "github.com/giantswarm/errors"
 
 [[constraint]]
-  branch = "helm-2-12-upgrade"
-  name = "github.com/giantswarm/guestcluster"
-
-[[constraint]]
-  branch = "helm-2-12-upgrade"
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]

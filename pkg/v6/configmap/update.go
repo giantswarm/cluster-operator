@@ -13,13 +13,13 @@ func (s *Service) ApplyUpdateChange(ctx context.Context, configMapConfig ConfigM
 	if len(configMapsToUpdate) > 0 {
 		s.logger.LogCtx(ctx, "level", "debug", "message", "updating configmaps")
 
-		guestK8sClient, err := s.guest.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
+		tenantK8sClient, err := s.tenant.NewK8sClient(ctx, configMapConfig.ClusterID, configMapConfig.GuestAPIDomain)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		for _, configMapToUpdate := range configMapsToUpdate {
-			_, err := guestK8sClient.CoreV1().ConfigMaps(configMapToUpdate.Namespace).Update(configMapToUpdate)
+			_, err := tenantK8sClient.CoreV1().ConfigMaps(configMapToUpdate.Namespace).Update(configMapToUpdate)
 			if err != nil {
 				return microerror.Mask(err)
 			}

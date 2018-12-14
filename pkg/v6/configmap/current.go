@@ -13,7 +13,7 @@ import (
 func (s *Service) GetCurrentState(ctx context.Context, config ConfigMapConfig) ([]*corev1.ConfigMap, error) {
 	var currentConfigMaps []*corev1.ConfigMap
 
-	guestK8sClient, err := s.guest.NewK8sClient(ctx, config.ClusterID, config.GuestAPIDomain)
+	tenantK8sClient, err := s.tenant.NewK8sClient(ctx, config.ClusterID, config.GuestAPIDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -33,7 +33,7 @@ func (s *Service) GetCurrentState(ctx context.Context, config ConfigMapConfig) (
 	}
 
 	for namespace := range namespaces {
-		configMapList, err := guestK8sClient.CoreV1().ConfigMaps(namespace).List(listOptions)
+		configMapList, err := tenantK8sClient.CoreV1().ConfigMaps(namespace).List(listOptions)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

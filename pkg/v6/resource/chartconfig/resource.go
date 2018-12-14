@@ -6,9 +6,9 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -27,11 +27,11 @@ const (
 type Config struct {
 	BaseClusterConfig        cluster.Config
 	G8sClient                versioned.Interface
-	Guest                    guestcluster.Interface
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 	ProjectName              string
 	Provider                 string
+	Tenant                   tenantcluster.Interface
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
@@ -39,11 +39,11 @@ type Config struct {
 type Resource struct {
 	baseClusterConfig        cluster.Config
 	g8sClient                versioned.Interface
-	guest                    guestcluster.Interface
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 	projectName              string
 	provider                 string
+	tenant                   tenantcluster.Interface
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
@@ -54,9 +54,6 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.Guest == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -70,6 +67,9 @@ func New(config Config) (*Resource, error) {
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
+	if config.Tenant == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
+	}
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
@@ -77,11 +77,11 @@ func New(config Config) (*Resource, error) {
 	newResource := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
 		g8sClient:                config.G8sClient,
-		guest:                    config.Guest,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 		projectName:              config.ProjectName,
 		provider:                 config.Provider,
+		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
@@ -112,7 +112,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	return clusterConfig, nil
 }
 
-func (r *Resource) getGuestG8sClient(ctx context.Context, obj interface{}) (versioned.Interface, error) {
+func (r *Resource) getTenantG8sClient(ctx context.Context, obj interface{}) (versioned.Interface, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -123,26 +123,26 @@ func (r *Resource) getGuestG8sClient(ctx context.Context, obj interface{}) (vers
 		return nil, microerror.Mask(err)
 	}
 
-	guestAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	tenantAPIDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	guestG8sClient, err := r.guest.NewG8sClient(ctx, clusterConfig.ClusterID, guestAPIDomain)
+	tenantG8sClient, err := r.tenant.NewG8sClient(ctx, clusterConfig.ClusterID, tenantAPIDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	return guestG8sClient, nil
+	return tenantG8sClient, nil
 }
 
-func (r *Resource) getGuestK8sClient(ctx context.Context, guestConfig cluster.Config) (kubernetes.Interface, error) {
-	guestK8sClient, err := r.guest.NewK8sClient(ctx, guestConfig.ClusterID, guestConfig.Domain.API)
+func (r *Resource) getTenantK8sClient(ctx context.Context, guestConfig cluster.Config) (kubernetes.Interface, error) {
+	tenantK8sClient, err := r.tenant.NewK8sClient(ctx, guestConfig.ClusterID, guestConfig.Domain.API)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	return guestK8sClient, nil
+	return tenantK8sClient, nil
 }
 
 func containsChartConfig(list []*v1alpha1.ChartConfig, item *v1alpha1.ChartConfig) bool {
