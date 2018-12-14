@@ -8,9 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "<replace me>",
-				Description: "<replace me>",
-				Kind:        versionbundle.KindChanged,
+				Component:   "cluster-autoscaler",
+				Description: "Added cluster-autoscaler chartconfig.",
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -29,6 +29,10 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "coredns",
 				Version: "1.1.1",
+			},
+			{
+				Name:    "cluster-autoscaler",
+				Version: "1.3.1",
 			},
 		},
 		Name:     "cluster-operator",
