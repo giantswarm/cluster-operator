@@ -154,7 +154,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 					ClusterID: "test-cluster",
 				},
 				G8sClient:   fake.NewSimpleClientset(),
-				Guest:       guestService,
+				Tenant:      guestService,
 				K8sClient:   clientgofake.NewSimpleClientset(),
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",

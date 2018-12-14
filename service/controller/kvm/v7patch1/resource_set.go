@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/guestcluster"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -41,7 +40,6 @@ type ResourceSetConfig struct {
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	G8sClient         versioned.Interface
-	Guest             guestcluster.Interface
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
 

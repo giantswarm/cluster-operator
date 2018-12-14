@@ -180,11 +180,11 @@ func Test_ChartConfig_newCreateChange(t *testing.T) {
 			ClusterID: "test-cluster",
 		},
 		G8sClient:   fake.NewSimpleClientset(),
-		Guest:       &guestMock{},
 		K8sClient:   clientgofake.NewSimpleClientset(),
 		Logger:      microloggertest.New(),
 		ProjectName: "cluster-operator",
 		Provider:    label.ProviderAWS,
+		Tenant:      &guestMock{},
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},

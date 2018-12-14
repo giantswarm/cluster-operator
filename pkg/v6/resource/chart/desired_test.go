@@ -50,7 +50,7 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 				},
 				Fs:             afero.NewMemMapFs(),
 				G8sClient:      fake.NewSimpleClientset(),
-				Guest:          &guestMock{},
+				Tenant:         &guestMock{},
 				K8sClient:      clientgofake.NewSimpleClientset(),
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
