@@ -151,7 +151,7 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
-  revision = "3363bbdc5c73af6e838b75106b9b41b730501279"
+  revision = "111e3c8bf5b33f0ba733d33bc721e5bab29da0a3"
 
 [[projects]]
   branch = "master"
@@ -209,16 +209,10 @@
   revision = "3509191efc7b4714c1dc57ab47df71a52148493f"
 
 [[projects]]
-  branch = "helm-2-12-upgrade"
-  name = "github.com/giantswarm/guestcluster"
-  packages = ["."]
-  revision = "6fc2fc207c2dca755ff61df88b48fe162dd9a116"
-
-[[projects]]
-  branch = "helm-2-12-upgrade"
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "68dc689d4952f7bc5bafd800baab2f6d49d778f4"
+  revision = "aa8e7afcf4731132ee04380a56a5f418024e693b"
 
 [[projects]]
   branch = "master"
@@ -300,10 +294,10 @@
   revision = "894bebfb2a6835b15394c329617a442a0725939f"
 
 [[projects]]
-  branch = "helm-2-12-upgrade"
+  branch = "master"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
-  revision = "85fa739330596ea4e9e33884a27e2b6e33386015"
+  revision = "284968ca1af0ecbd55077e5087293d156e8318da"
 
 [[projects]]
   branch = "master"
@@ -648,7 +642,7 @@
     "publicsuffix",
     "trace"
   ]
-  revision = "610586996380ceef02dd726cc09df7e00a3f8e56"
+  revision = "891ebc4b82d6e74f468c533b06f983c7be918a96"
 
 [[projects]]
   branch = "master"
@@ -672,7 +666,7 @@
     "unix",
     "windows"
   ]
-  revision = "73d4af5aa059c8c2dfcf25aad4efd6ce7bc9adc1"
+  revision = "4d1cda033e0619309c606fc686de3adcf599539e"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -1010,6 +1004,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dc5a53230923773dbf5b44a0b51c00aec9586261fdc3219d669aa2a898459fc8"
+  inputs-digest = "006b5fddc25fae79b5f43ae63953b7a7070813e8b311c6e4f164683922887fd2"
   solver-name = "gps-cdcl"
   solver-version = 1
