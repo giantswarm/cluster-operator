@@ -9,7 +9,7 @@ import (
 // GetDesiredState returns the chart that should be installed including the
 // release version it gets from the CNR channel.
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	releaseVersion, err := r.apprClient.GetReleaseVersion(chartOperatorChart, chartOperatorChannel)
+	releaseVersion, err := r.apprClient.GetReleaseVersion(ctx, chartOperatorChart, chartOperatorChannel)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

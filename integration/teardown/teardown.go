@@ -3,6 +3,7 @@
 package teardown
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -16,7 +17,7 @@ import (
 	"k8s.io/helm/pkg/helm"
 )
 
-func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
+func Resources(ctx context.Context, c *awsclient.Client, f *framework.Host, helmClient *helmclient.Client) error {
 	errors := make([]error, 0)
 
 	targetNamespace := "default"
@@ -34,7 +35,7 @@ func Resources(c *awsclient.Client, f *framework.Host, helmClient *helmclient.Cl
 		releaseName := fmt.Sprintf("%s-%s", targetNamespace, item)
 		log.Printf("deleting release %#q", releaseName)
 
-		err := helmClient.DeleteRelease(releaseName, helm.DeletePurge(true))
+		err := helmClient.DeleteRelease(ctx, releaseName, helm.DeletePurge(true))
 		if err != nil {
 			log.Printf("failed to delete release %#q %#v", releaseName, err)
 			errors = append(errors, err)

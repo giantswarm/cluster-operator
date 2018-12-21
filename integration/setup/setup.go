@@ -69,11 +69,9 @@ func hostPeerVPC(c *awsclient.Client) error {
 	return nil
 }
 
-func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.Client, apprClient *apprclient.Client, m *testing.M) {
+func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, helmClient *helmclient.Client, apprClient *apprclient.Client, m *testing.M) {
 	var v int
 	var err error
-
-	ctx := context.Background()
 
 	c, err := awsclient.NewClient()
 	if err != nil {
@@ -95,7 +93,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 
 			// only do full teardown when not on CI
 			if os.Getenv("CIRCLECI") != "true" {
-				err := teardown.Resources(c, h, helmClient)
+				err := teardown.Resources(ctx, c, h, helmClient)
 				if err != nil {
 					log.Printf("%#v\n", err)
 					v = 1
@@ -152,7 +150,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 		return
 	}
 
-	err = resources(h, g, helmClient)
+	err = resources(ctx, h, g, helmClient)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
@@ -174,7 +172,7 @@ func WrapTestMain(g *framework.Guest, h *framework.Host, helmClient *helmclient.
 	v = m.Run()
 }
 
-func resources(h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
+func resources(ctx context.Context, h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
 	err := h.InstallStableOperator("cert-operator", "certconfig", e2etemplates.CertOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
