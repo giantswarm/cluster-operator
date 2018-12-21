@@ -187,19 +187,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:616e69476c8880a527672e9f4b039590c827656d4c3e688bc6f5553a80e23aca"
+  digest = "1:5b2893577b20285aa0c3a72384ba8d8e90981c67d019709f323c94fb87f440b3"
   name = "github.com/giantswarm/apprclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "39c10991cdd838779ac8bc27d610fa9f74525a0c"
+  revision = "c2cf194fc113d99ebbb62d8b38c79eb630b4e17a"
 
 [[projects]]
   branch = "master"
-  digest = "1:9112970141e9f6c339fe9c0d4aaad25e8643f511662622dc3eba4c8a1df1e644"
+  digest = "1:ab67fdefbc890c7880ffc2904048d7b9d14e29ebc716f8d637a17b16bb91d9e6"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9922087c8f77cf4aff19bb8cf4c488a9dc4206f8"
+  revision = "4763148864dc4815b691a69b4f60b4f4a8f88dad"
 
 [[projects]]
   branch = "master"
@@ -823,14 +823,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ba2c0719b7ca1fb531afa5aae9bda558846438a075f0e0282d3dffcd887de90d"
+  digest = "1:3d5e79e10549fd9119cbefd614b6d351ef5bd0be2f2b103a4199788e784cbc68"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "b00e65af1da0681cde6c8227839a0ca53bbf16bb"
+  revision = "b4a75ba826a64a70990f11a225237acd6ef35c9f"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
