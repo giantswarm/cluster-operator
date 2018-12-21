@@ -3,6 +3,7 @@
 package basic
 
 import (
+	"context"
 	"testing"
 
 	"github.com/giantswarm/apprclient"
@@ -95,5 +96,6 @@ func init() {
 // TestMain allows us to have common setup and teardown steps that are run
 // once for all the tests https://golang.org/pkg/testing/#hdr-Main.
 func TestMain(m *testing.M) {
-	setup.WrapTestMain(g, h, helmClient, apprClient, m)
+	ctx := context.Background()
+	setup.WrapTestMain(ctx, g, h, helmClient, apprClient, m)
 }

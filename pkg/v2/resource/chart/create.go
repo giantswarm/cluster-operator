@@ -37,7 +37,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if !reflect.DeepEqual(createState, ResourceState{}) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating chart-operator chart")
 
-		tarballPath, err := r.apprClient.PullChartTarball(createState.ChartName, chartOperatorChannel)
+		tarballPath, err := r.apprClient.PullChartTarball(ctx, createState.ChartName, chartOperatorChannel)
 		if err != nil {
 			return microerror.Mask(err)
 		}
