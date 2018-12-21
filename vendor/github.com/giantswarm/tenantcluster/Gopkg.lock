@@ -70,7 +70,7 @@
     "pkg/clientset/versioned/typed/example/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1"
   ]
-  revision = "3363bbdc5c73af6e838b75106b9b41b730501279"
+  revision = "111e3c8bf5b33f0ba733d33bc721e5bab29da0a3"
 
 [[projects]]
   branch = "master"
@@ -82,7 +82,7 @@
   branch = "master"
   name = "github.com/giantswarm/certs"
   packages = ["."]
-  revision = "4bf2b99ebf79cb800cb21ec1a4541e6582e3a0b7"
+  revision = "98bddd6005f6ac728b43f0ef8cf81e7756792a93"
 
 [[projects]]
   branch = "master"
@@ -281,7 +281,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "610586996380ceef02dd726cc09df7e00a3f8e56"
+  revision = "e147a9138326bc0e9d4e179541ffd8af41cff8a9"
 
 [[projects]]
   branch = "master"
@@ -290,7 +290,7 @@
     "unix",
     "windows"
   ]
-  revision = "73d4af5aa059c8c2dfcf25aad4efd6ce7bc9adc1"
+  revision = "4d1cda033e0619309c606fc686de3adcf599539e"
 
 [[projects]]
   name = "golang.org/x/text"
