@@ -156,7 +156,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/apprclient"
-  packages = ["."]
+  packages = [
+    ".",
+    "apprclienttest"
+  ]
   revision = "4615b197120e48c20818898c04df0845b0bf15c9"
 
 [[projects]]
@@ -211,7 +214,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/helmclient"
-  packages = ["."]
+  packages = [
+    ".",
+    "helmclienttest"
+  ]
   revision = "7a869f5a3c2d014a10867caae578881d622628ff"
 
 [[projects]]
@@ -1010,6 +1016,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "006b5fddc25fae79b5f43ae63953b7a7070813e8b311c6e4f164683922887fd2"
+  inputs-digest = "c908e2c647bdf0bbd40c63ae31de4ff71cfb822c59d4dcae3d60ac67855dc87a"
   solver-name = "gps-cdcl"
   solver-version = 1
