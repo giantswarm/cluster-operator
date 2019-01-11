@@ -9,20 +9,20 @@ import (
 	"k8s.io/helm/pkg/helm"
 )
 
-type guestMock struct {
-	fakeGuestG8sClient  versioned.Interface
-	fakeGuestHelmClient helmclient.Interface
-	fakeGuestK8sClient  kubernetes.Interface
+type tenantMock struct {
+	fakeTenantG8sClient  versioned.Interface
+	fakeTenantHelmClient helmclient.Interface
+	fakeTenantK8sClient  kubernetes.Interface
 }
 
-func (g *guestMock) NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
-	return g.fakeGuestG8sClient, nil
+func (g *tenantMock) NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
+	return g.fakeTenantG8sClient, nil
 }
-func (g *guestMock) NewHelmClient(ctx context.Context, clusterID, apiDomain string) (helmclient.Interface, error) {
-	return g.fakeGuestHelmClient, nil
+func (g *tenantMock) NewHelmClient(ctx context.Context, clusterID, apiDomain string) (helmclient.Interface, error) {
+	return g.fakeTenantHelmClient, nil
 }
-func (g *guestMock) NewK8sClient(ctx context.Context, clusterID, apiDomain string) (kubernetes.Interface, error) {
-	return g.fakeGuestK8sClient, nil
+func (g *tenantMock) NewK8sClient(ctx context.Context, clusterID, apiDomain string) (kubernetes.Interface, error) {
+	return g.fakeTenantK8sClient, nil
 }
 
 type helmMock struct {
@@ -67,8 +67,16 @@ func (h *helmMock) ListReleaseContents(ctx context.Context) ([]*helmclient.Relea
 	return nil, nil
 }
 
+func (h *helmMock) LoadChart(ctx context.Context, chartPath string) (helmclient.Chart, error) {
+	return helmclient.Chart{}, nil
+}
+
 func (h *helmMock) PingTiller(ctx context.Context) error {
 	return nil
+}
+
+func (h *helmMock) PullChartTarball(ctx context.Context, tarballURL string) (string, error) {
+	return "", nil
 }
 
 func (h *helmMock) RunReleaseTest(ctx context.Context, releaseName string, options ...helm.ReleaseTestOption) error {

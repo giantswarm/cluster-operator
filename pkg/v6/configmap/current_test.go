@@ -403,13 +403,13 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				objs = append(objs, cc)
 			}
 
-			fakeGuestK8sClient := fake.NewSimpleClientset(objs...)
-			guestService := &guestMock{
-				fakeGuestK8sClient: fakeGuestK8sClient,
+			fakeTenantK8sClient := fake.NewSimpleClientset(objs...)
+			tenantService := &tenantMock{
+				fakeTenantK8sClient: fakeTenantK8sClient,
 			}
 
 			c := Config{
-				Tenant:         guestService,
+				Tenant:         tenantService,
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",

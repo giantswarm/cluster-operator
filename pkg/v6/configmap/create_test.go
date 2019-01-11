@@ -155,7 +155,7 @@ func Test_ConfigMap_newCreateChange(t *testing.T) {
 	}
 
 	c := Config{
-		Tenant:         &guestMock{},
+		Tenant:         &tenantMock{},
 		Logger:         microloggertest.New(),
 		ProjectName:    "cluster-operator",
 		RegistryDomain: "quay.io",
