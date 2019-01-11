@@ -7,6 +7,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/apprclient/apprclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/spf13/afero"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -37,8 +39,12 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 		},
 	}
 
-	apprClient := &apprMock{
-		defaultReleaseVersion: "0.1.2",
+	var apprClient apprclient.Interface
+	{
+		c := apprclienttest.Config{
+			DefaultReleaseVersion: "0.1.2",
+		}
+		apprClient = apprclienttest.New(c)
 	}
 
 	for _, tc := range testCases {

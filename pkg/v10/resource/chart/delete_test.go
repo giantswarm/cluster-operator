@@ -7,6 +7,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/apprclient/apprclienttest"
+	"github.com/giantswarm/helmclient/helmclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/spf13/afero"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -76,10 +78,10 @@ func Test_Resource_Chart_newDelete(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			helmClient := &helmMock{}
+			helmClient := helmclienttest.New(helmclienttest.Config{})
 
 			c := Config{
-				ApprClient: &apprMock{},
+				ApprClient: apprclienttest.New(apprclienttest.Config{}),
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
