@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"sync"
@@ -284,9 +285,9 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.AWSClusterController.Boot()
-		go s.AzureClusterController.Boot()
-		go s.KVMClusterController.Boot()
+		go s.AWSClusterController.Boot(context.Background())
+		go s.AzureClusterController.Boot(context.Background())
+		go s.KVMClusterController.Boot(context.Background())
 	})
 }
 
