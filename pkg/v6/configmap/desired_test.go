@@ -514,8 +514,8 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				Tenant: &guestMock{
-					fakeGuestHelmClient: helmClient,
+				Tenant: &tenantMock{
+					fakeTenantHelmClient: helmClient,
 				},
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",

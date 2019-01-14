@@ -15,6 +15,10 @@ type apprMock struct {
 	defaultError          bool
 }
 
+func (a *apprMock) DeleteRelease(ctx context.Context, name, channel string) error {
+	return nil
+}
+
 func (a *apprMock) GetReleaseVersion(ctx context.Context, name, channel string) (string, error) {
 	if a.defaultError {
 		return "", fmt.Errorf("error getting default release")
@@ -23,12 +27,20 @@ func (a *apprMock) GetReleaseVersion(ctx context.Context, name, channel string) 
 	return a.defaultReleaseVersion, nil
 }
 
+func (a *apprMock) PromoteChart(ctx context.Context, name, release, channel string) error {
+	return nil
+}
+
 func (a *apprMock) PullChartTarball(ctx context.Context, name, channel string) (string, error) {
 	return "", nil
 }
 
 func (a *apprMock) PullChartTarballFromRelease(ctx context.Context, name, release string) (string, error) {
 	return "", nil
+}
+
+func (a *apprMock) PushChartTarball(ctx context.Context, name, release, tarballPath string) error {
+	return nil
 }
 
 type guestMock struct {
@@ -89,8 +101,16 @@ func (h *helmMock) ListReleaseContents(ctx context.Context) ([]*helmclient.Relea
 	return nil, nil
 }
 
+func (h *helmMock) LoadChart(ctx context.Context, chartPath string) (helmclient.Chart, error) {
+	return helmclient.Chart{}, nil
+}
+
 func (h *helmMock) PingTiller(ctx context.Context) error {
 	return nil
+}
+
+func (h *helmMock) PullChartTarball(ctx context.Context, tarballURL string) (string, error) {
+	return "", nil
 }
 
 func (h *helmMock) RunReleaseTest(ctx context.Context, releaseName string, options ...helm.ReleaseTestOption) error {

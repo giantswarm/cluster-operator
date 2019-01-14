@@ -8,7 +8,9 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/apprclient/apprclienttest"
 	"github.com/giantswarm/helmclient"
+	"github.com/giantswarm/helmclient/helmclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/spf13/afero"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -105,14 +107,18 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			helmClient := &helmMock{
-				defaultReleaseContent: tc.releaseContent,
-				defaultReleaseHistory: tc.releaseHistory,
-				defaultError:          tc.helmError,
+			var helmClient helmclient.Interface
+			{
+				c := helmclienttest.Config{
+					DefaultReleaseContent: tc.releaseContent,
+					DefaultReleaseHistory: tc.releaseHistory,
+					DefaultError:          tc.helmError,
+				}
+				helmClient = helmclienttest.New(c)
 			}
 
 			c := Config{
-				ApprClient: &apprMock{},
+				ApprClient: apprclienttest.New(apprclienttest.Config{}),
 				BaseClusterConfig: cluster.Config{
 					ClusterID: "test-cluster",
 				},
