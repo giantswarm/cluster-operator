@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "<replace me>",
-				Description: "<replace me>",
+				Component:   "kube-state-metrics",
+				Description: "Updated to 1.5.0. More info here: https://github.com/kubernetes/kube-state-metrics/blob/v1.5.0/CHANGELOG.md",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -20,7 +20,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "kube-state-metrics",
-				Version: "1.3.1",
+				Version: "1.5.0",
 			},
 			{
 				Name:    "nginx-ingress-controller",
