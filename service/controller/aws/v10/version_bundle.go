@@ -17,6 +17,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Updated to 1.5.0. More info here: https://github.com/kubernetes/kube-state-metrics/blob/v1.5.0/CHANGELOG.md",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Added addon resizer. More info https://github.com/kubernetes/autoscaler/blob/master/addon-resizer/README.md",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
