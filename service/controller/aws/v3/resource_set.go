@@ -223,9 +223,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		metricsWrapConfig := metricsresource.WrapConfig{}
-
-		metricsWrapConfig.Name = config.ProjectName
-
 		resources, err = metricsresource.Wrap(resources, metricsWrapConfig)
 		if err != nil {
 			return nil, microerror.Mask(err)
