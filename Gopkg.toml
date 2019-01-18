@@ -44,7 +44,7 @@ required = [
   name = "github.com/docker/distribution"
 
 [[constraint]]
-  branch = "kubernetes-1.13.2"
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
@@ -56,7 +56,7 @@ required = [
   name = "github.com/giantswarm/backoff"
 
 [[constraint]]
-  branch = "kubernetes-1.13.2"
+  branch = "master"
   name = "github.com/giantswarm/e2e-harness"
 
 [[constraint]]
@@ -72,7 +72,7 @@ required = [
   name = "github.com/giantswarm/errors"
 
 [[constraint]]
-  branch = "kubernetes-1.13.2"
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
@@ -96,11 +96,11 @@ required = [
   name = "github.com/giantswarm/micrologger"
 
 [[constraint]]
-  branch = "kubernetes-1.13.2"
+  branch = "master"
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
-  branch = "kubernetes-1.13.2"
+  branch = "master"
   name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
