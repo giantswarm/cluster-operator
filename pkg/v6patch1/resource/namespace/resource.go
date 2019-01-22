@@ -13,12 +13,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v6/key"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "namespacev6"
+	Name = "namespacev6patch1"
 
 	namespaceName = "giantswarm"
 )
@@ -65,10 +65,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		baseClusterConfig:        config.BaseClusterConfig,
-		logger:                   config.Logger,
-		projectName:              config.ProjectName,
-		tenant:                   config.Tenant,
+		baseClusterConfig: config.BaseClusterConfig,
+		logger:            config.Logger,
+		projectName:       config.ProjectName,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}

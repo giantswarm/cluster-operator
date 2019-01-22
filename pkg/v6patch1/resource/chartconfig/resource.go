@@ -12,12 +12,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v6/key"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartconfigv6"
+	Name = "chartconfigv6patch1"
 
 	// resourceNamespace is the resource where the chartconfig CRs are created.
 	resourceNamespace = "giantswarm"
@@ -75,13 +75,13 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		baseClusterConfig:        config.BaseClusterConfig,
-		g8sClient:                config.G8sClient,
-		k8sClient:                config.K8sClient,
-		logger:                   config.Logger,
-		projectName:              config.ProjectName,
-		provider:                 config.Provider,
-		tenant:                   config.Tenant,
+		baseClusterConfig: config.BaseClusterConfig,
+		g8sClient:         config.G8sClient,
+		k8sClient:         config.K8sClient,
+		logger:            config.Logger,
+		projectName:       config.ProjectName,
+		provider:          config.Provider,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 

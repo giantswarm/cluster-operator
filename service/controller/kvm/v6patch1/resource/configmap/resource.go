@@ -7,12 +7,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/pkg/v6/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/configmap"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "configmapv6"
+	Name = "configmapv6patch1"
 )
 
 // Config represents the configuration used to create a new chart config resource.

@@ -7,9 +7,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v6/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v6/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v6/key"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
