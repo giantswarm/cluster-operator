@@ -1,4 +1,4 @@
-package v6
+package v6patch1
 
 import (
 	"context"
@@ -19,16 +19,16 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v6/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chart"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/clustercr"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v6/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6/resource/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6/resource/kvmconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v6patch1/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/resource/clustercr"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v6patch1/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1/resource/kvmconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
