@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v4"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v5"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7patch1"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
@@ -198,6 +199,26 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v6patch1ResourceSet *controller.ResourceSet
+	{
+		c := v6patch1.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+		}
+
+		v6patch1ResourceSet, err = v6patch1.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var v7ResourceSet *controller.ResourceSet
 	{
 		c := v7.ResourceSetConfig{
@@ -332,6 +353,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v4ResourceSet,
 				v5ResourceSet,
 				v6ResourceSet,
+				v6patch1ResourceSet,
 				v7ResourceSet,
 				v7patch1ResourceSet,
 				v8ResourceSet,
