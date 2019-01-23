@@ -165,7 +165,7 @@ func newExternalDNSChartConfig(clusterConfig cluster.Config, projectName string)
 
 func (r *Resource) newKubeStateMetricsChartConfig(ctx context.Context, clusterConfig cluster.Config, projectName string) (*v1alpha1.ChartConfig, error) {
 	chartName := "kubernetes-kube-state-metrics-chart"
-	channelName := "0-2-stable"
+	channelName := "0-1-stable"
 	configMapName := "kube-state-metrics-values"
 	releaseName := "kube-state-metrics"
 	labels := newChartConfigLabels(clusterConfig, releaseName, projectName)
