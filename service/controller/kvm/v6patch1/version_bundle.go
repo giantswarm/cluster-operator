@@ -32,11 +32,21 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Updated to 0.15.0.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Updated to 1.5.0. More info here: https://github.com/kubernetes/kube-state-metrics/blob/v1.5.0/CHANGELOG.md",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Added addon resizer. More info https://github.com/kubernetes/autoscaler/blob/master/addon-resizer/README.md",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "kube-state-metrics",
-				Version: "1.3.1",
+				Version: "1.5.0",
 			},
 			{
 				Name:    "nginx-ingress-controller",
@@ -49,6 +59,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "kvm",
-		Version:  "0.6.0",
+		Version:  "0.6.1",
 	}
 }
