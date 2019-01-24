@@ -26,6 +26,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v7"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v7patch1"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v7patch2"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v8"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v9"
 )
@@ -251,6 +252,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v7patch2ResourceSet *controller.ResourceSet
+	{
+		c := v7patch2.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v7patch2ResourceSet, err = v7patch2.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var v8ResourceSet *controller.ResourceSet
 	{
 		c := v8.ResourceSetConfig{
@@ -339,6 +364,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v6ResourceSet,
 				v7ResourceSet,
 				v7patch1ResourceSet,
+				v7patch2ResourceSet,
 				v8ResourceSet,
 				v9ResourceSet,
 				v10ResourceSet,
