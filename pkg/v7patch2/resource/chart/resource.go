@@ -15,12 +15,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch2/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartv7"
+	Name = "chartv7patch2"
 
 	chartOperatorChart         = "chart-operator-chart"
 	chartOperatorChannel       = "0-3-stable"

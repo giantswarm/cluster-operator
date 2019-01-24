@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7patch1/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v7patch1/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v7patch1/key"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch2/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch2/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v7patch2/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
