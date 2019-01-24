@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/cluster-operator/pkg/v7/key"
+	"github.com/giantswarm/cluster-operator/pkg/v7patch2/key"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"

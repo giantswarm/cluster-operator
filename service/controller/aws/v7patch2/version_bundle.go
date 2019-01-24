@@ -1,4 +1,4 @@
-package v7patch1
+package v7patch2
 
 import (
 	"github.com/giantswarm/versionbundle"
