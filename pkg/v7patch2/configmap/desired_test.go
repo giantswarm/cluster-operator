@@ -298,7 +298,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 				Name:      "test-app-values",
 				Namespace: metav1.NamespaceSystem,
 				Labels: map[string]string{
-					"app": "test-app",
+					"app":                   "test-app",
 					"giantswarm.io/cluster": "5xchu",
 				},
 			},
@@ -307,7 +307,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 					Name:      "test-app-values",
 					Namespace: metav1.NamespaceSystem,
 					Labels: map[string]string{
-						"app": "test-app",
+						"app":                   "test-app",
 						"giantswarm.io/cluster": "5xchu",
 					},
 				},
@@ -321,7 +321,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 				Name:      "test-app-values",
 				Namespace: metav1.NamespaceSystem,
 				Labels: map[string]string{
-					"app": "test-app",
+					"app":                   "test-app",
 					"giantswarm.io/cluster": "5xchu",
 				},
 				ValuesJSON: "{\"image\":{\"registry\":\"quay.io\"}}",
@@ -331,7 +331,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 					Name:      "test-app-values",
 					Namespace: metav1.NamespaceSystem,
 					Labels: map[string]string{
-						"app": "test-app",
+						"app":                   "test-app",
 						"giantswarm.io/cluster": "5xchu",
 					},
 				},
