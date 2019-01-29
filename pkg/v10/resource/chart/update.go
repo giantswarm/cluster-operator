@@ -27,7 +27,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			if tenantcluster.IsTimeout(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 
-				// A not found error here means that the cluster-operator certificate
+				// A timeout error here means that the cluster-operator certificate
 				// for the current guest cluster was not found. We can't continue
 				// without a Helm client. We will retry during the next execution, when
 				// the certificate might be available.
