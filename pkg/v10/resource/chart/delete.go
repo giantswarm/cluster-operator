@@ -19,50 +19,57 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		return microerror.Mask(err)
 	}
 
-	tenantHelmClient, err := r.getTenantHelmClient(ctx, obj)
-	if tenantcluster.IsTimeout(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a Helm client for the guest cluster")
-
-		// A not found error here means that the cluster-operator certificate for
-		// the current guest cluster was not found. We can't continue without a Helm
-		// client. We will retry during the next execution, when the certificate
-		// might be available.
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil
-	} else if helmclient.IsTillerInstallationFailed(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
-
-		// Tiller installation can fail during guest cluster setup. We will retry
-		// on next reconciliation loop.
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil
-	} else if guest.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "Guest API not available.")
-
-		// We should not hammer guest API if it is not available, the guest cluster
-		// might be initializing. We will retry on next reconciliation loop.
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
-	}
-
 	if deleteState.ReleaseName != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting chart-operator chart")
+		var tenantHelmClient helmclient.Interface
+		{
+			tenantHelmClient, err = r.getTenantHelmClient(ctx, obj)
+			if tenantcluster.IsTimeout(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 
-		tenantHelmClient.DeleteRelease(ctx, deleteState.ReleaseName, helm.DeletePurge(true))
-		if err != nil {
-			return microerror.Mask(err)
+				// A timeout error here means that the cluster-operator certificate
+				// for the current guest cluster was not found. We can't continue
+				// without a Helm client. We will retry during the next execution, when
+				// the certificate might be available.
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+				resourcecanceledcontext.SetCanceled(ctx)
+
+				return nil
+			} else if helmclient.IsTillerInstallationFailed(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
+
+				// Tiller installation can fail during guest cluster setup. We will
+				// retry on next reconciliation loop.
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+				resourcecanceledcontext.SetCanceled(ctx)
+
+				return nil
+			} else if guest.IsAPINotAvailable(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
+
+				// We should not hammer guest API if it is not available, the guest
+				// cluster might be initializing. We will retry on next reconciliation
+				// loop.
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+				resourcecanceledcontext.SetCanceled(ctx)
+
+				return nil
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
 		}
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted chart-operator chart")
+
+		{
+			r.logger.LogCtx(ctx, "level", "debug", "message", "deleting chart-operator chart")
+
+			tenantHelmClient.DeleteRelease(ctx, deleteState.ReleaseName, helm.DeletePurge(true))
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "deleted chart-operator chart")
+		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "not deleting chart-operator chart")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete chart-operator chart")
 	}
 
 	return nil
