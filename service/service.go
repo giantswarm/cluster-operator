@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -25,7 +24,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
-	"github.com/giantswarm/cluster-operator/service/healthz"
 )
 
 const (
@@ -52,7 +50,6 @@ type Config struct {
 type Service struct {
 	AWSClusterController   *aws.Cluster
 	AzureClusterController *azure.Cluster
-	Healthz                *healthz.Service
 	KVMClusterController   *kvm.Cluster
 	Version                *version.Service
 
@@ -61,19 +58,11 @@ type Service struct {
 
 // New creates a new service with given configuration.
 func New(config Config) (*Service, error) {
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Logger must not be empty")
-	}
-	config.Logger.Log("level", "debug", "message", fmt.Sprintf("creating cluster-operator gitCommit:%s", config.GitCommit))
-
 	if config.Flag == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Flag must not be empty")
-	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
 	}
 	if config.Viper == nil {
-		return nil, microerror.Maskf(invalidConfigError, "config.Viper must not be empty")
+		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
 	}
 
 	var err error
@@ -210,19 +199,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var healthzService *healthz.Service
-	{
-		c := healthz.Config{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
-		}
-
-		healthzService, err = healthz.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var kvmClusterController *kvm.Cluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -272,7 +248,6 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		AWSClusterController:   awsClusterController,
 		AzureClusterController: azureClusterController,
-		Healthz:                healthzService,
 		KVMClusterController:   kvmClusterController,
 		Version:                versionService,
 
