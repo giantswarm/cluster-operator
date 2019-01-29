@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
 )
 
@@ -20,19 +21,31 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 
-			// We can't continue without a Helm client. We will retry during the next
-			// execution.
+			// A timeout error here means that the cluster-operator certificate for
+			// the current guest cluster was not found. We can't continue without a
+			// Helm client. We will retry during the next execution, when the
+			// certificate might be available.
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			reconciliationcanceledcontext.SetCanceled(ctx)
+			resourcecanceledcontext.SetCanceled(ctx)
+
+			return nil, nil
+		} else if helmclient.IsTillerInstallationFailed(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
+
+			// Tiller installation can fail during guest cluster setup. We will retry
+			// on next reconciliation loop.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
 
 			return nil, nil
 		} else if guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
 
-			// We can't continue without a successful K8s connection. Cluster may not
-			// be up yet. We will retry during the next execution.
+			// We should not hammer guest API if it is not available, the guest
+			// cluster might be initializing. We will retry on next reconciliation
+			// loop.
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			reconciliationcanceledcontext.SetCanceled(ctx)
+			resourcecanceledcontext.SetCanceled(ctx)
 
 			return nil, nil
 		} else if err != nil {
