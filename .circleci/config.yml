@@ -47,26 +47,26 @@ jobs:
         - ./cluster-operator
         - ./architect
 
-  e2eTestCurrentPR:
-    environment:
-      TESTED_VERSION: current
-    <<: *e2eTest
-
-  e2eTestCurrentMaster:
-    environment:
-      TESTED_VERSION: current
-    <<: *e2eTest
-
-  e2eTestWIPPR:
-    environment:
-      TESTED_VERSION: wip
-    <<: *e2eTest
-
-  e2eTestWIPMaster:
-    environment:
-      TESTED_VERSION: wip
-    <<: *e2eTest
-
+#  e2eTestCurrentPR:
+#    environment:
+#      TESTED_VERSION: current
+#    <<: *e2eTest
+# 
+#  e2eTestCurrentMaster:
+#    environment:
+#      TESTED_VERSION: current
+#    <<: *e2eTest
+# 
+#  e2eTestWIPPR:
+#    environment:
+#      TESTED_VERSION: wip
+#    <<: *e2eTest
+# 
+#  e2eTestWIPMaster:
+#    environment:
+#      TESTED_VERSION: wip
+#    <<: *e2eTest
+# 
   deploy:
     machine: true
     steps:
@@ -91,25 +91,25 @@ workflows:
           requires:
           - build
 
-      - e2eTestCurrentPR:
-          requires:
-          - hold
-      - e2eTestWIPPR:
-          requires:
-          - hold
-
-      - e2eTestCurrentMaster:
-          filters:
-            branches:
-              only: master
-          requires:
-          - build
-      - e2eTestWIPMaster:
-          filters:
-            branches:
-              only: master
-          requires:
-          - build
+#     - e2eTestCurrentPR:
+#         requires:
+#         - hold
+#     - e2eTestWIPPR:
+#         requires:
+#         - hold
+#
+#     - e2eTestCurrentMaster:
+#         filters:
+#           branches:
+#             only: master
+#         requires:
+#         - build
+#     - e2eTestWIPMaster:
+#         filters:
+#           branches:
+#             only: master
+#         requires:
+#         - build
 
       - deploy:
           filters:
