@@ -44,6 +44,10 @@ func VersionBundle() versionbundle.Bundle {
 				Name:    "cluster-autoscaler",
 				Version: "1.3.1",
 			},
+			{
+				Name:    "metrics-server",
+				Version: "0.3.1",
+			},
 		},
 		Name:     "cluster-operator",
 		Provider: "aws",

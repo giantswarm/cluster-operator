@@ -34,6 +34,10 @@ func VersionBundle() versionbundle.Bundle {
 				Name:    "coredns",
 				Version: "1.1.1",
 			},
+			{
+				Name:    "metrics-server",
+				Version: "0.3.1",
+			},
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
