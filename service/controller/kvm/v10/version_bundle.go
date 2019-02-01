@@ -30,6 +30,10 @@ func VersionBundle() versionbundle.Bundle {
 				Name:    "node-exporter",
 				Version: "0.15.1",
 			},
+			{
+				Name:    "metrics-server",
+				Version: "0.3.1",
+			},
 		},
 		Name:     "cluster-operator",
 		Provider: "kvm",
