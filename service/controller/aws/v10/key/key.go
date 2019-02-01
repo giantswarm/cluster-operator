@@ -23,7 +23,7 @@ func ChartSpecs() []key.ChartSpec {
 		},
 		{
 			AppName:           "cluster-autoscaler",
-			ChannelName:       "0-1-stable",
+			ChannelName:       "wip-e35b5a9649ff3b3b58529395f350a8f028b47e8b",
 			ChartName:         "kubernetes-cluster-autoscaler-chart",
 			ConfigMapName:     "cluster-autoscaler-values",
 			Namespace:         metav1.NamespaceSystem,
