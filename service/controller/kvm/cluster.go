@@ -15,18 +15,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v1"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v2"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v3"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v4"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v5"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
+	v10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
+	v6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
+	v7 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
+	v8 "github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
+	v9 "github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -81,99 +76,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 
 		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v1ResourceSet *controller.ResourceSet
-	{
-		c := v1.ResourceSetConfig{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ProjectName: config.ProjectName,
-		}
-
-		v1ResourceSet, err = v1.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v2ResourceSet *controller.ResourceSet
-	{
-		c := v2.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-		}
-
-		v2ResourceSet, err = v2.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v3ResourceSet *controller.ResourceSet
-	{
-		c := v3.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-		}
-
-		v3ResourceSet, err = v3.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v4ResourceSet *controller.ResourceSet
-	{
-		c := v4.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-		}
-
-		v4ResourceSet, err = v4.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v5ResourceSet *controller.ResourceSet
-	{
-		c := v5.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
-		}
-
-		v5ResourceSet, err = v5.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -347,11 +249,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v1ResourceSet,
-				v2ResourceSet,
-				v3ResourceSet,
-				v4ResourceSet,
-				v5ResourceSet,
 				v6ResourceSet,
 				v6patch1ResourceSet,
 				v7ResourceSet,
