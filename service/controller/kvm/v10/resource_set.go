@@ -23,6 +23,7 @@ import (
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v10/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v10/resource/chartconfigcrd"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10/key"
@@ -230,6 +231,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var chartConfigCRDResource controller.Resource
+	{
+		c := chartconfigcrd.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			Logger:                   config.Logger,
+			Tenant:                   tenantClusterService,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		chartConfigCRDResource, err = chartconfigcrd.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartConfigService chartconfigservice.Interface
 	{
 		c := chartconfigservice.Config{
@@ -277,6 +293,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		namespaceResource,
 		chartResource,
 		configMapResource,
+		chartConfigCRDResource,
 		chartConfigResource,
 	}
 
