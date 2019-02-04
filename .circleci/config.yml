@@ -26,6 +26,12 @@ e2eTest: &e2eTest
         command: ./e2e-harness teardown
         when: always
 
+#
+# E2E tests are currently disabled until they get updated to working order.
+#
+# TODO: https://github.com/giantswarm/giantswarm/issues/4573
+# 
+
 version: 2
 jobs:
   build:
