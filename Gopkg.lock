@@ -214,11 +214,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1e16a7526d736fa830ddc9934746d1c33cba75d8f07a3421b0f4a5df82d9afa7"
+  digest = "1:2f7c9bf12339fa91c6dca789831bd916d981d7482b6a437d9a679e0fecc684bf"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   pruneopts = "UT"
-  revision = "fa33cb56aee232aee5d6bb4d954846c21952d206"
+  revision = "f0fb2f61d78e06f2d1e17f940fd782b92bf29642"
 
 [[projects]]
   branch = "master"
@@ -475,11 +475,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d65333639061503b8593da0999cbeb634e706e328113dc2d623ebbf15867eb2a"
+  digest = "1:0c319c6984a4ebc10318e02005e5244642a28ec5d3d9c636f41c99bb8405842f"
   name = "github.com/google/go-github"
   packages = ["github"]
   pruneopts = "UT"
-  revision = "b11636a44a13a76fb97efe905e3c49d219da29af"
+  revision = "94cd03c0c0b858a66ea286baedd59e66ef3f21dd"
 
 [[projects]]
   digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
@@ -527,14 +527,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:86c1210529e69d69860f2bb3ee9ccce0b595aa3f9165e7dd1388e5c612915888"
+  digest = "1:b4395b2a4566c24459af3d04009b39cc21762fc77ec7bf7a1aa905c91e8f018d"
   name = "github.com/gregjones/httpcache"
   packages = [
     ".",
     "diskcache",
   ]
   pruneopts = "UT"
-  revision = "c63ab54fda8f77302f8d414e19933f2b6026a089"
+  revision = "7a902570cb17174de4ac788094f8ebedec136f57"
 
 [[projects]]
   digest = "1:8ec8d88c248041a6df5f6574b87bc00e7e0b493881dad2e7ef47b11dc69093b5"
@@ -744,7 +744,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "316cf8ccfec56d206735d46333ca162eb374da8b"
+  revision = "488faf799f863e27e50c516468f76ae8f1da20a5"
 
 [[projects]]
   digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
@@ -848,14 +848,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7941e2f16c0833b438cbef7fccfe4f8346f9f7876b42b29717a75d7e8c4800cb"
+  digest = "1:44b10545049ca2aa524f2985e88854f0e51fa4a1f0ff0b6b98cbfeb7ae3d2837"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "2970a3744de33489e46eba373c73655bc2377116"
+  revision = "980327fe3c65509adaad5a9ff06abdf7611b4411"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -910,7 +910,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "8ac453e89fca495c0d17f98932642f392e2a11f3"
+  revision = "4b09977fb92221987e99d190c8f88f2c92727a29"
 
 [[projects]]
   digest = "1:6dfe7f3314a390dc9e21368dd41236169bf40ae69674f42b7bd45db537751a94"
@@ -1251,7 +1251,7 @@
   name = "k8s.io/kube-openapi"
   packages = ["pkg/util/proto"]
   pruneopts = "UT"
-  revision = "d8b685cd2daadc40121e864b5e87ca8ededd9eed"
+  revision = "df6fb93e6113444363da4c5607b40ab20dd1f3db"
 
 [[projects]]
   digest = "1:7719608fe0b52a4ece56c2dde37bedd95b938677d1ab0f84b8a7852e4c59f849"
