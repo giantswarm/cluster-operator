@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	apiv1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -79,7 +80,7 @@ func Test_Resource_Namespace_newCreateChange(t *testing.T) {
 				},
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
-				Tenant: tenantclustertest.New(tenantcluster.Config{}),
+				Tenant:      tenantclustertest.New(tenantclustertest.Config{}),
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
