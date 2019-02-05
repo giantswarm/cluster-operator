@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -193,7 +194,7 @@ func Test_ChartConfig_newDeleteChangeForDeletePatch(t *testing.T) {
 
 	c := Config{
 		Logger: microloggertest.New(),
-		Tenant: &tenantMock{},
+		Tenant: tenantclustertest.New(tenantclustertest.Config{}),
 
 		ProjectName: "cluster-operator",
 	}
@@ -316,7 +317,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 
 	c := Config{
 		Logger: microloggertest.New(),
-		Tenant: &tenantMock{},
+		Tenant: tenantclustertest.New(tenantclustertest.Config{}),
 
 		ProjectName: "cluster-operator",
 	}

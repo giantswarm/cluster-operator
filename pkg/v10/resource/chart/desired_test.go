@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/apprclient/apprclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	"github.com/spf13/afero"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
@@ -61,7 +62,7 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
-				Tenant:         &tenantMock{},
+				Tenant:         tenantclustertest.New(tenantclustertest.Config{}),
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

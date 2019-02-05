@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -404,14 +406,18 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 				objs = append(objs, cc)
 			}
 
-			fakeTenantK8sClient := fake.NewSimpleClientset(objs...)
-			tenantService := &tenantMock{
-				fakeTenantK8sClient: fakeTenantK8sClient,
+			var tenantCluster tenantcluster.Interface
+			{
+				c := tenantclustertest.Config{
+					K8sClient: fake.NewSimpleClientset(objs...),
+				}
+
+				tenantCluster = tenantclustertest.New(c)
 			}
 
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: tenantService,
+				Tenant: tenantCluster,
 
 				ProjectName: "cluster-operator",
 			}

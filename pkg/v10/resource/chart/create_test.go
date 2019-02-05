@@ -8,8 +8,8 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/apprclient/apprclienttest"
-	"github.com/giantswarm/helmclient/helmclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	"github.com/spf13/afero"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
@@ -78,8 +78,6 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			helmClient := helmclienttest.New(helmclienttest.Config{})
-
 			c := Config{
 				ApprClient: apprclienttest.New(apprclienttest.Config{}),
 				BaseClusterConfig: cluster.Config{
@@ -92,9 +90,7 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
-				Tenant: &tenantMock{
-					fakeTenantHelmClient: helmClient,
-				},
+				Tenant:         tenantclustertest.New(tenantclustertest.Config{}),
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

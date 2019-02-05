@@ -79,7 +79,7 @@ func Test_Resource_Namespace_newCreateChange(t *testing.T) {
 				},
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
-				Tenant:      &tenantMock{},
+				Tenant: tenantclustertest.New(tenantcluster.Config{}),
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
