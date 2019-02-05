@@ -26,6 +26,12 @@ e2eTest: &e2eTest
         command: ./e2e-harness teardown
         when: always
 
+#
+# E2E tests are currently disabled until they get updated to working order.
+#
+# TODO: https://github.com/giantswarm/giantswarm/issues/4573
+# 
+
 version: 2
 jobs:
   build:
@@ -47,26 +53,26 @@ jobs:
         - ./cluster-operator
         - ./architect
 
-  e2eTestCurrentPR:
-    environment:
-      TESTED_VERSION: current
-    <<: *e2eTest
-
-  e2eTestCurrentMaster:
-    environment:
-      TESTED_VERSION: current
-    <<: *e2eTest
-
-  e2eTestWIPPR:
-    environment:
-      TESTED_VERSION: wip
-    <<: *e2eTest
-
-  e2eTestWIPMaster:
-    environment:
-      TESTED_VERSION: wip
-    <<: *e2eTest
-
+#  e2eTestCurrentPR:
+#    environment:
+#      TESTED_VERSION: current
+#    <<: *e2eTest
+# 
+#  e2eTestCurrentMaster:
+#    environment:
+#      TESTED_VERSION: current
+#    <<: *e2eTest
+# 
+#  e2eTestWIPPR:
+#    environment:
+#      TESTED_VERSION: wip
+#    <<: *e2eTest
+# 
+#  e2eTestWIPMaster:
+#    environment:
+#      TESTED_VERSION: wip
+#    <<: *e2eTest
+# 
   deploy:
     machine: true
     steps:
@@ -77,45 +83,45 @@ jobs:
 
     - run: ./architect deploy
 
-workflows:
-  version: 2
-  build_e2e:
-    jobs:
-      - build
-
-      - hold:
-          type: approval
-          filters:
-            branches:
-              ignore: master
-          requires:
-          - build
-
-      - e2eTestCurrentPR:
-          requires:
-          - hold
-      - e2eTestWIPPR:
-          requires:
-          - hold
-
-      - e2eTestCurrentMaster:
-          filters:
-            branches:
-              only: master
-          requires:
-          - build
-      - e2eTestWIPMaster:
-          filters:
-            branches:
-              only: master
-          requires:
-          - build
-
-      - deploy:
-          filters:
-            branches:
-              only: master
-          requires:
-          #- e2eTestCurrentMaster
-          #- e2eTestWIPMaster
-          - build
+#workflows:
+# version: 2
+# build_e2e:
+#   jobs:
+#     - build
+#
+#     - hold:
+#         type: approval
+#         filters:
+#           branches:
+#             ignore: master
+#         requires:
+#         - build
+#
+#     - e2eTestCurrentPR:
+#         requires:
+#         - hold
+#     - e2eTestWIPPR:
+#         requires:
+#         - hold
+#
+#     - e2eTestCurrentMaster:
+#         filters:
+#           branches:
+#             only: master
+#         requires:
+#         - build
+#     - e2eTestWIPMaster:
+#         filters:
+#           branches:
+#             only: master
+#         requires:
+#         - build
+#
+#     - deploy:
+#         filters:
+#           branches:
+#             only: master
+#         requires:
+#         #- e2eTestCurrentMaster
+#         #- e2eTestWIPMaster
+#         - build
