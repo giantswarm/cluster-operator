@@ -300,13 +300,10 @@
   revision = "a1aa0b72cce3bb752ca8e5097dc84f97cf4cbbf7"
 
 [[projects]]
-  branch = "k8s-ext-client"
+  branch = "master"
   name = "github.com/giantswarm/tenantcluster"
-  packages = [
-    ".",
-    "tenantclustertest"
-  ]
-  revision = "fbedf5898c66356378353f1c51b0abbbeca384bf"
+  packages = ["."]
+  revision = "23c4fe96c832ee78860e851628359368d6a2a3b7"
 
 [[projects]]
   branch = "master"
@@ -1065,6 +1062,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "29e9607fa56f5646b37bd0844df590eb7fedd30f205a78a816a4d37600d79df4"
+  inputs-digest = "bb7acffef8e966ddcd8b3282a313a784e17ad8fabba4428af5dd349c15e307ed"
   solver-name = "gps-cdcl"
   solver-version = 1
