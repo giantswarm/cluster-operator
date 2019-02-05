@@ -15,13 +15,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v10"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v4"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v6"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v7"
+	v10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
+	v6 "github.com/giantswarm/cluster-operator/service/controller/azure/v6"
+	v7 "github.com/giantswarm/cluster-operator/service/controller/azure/v7"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v7patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v8"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v9"
+	v8 "github.com/giantswarm/cluster-operator/service/controller/azure/v8"
+	v9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -76,25 +75,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 
 		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v4ResourceSet *controller.ResourceSet
-	{
-		c := v4.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-		}
-
-		v4ResourceSet, err = v4.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -248,7 +228,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v4ResourceSet,
 				v6ResourceSet,
 				v7ResourceSet,
 				v7patch1ResourceSet,
