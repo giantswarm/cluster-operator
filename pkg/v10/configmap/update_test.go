@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/giantswarm/micrologger/microloggertest"
-	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -303,7 +302,7 @@ func Test_ConfigMap_newUpdateChange(t *testing.T) {
 
 	c := Config{
 		Logger: microloggertest.New(),
-		Tenant: tenantclustertest.New(tenantclustertest.Config{}),
+		Tenant: &tenantMock{},
 
 		ProjectName: "cluster-operator",
 	}

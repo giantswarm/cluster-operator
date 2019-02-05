@@ -7,8 +7,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
-	"github.com/giantswarm/tenantcluster"
-	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -95,32 +93,23 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 		},
 	}
 
-	var tenantCluster tenantcluster.Interface
-	{
-		c := tenantclustertest.Config{
-			K8sClient: clientgofake.NewSimpleClientset(),
-		}
-
-		tenantCluster = tenantclustertest.New(c)
-	}
-
-	var err error
-	var cc *ChartConfig
-	{
-		c := Config{
-			Logger: microloggertest.New(),
-			Tenant: tenantCluster,
-
-			ProjectName: "cluster-operator",
-		}
-		cc, err = New(c)
-		if err != nil {
-			t.Fatal("expected", nil, "got", err)
-		}
-	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
+
+			c := Config{
+				Logger: microloggertest.New(),
+				Tenant: &tenantMock{
+					fakeTenantK8sClient: fakeTenantK8sClient,
+				},
+
+				ProjectName: "cluster-operator",
+			}
+			cc, err := New(c)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+
 			chartConfigs, err := cc.GetDesiredState(context.TODO(), tc.clusterConfig, tc.providerChartSpecs)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
@@ -261,32 +250,23 @@ func Test_ChartConfig_newChartConfig(t *testing.T) {
 		},
 	}
 
-	var tenantCluster tenantcluster.Interface
-	{
-		c := tenantclustertest.Config{
-			K8sClient: clientgofake.NewSimpleClientset(),
-		}
-
-		tenantCluster = tenantclustertest.New(c)
-	}
-
-	var err error
-	var cc *ChartConfig
-	{
-		c := Config{
-			Logger: microloggertest.New(),
-			Tenant: tenantCluster,
-
-			ProjectName: "cluster-operator",
-		}
-		cc, err = New(c)
-		if err != nil {
-			t.Fatal("expected", nil, "got", err)
-		}
-	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
+
+			c := Config{
+				Logger: microloggertest.New(),
+				Tenant: &tenantMock{
+					fakeTenantK8sClient: fakeTenantK8sClient,
+				},
+
+				ProjectName: "cluster-operator",
+			}
+			cc, err := New(c)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+
 			result, err := cc.newChartConfig(context.TODO(), tc.clusterConfig, tc.chartSpec)
 			if err != nil {
 				t.Fatalf("expected nil, got %#v", err)
@@ -445,18 +425,13 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 				objs = append(objs, cm)
 			}
 
-			var tenantCluster tenantcluster.Interface
-			{
-				c := tenantclustertest.Config{
-					K8sClient: clientgofake.NewSimpleClientset(objs...),
-				}
-
-				tenantCluster = tenantclustertest.New(c)
-			}
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset(objs...)
 
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: tenantCluster,
+				Tenant: &tenantMock{
+					fakeTenantK8sClient: fakeTenantK8sClient,
+				},
 
 				ProjectName: "cluster-operator",
 			}

@@ -5,9 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giantswarm/tenantcluster"
-	"github.com/giantswarm/tenantcluster/tenantclustertest"
-
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/micrologger/microloggertest"
@@ -187,17 +184,11 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 
 			fakeTenantG8sClient := fake.NewSimpleClientset(objs...)
 
-			var tenantCluster tenantcluster.Interface
-			{
-				c := tenantclustertest.Config{
-					G8sClient: fakeTenantG8sClient,
-				}
-				tenantCluster = tenantclustertest.New(c)
-			}
-
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: tenantCluster,
+				Tenant: &tenantMock{
+					fakeTenantG8sClient: fakeTenantG8sClient,
+				},
 
 				ProjectName: "cluster-operator",
 			}

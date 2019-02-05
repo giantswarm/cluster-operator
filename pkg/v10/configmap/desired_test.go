@@ -8,8 +8,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
-	"github.com/giantswarm/tenantcluster"
-	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -233,32 +231,23 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 		},
 	}
 
-	var tenantCluster tenantcluster.Interface
-	{
-		c := tenantclustertest.Config{
-			K8sClient: clientgofake.NewSimpleClientset(),
-		}
-
-		tenantCluster = tenantclustertest.New(c)
-	}
-
-	var err error
-	var newService *Service
-	{
-		c := Config{
-			Logger: microloggertest.New(),
-			Tenant: tenantCluster,
-
-			ProjectName: "cluster-operator",
-		}
-		newService, err = New(c)
-		if err != nil {
-			t.Fatal("expected", nil, "got", err)
-		}
-	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
+
+			c := Config{
+				Logger: microloggertest.New(),
+				Tenant: &tenantMock{
+					fakeTenantK8sClient: fakeTenantK8sClient,
+				},
+
+				ProjectName: "cluster-operator",
+			}
+			newService, err := New(c)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+
 			configMaps, err := newService.GetDesiredState(context.TODO(), tc.clusterConfig, tc.configMapValues, tc.providerChartSpecs)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)

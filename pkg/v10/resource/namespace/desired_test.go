@@ -48,7 +48,7 @@ func Test_Resource_Namespace_GetDesiredState(t *testing.T) {
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
-				Tenant: tenantclustertest.New(tenantclustertest.Config{}),
+				Tenant: &tenantMock{},
 				ToClusterObjectMetaFunc: func(v interface{}) (apismetav1.ObjectMeta, error) {
 					return v.(apismetav1.ObjectMeta), nil
 				},

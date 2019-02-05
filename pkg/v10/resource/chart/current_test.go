@@ -6,9 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giantswarm/tenantcluster"
-	"github.com/giantswarm/tenantcluster/tenantclustertest"
-
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/apprclient/apprclienttest"
@@ -119,13 +116,6 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 				}
 				helmClient = helmclienttest.New(c)
 			}
-			var tenantCluster tenantcluster.Interface
-			{
-				c := tenantclustertest.Config{
-					HelmClient: helmClient,
-				}
-				tenantCluster = tenantclustertest.New(c)
-			}
 
 			c := Config{
 				ApprClient: apprclienttest.New(apprclienttest.Config{}),
@@ -139,7 +129,9 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 				Logger:         microloggertest.New(),
 				ProjectName:    "cluster-operator",
 				RegistryDomain: "quay.io",
-				Tenant:         tenantCluster,
+				Tenant: &tenantMock{
+					fakeTenantHelmClient: helmClient,
+				},
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
