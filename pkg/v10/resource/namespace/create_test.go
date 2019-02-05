@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
-	"github.com/giantswarm/tenantcluster/tenantclustertest"
 	apiv1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -80,11 +79,7 @@ func Test_Resource_Namespace_newCreateChange(t *testing.T) {
 				},
 				Logger:      microloggertest.New(),
 				ProjectName: "cluster-operator",
-<<<<<<< HEAD
-				Tenant:      tenantclustertest.New(tenantclustertest.Config{}),
-=======
 				Tenant:      &tenantMock{},
->>>>>>> parent of de596239... Use tenantclustertest package
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
