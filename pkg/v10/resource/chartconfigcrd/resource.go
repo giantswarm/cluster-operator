@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Name = "chartconfigcrdv1"
+	Name = "chartconfigcrdv10"
 )
 
 // Config represents the configuration used to create a new chartconfigcrd
