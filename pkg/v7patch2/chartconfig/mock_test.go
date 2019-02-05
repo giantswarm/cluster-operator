@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/helmclient"
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/helm/pkg/helm"
 )
@@ -44,19 +45,24 @@ func (a *apprMock) PushChartTarball(ctx context.Context, name, release, tarballP
 }
 
 type tenantMock struct {
-	fakeTenantG8sClient  versioned.Interface
-	fakeTenantHelmClient helmclient.Interface
-	fakeTenantK8sClient  kubernetes.Interface
+	fakeTenantG8sClient    versioned.Interface
+	fakeTenantHelmClient   helmclient.Interface
+	fakeTenantK8sClient    kubernetes.Interface
+	fakeTenantK8sExtClient apiextensionsclient.Interface
 }
 
-func (t *tenantMock) NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
-	return t.fakeTenantG8sClient, nil
+func (g *tenantMock) NewG8sClient(ctx context.Context, clusterID, apiDomain string) (versioned.Interface, error) {
+	return g.fakeTenantG8sClient, nil
 }
-func (t *tenantMock) NewHelmClient(ctx context.Context, clusterID, apiDomain string) (helmclient.Interface, error) {
-	return t.fakeTenantHelmClient, nil
+func (g *tenantMock) NewHelmClient(ctx context.Context, clusterID, apiDomain string) (helmclient.Interface, error) {
+	return g.fakeTenantHelmClient, nil
 }
-func (t *tenantMock) NewK8sClient(ctx context.Context, clusterID, apiDomain string) (kubernetes.Interface, error) {
-	return t.fakeTenantK8sClient, nil
+func (g *tenantMock) NewK8sClient(ctx context.Context, clusterID, apiDomain string) (kubernetes.Interface, error) {
+	return g.fakeTenantK8sClient, nil
+}
+
+func (g *tenantMock) NewK8sExtClient(ctx context.Context, clusterID, apiDomain string) (apiextensionsclient.Interface, error) {
+	return g.fakeTenantK8sExtClient, nil
 }
 
 type helmMock struct {
