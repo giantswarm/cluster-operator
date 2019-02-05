@@ -139,6 +139,10 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
+=======
+  digest = "1:7ea58393af0bd783e389d8b2101f4d5fce09068eea691fd6f604096b7bd741a5"
+>>>>>>> master
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -157,6 +161,10 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1",
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake"
   ]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "c002dda4b92b701813696f237447c09da75937cb"
 
 [[projects]]
@@ -176,8 +184,15 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
   name = "github.com/giantswarm/certs"
   packages = ["."]
+=======
+  digest = "1:2f7c9bf12339fa91c6dca789831bd916d981d7482b6a437d9a679e0fecc684bf"
+  name = "github.com/giantswarm/certs"
+  packages = ["."]
+  pruneopts = "UT"
+>>>>>>> master
   revision = "f0fb2f61d78e06f2d1e17f940fd782b92bf29642"
 
 [[projects]]
@@ -388,10 +403,19 @@
   revision = "4030bb1f1f0c35b30ca7009e9ebd06849dd45306"
 
 [[projects]]
+<<<<<<< HEAD
   name = "github.com/google/go-github"
   packages = ["github"]
   revision = "94cd03c0c0b858a66ea286baedd59e66ef3f21dd"
   version = "v22.0.0"
+=======
+  branch = "master"
+  digest = "1:0c319c6984a4ebc10318e02005e5244642a28ec5d3d9c636f41c99bb8405842f"
+  name = "github.com/google/go-github"
+  packages = ["github"]
+  pruneopts = "UT"
+  revision = "94cd03c0c0b858a66ea286baedd59e66ef3f21dd"
+>>>>>>> master
 
 [[projects]]
   name = "github.com/google/go-querystring"
@@ -429,11 +453,19 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
+=======
+  digest = "1:b4395b2a4566c24459af3d04009b39cc21762fc77ec7bf7a1aa905c91e8f018d"
+>>>>>>> master
   name = "github.com/gregjones/httpcache"
   packages = [
     ".",
     "diskcache"
   ]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "7a902570cb17174de4ac788094f8ebedec136f57"
 
 [[projects]]
@@ -577,6 +609,10 @@
   branch = "master"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
 
 [[projects]]
@@ -591,6 +627,10 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
+=======
+  digest = "1:5833c61ebbd625a6bad8e5a1ada2b3e13710cf3272046953a2c8915340fe60a3"
+>>>>>>> master
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -598,14 +638,26 @@
     "nfs",
     "xfs"
   ]
+<<<<<<< HEAD
   revision = "488faf799f863e27e50c516468f76ae8f1da20a5"
 
 [[projects]]
+=======
+  pruneopts = "UT"
+  revision = "488faf799f863e27e50c516468f76ae8f1da20a5"
+
+[[projects]]
+  digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
+>>>>>>> master
   name = "github.com/spf13/afero"
   packages = [
     ".",
     "mem"
   ]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "f4711e4db9e9a1d3887343acb72b2bbfc2f686f5"
   version = "v1.2.1"
 
@@ -647,6 +699,10 @@
     "scrypt",
     "ssh/terminal"
   ]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "b8fe1690c61389d7d2a8074a507d1d40c5d30448"
 
 [[projects]]
@@ -672,6 +728,10 @@
     ".",
     "internal"
   ]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "99b60b757ec124ebb7d6b7e97f153b19c10ce163"
 
 [[projects]]
@@ -682,11 +742,19 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
+=======
+  digest = "1:44b10545049ca2aa524f2985e88854f0e51fa4a1f0ff0b6b98cbfeb7ae3d2837"
+>>>>>>> master
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows"
   ]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "980327fe3c65509adaad5a9ff06abdf7611b4411"
 
 [[projects]]
@@ -734,6 +802,10 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "4b09977fb92221987e99d190c8f88f2c92727a29"
 
 [[projects]]
@@ -1051,6 +1123,10 @@
   branch = "master"
   name = "k8s.io/kube-openapi"
   packages = ["pkg/util/proto"]
+<<<<<<< HEAD
+=======
+  pruneopts = "UT"
+>>>>>>> master
   revision = "df6fb93e6113444363da4c5607b40ab20dd1f3db"
 
 [[projects]]
