@@ -13,15 +13,6 @@ func ChartSpecs() []key.ChartSpec {
 	// Add any provider specific charts here.
 	return []key.ChartSpec{
 		{
-			AppName:           "coredns",
-			ChannelName:       "0-2-stable",
-			ChartName:         "kubernetes-coredns-chart",
-			ConfigMapName:     "coredns-values",
-			Namespace:         metav1.NamespaceSystem,
-			ReleaseName:       "coredns",
-			UserConfigMapName: "coredns-user-values",
-		},
-		{
 			AppName:           "cluster-autoscaler",
 			ChannelName:       "0-2-stable",
 			ChartName:         "kubernetes-cluster-autoscaler-chart",
