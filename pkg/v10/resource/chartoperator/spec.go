@@ -1,4 +1,4 @@
-package chart
+package chartoperator
 
 // ResourceState holds the state of the chart to be reconciled.
 type ResourceState struct {

@@ -1,4 +1,4 @@
-package chart
+package chartoperator
 
 import "github.com/giantswarm/microerror"
 
