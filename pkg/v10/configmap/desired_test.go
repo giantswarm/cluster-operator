@@ -135,6 +135,14 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			Namespace: metav1.NamespaceSystem,
 		},
 		{
+			Name:      "coredns-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
+			Name:      "coredns-user-values",
+			Namespace: metav1.NamespaceSystem,
+		},
+		{
 			Name:      "kube-state-metrics-values",
 			Namespace: metav1.NamespaceSystem,
 		},
@@ -175,7 +183,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:    "5xchu",
+				ClusterID: "5xchu",
+				CoreDNS: CoreDNSValues{
+					ClusterIPRange: "172.20.0.0/16",
+				},
 				Organization: "giantswarm",
 				WorkerCount:  3,
 			},
@@ -189,7 +200,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:    "5xchu",
+				ClusterID: "5xchu",
+				CoreDNS: CoreDNSValues{
+					ClusterIPRange: "172.20.0.0/16",
+				},
 				Organization: "giantswarm",
 				WorkerCount:  7,
 			},
@@ -210,7 +224,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Namespaces: []string{},
 			},
 			configMapValues: ConfigMapValues{
-				ClusterID:    "5xchu",
+				ClusterID: "5xchu",
+				CoreDNS: CoreDNSValues{
+					ClusterIPRange: "172.20.0.0/16",
+				},
 				Organization: "giantswarm",
 				WorkerCount:  7,
 			},
