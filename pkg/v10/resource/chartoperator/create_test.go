@@ -1,4 +1,4 @@
-package chart
+package chartoperator
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 )
 
-func Test_Resource_Chart_newDelete(t *testing.T) {
+func Test_Resource_Chart_newCreate(t *testing.T) {
 	obj := v1alpha1.ClusterGuestConfig{
 		DNSZone: "5xchu.aws.giantswarm.io",
 		ID:      "5xchu",
@@ -33,7 +33,7 @@ func Test_Resource_Chart_newDelete(t *testing.T) {
 			name:          "case 0: empty current and desired, expected empty",
 			currentState:  &ResourceState{},
 			desiredState:  &ResourceState{},
-			expectedState: nil,
+			expectedState: &ResourceState{},
 		},
 		{
 			name: "case 1: non-empty current, empty desired, expected empty",
@@ -41,28 +41,28 @@ func Test_Resource_Chart_newDelete(t *testing.T) {
 				ChartName: "current",
 			},
 			desiredState:  &ResourceState{},
-			expectedState: nil,
+			expectedState: &ResourceState{},
 		},
 
 		{
-			name:         "case 2: empty current, non-empty desired, expected empty",
+			name:         "case 2: empty current, non-empty desired, expected desired",
 			currentState: &ResourceState{},
-			desiredState: &ResourceState{
-				ChartName: "desired",
-			},
-			expectedState: nil,
-		},
-		{
-			name: "case 3: equal non-empty current and desired, expected desired",
-			currentState: &ResourceState{
-				ChartName: "desired",
-			},
 			desiredState: &ResourceState{
 				ChartName: "desired",
 			},
 			expectedState: &ResourceState{
 				ChartName: "desired",
 			},
+		},
+		{
+			name: "case 3: equal non-empty current and desired, expected empty",
+			currentState: &ResourceState{
+				ChartName: "desired",
+			},
+			desiredState: &ResourceState{
+				ChartName: "desired",
+			},
+			expectedState: &ResourceState{},
 		},
 		{
 			name: "case 4: different non-empty current and desired, expected empty",
@@ -72,7 +72,7 @@ func Test_Resource_Chart_newDelete(t *testing.T) {
 			desiredState: &ResourceState{
 				ChartName: "desired",
 			},
-			expectedState: nil,
+			expectedState: &ResourceState{},
 		},
 	}
 
@@ -105,21 +105,16 @@ func Test_Resource_Chart_newDelete(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			result, err := newResource.newDeleteChange(context.TODO(), obj, tc.currentState, tc.desiredState)
+			result, err := newResource.newCreateChange(context.TODO(), obj, tc.currentState, tc.desiredState)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
-			if tc.expectedState == nil && result != nil {
-				t.Fatal("expected", nil, "got", result)
+			createChange, ok := result.(*ResourceState)
+			if !ok {
+				t.Fatalf("expected '%T', got '%T'", createChange, result)
 			}
-			if result != nil {
-				deleteChange, ok := result.(*ResourceState)
-				if !ok {
-					t.Fatalf("expected '%T', got '%T'", deleteChange, result)
-				}
-				if !reflect.DeepEqual(deleteChange, tc.expectedState) {
-					t.Fatalf("ChartState == %q, want %q", deleteChange, tc.expectedState)
-				}
+			if !reflect.DeepEqual(createChange, tc.expectedState) {
+				t.Fatalf("ChartState == %q, want %q", createChange, tc.expectedState)
 			}
 		})
 	}

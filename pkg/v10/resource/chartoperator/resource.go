@@ -1,4 +1,4 @@
-package chart
+package chartoperator
 
 import (
 	"context"
@@ -20,7 +20,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartv10"
+	Name = "chartoperatorv10"
 
 	chartOperatorChart         = "chart-operator-chart"
 	chartOperatorChannel       = "0-3-stable"
@@ -29,7 +29,7 @@ const (
 	chartOperatorDesiredStatus = "DEPLOYED"
 )
 
-// Config represents the configuration used to create a new chart config resource.
+// Config represents the configuration used to create a new chartoperator resource.
 type Config struct {
 	ApprClient               apprclient.Interface
 	BaseClusterConfig        cluster.Config
@@ -44,7 +44,7 @@ type Config struct {
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
-// Resource implements the chart resource.
+// Resource implements the chartoperator resource.
 type Resource struct {
 	apprClient               apprclient.Interface
 	baseClusterConfig        cluster.Config
@@ -59,7 +59,7 @@ type Resource struct {
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
-// New creates a new configured chart resource.
+// New creates a new configured chartoperator resource.
 func New(config Config) (*Resource, error) {
 	if config.ApprClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ApprClient must not be empty", config)

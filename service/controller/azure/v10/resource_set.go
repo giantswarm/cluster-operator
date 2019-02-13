@@ -22,7 +22,7 @@ import (
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v10/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v10/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v10/resource/chart"
+	"github.com/giantswarm/cluster-operator/pkg/v10/resource/chartoperator"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v10/resource/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v10/key"
@@ -165,9 +165,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartResource controller.Resource
+	var chartOperatorResource controller.Resource
 	{
-		c := chart.Config{
+		c := chartoperator.Config{
 			ApprClient:               config.ApprClient,
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			ClusterIPRange:           config.ClusterIPRange,
@@ -181,12 +181,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
-		ops, err := chart.New(c)
+		ops, err := chartoperator.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		chartResource, err = toCRUDResource(config.Logger, ops)
+		chartOperatorResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -273,10 +273,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		encryptionKeyResource,
 		certConfigResource,
 		azureConfigResource,
-		// namespace, chart, configmap and chartconfig resources manage resources
-		// in guest clusters so they should be executed last.
+		// namespace, chartoperator, configmap and chartconfig resources manage
+		// resources in tenant clusters so they should be executed last.
 		namespaceResource,
-		chartResource,
+		chartOperatorResource,
 		configMapResource,
 		chartConfigResource,
 	}
