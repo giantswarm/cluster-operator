@@ -5,12 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"time"
 
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/helm/pkg/helm"
 
 	"github.com/giantswarm/cluster-operator/pkg/v10/key"
@@ -86,14 +90,14 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				},
 				TillerNamespace: chartOperatorNamespace,
 			}
-			b, err := json.Marshal(v)
+			json, err := json.Marshal(v)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
 			err = tenantHelmClient.InstallReleaseFromTarball(ctx, p, chartOperatorNamespace,
 				helm.ReleaseName(createState.ReleaseName),
-				helm.ValueOverrides(b),
+				helm.ValueOverrides(json),
 				helm.InstallWait(true),
 			)
 			if err != nil {
@@ -102,6 +106,36 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", "created chart-operator chart")
 		}
+		{
+			// We wait for the chart-operator deployment to be ready so the
+			// chartconfig CRD is installed. This allows the chartconfig
+			// resource to create CRs in the same reconcilation loop.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
+
+			o := func() error {
+				err := r.checkDeploymentReady(ctx, chartOperatorNamespace, chartOperatorDeployment, 1)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+
+				return nil
+			}
+
+			// Only wait for 2 minutes. If this takes longer the chartconfig CRs
+			// will be created in the next reconciliation loop.
+			b := backoff.NewConstant(2*time.Minute, 15*time.Second)
+			n := func(err error, delay time.Duration) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%s deployment is not ready retrying in %s", chartOperatorDeployment, delay), "stack", fmt.Sprintf("%#v", err))
+			}
+
+			err = backoff.RetryNotify(o, b, n)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator deployment is ready")
+		}
+
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not create chart-operator chart")
 	}
@@ -133,4 +167,26 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 	}
 
 	return createState, nil
+}
+
+// checkDeploymentReady checks for the specified deployment that the number of
+// ready replicas matches the desired state.
+func (r *Resource) checkDeploymentReady(ctx context.Context, namespace, deploymentName string, replicas int) error {
+	desc := fmt.Sprintf("'%s'.'%s'", namespace, deploymentName)
+	deploy, err := r.k8sClient.Extensions().Deployments(namespace).Get(deploymentName, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deployment %s not found", desc))
+		return microerror.Mask(err)
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("want %d replicas: %d ready", *deploy.Spec.Replicas, deploy.Status.ReadyReplicas))
+
+	if deploy.Status.ReadyReplicas != *deploy.Spec.Replicas {
+		return microerror.Maskf(notReadyError, fmt.Sprintf("%s has insufficient ready pods", desc))
+	}
+
+	// Deployment is ready.
+	return nil
 }
