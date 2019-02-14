@@ -30,7 +30,7 @@ e2eTest: &e2eTest
 # E2E tests are currently disabled until they get updated to working order.
 #
 # TODO: https://github.com/giantswarm/giantswarm/issues/4573
-# 
+#
 
 version: 2
 jobs:
@@ -57,22 +57,22 @@ jobs:
 #    environment:
 #      TESTED_VERSION: current
 #    <<: *e2eTest
-# 
+#
 #  e2eTestCurrentMaster:
 #    environment:
 #      TESTED_VERSION: current
 #    <<: *e2eTest
-# 
+#
 #  e2eTestWIPPR:
 #    environment:
 #      TESTED_VERSION: wip
 #    <<: *e2eTest
-# 
+#
 #  e2eTestWIPMaster:
 #    environment:
 #      TESTED_VERSION: wip
 #    <<: *e2eTest
-# 
+#
   deploy:
     machine: true
     steps:
@@ -83,12 +83,12 @@ jobs:
 
     - run: ./architect deploy
 
-#workflows:
-# version: 2
-# build_e2e:
-#   jobs:
-#     - build
-#
+workflows:
+ version: 2
+ build_e2e:
+   jobs:
+     - build
+
 #     - hold:
 #         type: approval
 #         filters:
@@ -116,12 +116,12 @@ jobs:
 #             only: master
 #         requires:
 #         - build
-#
-#     - deploy:
-#         filters:
-#           branches:
-#             only: master
-#         requires:
-#         #- e2eTestCurrentMaster
-#         #- e2eTestWIPMaster
-#         - build
+
+     - deploy:
+         filters:
+           branches:
+             only: master
+         requires:
+         #- e2eTestCurrentMaster
+         #- e2eTestWIPMaster
+         - build
