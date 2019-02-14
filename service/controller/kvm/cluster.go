@@ -15,13 +15,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
-	v6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
-	v7 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7patch1"
-	v8 "github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
-	v9 "github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -241,6 +242,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v11ResourceSet *controller.ResourceSet
+	{
+		c := v11.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v11ResourceSet, err = v11.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -256,6 +281,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v8ResourceSet,
 				v9ResourceSet,
 				v10ResourceSet,
+				v11ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 

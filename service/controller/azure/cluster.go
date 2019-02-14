@@ -15,8 +15,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
-	v9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v10"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v11"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -124,6 +125,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v11ResourceSet *controller.ResourceSet
+	{
+		c := v11.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v11ResourceSet, err = v11.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -134,6 +159,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			ResourceSets: []*controller.ResourceSet{
 				v9ResourceSet,
 				v10ResourceSet,
+				v11ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
