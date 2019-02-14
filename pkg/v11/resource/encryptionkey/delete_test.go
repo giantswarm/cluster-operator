@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
 
-	"github.com/giantswarm/cluster-operator/pkg/v10/key"
+	"github.com/giantswarm/cluster-operator/pkg/v11/key"
 )
 
 func Test_ApplyDeleteChange(t *testing.T) {
