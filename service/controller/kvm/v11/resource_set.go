@@ -1,4 +1,4 @@
-package v10
+package v11
 
 import (
 	"context"
@@ -19,16 +19,16 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v10/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v10/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v10/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v10/resource/chartoperator"
-	"github.com/giantswarm/cluster-operator/pkg/v10/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v10/resource/namespace"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10/resource/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10/resource/kvmconfig"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v11/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v11/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v11/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v11/resource/chartoperator"
+	"github.com/giantswarm/cluster-operator/pkg/v11/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v11/resource/namespace"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/kvmconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for

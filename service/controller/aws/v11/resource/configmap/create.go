@@ -7,9 +7,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v10/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v10/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v10/key"
+	"github.com/giantswarm/cluster-operator/pkg/v11/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v11/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v11/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
