@@ -313,9 +313,10 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) {
-				return backoff.Permanent(microerror.Mask(err))
-			} else if err != nil {
+			// if IsTillerNotFound(err) {
+			//	return backoff.Permanent(microerror.Mask(err))
+			//} else
+			if err != nil {
 				return microerror.Mask(err)
 			}
 			defer c.closeTunnel(ctx, t)
