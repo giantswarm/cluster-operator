@@ -24,6 +24,7 @@ const (
 
 	chartOperatorChart         = "chart-operator-chart"
 	chartOperatorChannel       = "0-3-stable"
+	chartOperatorDeployment    = "chart-operator"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
@@ -96,16 +97,16 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		apprClient:               config.ApprClient,
-		baseClusterConfig:        config.BaseClusterConfig,
-		clusterIPRange:           config.ClusterIPRange,
-		fs:                       config.Fs,
-		g8sClient:                config.G8sClient,
-		k8sClient:                config.K8sClient,
-		logger:                   config.Logger,
-		projectName:              config.ProjectName,
-		registryDomain:           config.RegistryDomain,
-		tenant:                   config.Tenant,
+		apprClient:        config.ApprClient,
+		baseClusterConfig: config.BaseClusterConfig,
+		clusterIPRange:    config.ClusterIPRange,
+		fs:                config.Fs,
+		g8sClient:         config.G8sClient,
+		k8sClient:         config.K8sClient,
+		logger:            config.Logger,
+		projectName:       config.ProjectName,
+		registryDomain:    config.RegistryDomain,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
@@ -139,6 +140,30 @@ func (r *Resource) getTenantHelmClient(ctx context.Context, obj interface{}) (he
 	}
 
 	return tenantHelmClient, nil
+}
+
+func (r *Resource) getTenantK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	tenantAPIDomain, err := key.APIDomain(clusterGuestConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	tenantK8sClient, err := r.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, tenantAPIDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return tenantK8sClient, nil
 }
 
 func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
