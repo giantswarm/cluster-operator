@@ -52,9 +52,9 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		baseClusterConfig: config.BaseClusterConfig,
-		logger:            config.Logger,
-		tenant:            config.Tenant,
+		baseClusterConfig:        config.BaseClusterConfig,
+		logger:                   config.Logger,
+		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
