@@ -152,8 +152,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				return nil
 			}
 
-			// Only wait for 2 minutes. If this takes longer the chartconfig CRs
-			// will be created in the next reconciliation loop.
+			// Wait for chart-operator to be deployed. If it takes longer than
+			// the timeout the chartconfig CRs will be created during the next
+			// reconciliation loop.
 			b := backoff.NewConstant(45*time.Second, 15*time.Second)
 			n := func(err error, delay time.Duration) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", chartOperatorDeployment, delay), "stack", fmt.Sprintf("%#v", err))
