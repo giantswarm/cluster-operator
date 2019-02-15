@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/tenantcluster"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -91,8 +91,8 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig
 		// for the current guest cluster was not found. We can't continue
 		// without a Helm client. We will retry during the next execution, when
 		// the certificate might be available.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
 	} else if helmclient.IsTillerInstallationFailed(err) {
@@ -100,8 +100,8 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig
 
 		// Tiller installation can fail during guest cluster setup. We will
 		// retry on next reconciliation loop.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
 	} else if guest.IsAPINotAvailable(err) {
@@ -110,8 +110,8 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig
 		// We should not hammer guest API if it is not available, the guest
 		// cluster might be initializing. We will retry on next reconciliation
 		// loop.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
 	} else if err != nil {
