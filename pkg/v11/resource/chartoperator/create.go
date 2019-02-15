@@ -136,6 +136,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				return microerror.Mask(err)
 			}
 		}
+
 		{
 			// We wait for the chart-operator deployment to be ready so the
 			// chartconfig CRD is installed. This allows the chartconfig
@@ -143,7 +144,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", "waiting for ready chart-operator deployment")
 
 			o := func() error {
-				err := r.checkDeploymentReady(ctx, tenantK8sClient, chartOperatorNamespace, chartOperatorDeployment, 1)
+				err := r.checkDeploymentReady(ctx, tenantK8sClient, chartOperatorNamespace, chartOperatorDeployment)
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -153,9 +154,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 			// Only wait for 2 minutes. If this takes longer the chartconfig CRs
 			// will be created in the next reconciliation loop.
-			b := backoff.NewConstant(2*time.Minute, 15*time.Second)
+			b := backoff.NewConstant(45*time.Second, 15*time.Second)
 			n := func(err error, delay time.Duration) {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%s deployment is not ready retrying in %s", chartOperatorDeployment, delay), "stack", fmt.Sprintf("%#v", err))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q deployment is not ready retrying in %s", chartOperatorDeployment, delay), "stack", fmt.Sprintf("%#v", err))
 			}
 
 			err = backoff.RetryNotify(o, b, n)
@@ -201,20 +202,16 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 
 // checkDeploymentReady checks for the specified deployment that the number of
 // ready replicas matches the desired state.
-func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface, namespace, deploymentName string, replicas int) error {
-	desc := fmt.Sprintf("'%s'.'%s'", namespace, deploymentName)
+func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface, namespace, deploymentName string) error {
 	deploy, err := k8sClient.Extensions().Deployments(namespace).Get(deploymentName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deployment %s not found", desc))
-		return microerror.Mask(err)
+		return microerror.Maskf(notReadyError, "deployment %#q not found", deploymentName)
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("want %d replicas: %d ready", *deploy.Spec.Replicas, deploy.Status.ReadyReplicas))
-
 	if deploy.Status.ReadyReplicas != *deploy.Spec.Replicas {
-		return microerror.Maskf(notReadyError, fmt.Sprintf("%s has insufficient ready pods", desc))
+		return microerror.Maskf(notReadyError, "deployment %#q want %d replicas %d ready", deploymentName, *deploy.Spec.Replicas, deploy.Status.ReadyReplicas)
 	}
 
 	// Deployment is ready.
