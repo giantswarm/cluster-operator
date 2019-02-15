@@ -52,41 +52,13 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		baseClusterConfig:        config.BaseClusterConfig,
-		logger:                   config.Logger,
-		tenant:                   config.Tenant,
+		baseClusterConfig: config.BaseClusterConfig,
+		logger:            config.Logger,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 	}
 
 	return r, nil
-}
-
-func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.ensureTillerInstalled(ctx, clusterGuestConfig)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
-}
-
-func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.ensureTillerInstalled(ctx, clusterGuestConfig)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return nil
 }
 
 func (r *Resource) Name() string {
