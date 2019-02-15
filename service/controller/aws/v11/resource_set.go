@@ -25,6 +25,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/chartoperator"
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/namespace"
+	"github.com/giantswarm/cluster-operator/pkg/v11/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v11/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v11/resource/awsconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v11/resource/chartconfig"
@@ -266,6 +267,21 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var tillerResource controller.Resource
+	{
+		c := tiller.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			Logger:                   config.Logger,
+			Tenant:                   tenantClusterService,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+		}
+
+		tillerResource, err = tiller.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// awsConfigResource and could introduce dependency during cluster
@@ -273,9 +289,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		encryptionKeyResource,
 		certConfigResource,
 		awsConfigResource,
-		// namespace, chartoperator, configmap and chartconfig resources manage
-		// resources in tenant clusters so they should be executed last.
+		// Following resources manage resources in tenant clusters so they
+		// should be executed last.
 		namespaceResource,
+		tillerResource,
 		chartOperatorResource,
 		configMapResource,
 		chartConfigResource,
