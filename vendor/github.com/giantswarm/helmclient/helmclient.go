@@ -309,11 +309,11 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 	{
 		c.logger.LogCtx(ctx, "level", "debug", "message", "waiting for tiller to be up")
 
-		var newTunnelCount, pingTillerCount int
+		var pingTillerCount int
 
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) && newTunnelCount < 5 {
+			if !installTiller && IsTillerNotFound(err) {
 				// Stop as tiller still not found.
 				return backoff.Permanent(microerror.Mask(err))
 			} else if err != nil {
@@ -328,7 +328,6 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 				return microerror.Mask(err)
 			}
 
-			newTunnelCount++
 			pingTillerCount++
 			if pingTillerCount < 3 {
 				return microerror.Maskf(executionFailedError, "failed to ping tiller 3 consecutive times")
