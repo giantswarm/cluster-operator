@@ -306,7 +306,7 @@
   branch = "wait-for-tiller"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
-  revision = "cf5736065dd80c6d0ba5058f523ddf01fd3aeac6"
+  revision = "0df1ff584cf8c8068b71589d9c1c405bf275c8df"
 
 [[projects]]
   branch = "master"
