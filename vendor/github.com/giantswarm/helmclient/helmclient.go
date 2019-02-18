@@ -303,32 +303,34 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 		return microerror.Maskf(executionFailedError, "invalid state cannot both install and upgrade tiller")
 	}
 
-	// Wait for tiller to be up and running. When verifying to be able to ping
-	// tiller we make sure 3 consecutive pings succeed before assuming everything
-	// is fine.
+	// Wait for tiller to be up and running. We wait 3 attempts before giving
+	// up. When verifying to be able to ping tiller we make sure 3 consecutive
+	// pings succeed before assuming everything is fine.
 	{
 		c.logger.LogCtx(ctx, "level", "debug", "message", "waiting for tiller to be up")
 
-		var i int
+		var newTunnelCount, pingTillerCount int
 
 		o := func() error {
 			t, err := c.newTunnel()
-			// if IsTillerNotFound(err) {
-			//	return backoff.Permanent(microerror.Mask(err))
-			//} else
-			if err != nil {
+			if IsTillerNotFound(err) && newTunnelCount < 3 {
+				// Stop as tiller still not found.
+				return backoff.Permanent(microerror.Mask(err))
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 			defer c.closeTunnel(ctx, t)
 
 			err = c.newHelmClientFromTunnel(t).PingTiller()
 			if err != nil {
-				i = 0
+				// Ping attempt failed so reset counter.
+				pingTillerCount = 0
 				return microerror.Mask(err)
 			}
 
-			i++
-			if i < 3 {
+			newTunnelCount++
+			pingTillerCount++
+			if pingTillerCount < 3 {
 				return microerror.Maskf(executionFailedError, "failed to ping tiller 3 consecutive times")
 			}
 

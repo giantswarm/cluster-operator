@@ -218,13 +218,13 @@
   revision = "3509191efc7b4714c1dc57ab47df71a52148493f"
 
 [[projects]]
-  branch = "master"
+  branch = "wait-for-tiller"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest"
   ]
-  revision = "c93791a1e9e60a08f2ee48394d416a726c5e00f2"
+  revision = "1bfaa771463f6d5653e8a50e6a044c851523e1df"
 
 [[projects]]
   branch = "master"
@@ -300,10 +300,10 @@
   revision = "a1aa0b72cce3bb752ca8e5097dc84f97cf4cbbf7"
 
 [[projects]]
-  branch = "master"
+  branch = "wait-for-tiller"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
-  revision = "9833b69043857cf4339222c42bac303b7ae5a676"
+  revision = "cf5736065dd80c6d0ba5058f523ddf01fd3aeac6"
 
 [[projects]]
   branch = "master"
@@ -388,10 +388,10 @@
   revision = "4030bb1f1f0c35b30ca7009e9ebd06849dd45306"
 
 [[projects]]
+  branch = "master"
   name = "github.com/google/go-github"
   packages = ["github"]
-  revision = "94cd03c0c0b858a66ea286baedd59e66ef3f21dd"
-  version = "v22.0.0"
+  revision = "4e1a504644bfd34564773b2f8c4c2ba91c8e21ec"
 
 [[projects]]
   name = "github.com/google/go-querystring"
@@ -1062,6 +1062,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bb7acffef8e966ddcd8b3282a313a784e17ad8fabba4428af5dd349c15e307ed"
+  inputs-digest = "8951efd6c0f9333d71e6ba7369a6ce921728bf010556f0ed30869051b056d6a5"
   solver-name = "gps-cdcl"
   solver-version = 1
