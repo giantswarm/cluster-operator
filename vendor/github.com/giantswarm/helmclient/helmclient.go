@@ -271,7 +271,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 		}
 	}
 
-	if pod != nil {
+	if !installTiller && pod != nil {
 		err = validateTillerVersion(pod, c.tillerImage)
 		if IsTillerOutdated(err) {
 			upgradeTiller = true
