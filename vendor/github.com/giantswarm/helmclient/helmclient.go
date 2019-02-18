@@ -313,7 +313,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 		o := func() error {
 			t, err := c.newTunnel()
-			if IsTillerNotFound(err) && newTunnelCount < 3 {
+			if IsTillerNotFound(err) && newTunnelCount < 5 {
 				// Stop as tiller still not found.
 				return backoff.Permanent(microerror.Mask(err))
 			} else if err != nil {
