@@ -262,7 +262,7 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 			return nil
 		}
-		b := backoff.NewExponential(2*time.Minute, 5*time.Second)
+		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
 		n := backoff.NewNotifier(c.logger, context.Background())
 
 		err := backoff.RetryNotify(o, b, n)
@@ -303,18 +303,17 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 		return microerror.Maskf(executionFailedError, "invalid state cannot both install and upgrade tiller")
 	}
 
-	// Wait for tiller to be up and running. We wait 3 attempts before giving
-	// up. When verifying to be able to ping tiller we make sure 3 consecutive
-	// pings succeed before assuming everything is fine.
+	// Wait for tiller to be up and running. When verifying to be able to ping
+	// tiller we make sure 3 consecutive pings succeed before assuming everything
+	// is fine.
 	{
 		c.logger.LogCtx(ctx, "level", "debug", "message", "waiting for tiller to be up")
 
-		var pingTillerCount int
+		var i int
 
 		o := func() error {
 			t, err := c.newTunnel()
 			if !installTiller && IsTillerNotFound(err) {
-				// Stop as tiller still not found.
 				return backoff.Permanent(microerror.Mask(err))
 			} else if err != nil {
 				return microerror.Mask(err)
@@ -323,19 +322,18 @@ func (c *Client) EnsureTillerInstalled(ctx context.Context) error {
 
 			err = c.newHelmClientFromTunnel(t).PingTiller()
 			if err != nil {
-				// Ping attempt failed so reset counter.
-				pingTillerCount = 0
+				i = 0
 				return microerror.Mask(err)
 			}
 
-			pingTillerCount++
-			if pingTillerCount < 3 {
+			i++
+			if i < 3 {
 				return microerror.Maskf(executionFailedError, "failed to ping tiller 3 consecutive times")
 			}
 
 			return nil
 		}
-		b := backoff.NewExponential(backoff.ShortMaxWait, backoff.ShortMaxInterval)
+		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
 		n := backoff.NewNotifier(c.logger, ctx)
 
 		err := backoff.RetryNotify(o, b, n)
