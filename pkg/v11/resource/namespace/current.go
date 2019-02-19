@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	apiv1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/v11/key"
 )
@@ -21,8 +21,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	// Guest cluster namespace is not deleted so cancel the reconcilation. The
-	// namespace will be deleted when the guest cluster resources are deleted.
+	// Tenant cluster namespace is not deleted so cancel the resource. The
+	// namespace will be deleted when the tenant cluster resources are deleted.
 	if key.IsDeleted(objectMeta) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting namespace deletion to provider operators")
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -50,7 +50,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Lookup the current state of the namespace.
 	var namespace *apiv1.Namespace
 	{
-		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, apismetav1.GetOptions{})
+		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the guest cluster")
 			// fall through
