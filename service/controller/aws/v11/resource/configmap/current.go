@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 
 	"github.com/giantswarm/cluster-operator/pkg/v11/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v11/key"
@@ -16,6 +17,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	customObject, err := awskey.ToCustomObject(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	if key.IsDeleted(customObject.ObjectMeta) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting configmap deletion to provider operators")
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil, nil
 	}
 
 	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
