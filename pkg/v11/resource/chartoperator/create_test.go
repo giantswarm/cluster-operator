@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/helmclient/helmclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/spf13/afero"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -97,6 +98,9 @@ func Test_Resource_Chart_newCreate(t *testing.T) {
 				},
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
+				},
+				ToClusterObjectMetaFunc: func(v interface{}) (metav1.ObjectMeta, error) {
+					return metav1.ObjectMeta{}, nil
 				},
 			}
 

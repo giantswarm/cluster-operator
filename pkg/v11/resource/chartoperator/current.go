@@ -8,11 +8,28 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
+
+	"github.com/giantswarm/cluster-operator/pkg/v11/key"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	var err error
+
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// Tenant chart-operator is not deleted so cancel the resource. The operator
+	// will be deleted when the tenant cluster resources are deleted.
+	if key.IsDeleted(objectMeta) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting chartoperator deletion to provider operators")
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil, nil
+	}
 
 	var tenantHelmClient helmclient.Interface
 	{
