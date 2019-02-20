@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -42,6 +43,7 @@ type Config struct {
 	RegistryDomain           string
 	Tenant                   tenantcluster.Interface
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
 }
 
 // Resource implements the chartoperator resource.
@@ -57,6 +59,7 @@ type Resource struct {
 	registryDomain           string
 	tenant                   tenantcluster.Interface
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
 }
 
 // New creates a new configured chartoperator resource.
@@ -94,6 +97,9 @@ func New(config Config) (*Resource, error) {
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
+	if config.ToClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
+	}
 
 	newResource := &Resource{
 		apprClient:               config.ApprClient,
@@ -107,6 +113,7 @@ func New(config Config) (*Resource, error) {
 		registryDomain:           config.RegistryDomain,
 		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
 
 	return newResource, nil

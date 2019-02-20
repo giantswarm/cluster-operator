@@ -2,20 +2,10 @@ package tiller
 
 import (
 	"context"
-
-	"github.com/giantswarm/microerror"
 )
 
+// EnsureDeleted is not implemented for the tiller resource. Tiller will be
+// deleted when the tenant cluster resources are deleted.
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.ensureTillerInstalled(ctx, clusterGuestConfig)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	return nil
 }
