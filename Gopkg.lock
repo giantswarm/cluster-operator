@@ -221,13 +221,13 @@
   revision = "3509191efc7b4714c1dc57ab47df71a52148493f"
 
 [[projects]]
-  branch = "wait-for-tiller"
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest"
   ]
-  revision = "8e82eec8949aa3e19055ccd8afc54aed96469578"
+  revision = "8b2aa2e7ebec773dcf8e02e9e34c8085ef08697f"
 
 [[projects]]
   branch = "master"
@@ -303,10 +303,10 @@
   revision = "07c6a937025573b73339f7b33ec5605f7f4a7b3a"
 
 [[projects]]
-  branch = "wait-for-tiller"
+  branch = "master"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
-  revision = "0df1ff584cf8c8068b71589d9c1c405bf275c8df"
+  revision = "c31f8d27bcd0cab4d3a62a092bb0ccc108f50af1"
 
 [[projects]]
   branch = "master"
@@ -400,7 +400,7 @@
   branch = "master"
   name = "github.com/google/go-github"
   packages = ["github"]
-  revision = "4e1a504644bfd34564773b2f8c4c2ba91c8e21ec"
+  revision = "00add49aab2728f7c246b27be612b002b22e7f94"
 
 [[projects]]
   name = "github.com/google/go-querystring"
@@ -604,10 +604,11 @@
   packages = [
     ".",
     "internal/util",
+    "iostats",
     "nfs",
     "xfs"
   ]
-  revision = "f8d8b3f739bd91a7c0462cb55235ef63c79c9abc"
+  revision = "e4d4a2206da023361ed100d85c5f2cf9c8364e9f"
 
 [[projects]]
   name = "github.com/spf13/afero"
@@ -656,7 +657,7 @@
     "scrypt",
     "ssh/terminal"
   ]
-  revision = "74369b46fc6756741c016591724fd1cb8e26845f"
+  revision = "a4c6cb3142f211c99e4bf4cd769535b29a9b616f"
 
 [[projects]]
   branch = "master"
@@ -681,7 +682,7 @@
     ".",
     "internal"
   ]
-  revision = "3e8b2be1363542a95c52ea0796d4a40dacfb5b95"
+  revision = "4b83411ed2b36bd4e3302e9b1d3c973fb1ba24db"
 
 [[projects]]
   branch = "master"
@@ -696,7 +697,7 @@
     "unix",
     "windows"
   ]
-  revision = "d0b11bdaac8adb652bff00e49bcacf992835621a"
+  revision = "90b0e4468f9980bf79a2290394adaf7f045c5d24"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -743,7 +744,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "bd968387e4aa590b3c6e4ba38ecac1ed314d43ad"
+  revision = "082222b4a5c572e33e82ee9162d1352c7cf38682"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -1071,6 +1072,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8951efd6c0f9333d71e6ba7369a6ce921728bf010556f0ed30869051b056d6a5"
+  inputs-digest = "bb7acffef8e966ddcd8b3282a313a784e17ad8fabba4428af5dd349c15e307ed"
   solver-name = "gps-cdcl"
   solver-version = 1

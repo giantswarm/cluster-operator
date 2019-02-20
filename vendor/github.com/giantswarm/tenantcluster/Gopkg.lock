@@ -91,10 +91,10 @@
   revision = "d4c171b8af43355ae5cb35bfd63a24aae3fbcc16"
 
 [[projects]]
-  branch = "wait-for-tiller"
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
-  revision = "1bfaa771463f6d5653e8a50e6a044c851523e1df"
+  revision = "c93791a1e9e60a08f2ee48394d416a726c5e00f2"
 
 [[projects]]
   branch = "master"

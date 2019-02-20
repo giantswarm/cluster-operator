@@ -72,7 +72,7 @@ required = [
   name = "github.com/giantswarm/errors"
 
 [[constraint]]
-  branch = "wait-for-tiller"
+  branch = "master"
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
@@ -96,7 +96,7 @@ required = [
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
-  branch = "wait-for-tiller"
+  branch = "master"
   name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
