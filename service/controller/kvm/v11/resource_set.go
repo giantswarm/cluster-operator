@@ -179,6 +179,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			RegistryDomain:           config.RegistryDomain,
 			Tenant:                   tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
 
 		ops, err := chartoperator.New(c)
