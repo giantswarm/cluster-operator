@@ -27,7 +27,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/resource/azureconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/resource/configmap"
 )
@@ -111,24 +110,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var azureConfigResource controller.Resource
-	{
-		c := azureconfig.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		ops, err := azureconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		azureConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var tenantClusterService tenantcluster.Interface
 	{
 		c := tenantcluster.Config{
@@ -147,10 +128,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Tenant:                   tenantClusterService,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -169,16 +150,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartOperatorResource controller.Resource
 	{
 		c := chartoperator.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			ClusterIPRange:           config.ClusterIPRange,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
-			Tenant:                   tenantClusterService,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			ClusterIPRange:    config.ClusterIPRange,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -271,9 +252,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var tillerResource controller.Resource
 	{
 		c := tiller.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			Tenant:                   tenantClusterService,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
@@ -285,11 +266,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
-		// azureConfigResource and could introduce dependency during cluster
+		// certConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
-		azureConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,

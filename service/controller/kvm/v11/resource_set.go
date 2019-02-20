@@ -29,7 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/key"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/kvmconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -110,24 +109,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var kvmConfigResource controller.Resource
-	{
-		c := kvmconfig.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		ops, err := kvmconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		kvmConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var tenantClusterService tenantcluster.Interface
 	{
 		c := tenantcluster.Config{
@@ -146,10 +127,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Tenant:                   tenantClusterService,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -168,16 +149,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var chartOperatorResource controller.Resource
 	{
 		c := chartoperator.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			ClusterIPRange:           config.ClusterIPRange,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
-			Tenant:                   tenantClusterService,
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			ClusterIPRange:    config.ClusterIPRange,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			ProjectName:       config.ProjectName,
+			RegistryDomain:    config.RegistryDomain,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -270,9 +251,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var tillerResource controller.Resource
 	{
 		c := tiller.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			Tenant:                   tenantClusterService,
+			BaseClusterConfig: *config.BaseClusterConfig,
+			Logger:            config.Logger,
+			Tenant:            tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
@@ -284,11 +265,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
-		// kvmConfigResource and could introduce dependency during cluster
+		// certConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
-		kvmConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,
