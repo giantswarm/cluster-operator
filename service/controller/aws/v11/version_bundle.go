@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
+				Component:   "cluster-operator",
+				Description: "Reduce installation time of managed apps in new tenant clusters.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
