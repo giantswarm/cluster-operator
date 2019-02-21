@@ -10,6 +10,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "cluster-operator",
 				Description: "Reduce installation time of managed apps in new tenant clusters.",
+				Kind:        versionbundle.KindChanged,
 			},
 			{
 				Component:   "coredns",
