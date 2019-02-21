@@ -27,7 +27,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v11/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/resource/azureconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v11/resource/configmap"
 )
@@ -106,24 +105,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var azureConfigResource controller.Resource
-	{
-		c := azureconfig.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		ops, err := azureconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		azureConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -285,11 +266,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
-		// azureConfigResource and could introduce dependency during cluster
+		// certConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
-		azureConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,
