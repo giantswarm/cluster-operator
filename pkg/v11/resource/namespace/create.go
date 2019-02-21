@@ -17,7 +17,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	if namespaceToCreate != nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the guest cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster")
 
 		tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
 		if err != nil {
@@ -27,10 +27,10 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
-		} else if guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
+		} else if apierrors.IsTimeout(err) || guest.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
 
-			// We should not hammer guest API if it is not available, the guest cluster
+			// We should not hammer guest API if it is not available, the tenant cluster
 			// might be initializing. We will retry on next reconciliation loop.
 			resourcecanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -40,9 +40,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the guest cluster: created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster: created")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the guest cluster: already created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster: already created")
 	}
 
 	return nil

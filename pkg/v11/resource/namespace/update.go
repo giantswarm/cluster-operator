@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 )
 
-// ApplyUpdateChange is a no-op because the namespace in the guest cluster is
+// ApplyUpdateChange is a no-op because the namespace in the tenant cluster is
 // not updated.
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	return nil
@@ -31,7 +31,7 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 	return patch, nil
 }
 
-// newUpdateChange is a no-op because the namespace in the guest cluster is not
+// newUpdateChange is a no-op because the namespace in the tenant cluster is not
 // updated.
 func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
 	return nil, nil
