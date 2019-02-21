@@ -29,7 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/key"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11/resource/kvmconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -105,24 +104,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var kvmConfigResource controller.Resource
-	{
-		c := kvmconfig.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		ops, err := kvmconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		kvmConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -284,11 +265,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
-		// kvmConfigResource and could introduce dependency during cluster
+		// certConfigResource and could introduce dependency during cluster
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
-		kvmConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,
