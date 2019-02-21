@@ -33,7 +33,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
 	if tenantcluster.IsTimeout(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the guest cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the tenant cluster")
 
 		// We can't continue without a K8s client. We will retry during the
 		// next execution.
@@ -45,17 +45,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for the namespace in the guest cluster")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for the namespace in the tenant cluster")
 
 	// Lookup the current state of the namespace.
 	var namespace *apiv1.Namespace
 	{
 		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the guest cluster")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
-		} else if guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available")
+		} else if apierrors.IsTimeout(err) || guest.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
 			// We can't continue without a successful K8s connection. Cluster
 			// may not be up yet. We will retry during the next execution.
@@ -67,7 +67,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "found the namespace in the guest cluster")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "found the namespace in the tenant cluster")
 			namespace = manifest
 		}
 	}
