@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Reduce installation time of managed apps in new tenant clusters.",
+				Description: "Reduce installation time of managed services in new tenant clusters.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
