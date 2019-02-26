@@ -8,6 +8,7 @@ import (
 
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
+	"github.com/giantswarm/e2esetup/k8s"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
@@ -20,6 +21,7 @@ var (
 	g          *framework.Guest
 	h          *framework.Host
 	l          micrologger.Logger
+	s          *k8s.Setup
 	apprClient *apprclient.Client
 	helmClient *helmclient.Client
 )
@@ -65,6 +67,18 @@ func init() {
 	}
 
 	{
+		c := k8s.SetupConfig{
+			K8sClient: h.K8sClient(),
+			Logger:    l,
+		}
+
+		s, err = k8s.NewSetup(c)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
+	{
 		c := helmclient.Config{
 			Logger:     l,
 			K8sClient:  h.K8sClient(),
@@ -97,5 +111,5 @@ func init() {
 // once for all the tests https://golang.org/pkg/testing/#hdr-Main.
 func TestMain(m *testing.M) {
 	ctx := context.Background()
-	setup.WrapTestMain(ctx, g, h, helmClient, apprClient, m)
+	setup.WrapTestMain(ctx, g, h, s, helmClient, apprClient, m)
 }

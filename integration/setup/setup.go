@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
 	awsclient "github.com/giantswarm/e2eclients/aws"
+	"github.com/giantswarm/e2esetup/k8s"
 	"github.com/giantswarm/e2etemplates/pkg/e2etemplates"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -30,6 +31,10 @@ const (
 	awsOperatorArnKey   = "aws.awsoperator.arn"
 	credentialName      = "credential-default"
 	credentialNamespace = "giantswarm"
+)
+
+const (
+	operatorNamespace = "giantswarm"
 )
 
 func hostPeerVPC(c *awsclient.Client) error {
@@ -69,7 +74,7 @@ func hostPeerVPC(c *awsclient.Client) error {
 	return nil
 }
 
-func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, helmClient *helmclient.Client, apprClient *apprclient.Client, m *testing.M) {
+func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, s *k8s.Setup, helmClient *helmclient.Client, apprClient *apprclient.Client, m *testing.M) {
 	var v int
 	var err error
 
@@ -143,14 +148,7 @@ func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, he
 		return
 	}
 
-	err = h.Setup()
-	if err != nil {
-		log.Printf("%#v\n", err)
-		v = 1
-		return
-	}
-
-	err = resources(ctx, h, g, helmClient)
+	err = resources(ctx, h, g, s, helmClient)
 	if err != nil {
 		log.Printf("%#v\n", err)
 		v = 1
@@ -172,7 +170,14 @@ func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, he
 	v = m.Run()
 }
 
-func resources(ctx context.Context, h *framework.Host, g *framework.Guest, helmClient *helmclient.Client) error {
+func resources(ctx context.Context, h *framework.Host, g *framework.Guest, s *k8s.Setup, helmClient *helmclient.Client) error {
+	{
+		err := s.EnsureNamespaceCreated(ctx, operatorNamespace)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	err := h.InstallStableOperator("cert-operator", "certconfig", e2etemplates.CertOperatorChartValues)
 	if err != nil {
 		return microerror.Mask(err)
@@ -185,20 +190,62 @@ func resources(ctx context.Context, h *framework.Host, g *framework.Guest, helmC
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	err = h.InstallCertResource()
-	if err != nil {
-		return microerror.Mask(err)
-	}
+
+	// NOTE that the release package has to be configured to make this work. Right
+	// now it is unclear in which direction the e2e tests go but this here should
+	// help later. If not, it will just get removed completely.
+	//
+	//	{
+	//		c := chartvalues.E2ESetupVaultConfig{
+	//			Vault: chartvalues.E2ESetupVaultConfigVault{
+	//				Token: env.VaultToken(),
+	//			},
+	//		}
+	//
+	//		values, err := chartvalues.NewE2ESetupVault(c)
+	//		if err != nil {
+	//			return microerror.Mask(err)
+	//		}
+	//
+	//		err = config.Release.Install(ctx, key.VaultReleaseName(), release.NewStableVersion(), values, config.Release.Condition().PodExists(ctx, "default", "app=vault"))
+	//		if err != nil {
+	//			return microerror.Mask(err)
+	//		}
+	//	}
+	//
+	//	{
+	//		c := chartvalues.CertOperatorConfig{
+	//			CommonDomain:       env.CommonDomain(),
+	//			RegistryPullSecret: env.RegistryPullSecret(),
+	//			Vault: chartvalues.CertOperatorVault{
+	//				Token: env.VaultToken(),
+	//			},
+	//		}
+	//
+	//		values, err := chartvalues.NewCertOperator(c)
+	//		if err != nil {
+	//			return microerror.Mask(err)
+	//		}
+	//
+	//		err = config.Release.InstallOperator(ctx, key.CertOperatorReleaseName(), release.NewStableVersion(), values, corev1alpha1.NewCertConfigCRD())
+	//		if err != nil {
+	//			return microerror.Mask(err)
+	//		}
+	//	}
 
 	err = installCredential(h)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	err = h.InstallResource("apiextensions-aws-config-e2e", e2etemplates.ApiextensionsAWSConfigE2EChartValues, ":stable")
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	// NOTE the template got removed but this code uses it still. This cannot
+	// work. Not fixing it now as the e2e tests are disabled anyway for this
+	// project.
+	//
+	//	err = h.InstallResource("apiextensions-aws-config-e2e", e2etemplates.ApiextensionsAWSConfigE2EChartValues, ":stable")
+	//	if err != nil {
+	//		return microerror.Mask(err)
+	//	}
 
 	err = h.InstallBranchOperator("cluster-operator", "awsclusterconfig", template.ClusterOperatorChartValues)
 	if err != nil {
