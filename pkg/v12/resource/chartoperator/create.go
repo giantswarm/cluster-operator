@@ -84,13 +84,17 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			if err != nil {
 				return microerror.Mask(err)
 			}
+
 			v := &Values{
 				ClusterDNSIP: clusterDNSIP,
 				Image: Image{
 					Registry: r.registryDomain,
 				},
-				TillerNamespace: chartOperatorNamespace,
+				Tiller: Tiller{
+					Namespace: chartOperatorNamespace,
+				},
 			}
+
 			b, err := json.Marshal(v)
 			if err != nil {
 				return microerror.Mask(err)

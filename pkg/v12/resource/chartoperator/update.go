@@ -2,9 +2,11 @@ package chartoperator
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 
+	"github.com/giantswarm/cluster-operator/pkg/v12/key"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -73,20 +75,31 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 				}
 			}()
 
-			// We need to pass the UpdateValueOverrides option to make the install process
-			// use the default values and prevent errors on nested values.
-			//
-			//     {
-			//      rpc error: code = Unknown desc = render error in "cnr-server-chart/templates/deployment.yaml":
-			//      template: cnr-server-chart/templates/deployment.yaml:20:26:
-			//      executing "cnr-server-chart/templates/deployment.yaml" at <.Values.image.reposi...>: can't evaluate field repository in type interface {}
-			//     }
-			//
+			clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			v := &Values{
+				ClusterDNSIP: clusterDNSIP,
+				Image: Image{
+					Registry: r.registryDomain,
+				},
+				Tiller: Tiller{
+					Namespace: chartOperatorNamespace,
+				},
+			}
+
+			b, err := json.Marshal(v)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
 			err = tenantHelmClient.UpdateReleaseFromTarball(
 				ctx,
 				updateState.ReleaseName,
 				tarballPath,
-				helm.UpdateValueOverrides([]byte("{}")),
+				helm.UpdateValueOverrides(b),
 			)
 			if err != nil {
 				return microerror.Mask(err)
