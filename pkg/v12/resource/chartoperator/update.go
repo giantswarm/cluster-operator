@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
@@ -75,22 +74,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 				}
 			}()
 
-			clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			v := &Values{
-				ClusterDNSIP: clusterDNSIP,
-				Image: Image{
-					Registry: r.registryDomain,
-				},
-				Tiller: Tiller{
-					Namespace: chartOperatorNamespace,
-				},
-			}
-
-			b, err := json.Marshal(v)
+			b, err := json.Marshal(updateState.ChartValues)
 			if err != nil {
 				return microerror.Mask(err)
 			}

@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/apprclient/apprclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
+	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
@@ -32,7 +33,16 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 				Owner:   "giantswarm",
 			},
 			expectedState: ResourceState{
-				ChartName:      "chart-operator-chart",
+				ChartName: "chart-operator-chart",
+				ChartValues: Values{
+					ClusterDNSIP: "172.31.0.10",
+					Image: Image{
+						Registry: "quay.io",
+					},
+					Tiller: Tiller{
+						Namespace: "giantswarm",
+					},
+				},
 				ReleaseName:    "chart-operator",
 				ReleaseVersion: "0.1.2",
 				ReleaseStatus:  "DEPLOYED",
@@ -92,7 +102,7 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(chartState, tc.expectedState) {
-				t.Fatalf("ChartState == %q, want %q", chartState, tc.expectedState)
+				t.Fatalf("want matching ResourceState \n %s", cmp.Diff(chartState, tc.expectedState))
 			}
 		})
 	}

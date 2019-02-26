@@ -78,6 +78,36 @@ func Test_Resource_Chart_newUpdate(t *testing.T) {
 				ReleaseVersion: "0.1.3",
 			},
 		},
+		{
+			name: "case 5: different non-empty values, expected desired",
+			currentState: &ResourceState{
+				ChartName: "current",
+				ChartValues: Values{
+					Tiller: Tiller{
+						Namespace: "default",
+					},
+				},
+				ReleaseVersion: "0.1.2",
+			},
+			desiredState: &ResourceState{
+				ChartName: "desired",
+				ChartValues: Values{
+					Tiller: Tiller{
+						Namespace: "giantswarm",
+					},
+				},
+				ReleaseVersion: "0.1.2",
+			},
+			expectedState: &ResourceState{
+				ChartName: "desired",
+				ChartValues: Values{
+					Tiller: Tiller{
+						Namespace: "giantswarm",
+					},
+				},
+				ReleaseVersion: "0.1.2",
+			},
+		},
 	}
 
 	for _, tc := range testCases {

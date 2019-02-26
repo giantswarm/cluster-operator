@@ -5,6 +5,9 @@ type ResourceState struct {
 	// ChartName is the name of the Helm Chart.
 	// e.g. chart-operator-chart
 	ChartName string
+	// ChartValues are the values to be passed to the chart-operator Helm Chart.
+	// e.g. chart-operator-chart
+	ChartValues Values
 	// ReleaseName is the name of the Helm release when the chart is deployed.
 	// e.g. chart-operator
 	ReleaseName string

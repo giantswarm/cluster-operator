@@ -212,5 +212,9 @@ func shouldUpdate(currentState, desiredState ResourceState) bool {
 		return true
 	}
 
+	if !reflect.DeepEqual(currentState.ChartValues, desiredState.ChartValues) {
+		return true
+	}
+
 	return false
 }
