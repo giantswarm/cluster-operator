@@ -41,6 +41,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
-		Version:  "0.12.0",
+		Version:  "0.13.0",
 	}
 }
