@@ -50,7 +50,7 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv12.VersionBundle())
 	versionBundles = append(versionBundles, azurev12.VersionBundle())
 	versionBundles = append(versionBundles, kvmv12.VersionBundle())
-	
+
 	versionBundles = append(versionBundles, awsv13.VersionBundle())
 	versionBundles = append(versionBundles, azurev13.VersionBundle())
 	versionBundles = append(versionBundles, kvmv13.VersionBundle())
