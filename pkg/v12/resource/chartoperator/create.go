@@ -17,8 +17,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/helm/pkg/helm"
-
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
@@ -80,18 +78,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				}
 			}()
 
-			clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-			v := &Values{
-				ClusterDNSIP: clusterDNSIP,
-				Image: Image{
-					Registry: r.registryDomain,
-				},
-				TillerNamespace: chartOperatorNamespace,
-			}
-			b, err := json.Marshal(v)
+			b, err := json.Marshal(createState.ChartValues)
 			if err != nil {
 				return microerror.Mask(err)
 			}

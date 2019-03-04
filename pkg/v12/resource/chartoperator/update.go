@@ -2,6 +2,7 @@ package chartoperator
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -73,20 +74,16 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 				}
 			}()
 
-			// We need to pass the UpdateValueOverrides option to make the install process
-			// use the default values and prevent errors on nested values.
-			//
-			//     {
-			//      rpc error: code = Unknown desc = render error in "cnr-server-chart/templates/deployment.yaml":
-			//      template: cnr-server-chart/templates/deployment.yaml:20:26:
-			//      executing "cnr-server-chart/templates/deployment.yaml" at <.Values.image.reposi...>: can't evaluate field repository in type interface {}
-			//     }
-			//
+			b, err := json.Marshal(updateState.ChartValues)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
 			err = tenantHelmClient.UpdateReleaseFromTarball(
 				ctx,
 				updateState.ReleaseName,
 				tarballPath,
-				helm.UpdateValueOverrides([]byte("{}")),
+				helm.UpdateValueOverrides(b),
 			)
 			if err != nil {
 				return microerror.Mask(err)

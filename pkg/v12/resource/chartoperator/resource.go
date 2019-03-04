@@ -24,7 +24,7 @@ const (
 	Name = "chartoperatorv12"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-3-stable"
+	chartOperatorChannel       = "0-4-stable"
 	chartOperatorDeployment    = "chart-operator"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
@@ -209,6 +209,10 @@ func shouldUpdate(currentState, desiredState ResourceState) bool {
 	if currentState.ReleaseVersion != "" && currentState.ReleaseVersion != desiredState.ReleaseVersion {
 		// ReleaseVersion has changed for the channel so we need to update the Helm
 		// Release.
+		return true
+	}
+
+	if !reflect.DeepEqual(currentState.ChartValues, desiredState.ChartValues) {
 		return true
 	}
 
