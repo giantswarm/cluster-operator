@@ -13,12 +13,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
+	"github.com/giantswarm/cluster-operator/pkg/v13/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "namespacev12"
+	Name = "namespacev13"
 
 	namespaceName = "giantswarm"
 )

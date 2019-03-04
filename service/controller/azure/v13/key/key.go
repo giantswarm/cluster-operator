@@ -5,7 +5,7 @@ import (
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
+	"github.com/giantswarm/cluster-operator/pkg/v13/key"
 )
 
 // ChartSpecs returns charts installed only for Azure.
