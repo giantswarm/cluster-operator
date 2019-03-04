@@ -5,8 +5,8 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/pkg/v12/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
+	"github.com/giantswarm/cluster-operator/pkg/v13/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v13/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v13/key"
 )
 

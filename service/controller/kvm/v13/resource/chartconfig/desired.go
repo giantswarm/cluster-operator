@@ -5,8 +5,8 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/pkg/v12/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
+	"github.com/giantswarm/cluster-operator/pkg/v13/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v13/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v13/key"
 )
 
