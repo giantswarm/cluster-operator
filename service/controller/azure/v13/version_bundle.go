@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "chart-operator",
-				Description: "Configure tiller namespace for chart-operator",
+				Component:   "TODO",
+				Description: "TODO",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -41,6 +41,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
-		Version:  "0.12.0",
+		Version:  "0.13.0",
 	}
 }

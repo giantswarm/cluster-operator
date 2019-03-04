@@ -6,13 +6,16 @@ import (
 	awsv10 "github.com/giantswarm/cluster-operator/service/controller/aws/v10"
 	awsv11 "github.com/giantswarm/cluster-operator/service/controller/aws/v11"
 	awsv12 "github.com/giantswarm/cluster-operator/service/controller/aws/v12"
+	awsv13 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
 	azurev10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
 	azurev11 "github.com/giantswarm/cluster-operator/service/controller/azure/v11"
 	azurev12 "github.com/giantswarm/cluster-operator/service/controller/azure/v12"
+	azurev13 "github.com/giantswarm/cluster-operator/service/controller/azure/v13"
 	azurev9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 	kvmv10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
 	kvmv11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
 	kvmv12 "github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
+	kvmv13 "github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
 	kvmv6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
 	kvmv6patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
 	kvmv7 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
@@ -47,6 +50,10 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv12.VersionBundle())
 	versionBundles = append(versionBundles, azurev12.VersionBundle())
 	versionBundles = append(versionBundles, kvmv12.VersionBundle())
+
+	versionBundles = append(versionBundles, awsv13.VersionBundle())
+	versionBundles = append(versionBundles, azurev13.VersionBundle())
+	versionBundles = append(versionBundles, kvmv13.VersionBundle())
 
 	return versionBundles
 }
