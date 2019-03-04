@@ -17,13 +17,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v10"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v11"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v12"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v7patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v7patch2"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v8"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v9"
+	v10 "github.com/giantswarm/cluster-operator/service/controller/aws/v10"
+	v11 "github.com/giantswarm/cluster-operator/service/controller/aws/v11"
+	v12 "github.com/giantswarm/cluster-operator/service/controller/aws/v12"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -82,102 +78,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 
 		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v7patch1ResourceSet *controller.ResourceSet
-	{
-		c := v7patch1.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v7patch1ResourceSet, err = v7patch1.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v7patch2ResourceSet *controller.ResourceSet
-	{
-		c := v7patch2.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v7patch2ResourceSet, err = v7patch2.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v8ResourceSet *controller.ResourceSet
-	{
-		c := v8.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v8ResourceSet, err = v8.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v9ResourceSet *controller.ResourceSet
-	{
-		c := v9.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v9ResourceSet, err = v9.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -263,10 +163,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v7patch1ResourceSet,
-				v7patch2ResourceSet,
-				v8ResourceSet,
-				v9ResourceSet,
 				v10ResourceSet,
 				v11ResourceSet,
 				v12ResourceSet,
