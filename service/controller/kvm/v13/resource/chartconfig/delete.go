@@ -10,7 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v12/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v12/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v12/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v13/key"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {

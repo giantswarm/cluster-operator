@@ -1,4 +1,4 @@
-package v12
+package v13
 
 import (
 	"context"
@@ -26,9 +26,9 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v12/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v12/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v12/resource/tiller"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v12/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v12/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v12/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v13/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v13/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v13/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for

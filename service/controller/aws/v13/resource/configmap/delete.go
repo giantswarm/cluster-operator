@@ -10,7 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v12/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v12/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v12/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v13/key"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {

@@ -10,7 +10,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "configmapv12"
+	Name = "configmapv13"
 )
 
 // Config represents the configuration used to create a new chart config resource.

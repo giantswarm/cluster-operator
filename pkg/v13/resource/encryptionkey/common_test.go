@@ -13,7 +13,7 @@ import (
 	k8stesting "k8s.io/client-go/testing"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v12/key"
+	"github.com/giantswarm/cluster-operator/pkg/v13/key"
 )
 
 var (
