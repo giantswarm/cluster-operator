@@ -2,6 +2,7 @@ package chartoperator
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"testing"
@@ -20,6 +21,26 @@ import (
 )
 
 func Test_Chart_GetCurrentState(t *testing.T) {
+	chartValues := Values{
+		Image: Image{
+			Registry: "quay.io",
+		},
+		Tiller: Tiller{
+			Namespace: "giantswarm",
+		},
+	}
+
+	bytes, err := json.Marshal(chartValues)
+	if err != nil {
+		t.Fatalf("expected nil got %#v", err)
+	}
+
+	values := map[string]interface{}{}
+	err = json.Unmarshal(bytes, &values)
+	if err != nil {
+		t.Fatalf("expected nil got %#v", err)
+	}
+
 	testCases := []struct {
 		name           string
 		obj            interface{}
@@ -39,16 +60,22 @@ func Test_Chart_GetCurrentState(t *testing.T) {
 			releaseContent: &helmclient.ReleaseContent{
 				Name:   "chart-operator",
 				Status: "DEPLOYED",
-				Values: map[string]interface{}{
-					"key": "value",
-				},
+				Values: values,
 			},
 			releaseHistory: &helmclient.ReleaseHistory{
 				Name:    "chart-operator",
 				Version: "0.1.2",
 			},
 			expectedState: ResourceState{
-				ChartName:      "chart-operator-chart",
+				ChartName: "chart-operator-chart",
+				ChartValues: Values{
+					Image: Image{
+						Registry: "quay.io",
+					},
+					Tiller: Tiller{
+						Namespace: "giantswarm",
+					},
+				},
 				ReleaseName:    "chart-operator",
 				ReleaseStatus:  "DEPLOYED",
 				ReleaseVersion: "0.1.2",
