@@ -2,6 +2,7 @@ package chartoperator
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/helmclient"
@@ -87,8 +88,20 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			return nil, microerror.Mask(err)
 		}
 
+		bytes, err := json.Marshal(releaseContent.Values)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartValues := &Values{}
+		err = json.Unmarshal(bytes, chartValues)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		chartState = &ResourceState{
 			ChartName:      chartOperatorChart,
+			ChartValues:    *chartValues,
 			ReleaseName:    chartOperatorRelease,
 			ReleaseStatus:  releaseContent.Status,
 			ReleaseVersion: releaseHistory.Version,
