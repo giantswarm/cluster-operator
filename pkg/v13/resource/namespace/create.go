@@ -3,7 +3,7 @@ package namespace
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1 "k8s.io/api/core/v1"
@@ -27,15 +27,25 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
-		} else if apierrors.IsTimeout(err) || guest.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
+		} else if apierrors.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api timeout.")
 
-			// We should not hammer guest API if it is not available, the tenant cluster
+			// We should not hammer tenant API if it is not available, the tenant cluster
 			// might be initializing. We will retry on next reconciliation loop.
 			resourcecanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
+		} else if tenant.IsAPINotAvailable(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
+
+			// We should not hammer tenant API if it is not available, the tenant cluster
+			// might be initializing. We will retry on next reconciliation loop.
+			resourcecanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
+		} else if err != nil {
 		} else if err != nil {
 			return microerror.Mask(err)
 		}

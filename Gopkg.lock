@@ -217,8 +217,11 @@
 [[projects]]
   branch = "master"
   name = "github.com/giantswarm/errors"
-  packages = ["guest"]
-  revision = "d4c171b8af43355ae5cb35bfd63a24aae3fbcc16"
+  packages = [
+    "guest",
+    "tenant"
+  ]
+  revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
 
 [[projects]]
   branch = "master"
@@ -1089,6 +1092,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "40d0a35c1a10a1b50bf9124b98070e297d7bc3309886d5f755361d0792252653"
+  inputs-digest = "41c261bf804e35b5d2a2b6b483ff179797bafa79c56a009b97f3a447d46ec235"
   solver-name = "gps-cdcl"
   solver-version = 1
