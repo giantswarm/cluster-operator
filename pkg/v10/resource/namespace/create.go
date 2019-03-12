@@ -27,7 +27,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
-		} else if guest.IsAPINotAvailable(err) {
+		} else if apierrors.IsTimeout(err) || guest.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
 
 			// We should not hammer guest API if it is not available, the guest cluster
