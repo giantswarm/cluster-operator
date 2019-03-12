@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -104,7 +104,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
-	} else if guest.IsAPINotAvailable(err) {
+	} else if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
 
 		// We should not hammer guest API if it is not available, the guest

@@ -3,7 +3,7 @@ package namespace
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1 "k8s.io/api/core/v1"
