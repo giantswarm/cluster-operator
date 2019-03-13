@@ -293,7 +293,7 @@
   revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
 
 [[projects]]
-  branch = "master"
+  branch = "kubeconfig"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -306,16 +306,19 @@
     "controller/resource/internal",
     "controller/resource/metricsresource",
     "controller/resource/retryresource",
+    "flag/service/kubernetes",
+    "flag/service/kubernetes/tls",
+    "flag/service/kubernetes/watch",
     "informer",
     "informer/collector"
   ]
-  revision = "38432a4732d948dceaf512c1436ee62a19ab43c7"
+  revision = "031a73d98e0a1d566b231919c97cbd823a5d3729"
 
 [[projects]]
-  branch = "master"
+  branch = "kubeconfig"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
-  revision = "13dd8d6826b6fbbe72b3cabfaf0e682f12d4d2cb"
+  revision = "5728e9e2c4c771f3b71423117be9857d6aa7006e"
 
 [[projects]]
   branch = "master"
@@ -1092,6 +1095,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "41c261bf804e35b5d2a2b6b483ff179797bafa79c56a009b97f3a447d46ec235"
+  inputs-digest = "3a838b841b7e19ede7a82f116012d4a4d839059d860f82ce5fd49498aafd3b52"
   solver-name = "gps-cdcl"
   solver-version = 1
