@@ -77,7 +77,7 @@ func (h *helmMock) EnsureTillerInstalled(ctx context.Context) error {
 	return nil
 }
 
-func (h *helmMock) EnsureTillerInstalledWithValues(ctx context.Context) error {
+func (h *helmMock) EnsureTillerInstalledWithValues(ctx context.Context, values []string) error {
 	return nil
 }
 

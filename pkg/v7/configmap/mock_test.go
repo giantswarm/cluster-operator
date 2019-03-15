@@ -39,11 +39,11 @@ func (h *helmMock) DeleteRelease(releaseName string, options ...helm.DeleteOptio
 	return nil
 }
 
-func (h *helmMock) EnsureTillerInstalled() error {
+func (h *helmMock) EnsureTillerInstalled(ctx context.Context) error {
 	return nil
 }
 
-func (h *helmMock) EnsureTillerInstalledWithValues(ctx context.Context) error {
+func (h *helmMock) EnsureTillerInstalledWithValues(ctx context.Context, values []string) error {
 	return nil
 }
 
