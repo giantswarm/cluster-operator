@@ -67,7 +67,7 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	registryDomain := config.Viper.GetString(config.Flag.Service.RegistryDomain)
+	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
@@ -77,9 +77,10 @@ func New(config Config) (*Service, error) {
 		c := k8srestconfig.Config{
 			Logger: config.Logger,
 
-			Address:   config.Viper.GetString(config.Flag.Service.Kubernetes.Address),
-			InCluster: config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster),
-			TLS: k8srestconfig.TLSClientConfig{
+			Address:    config.Viper.GetString(config.Flag.Service.Kubernetes.Address),
+			InCluster:  config.Viper.GetBool(config.Flag.Service.Kubernetes.InCluster),
+			KubeConfig: config.Viper.GetString(config.Flag.Service.Kubernetes.KubeConfig),
+			TLS: k8srestconfig.ConfigTLS{
 				CAFile:  config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CAFile),
 				CrtFile: config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.CrtFile),
 				KeyFile: config.Viper.GetString(config.Flag.Service.Kubernetes.TLS.KeyFile),
