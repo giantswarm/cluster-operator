@@ -83,13 +83,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig
 		return microerror.Mask(err)
 	}
 
-	values := []string{
-		"spec.template.spec.priorityClassName=giantswarm-critical",
-		"spec.template.spec.tolerations[0].effect=NoSchedule",
-		"spec.template.spec.tolerations[0].key=node-role.kubernetes.io/master",
-		"spec.template.spec.tolerations[0].operator=Exists",
-	}
-	err = tenantHelmClient.EnsureTillerInstalledWithValues(ctx, values)
+	err = tenantHelmClient.EnsureTillerInstalled(ctx)
 	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 
