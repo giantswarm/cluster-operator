@@ -302,6 +302,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6904406a4f52ca93201e55bdda1a7c5730de7b5993676250da39bcd092888c10"
+  name = "github.com/giantswarm/kubeconfig"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3c2a493acc661ccb1ab63629cf319d111976fcc7"
+
+[[projects]]
+  branch = "master"
   digest = "1:b7f7982da706514dcb15a2d9211d932efb654c33d4ac105d552ae1981702dad4"
   name = "github.com/giantswarm/microendpoint"
   packages = [
@@ -378,7 +386,7 @@
     "informer/collector",
   ]
   pruneopts = "UT"
-  revision = "67aba158b01a7eb22405c4a5ad643853f29cb5f3"
+  revision = "91bc8c25d0ff277802675379f8d7ae800745c56b"
 
 [[projects]]
   branch = "master"
@@ -1324,6 +1332,7 @@
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/helmclient",
     "github.com/giantswarm/helmclient/helmclienttest",
+    "github.com/giantswarm/kubeconfig",
     "github.com/giantswarm/microendpoint/endpoint/healthz",
     "github.com/giantswarm/microendpoint/endpoint/version",
     "github.com/giantswarm/microendpoint/service/version",
@@ -1353,6 +1362,7 @@
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/watch",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
