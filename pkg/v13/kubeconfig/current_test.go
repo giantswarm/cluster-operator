@@ -115,6 +115,7 @@ func Test_Resource_GetCurrentState(t *testing.T) {
 				K8sClient: client,
 				Logger:    microloggertest.New(),
 
+				ProjectName:       "cluster-operator",
 				ResourceName:      "giantswarm-tenant",
 				ResourceNamespace: "giantswarm",
 			}

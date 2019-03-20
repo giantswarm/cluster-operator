@@ -3,6 +3,7 @@ package kubeconfig
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
@@ -47,6 +48,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      r.resourceName,
 			Namespace: r.resourceNamespace,
+			Labels: map[string]string{
+				label.ManagedBy: r.projectName,
+			},
 		},
 		Data: map[string][]byte{
 			"kubeConfig": yamlBytes,

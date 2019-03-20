@@ -22,6 +22,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
+	ProjectName       string
 	ResourceName      string
 	ResourceNamespace string
 }
@@ -50,6 +51,9 @@ func New(config Config) (*StateGetter, error) {
 	}
 
 	// Settings
+	if config.ProjectName == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName not be empty", config)
+	}
 	if config.ResourceName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceName must not be empty", config)
 	}
@@ -77,6 +81,7 @@ func New(config Config) (*StateGetter, error) {
 		logger:        config.Logger,
 
 		// Settings
+		projectName:       config.ProjectName,
 		resourceName:      config.ResourceName,
 		resourceNamespace: config.ResourceNamespace,
 	}
