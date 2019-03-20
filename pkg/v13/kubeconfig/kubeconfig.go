@@ -1,18 +1,11 @@
 package kubeconfig
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/cluster-operator/pkg/v13/chartconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/giantswarm/cluster-operator/pkg/v13/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v13/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v13/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v13/key"
 )
 
 // Config represents the configuration used to create a new index resource.
@@ -23,7 +16,6 @@ type Config struct {
 
 	// Settings.
 	ProjectName       string
-	ResourceName      string
 	ResourceNamespace string
 }
 
@@ -36,7 +28,6 @@ type StateGetter struct {
 
 	// Settings.
 	projectName       string
-	resourceName      string
 	resourceNamespace string
 }
 
@@ -53,9 +44,6 @@ func New(config Config) (*StateGetter, error) {
 	// Settings
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName not be empty", config)
-	}
-	if config.ResourceName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceName must not be empty", config)
 	}
 	if config.ResourceNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceNamespace must not be empty", config)
@@ -82,41 +70,10 @@ func New(config Config) (*StateGetter, error) {
 
 		// Settings
 		projectName:       config.ProjectName,
-		resourceName:      config.ResourceName,
 		resourceNamespace: config.ResourceNamespace,
 	}
 
 	return r, nil
-}
-
-func (r *StateGetter) Name() string {
-	return r.resourceName
-}
-
-func ToCustomObject(v interface{}) (*chartconfig.ClusterConfig, error) {
-	var guestConfig v1alpha1.ClusterGuestConfig
-	switch object := v.(type) {
-	case *v1alpha1.AWSClusterConfig:
-		guestConfig = awskey.ClusterGuestConfig(*object)
-	case *v1alpha1.AzureClusterConfig:
-		guestConfig = azurekey.ClusterGuestConfig(*object)
-	case *v1alpha1.KVMClusterConfig:
-		guestConfig = kvmkey.ClusterGuestConfig(*object)
-	default:
-		return nil, microerror.Maskf(invalidConfigError, "cannot identify interface %#v", v)
-	}
-
-	apiDomain, err := key.APIDomain(guestConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	clusterConfig := chartconfig.ClusterConfig{
-		APIDomain:    apiDomain,
-		ClusterID:    key.ClusterID(guestConfig),
-		Organization: key.ClusterOrganization(guestConfig),
-	}
-	return &clusterConfig, nil
 }
 
 func toSecret(v interface{}) (*v1.Secret, error) {

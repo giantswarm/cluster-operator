@@ -2,11 +2,11 @@ package kubeconfig
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
@@ -15,18 +15,20 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	ktesting "k8s.io/client-go/testing"
+
+	"github.com/giantswarm/cluster-operator/pkg/v13/chartconfig"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name           string
-		obj            interface{}
+		config         chartconfig.ClusterConfig
 		expectedSecret *corev1.Secret
 		errorMatcher   func(error) bool
 		secretCert     *corev1.Secret
 	}{
 		{
-			name: "case 0: aws cluster config",
+			name: "case 0: cluster config",
 			secretCert: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
@@ -40,107 +42,14 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					"key": []byte("key"),
 				},
 			},
-			obj: &v1alpha1.AWSClusterConfig{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "giantswarm-aws-tenant",
-				},
-				Spec: v1alpha1.AWSClusterConfigSpec{
-					Guest: v1alpha1.AWSClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							DNSZone: "http://www.giantswarm.io",
-							ID:      "w7utg",
-							Owner:   "giantswarm",
-						},
-					},
-				},
+			config: chartconfig.ClusterConfig{
+				APIDomain:    "http://www.giantswarm.io",
+				ClusterID:    "w7utg",
+				Organization: "giantswarm",
 			},
 			expectedSecret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm-tenant",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						"giantswarm.io/managed-by": "cluster-operator",
-					},
-				},
-				Data: map[string][]byte{
-					"kubeConfig": []byte(kubeconfigYaml),
-				},
-			},
-		},
-		{
-			name: "case 1: azure cluster config",
-			secretCert: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"clusterComponent": string(certs.AppOperatorAPICert),
-						"clusterID":        "w7utg",
-					},
-				},
-				Data: map[string][]byte{
-					"ca":  []byte("ca"),
-					"crt": []byte("crt"),
-					"key": []byte("key"),
-				},
-			},
-			obj: &v1alpha1.AzureClusterConfig{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "giantswarm-aws-tenant",
-				},
-				Spec: v1alpha1.AzureClusterConfigSpec{
-					Guest: v1alpha1.AzureClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							DNSZone: "http://www.giantswarm.io",
-							ID:      "w7utg",
-							Owner:   "giantswarm",
-						},
-					},
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm-tenant",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						"giantswarm.io/managed-by": "cluster-operator",
-					},
-				},
-				Data: map[string][]byte{
-					"kubeConfig": []byte(kubeconfigYaml),
-				},
-			},
-		},
-		{
-			name: "case 2: kvm cluster config",
-			secretCert: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"clusterComponent": string(certs.AppOperatorAPICert),
-						"clusterID":        "w7utg",
-					},
-				},
-				Data: map[string][]byte{
-					"ca":  []byte("ca"),
-					"crt": []byte("crt"),
-					"key": []byte("key"),
-				},
-			},
-			obj: &v1alpha1.KVMClusterConfig{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "giantswarm-aws-tenant",
-				},
-				Spec: v1alpha1.KVMClusterConfigSpec{
-					Guest: v1alpha1.KVMClusterConfigSpecGuest{
-						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							DNSZone: "http://www.giantswarm.io",
-							ID:      "w7utg",
-							Owner:   "giantswarm",
-						},
-					},
-				},
-			},
-			expectedSecret: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "giantswarm-tenant",
+					Name:      "w7utg-kubeconfig",
 					Namespace: "giantswarm",
 					Labels: map[string]string{
 						"giantswarm.io/managed-by": "cluster-operator",
@@ -165,7 +74,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Logger:    microloggertest.New(),
 
 				ProjectName:       "cluster-operator",
-				ResourceName:      "giantswarm-tenant",
 				ResourceNamespace: "giantswarm",
 			}
 			r, err := New(c)
@@ -177,7 +85,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				time.Sleep(2 * time.Second)
 				fakeWatch.Add(tc.secretCert)
 			}()
-			result, err := r.GetDesiredState(context.Background(), tc.obj)
+			result, err := r.GetDesiredState(context.Background(), tc.config)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)
@@ -197,6 +105,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(secret.ObjectMeta, tc.expectedSecret.ObjectMeta))
 				}
 				if !reflect.DeepEqual(secret.Data, tc.expectedSecret.Data) {
+					fmt.Println(string(secret.Data["kubeConfig"]))
+					fmt.Println("fuck")
 					t.Fatalf("want matching data \n %s", cmp.Diff(secret.Data, tc.expectedSecret.Data))
 				}
 				if !reflect.DeepEqual(secret.TypeMeta, tc.expectedSecret.TypeMeta) {
