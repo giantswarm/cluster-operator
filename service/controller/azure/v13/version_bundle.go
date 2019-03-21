@@ -8,15 +8,15 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
+				Component:   "nginx-ingress-controller",
+				Description: "Updated to 0.23.0. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.21.0",
+				Version: "0.23.0",
 			},
 			{
 				Name:    "external-dns",
