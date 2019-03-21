@@ -15,7 +15,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v13/key"
+	"github.com/giantswarm/cluster-operator/pkg/v14/key"
 )
 
 var (
