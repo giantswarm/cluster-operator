@@ -12,6 +12,21 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Updated to 0.23.0. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Removed CPU and memory limits to Ingress Controller pods as per upstream recommendation.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Run single Ingress Controller pod per worker node.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Enabled dynamic certificates flag.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
