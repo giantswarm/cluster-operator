@@ -21,6 +21,7 @@ import (
 	v11 "github.com/giantswarm/cluster-operator/service/controller/aws/v11"
 	v12 "github.com/giantswarm/cluster-operator/service/controller/aws/v12"
 	v13 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
+	v14 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -180,6 +181,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v14ResourceSet *controller.ResourceSet
+	{
+		c := v14.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v14ResourceSet, err = v14.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -192,6 +217,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v11ResourceSet,
 				v12ResourceSet,
 				v13ResourceSet,
+				v14ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
