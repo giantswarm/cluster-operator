@@ -9,22 +9,22 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "nginx-ingress-controller",
-				Description: "Updated to 0.23.0. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md.",
+				Description: "Updated to 0.23.0. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md. Note: This has a breaking change to rewrite rules in Ingress objects https://kubernetes.github.io/ingress-nginx/examples/rewrite/#rewrite-target.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
 				Component:   "nginx-ingress-controller",
-				Description: "Removed CPU and memory limits to Ingress Controller pods as per upstream recommendation.",
+				Description: "Removed CPU and memory limits to Ingress Controller pods. As per upstream recommendation.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
 				Component:   "nginx-ingress-controller",
-				Description: "Run single Ingress Controller pod per worker node.",
+				Description: "Added hard anti-affinity rule to run a maximum of one Ingress Controller pod per node. As per upstream recommendation.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
 				Component:   "nginx-ingress-controller",
-				Description: "Enabled dynamic certificates flag.",
+				Description: "Enabled dynamic certificates to avoid reloading due to certificates changes.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
