@@ -21,7 +21,7 @@ import (
 	v11 "github.com/giantswarm/cluster-operator/service/controller/aws/v11"
 	v12 "github.com/giantswarm/cluster-operator/service/controller/aws/v12"
 	v13 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
-	v14 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
+	v14 "github.com/giantswarm/cluster-operator/service/controller/aws/v14"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
