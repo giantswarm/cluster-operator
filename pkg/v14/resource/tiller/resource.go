@@ -65,8 +65,29 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig v1alpha1.ClusterGuestConfig) error {
+func (r *Resource) ensureTillerInstalled(ctx context.Context, obj interface{}) error {
+	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// Tenant Tiller is not deleted so cancel the resource. Tiller deployment
+	// will be deleted when the tenant cluster resources are deleted.
+	if key.IsDeleted(objectMeta) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting Tiller deletion to provider operators")
+
+		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil
+	}
+
 	r.logger.LogCtx(ctx, "level", "debug", "message", "ensuring tiller is installed")
+
+	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	clusterConfig, err := prepareClusterConfig(r.baseClusterConfig, clusterGuestConfig)
 	if err != nil {
