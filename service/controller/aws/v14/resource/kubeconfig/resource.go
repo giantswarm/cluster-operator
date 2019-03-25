@@ -82,10 +82,13 @@ func New(config Config) (*StateGetter, error) {
 }
 
 func toSecret(v interface{}) (*corev1.Secret, error) {
-	a, ok := v.(*corev1.Secret)
+	if v == nil {
+		return nil, nil
+	}
+	secret, ok := v.(*corev1.Secret)
 	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", a, v)
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", secret, v)
 	}
 
-	return a, nil
+	return secret, nil
 }

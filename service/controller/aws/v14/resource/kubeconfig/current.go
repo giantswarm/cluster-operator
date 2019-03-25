@@ -23,6 +23,7 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
 	secretName := key.KubeConfigSecretName(clusterGuestConfig)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret %#q", secretName))

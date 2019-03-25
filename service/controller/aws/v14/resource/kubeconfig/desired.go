@@ -30,7 +30,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	appOperator, err := r.certsSearcher.SearchAppOperator(clusterGuestConfig.ID)
 	if certs.IsTimeout(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the teannt cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the tenant cluster")
 
 		// We can't continue without a app-operator-api cert. We will retry during the
 		// next execution.
