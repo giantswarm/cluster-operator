@@ -366,7 +366,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2a148a768d8deaa39436667c33dd586fdd48db1bbe4e682dc7e8e2f87c8c566f"
+  digest = "1:c6d2738ba18f3a1e77c65e4af777ff3e7b4ba91a4525094fa2ca42251a81706e"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -387,7 +387,7 @@
     "resource/secret",
   ]
   pruneopts = "UT"
-  revision = "91bc8c25d0ff277802675379f8d7ae800745c56b"
+  revision = "0caf2c987e044564f6f7da48603f6142159bd784"
 
 [[projects]]
   branch = "master"
@@ -1364,6 +1364,7 @@
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/watch",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
