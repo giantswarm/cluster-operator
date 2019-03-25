@@ -10,7 +10,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/v10/key"
@@ -26,6 +28,7 @@ type Config struct {
 	Logger                   micrologger.Logger
 	Tenant                   tenantcluster.Interface
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
 }
 
 // Resource implements the tiller resource.
@@ -34,6 +37,7 @@ type Resource struct {
 	logger                   micrologger.Logger
 	tenant                   tenantcluster.Interface
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
 }
 
 // New creates a new configured tiller resource.
@@ -50,12 +54,16 @@ func New(config Config) (*Resource, error) {
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
+	if config.ToClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
+	}
 
 	r := &Resource{
 		baseClusterConfig:        config.BaseClusterConfig,
 		logger:                   config.Logger,
 		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
+		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
 
 	return r, nil
