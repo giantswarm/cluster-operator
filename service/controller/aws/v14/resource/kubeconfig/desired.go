@@ -15,12 +15,12 @@ import (
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	customObject, err := awskey.ToCustomObject(obj)
+	cr, err := awskey.ToCustomObject(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
+	clusterGuestConfig := awskey.ClusterGuestConfig(cr)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)

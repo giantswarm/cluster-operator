@@ -49,7 +49,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 		secretCert     *corev1.Secret
 	}{
 		{
-			name: "case 0: cluster config",
+			name: "case 0: basic match",
 			secretCert: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
