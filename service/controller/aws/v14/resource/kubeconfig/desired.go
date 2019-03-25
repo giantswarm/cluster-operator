@@ -3,9 +3,11 @@ package kubeconfig
 import (
 	"context"
 
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -27,7 +29,16 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	appOperator, err := r.certsSearcher.SearchAppOperator(clusterGuestConfig.ID)
-	if err != nil {
+	if certs.IsTimeout(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the teannt cluster")
+
+		// We can't continue without a app-operator-api cert. We will retry during the
+		// next execution.
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+		return nil, nil
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
