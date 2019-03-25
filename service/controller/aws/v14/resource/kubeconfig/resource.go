@@ -4,13 +4,13 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "kubeconfigv1"
+	Name = "kubeconfigv14"
 )
 
 // Config represents the configuration used to create a new kubeconfig resource.
@@ -32,7 +32,8 @@ type StateGetter struct {
 	logger        micrologger.Logger
 
 	// Settings.
-	projectName string
+	projectName       string
+	resourceNamespace string
 }
 
 // New creates a new configured index resource.
@@ -48,6 +49,9 @@ func New(config Config) (*StateGetter, error) {
 	// Settings
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName not be empty", config)
+	}
+	if config.ResourceNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceNamespace not be empty", config)
 	}
 
 	var cert certs.Interface
@@ -70,17 +74,18 @@ func New(config Config) (*StateGetter, error) {
 		logger:        config.Logger,
 
 		// Settings
-		projectName: config.ProjectName,
+		projectName:       config.ProjectName,
+		resourceNamespace: config.ResourceNamespace,
 	}
 
 	return r, nil
 }
 
-func toSecret(v interface{}) (*v1.Secret, error) {
-	x, ok := v.(*v1.Secret)
+func toSecret(v interface{}) (*corev1.Secret, error) {
+	a, ok := v.(*corev1.Secret)
 	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", x, v)
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", a, v)
 	}
 
-	return x, nil
+	return a, nil
 }

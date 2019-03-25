@@ -8,6 +8,11 @@ var invalidConfigError = &microerror.Error{
 	Kind: "invalidConfigError",
 }
 
+// IsInvalidConfigError asserts invalidConfigError.
+func IsInvalidConfigError(err error) bool {
+	return microerror.Cause(err) == invalidConfigError
+}
+
 var wrongTypeError = &microerror.Error{
 	Kind: "wrongTypeError",
 }

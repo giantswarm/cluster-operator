@@ -163,6 +163,17 @@ func IsDeleted(objectMeta metav1.ObjectMeta) bool {
 	return objectMeta.DeletionTimestamp != nil
 }
 
+// KubeConfigClusterName returns the name for a tenant cluster
+func KubeConfigClusterName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return fmt.Sprintf("giantswarm-%s", clusterGuestConfig.ID)
+}
+
+// KubeConfigSecretName returns the name of secret resource for a tenant cluster
+func KubeConfigSecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	secretName := fmt.Sprintf("%s-kubeconfig", clusterGuestConfig.ID)
+	return secretName
+}
+
 // MasterServiceDomain returns the domain of the master service for the given
 // guest cluster.
 func MasterServiceDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {

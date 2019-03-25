@@ -17,6 +17,29 @@ import (
 	ktesting "k8s.io/client-go/testing"
 )
 
+const (
+	kubeconfigYaml = `apiVersion: v1
+kind: Config
+clusters:
+- name: giantswarm-w7utg
+  cluster:
+    server: api.giantswarm.io
+    certificate-authority-data: Y2E=
+users:
+- name: giantswarm-w7utg-user
+  user:
+    client-certificate-data: Y3J0
+    client-key-data: a2V5
+contexts:
+- name: giantswarm-w7utg-context
+  context:
+    cluster: giantswarm-w7utg
+    user: giantswarm-w7utg-user
+current-context: giantswarm-w7utg-context
+preferences: {}
+`
+)
+
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -55,9 +78,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			expectedSecret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "w7utg-kubeconfig",
-					Namespace: "",
+					Namespace: "giantswarm",
 					Labels: map[string]string{
-						"giantswarm.io/managed-by": "cluster-operator",
+						"giantswarm.io/cluster":      "w7utg",
+						"giantswarm.io/organization": "giantswarm",
+						"giantswarm.io/managed-by":   "cluster-operator",
+						"giantswarm.io/service-type": "managed",
 					},
 				},
 				Data: map[string][]byte{

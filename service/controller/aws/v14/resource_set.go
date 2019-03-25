@@ -50,6 +50,7 @@ type ResourceSetConfig struct {
 	HandledVersionBundles []string
 	ProjectName           string
 	RegistryDomain        string
+	ResourceNamespace     string
 }
 
 // NewResourceSet returns a configured AWSClusterConfig controller ResourceSet.
@@ -65,6 +66,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
+	}
+	if config.ResourceNamespace == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceNamespace must not be empty", config)
 	}
 
 	var certConfigResource controller.Resource
@@ -257,7 +261,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ProjectName: config.ProjectName,
+			ProjectName:       config.ProjectName,
+			ResourceNamespace: config.ResourceNamespace,
 		}
 
 		stateGetter, err := kubeconfig.New(c)

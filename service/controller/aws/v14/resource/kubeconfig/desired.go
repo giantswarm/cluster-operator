@@ -2,7 +2,6 @@ package kubeconfig
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
@@ -48,18 +47,22 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	yamlBytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, fmt.Sprintf("giantswarm-%s", clusterGuestConfig.ID), "")
+	yamlBytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, key.KubeConfigClusterName(clusterGuestConfig), "")
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	secretName := fmt.Sprintf("%s-kubeconfig", clusterGuestConfig.ID)
+	secretName := key.KubeConfigSecretName(clusterGuestConfig)
 
 	secret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: secretName,
+			Name:      secretName,
+			Namespace: r.resourceNamespace,
 			Labels: map[string]string{
-				label.ManagedBy: r.projectName,
+				label.Cluster:      clusterGuestConfig.ID,
+				label.ManagedBy:    r.projectName,
+				label.Organization: clusterGuestConfig.Owner,
+				label.ServiceType:  label.ServiceTypeManaged,
 			},
 		},
 		Data: map[string][]byte{

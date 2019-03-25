@@ -68,6 +68,7 @@ func New(config Config) (*Service, error) {
 	var err error
 
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
+	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.ResourceNamespace)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
@@ -162,6 +163,7 @@ func New(config Config) (*Service, error) {
 			CalicoPrefixLength: calicoPrefixLength,
 			ProjectName:        config.ProjectName,
 			RegistryDomain:     registryDomain,
+			ResourceNamespace:  resourceNamespace,
 		}
 
 		awsClusterController, err = aws.NewCluster(c)
