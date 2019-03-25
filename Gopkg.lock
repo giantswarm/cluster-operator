@@ -302,6 +302,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6904406a4f52ca93201e55bdda1a7c5730de7b5993676250da39bcd092888c10"
+  name = "github.com/giantswarm/kubeconfig"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3c2a493acc661ccb1ab63629cf319d111976fcc7"
+
+[[projects]]
+  branch = "master"
   digest = "1:b7f7982da706514dcb15a2d9211d932efb654c33d4ac105d552ae1981702dad4"
   name = "github.com/giantswarm/microendpoint"
   packages = [
@@ -358,7 +366,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2d1f3fc41fd8f55225233dce260827bbf1fa3425d758cdfe572f168da6e8cc55"
+  digest = "1:2a148a768d8deaa39436667c33dd586fdd48db1bbe4e682dc7e8e2f87c8c566f"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -376,9 +384,10 @@
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
+    "resource/secret",
   ]
   pruneopts = "UT"
-  revision = "67aba158b01a7eb22405c4a5ad643853f29cb5f3"
+  revision = "91bc8c25d0ff277802675379f8d7ae800745c56b"
 
 [[projects]]
   branch = "master"
@@ -1324,6 +1333,7 @@
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/helmclient",
     "github.com/giantswarm/helmclient/helmclienttest",
+    "github.com/giantswarm/kubeconfig",
     "github.com/giantswarm/microendpoint/endpoint/healthz",
     "github.com/giantswarm/microendpoint/endpoint/version",
     "github.com/giantswarm/microendpoint/service/version",
@@ -1342,6 +1352,7 @@
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource/secret",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
