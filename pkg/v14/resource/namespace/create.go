@@ -71,8 +71,6 @@ func (r *Resource) desiredNamespace(ctx context.Context, clusterGuestConfig v1al
 		return nil, microerror.Mask(err)
 	}
 
-	// Compute the desired state of the namespace to have a reference of how
-	// the data should be.
 	namespace := &corev1.Namespace{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Namespace",
