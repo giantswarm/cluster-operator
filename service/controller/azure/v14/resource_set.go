@@ -29,7 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v14/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/resource/configmap"
 )
@@ -377,12 +376,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 }
 
 func getClusterConfigFunc(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
-	cr, err := azurekey.ToCustomObject(obj)
+	cr, err := key.ToCustomObject(obj)
 	if err != nil {
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
 	}
 
-	return azurekey.ClusterGuestConfig(cr), nil
+	return key.ClusterGuestConfig(cr), nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
