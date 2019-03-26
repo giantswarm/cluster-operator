@@ -26,7 +26,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q namespace in tenant cluster", namespace))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating %#q namespace in tenant cluster", namespace.Name))
 
 	tenantK8sClient, err := r.getTenantK8sClient(ctx, obj)
 	if err != nil {
@@ -35,7 +35,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespace)
 	if apierrors.IsAlreadyExists(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q namespace already created in tenant cluster", namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("%#q namespace already created in tenant cluster", namespace.Name))
 
 		return nil
 	} else if apierrors.IsTimeout(err) {
@@ -60,7 +60,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "created %#q namespace in tenant cluster")
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created %#q namespace in tenant cluster", namespace.Name))
 
 	return nil
 }
