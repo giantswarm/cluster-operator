@@ -4,17 +4,15 @@ import (
 	"context"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/certstest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
 	clientgofake "k8s.io/client-go/kubernetes/fake"
-	ktesting "k8s.io/client-go/testing"
 )
 
 const (
@@ -43,25 +41,19 @@ preferences: {}
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name            string
+		certs           certs.AppOperator
+		certsError      error
 		config          *v1alpha1.AWSClusterConfig
 		expectedSecrets []*corev1.Secret
 		errorMatcher    func(error) bool
-		secretCert      *corev1.Secret
-		timeout         time.Duration
 	}{
 		{
 			name: "case 0: basic match",
-			secretCert: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"clusterComponent": string(certs.AppOperatorAPICert),
-						"clusterID":        "w7utg",
-					},
-				},
-				Data: map[string][]byte{
-					"ca":  []byte("ca"),
-					"crt": []byte("crt"),
-					"key": []byte("key"),
+			certs: certs.AppOperator{
+				APIServer: certs.TLS{
+					CA:  []byte("ca"),
+					Crt: []byte("crt"),
+					Key: []byte("key"),
 				},
 			},
 			config: &v1alpha1.AWSClusterConfig{
@@ -95,7 +87,8 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			},
 		},
 		{
-			name: "case 1: cert timeout, reconciliation stop",
+			name:       "case 1: cert timeout, reconciliation stop",
+			certsError: timeoutError,
 			config: &v1alpha1.AWSClusterConfig{
 				Spec: v1alpha1.AWSClusterConfigSpec{
 					Guest: v1alpha1.AWSClusterConfigSpecGuest{
@@ -108,28 +101,29 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			expectedSecrets: []*corev1.Secret{},
-			timeout:         1 * time.Second,
+			errorMatcher: IsTimeout,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 
-			client := clientgofake.NewSimpleClientset()
-			fakeWatch := watch.NewFake()
-			client.PrependWatchReactor("secrets", ktesting.DefaultWatchReactor(fakeWatch, nil))
+			var ct certs.Interface
+			{
+				c := certstest.Config{
+					AppOperator:      tc.certs,
+					AppOperatorError: tc.certsError,
+				}
+				ct = certstest.NewSearcher(c)
+			}
 
 			c := Config{
-				K8sClient: client,
-				Logger:    microloggertest.New(),
+				CertSearcher: ct,
+				K8sClient:    clientgofake.NewSimpleClientset(),
+				Logger:       microloggertest.New(),
 
 				ProjectName:       "cluster-operator",
 				ResourceNamespace: "giantswarm",
-			}
-
-			if tc.timeout != 0 {
-				c.CertsWatchTimeout = tc.timeout
 			}
 
 			r, err := New(c)
@@ -137,12 +131,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			if tc.timeout != 0 {
-				go func() {
-					time.Sleep(2 * time.Second)
-					fakeWatch.Add(tc.secretCert)
-				}()
-			}
 			result, err := r.GetDesiredState(context.Background(), tc.config)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
