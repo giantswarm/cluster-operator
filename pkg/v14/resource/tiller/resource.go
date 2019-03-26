@@ -79,10 +79,11 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, obj interface{}) e
 		return microerror.Mask(err)
 	}
 
-	// Tenant Tiller is not deleted so cancel the resource. Tiller deployment
-	// will be deleted when the tenant cluster resources are deleted.
+	// Tenant Tiller is not deleted by cluster-operator. Deleting tenant
+	// cluster resources is handled by the provider operator
+	// e.g. aws-operator.
 	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting Tiller deletion to provider operators")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller is not deleted in tenant cluster")
 
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
