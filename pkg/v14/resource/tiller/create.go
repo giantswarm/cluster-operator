@@ -7,12 +7,7 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = r.ensureTillerInstalled(ctx, clusterGuestConfig)
+	err := r.ensureTillerInstalled(ctx, obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
