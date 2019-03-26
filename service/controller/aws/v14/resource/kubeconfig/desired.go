@@ -22,6 +22,10 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
+	if awskey.IsDeleted(cr) {
+		return []*corev1.Secret{}, nil
+	}
+
 	clusterGuestConfig := awskey.ClusterGuestConfig(cr)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
