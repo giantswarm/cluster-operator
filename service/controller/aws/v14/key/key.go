@@ -29,11 +29,6 @@ func ClusterGuestConfig(awsClusterConfig v1alpha1.AWSClusterConfig) v1alpha1.Clu
 	return awsClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
-// IsDeleted checks AWSClusterConfig had been deleted
-func IsDeleted(cr v1alpha1.AWSClusterConfig) bool {
-	return cr.DeletionTimestamp != nil
-}
-
 // ToCustomObject converts value to v1alpha1.AWSClusterConfig and returns it or
 // error if type does not match.
 func ToCustomObject(v interface{}) (v1alpha1.AWSClusterConfig, error) {

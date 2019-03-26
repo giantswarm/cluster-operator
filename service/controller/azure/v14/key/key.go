@@ -26,11 +26,6 @@ func ClusterGuestConfig(azureClusterConfig v1alpha1.AzureClusterConfig) v1alpha1
 	return azureClusterConfig.Spec.Guest.ClusterGuestConfig
 }
 
-// IsDeleted checks AzureClusterConfig had been deleted
-func IsDeleted(cr v1alpha1.AzureClusterConfig) bool {
-	return cr.DeletionTimestamp != nil
-}
-
 // ToCustomObject converts value to v1alpha1.AzureClusterConfig and returns it or
 // error if type does not match.
 func ToCustomObject(v interface{}) (v1alpha1.AzureClusterConfig, error) {

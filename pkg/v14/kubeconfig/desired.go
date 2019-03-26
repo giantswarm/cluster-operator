@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -16,12 +17,17 @@ import (
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	clusterGuestConfig, isDeleted, err := r.transformFunc(obj)
+	clusterGuestConfig, err := r.transformFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if isDeleted {
+	metaObject, err := meta.Accessor(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if metaObject.GetDeletionTimestamp() != nil {
 		return []*corev1.Secret{}, nil
 	}
 

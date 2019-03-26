@@ -259,10 +259,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var kubeConfigResource controller.Resource
 	{
 		c := kubeconfig.Config{
-			CertSearcher:  config.CertSearcher,
-			K8sClient:     config.K8sClient,
-			Logger:        config.Logger,
-			TransformFunc: transformFunc,
+			CertSearcher:         config.CertSearcher,
+			K8sClient:            config.K8sClient,
+			Logger:               config.Logger,
+			GetClusterConfigFunc: getClusterConfig,
 
 			ProjectName:       config.ProjectName,
 			ResourceNamespace: config.ResourceNamespace,
@@ -379,16 +379,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	return resourceSet, nil
 }
 
-func transformFunc(obj interface{}) (v1alpha1.ClusterGuestConfig, bool, error) {
+func getClusterConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
 	cr, err := awskey.ToCustomObject(obj)
-	deleted := awskey.IsDeleted(cr)
 	if err != nil {
-		return v1alpha1.ClusterGuestConfig{}, deleted, microerror.Mask(err)
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(cr)
-
-	return clusterGuestConfig, deleted, nil
+	return awskey.ClusterGuestConfig(cr), nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {

@@ -119,12 +119,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				CertSearcher:      ct,
-				K8sClient:         clientgofake.NewSimpleClientset(),
-				Logger:            microloggertest.New(),
-				TransformFunc:     transform,
-				ProjectName:       "cluster-operator",
-				ResourceNamespace: "giantswarm",
+				CertSearcher:         ct,
+				K8sClient:            clientgofake.NewSimpleClientset(),
+				Logger:               microloggertest.New(),
+				GetClusterConfigFunc: toCR,
+				ProjectName:          "cluster-operator",
+				ResourceNamespace:    "giantswarm",
 			}
 
 			r, err := New(c)
@@ -167,10 +167,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	}
 }
 
-func transform(obj interface{}) (v1alpha1.ClusterGuestConfig, bool, error) {
+func toCR(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
 	customConfig, ok := obj.(*v1alpha1.AWSClusterConfig)
 	if !ok {
-		return v1alpha1.ClusterGuestConfig{}, false, microerror.Mask(wrongTypeError)
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(wrongTypeError)
 	}
-	return customConfig.Spec.Guest.ClusterGuestConfig, false, nil
+	return customConfig.Spec.Guest.ClusterGuestConfig, nil
 }
