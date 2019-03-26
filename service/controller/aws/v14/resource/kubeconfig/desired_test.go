@@ -137,10 +137,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			go func() {
-				time.Sleep(2 * time.Second)
-				fakeWatch.Add(tc.secretCert)
-			}()
+			if tc.timeout != 0 {
+				go func() {
+					time.Sleep(2 * time.Second)
+					fakeWatch.Add(tc.secretCert)
+				}()
+			}
 			result, err := r.GetDesiredState(context.Background(), tc.config)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
