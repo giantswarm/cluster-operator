@@ -217,11 +217,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7a1fe6d2e111610ff28dc418ae331dea6c5585d51d90076c7ac2d3a367d1e0a5"
+  digest = "1:dcfaf4cfe8fa35db5d0a21d8c49e2cf9df7a640fae6d3b0c29682aaf3de2b4ff"
   name = "github.com/giantswarm/certs"
-  packages = ["."]
+  packages = [
+    ".",
+    "certstest",
+  ]
   pruneopts = "UT"
-  revision = "cc9ad7847b0d8f78feaacbf34dcff01d642228ea"
+  revision = "ef12e78114374a154e8264615664255fd28949a7"
 
 [[projects]]
   branch = "master"
@@ -1325,6 +1328,7 @@
     "github.com/giantswarm/apprclient/apprclienttest",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
+    "github.com/giantswarm/certs/certstest",
     "github.com/giantswarm/e2e-harness/pkg/framework",
     "github.com/giantswarm/e2eclients/aws",
     "github.com/giantswarm/e2esetup/k8s",

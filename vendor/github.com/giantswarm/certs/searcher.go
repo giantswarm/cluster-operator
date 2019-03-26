@@ -124,6 +124,7 @@ func (s *Searcher) SearchCluster(clusterID string) (Cluster, error) {
 			if err != nil {
 				if c.optional {
 					s.logger.Log("level", "warning", "message", err.Error())
+					return nil
 				} else {
 					return microerror.Mask(err)
 				}
