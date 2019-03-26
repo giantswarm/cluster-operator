@@ -6,5 +6,5 @@ import (
 
 // KubeConfig is a data structure to hold kubeconfig specific configuration flags.
 type KubeConfig struct {
-	Resource resource.Resource
+	Secret resource.Secret
 }

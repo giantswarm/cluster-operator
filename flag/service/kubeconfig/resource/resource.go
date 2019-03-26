@@ -1,6 +1,6 @@
 package resource
 
-// Resource is a data structure to hold Resource specific configuration flags.
-type Resource struct {
+// Secret is a data structure to hold Secret specific configuration flags.
+type Secret struct {
 	Namespace string
 }

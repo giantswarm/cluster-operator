@@ -68,7 +68,7 @@ func New(config Config) (*Service, error) {
 	var err error
 
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
-	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.Resource.Namespace)
+	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.Secret.Namespace)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
