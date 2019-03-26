@@ -3,6 +3,7 @@ package kubeconfig
 import (
 	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -18,9 +19,10 @@ const (
 // Config represents the configuration used to create a new kubeconfig resource.
 type Config struct {
 	// Dependencies.
-	CertSearcher certs.Interface
-	K8sClient    kubernetes.Interface
-	Logger       micrologger.Logger
+	CertSearcher  certs.Interface
+	K8sClient     kubernetes.Interface
+	Logger        micrologger.Logger
+	TransformFunc func(interface{}) (v1alpha1.ClusterGuestConfig, bool, error)
 
 	// Settings.
 	CertsWatchTimeout time.Duration
@@ -34,6 +36,7 @@ type StateGetter struct {
 	certsSearcher certs.Interface
 	k8sClient     kubernetes.Interface
 	logger        micrologger.Logger
+	transformFunc func(interface{}) (v1alpha1.ClusterGuestConfig, bool, error)
 
 	// Settings.
 	projectName       string
@@ -52,6 +55,9 @@ func New(config Config) (*StateGetter, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.TransformFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TransformFunc must not be empty", config)
+	}
 
 	// Settings
 	if config.ProjectName == "" {
@@ -66,6 +72,7 @@ func New(config Config) (*StateGetter, error) {
 		certsSearcher: config.CertSearcher,
 		k8sClient:     config.K8sClient,
 		logger:        config.Logger,
+		transformFunc: config.TransformFunc,
 
 		// Settings
 		projectName:       config.ProjectName,
