@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/operatorkit/resource/secret"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,12 +22,14 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v14/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v14/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v14/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/chartoperator"
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v14/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v14/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/resource/configmap"
 )
@@ -48,6 +51,7 @@ type ResourceSetConfig struct {
 	HandledVersionBundles []string
 	ProjectName           string
 	RegistryDomain        string
+	ResourceNamespace     string
 }
 
 // NewResourceSet returns a configured AzureClusterConfig controller ResourceSet.
@@ -249,6 +253,42 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var kubeConfigResource controller.Resource
+	{
+		c := kubeconfig.Config{
+			CertSearcher:  config.CertSearcher,
+			K8sClient:     config.K8sClient,
+			Logger:        config.Logger,
+			TransformFunc: transformFunc,
+
+			ProjectName:       config.ProjectName,
+			ResourceNamespace: config.ResourceNamespace,
+		}
+
+		stateGetter, err := kubeconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configOps := secret.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        kubeconfig.Name,
+			StateGetter: stateGetter,
+		}
+
+		ops, err := secret.New(configOps)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		kubeConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tillerResource controller.Resource
 	{
 		c := tiller.Config{
@@ -271,6 +311,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
+		kubeConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,
@@ -333,6 +374,18 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
+}
+
+func transformFunc(obj interface{}) (v1alpha1.ClusterGuestConfig, bool, error) {
+	cr, err := azurekey.ToCustomObject(obj)
+	deleted := azurekey.IsDeleted(cr)
+	if err != nil {
+		return v1alpha1.ClusterGuestConfig{}, deleted, microerror.Mask(err)
+	}
+
+	clusterGuestConfig := azurekey.ClusterGuestConfig(cr)
+
+	return clusterGuestConfig, deleted, nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
