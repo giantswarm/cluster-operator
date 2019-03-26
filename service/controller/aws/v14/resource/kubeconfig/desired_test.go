@@ -42,11 +42,12 @@ preferences: {}
 
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
-		name           string
-		config         *v1alpha1.AWSClusterConfig
-		expectedSecret *corev1.Secret
-		errorMatcher   func(error) bool
-		secretCert     *corev1.Secret
+		name            string
+		config          *v1alpha1.AWSClusterConfig
+		expectedSecrets []*corev1.Secret
+		errorMatcher    func(error) bool
+		secretCert      *corev1.Secret
+		timeout         time.Duration
 	}{
 		{
 			name: "case 0: basic match",
@@ -75,21 +76,40 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
-			expectedSecret: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "w7utg-kubeconfig",
-					Namespace: "giantswarm",
-					Labels: map[string]string{
-						"giantswarm.io/cluster":      "w7utg",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/managed-by":   "cluster-operator",
-						"giantswarm.io/service-type": "managed",
+			expectedSecrets: []*corev1.Secret{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "w7utg-kubeconfig",
+						Namespace: "giantswarm",
+						Labels: map[string]string{
+							"giantswarm.io/cluster":      "w7utg",
+							"giantswarm.io/organization": "giantswarm",
+							"giantswarm.io/managed-by":   "cluster-operator",
+							"giantswarm.io/service-type": "managed",
+						},
+					},
+					Data: map[string][]byte{
+						"kubeConfig": []byte(kubeconfigYaml),
 					},
 				},
-				Data: map[string][]byte{
-					"kubeConfig": []byte(kubeconfigYaml),
+			},
+		},
+		{
+			name: "case 1: cert timeout, reconciliation stop",
+			config: &v1alpha1.AWSClusterConfig{
+				Spec: v1alpha1.AWSClusterConfigSpec{
+					Guest: v1alpha1.AWSClusterConfigSpecGuest{
+						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+							DNSZone: "giantswarm.io",
+							ID:      "w7utg",
+							Name:    "My own snowflake cluster",
+							Owner:   "giantswarm",
+						},
+					},
 				},
 			},
+			expectedSecrets: []*corev1.Secret{},
+			timeout:         1 * time.Second,
 		},
 	}
 
@@ -107,6 +127,11 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				ProjectName:       "cluster-operator",
 				ResourceNamespace: "giantswarm",
 			}
+
+			if tc.timeout != 0 {
+				c.CertsWatchTimeout = tc.timeout
+			}
+
 			r, err := New(c)
 			if err != nil {
 				t.Fatalf("error == %#v, want nil", err)
@@ -127,19 +152,24 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			if err == nil && tc.errorMatcher == nil {
-				secret, err := toSecret(result[0])
-				if err != nil {
-					t.Fatalf("error == %#v, want nil", err)
-				}
+				if len(result) == 1 {
+					secret, err := toSecret(result[0])
+					if err != nil {
+						t.Fatalf("error == %#v, want nil", err)
+					}
 
-				if !reflect.DeepEqual(secret.ObjectMeta, tc.expectedSecret.ObjectMeta) {
-					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(secret.ObjectMeta, tc.expectedSecret.ObjectMeta))
+					if !reflect.DeepEqual(secret.ObjectMeta, tc.expectedSecrets[0].ObjectMeta) {
+						t.Fatalf("want matching objectmeta \n %s", cmp.Diff(secret.ObjectMeta, tc.expectedSecrets[0].ObjectMeta))
+					}
+					if !reflect.DeepEqual(secret.Data, tc.expectedSecrets[0].Data) {
+						t.Fatalf("want matching data \n %s", cmp.Diff(secret.Data, tc.expectedSecrets[0].Data))
+					}
+					if !reflect.DeepEqual(secret.TypeMeta, tc.expectedSecrets[0].TypeMeta) {
+						t.Fatalf("want matching typemeta \n %s", cmp.Diff(secret.TypeMeta, tc.expectedSecrets[0].TypeMeta))
+					}
 				}
-				if !reflect.DeepEqual(secret.Data, tc.expectedSecret.Data) {
-					t.Fatalf("want matching data \n %s", cmp.Diff(secret.Data, tc.expectedSecret.Data))
-				}
-				if !reflect.DeepEqual(secret.TypeMeta, tc.expectedSecret.TypeMeta) {
-					t.Fatalf("want matching typemeta \n %s", cmp.Diff(secret.TypeMeta, tc.expectedSecret.TypeMeta))
+				if len(tc.expectedSecrets) != len(result) {
+					t.Fatalf("unmatch length between expected (%d) and result (%d)", len(tc.expectedSecrets), len(result))
 				}
 			}
 		})

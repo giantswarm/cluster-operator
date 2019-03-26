@@ -1,6 +1,8 @@
 package kubeconfig
 
 import (
+	"time"
+
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -11,6 +13,9 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "kubeconfigv14"
+	// DefaultWatchTimeout is the time to wait on watches against the Kubernetes
+	// API before giving up and throwing an error.
+	DefaultWatchTimeout = 90 * time.Second
 )
 
 // Config represents the configuration used to create a new kubeconfig resource.
@@ -20,6 +25,7 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	// Settings.
+	CertsWatchTimeout time.Duration
 	ProjectName       string
 	ResourceNamespace string
 }
@@ -53,13 +59,17 @@ func New(config Config) (*StateGetter, error) {
 	if config.ResourceNamespace == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceNamespace not be empty", config)
 	}
+	if config.CertsWatchTimeout == 0 {
+		config.CertsWatchTimeout = DefaultWatchTimeout
+	}
 
 	var cert certs.Interface
 	{
 		var err error
 		cc := certs.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:    config.K8sClient,
+			Logger:       config.Logger,
+			WatchTimeout: config.CertsWatchTimeout,
 		}
 		cert, err = certs.NewSearcher(cc)
 		if err != nil {

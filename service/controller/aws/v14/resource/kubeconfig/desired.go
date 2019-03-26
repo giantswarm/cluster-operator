@@ -37,7 +37,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
-		return nil, nil
+		return []*corev1.Secret{}, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
