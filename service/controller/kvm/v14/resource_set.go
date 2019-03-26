@@ -250,6 +250,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:                   config.Logger,
 			Tenant:                   tenantClusterService,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
 
 		tillerResource, err = tiller.New(c)
