@@ -23,6 +23,9 @@ data:
           certificate:
             ttl: '{{ .Values.Installation.V1.Auth.Vault.Certificate.TTL }}'
     service:
+      kubeconfig:
+        resource:
+          namespace: 'giantswarm'
       kubernetes:
         address: ''
         inCluster: true

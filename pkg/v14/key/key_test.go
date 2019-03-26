@@ -361,6 +361,62 @@ func Test_IsDeleted(t *testing.T) {
 	}
 }
 
+func Test_KubeConfigClusterName(t *testing.T) {
+	testCases := []struct {
+		description    string
+		guestConfig    v1alpha1.ClusterGuestConfig
+		expectedResult string
+	}{
+		{
+			description: "case 0: getting kubeconfig cluster name",
+			guestConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "giantswarm.io",
+				ID:      "w7utg",
+				Name:    "My own snowflake cluster",
+				Owner:   "giantswarm",
+			},
+			expectedResult: "giantswarm-w7utg",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := KubeConfigClusterName(tc.guestConfig)
+			if result != tc.expectedResult {
+				t.Fatalf("expected KubeConfigClusterName %#q, got %#q", tc.expectedResult, result)
+			}
+		})
+	}
+}
+
+func Test_KubeConfigSecretName(t *testing.T) {
+	testCases := []struct {
+		description    string
+		guestConfig    v1alpha1.ClusterGuestConfig
+		expectedResult string
+	}{
+		{
+			description: "case 0: getting kubeconfig secret name",
+			guestConfig: v1alpha1.ClusterGuestConfig{
+				DNSZone: "giantswarm.io",
+				ID:      "w7utg",
+				Name:    "My own snowflake cluster",
+				Owner:   "giantswarm",
+			},
+			expectedResult: "w7utg-kubeconfig",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := KubeConfigSecretName(tc.guestConfig)
+			if result != tc.expectedResult {
+				t.Fatalf("expected KubeConfigSecretName %#q, got %#q", tc.expectedResult, result)
+			}
+		})
+	}
+}
+
 func Test_MasterServiceDomain(t *testing.T) {
 	testCases := []struct {
 		description    string
