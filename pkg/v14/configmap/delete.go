@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
@@ -41,10 +40,4 @@ func (s *Service) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterCo
 // deleted with the tenant cluster resources.
 func (s *Service) NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
 	return nil, nil
-}
-
-
-
-
-
 }
