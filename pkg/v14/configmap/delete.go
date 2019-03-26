@@ -43,8 +43,22 @@ func (s *Service) NewDeletePatch(ctx context.Context, currentState, desiredState
 	return nil, nil
 }
 
+func (s *Service) newDeleteChangeForUpdatePatch(ctx context.Context, currentConfigMaps, desiredConfigMaps []*corev1.ConfigMap) ([]*corev1.ConfigMap, error) {
+	s.logger.LogCtx(ctx, "level", "debug", "message", "finding out which configmaps have to be deleted")
 
+	configMapsToDelete := make([]*corev1.ConfigMap, 0)
 
+	for _, currentConfigMap := range currentConfigMaps {
+		_, err := getConfigMapByNameAndNamespace(desiredConfigMaps, currentConfigMap.Name, currentConfigMap.Namespace)
+		// Existing ConfigMap is not desired anymore so it should be deleted.
+		if IsNotFound(err) {
+			configMapsToDelete = append(configMapsToDelete, currentConfigMap)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
+	s.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configmaps that have to be deleted", len(configMapsToDelete)))
 
+	return configMapsToDelete, nil
 }

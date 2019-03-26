@@ -10,7 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func Test_ConfigMap_newDeleteChangeForDeletePatch(t *testing.T) {
+func Test_ConfigMap_newDeleteChangeForUpdatePatch(t *testing.T) {
 	testCases := []struct {
 		name               string
 		currentConfigMaps  []*corev1.ConfigMap
@@ -23,14 +23,27 @@ func Test_ConfigMap_newDeleteChangeForDeletePatch(t *testing.T) {
 			currentConfigMaps:  []*corev1.ConfigMap{},
 			desiredConfigMaps:  []*corev1.ConfigMap{},
 			expectedConfigMaps: []*corev1.ConfigMap{},
+			errorMatcher:       nil,
 		},
 		{
-			name: "case 1: non-empty current and empty desired, expected current",
+			name:              "case 1: empty current and non-empty desired, expected empty",
+			currentConfigMaps: []*corev1.ConfigMap{},
+			desiredConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart",
+					},
+				},
+			},
+			expectedConfigMaps: []*corev1.ConfigMap{},
+			errorMatcher:       nil,
+		},
+		{
+			name: "case 2: non-empty current and empty desired, expected current",
 			currentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart",
 					},
 				},
 			},
@@ -38,185 +51,55 @@ func Test_ConfigMap_newDeleteChangeForDeletePatch(t *testing.T) {
 			expectedConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart",
 					},
 				},
 			},
+			errorMatcher: nil,
 		},
 		{
-			name:              "case 2: empty current and non-empty desired, expected empty",
-			currentConfigMaps: []*corev1.ConfigMap{},
-			desiredConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-			},
-			expectedConfigMaps: []*corev1.ConfigMap{},
-		},
-		{
-			name: "case 3: equal current and desired, expected current",
+			name: "case 3: non-equal current and desired, expected missing current",
 			currentConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart",
 					},
 				},
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart-2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-chart-3",
 					},
 				},
 			},
 			desiredConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart",
 					},
 				},
 			},
 			expectedConfigMaps: []*corev1.ConfigMap{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart-2",
 					},
 				},
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
+						Name: "test-chart-3",
 					},
 				},
 			},
-		},
-		{
-			name: "case 4: unequal current and desired, expected current",
-			currentConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-			},
-			desiredConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-3",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-			},
-			expectedConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-			},
-		},
-		{
-			name: "case 5: unequal current and desired in multiple namespaces, expected current",
-			currentConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespacePublic,
-					},
-				},
-			},
-			desiredConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespacePublic,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespacePublic,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-3",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-			},
-			expectedConfigMaps: []*corev1.ConfigMap{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap",
-						Namespace: metav1.NamespaceSystem,
-					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-configmap-2",
-						Namespace: metav1.NamespacePublic,
-					},
-				},
-			},
+			errorMatcher: nil,
 		},
 	}
+
+	ctx := context.Background()
 
 	c := Config{
 		Logger: microloggertest.New(),
@@ -231,7 +114,7 @@ func Test_ConfigMap_newDeleteChangeForDeletePatch(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := newService.newDeleteChangeForDeletePatch(context.TODO(), tc.currentConfigMaps, tc.desiredConfigMaps)
+			result, err := newService.newDeleteChangeForUpdatePatch(ctx, tc.currentConfigMaps, tc.desiredConfigMaps)
 
 			if err != nil {
 				switch {
