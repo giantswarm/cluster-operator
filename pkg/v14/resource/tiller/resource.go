@@ -83,7 +83,8 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, obj interface{}) e
 	// cluster resources is handled by the provider operator
 	// e.g. aws-operator.
 	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller is not deleted in tenant cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "not deleting tiller in tenant cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tiller in tenant cluster will be deleted with cluster deletion")
 
 		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
