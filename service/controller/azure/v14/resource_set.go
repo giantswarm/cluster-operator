@@ -125,28 +125,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var namespaceResource controller.Resource
-	{
-		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			Tenant:                   tenantClusterService,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
-			ToClusterObjectMetaFunc:  toClusterObjectMeta,
-		}
-
-		ops, err := namespace.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		namespaceResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var chartOperatorResource controller.Resource
 	{
 		c := chartoperator.Config{
@@ -244,6 +222,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var namespaceResource controller.Resource
+	{
+		c := namespace.Config{
+			BaseClusterConfig:        *config.BaseClusterConfig,
+			Logger:                   config.Logger,
+			ProjectName:              config.ProjectName,
+			Tenant:                   tenantClusterService,
+			ToClusterGuestConfigFunc: toClusterGuestConfig,
+			ToClusterObjectMetaFunc:  toClusterObjectMeta,
+		}
+
+		namespaceResource, err = namespace.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
