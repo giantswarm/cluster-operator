@@ -2,18 +2,10 @@ package namespace
 
 import (
 	"context"
-
-	"github.com/giantswarm/operatorkit/controller"
 )
 
-// ApplyDeleteChange is a no-op because the namespace in the tenant cluster is
-// deleted with the tenant cluster resources.
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+// EnsureDeleted is not implemented for the tiller resource. Tiller will be
+// deleted when the tenant cluster resources are deleted.
+func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
-}
-
-// NewDeletePatch is a no-op because the namespace in the tenant cluster is
-// deleted with the tenant cluster resources.
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	return nil, nil
 }
