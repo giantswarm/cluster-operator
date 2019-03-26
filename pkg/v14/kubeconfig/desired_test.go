@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/certs/certstest"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
@@ -118,10 +119,10 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				CertSearcher: ct,
-				K8sClient:    clientgofake.NewSimpleClientset(),
-				Logger:       microloggertest.New(),
-
+				CertSearcher:      ct,
+				K8sClient:         clientgofake.NewSimpleClientset(),
+				Logger:            microloggertest.New(),
+				TransformFunc:     transform,
 				ProjectName:       "cluster-operator",
 				ResourceNamespace: "giantswarm",
 			}
@@ -164,4 +165,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 		})
 	}
+}
+
+func transform(obj interface{}) (v1alpha1.ClusterGuestConfig, bool, error) {
+	customConfig, ok := obj.(*v1alpha1.AWSClusterConfig)
+	if !ok {
+		return v1alpha1.ClusterGuestConfig{}, false, microerror.Mask(wrongTypeError)
+	}
+	return customConfig.Spec.Guest.ClusterGuestConfig, false, nil
 }

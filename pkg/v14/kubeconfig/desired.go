@@ -13,20 +13,18 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v14/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v14/key"
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	cr, err := awskey.ToCustomObject(obj)
+	clusterGuestConfig, isDeleted, err := r.transformFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if awskey.IsDeleted(cr) {
+	if isDeleted {
 		return []*corev1.Secret{}, nil
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(cr)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
