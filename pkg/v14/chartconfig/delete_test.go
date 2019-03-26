@@ -12,21 +12,21 @@ import (
 
 func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 	testCases := []struct {
-		description          string
+		name                 string
 		currentChartConfigs  []*v1alpha1.ChartConfig
 		desiredChartConfigs  []*v1alpha1.ChartConfig
 		expectedChartConfigs []*v1alpha1.ChartConfig
 		errorMatcher         func(error) bool
 	}{
 		{
-			description:          "case 0: empty current and desired, expected empty",
+			name:                 "case 0: empty current and desired, expected empty",
 			currentChartConfigs:  []*v1alpha1.ChartConfig{},
 			desiredChartConfigs:  []*v1alpha1.ChartConfig{},
 			expectedChartConfigs: []*v1alpha1.ChartConfig{},
 			errorMatcher:         nil,
 		},
 		{
-			description:         "case 1: empty current and non-empty desired, expected empty",
+			name:                "case 1: empty current and non-empty desired, expected empty",
 			currentChartConfigs: []*v1alpha1.ChartConfig{},
 			desiredChartConfigs: []*v1alpha1.ChartConfig{
 				{
@@ -39,7 +39,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 			errorMatcher:         nil,
 		},
 		{
-			description: "case 2: non-empty current and empty desired, expected current",
+			name: "case 2: non-empty current and empty desired, expected current",
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -58,7 +58,7 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 			errorMatcher: nil,
 		},
 		{
-			description: "case 3: non-equal current and desired, expected missing current",
+			name: "case 3: non-equal current and desired, expected missing current",
 			currentChartConfigs: []*v1alpha1.ChartConfig{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -99,6 +99,8 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 		},
 	}
 
+	ctx := context.Background()
+
 	c := Config{
 		Logger: microloggertest.New(),
 		Tenant: &tenantMock{},
@@ -111,8 +113,8 @@ func Test_ChartConfig_newDeleteChangeForUpdatePatch(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.description, func(t *testing.T) {
-			result, err := cc.newDeleteChangeForUpdatePatch(context.TODO(), tc.currentChartConfigs, tc.desiredChartConfigs)
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := cc.newDeleteChangeForUpdatePatch(ctx, tc.currentChartConfigs, tc.desiredChartConfigs)
 
 			if err != nil {
 				switch {
