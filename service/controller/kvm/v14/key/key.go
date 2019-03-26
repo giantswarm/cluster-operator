@@ -23,6 +23,11 @@ func ClusterID(customObject v1alpha1.KVMClusterConfig) string {
 	return customObject.Spec.Guest.ClusterGuestConfig.ID
 }
 
+// IsDeleted checks KVMClusterConfig had been deleted
+func IsDeleted(cr v1alpha1.KVMClusterConfig) bool {
+	return cr.DeletionTimestamp != nil
+}
+
 // ToClusterGuestConfig extracts ClusterGuestConfig from KVMClusterConfig.
 func ToClusterGuestConfig(kvmClusterConfig v1alpha1.KVMClusterConfig) v1alpha1.ClusterGuestConfig {
 	return kvmClusterConfig.Spec.Guest.ClusterGuestConfig
