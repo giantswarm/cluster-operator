@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
@@ -37,20 +36,8 @@ func (s *Service) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterCo
 	return nil
 }
 
+// NewDeletePatch is a no-op because configmaps in the tenant cluster are
+// deleted with the tenant cluster resources.
 func (s *Service) NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
-	delete, err := s.newDeleteChangeForDeletePatch(ctx, currentState, desiredState)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	patch := controller.NewPatch()
-	patch.SetDeleteChange(delete)
-
-	return patch, nil
-}
-
-func (s *Service) newDeleteChangeForDeletePatch(ctx context.Context, currentConfigMaps, desiredConfigMaps []*corev1.ConfigMap) ([]*corev1.ConfigMap, error) {
-	s.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configmaps that have to be deleted", len(currentConfigMaps)))
-
-	return currentConfigMaps, nil
+	return nil, nil
 }
