@@ -22,12 +22,12 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	metaObject, err := meta.Accessor(obj)
+	deleted, err := isDeleted(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if metaObject.GetDeletionTimestamp() != nil {
+	if deleted {
 		return []*corev1.Secret{}, nil
 	}
 
@@ -90,4 +90,13 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	return []*corev1.Secret{&secret}, nil
+}
+
+func isDeleted(obj interface{}) (bool, error) {
+	metaObject, err := meta.Accessor(obj)
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	return metaObject.GetDeletionTimestamp() != nil, nil
 }
