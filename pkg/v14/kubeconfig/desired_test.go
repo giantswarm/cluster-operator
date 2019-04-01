@@ -120,9 +120,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			c := Config{
 				CertSearcher:         ct,
+				GetClusterConfigFunc: toCR,
 				K8sClient:            clientgofake.NewSimpleClientset(),
 				Logger:               microloggertest.New(),
-				GetClusterConfigFunc: toCR,
 				ProjectName:          "cluster-operator",
 				ResourceNamespace:    "giantswarm",
 			}

@@ -259,9 +259,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := kubeconfig.Config{
 			CertSearcher:         config.CertSearcher,
+			GetClusterConfigFunc: getClusterConfig,
 			K8sClient:            config.K8sClient,
 			Logger:               config.Logger,
-			GetClusterConfigFunc: getClusterConfig,
 
 			ProjectName:       config.ProjectName,
 			ResourceNamespace: config.ResourceNamespace,

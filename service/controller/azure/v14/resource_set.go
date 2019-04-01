@@ -256,9 +256,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := kubeconfig.Config{
 			CertSearcher:         config.CertSearcher,
+			GetClusterConfigFunc: getClusterConfig,
 			K8sClient:            config.K8sClient,
 			Logger:               config.Logger,
-			GetClusterConfigFunc: getClusterConfigFunc,
 
 			ProjectName:       config.ProjectName,
 			ResourceNamespace: config.ResourceNamespace,
@@ -375,7 +375,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	return resourceSet, nil
 }
 
-func getClusterConfigFunc(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+func getClusterConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
 	cr, err := key.ToCustomObject(obj)
 	if err != nil {
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)

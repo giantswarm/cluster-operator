@@ -20,9 +20,9 @@ const (
 type Config struct {
 	// Dependencies.
 	CertSearcher         certs.Interface
+	GetClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 	K8sClient            kubernetes.Interface
 	Logger               micrologger.Logger
-	GetClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 
 	// Settings.
 	CertsWatchTimeout time.Duration
@@ -49,14 +49,14 @@ func New(config Config) (*StateGetter, error) {
 	if config.CertSearcher == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertSearcher must not be empty", config)
 	}
+	if config.GetClusterConfigFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TransformFunc must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-	if config.GetClusterConfigFunc == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.TransformFunc must not be empty", config)
 	}
 
 	// Settings
