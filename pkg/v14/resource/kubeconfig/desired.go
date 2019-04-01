@@ -17,7 +17,7 @@ import (
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	clusterGuestConfig, err := r.transformFunc(obj)
+	clusterGuestConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

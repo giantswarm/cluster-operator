@@ -33,10 +33,10 @@ type Config struct {
 // StateGetter implements the kubeconfig resource.
 type StateGetter struct {
 	// Dependencies.
-	certsSearcher certs.Interface
-	k8sClient     kubernetes.Interface
-	logger        micrologger.Logger
-	transformFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	certsSearcher        certs.Interface
+	k8sClient            kubernetes.Interface
+	logger               micrologger.Logger
+	getClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 
 	// Settings.
 	projectName       string
@@ -69,10 +69,10 @@ func New(config Config) (*StateGetter, error) {
 
 	r := &StateGetter{
 		// Dependencies.
-		certsSearcher: config.CertSearcher,
-		k8sClient:     config.K8sClient,
-		logger:        config.Logger,
-		transformFunc: config.GetClusterConfigFunc,
+		certsSearcher:        config.CertSearcher,
+		k8sClient:            config.K8sClient,
+		logger:               config.Logger,
+		getClusterConfigFunc: config.GetClusterConfigFunc,
 
 		// Settings
 		projectName:       config.ProjectName,
