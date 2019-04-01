@@ -38,22 +38,10 @@ func (c *ChartConfig) ApplyDeleteChange(ctx context.Context, clusterConfig Clust
 
 }
 
+// NewDeletePatch is a no-op because chartconfig CRs in the tenant cluster are
+// deleted with the tenant cluster resources.
 func (c *ChartConfig) NewDeletePatch(ctx context.Context, currentState, desiredState []*v1alpha1.ChartConfig) (*controller.Patch, error) {
-	delete, err := c.newDeleteChangeForDeletePatch(ctx, currentState, desiredState)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	patch := controller.NewPatch()
-	patch.SetDeleteChange(delete)
-
-	return patch, nil
-}
-
-func (c *ChartConfig) newDeleteChangeForDeletePatch(ctx context.Context, currentChartConfigs, desiredChartConfigs []*v1alpha1.ChartConfig) ([]*v1alpha1.ChartConfig, error) {
-	c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d chartconfigs that have to be deleted", len(currentChartConfigs)))
-
-	return currentChartConfigs, nil
+	return nil, nil
 }
 
 func (c *ChartConfig) newDeleteChangeForUpdatePatch(ctx context.Context, currentChartConfigs, desiredChartConfigs []*v1alpha1.ChartConfig) ([]*v1alpha1.ChartConfig, error) {
