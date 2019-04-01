@@ -217,11 +217,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2f7c9bf12339fa91c6dca789831bd916d981d7482b6a437d9a679e0fecc684bf"
+  digest = "1:dcfaf4cfe8fa35db5d0a21d8c49e2cf9df7a640fae6d3b0c29682aaf3de2b4ff"
   name = "github.com/giantswarm/certs"
-  packages = ["."]
+  packages = [
+    ".",
+    "certstest",
+  ]
   pruneopts = "UT"
-  revision = "f0fb2f61d78e06f2d1e17f940fd782b92bf29642"
+  revision = "ef12e78114374a154e8264615664255fd28949a7"
 
 [[projects]]
   branch = "master"
@@ -283,14 +286,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:331c4a6cbaaa519eb3e13c5bd7c6ce5794ac9762c425fb816cc930db77b49c62"
+  digest = "1:176b429f3e291d72639cb9197f8a1382e419e14b36053fe35c49b3cd4432d5c0"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "e5f3a344408f4564bc88667e21574cdc78ecafcb"
+  revision = "72611db89eeb829055cdee2640b06ea725d5600d"
 
 [[projects]]
   branch = "master"
@@ -299,6 +302,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "85e779854c8e1b948bb2551e3750cfdae8ddfdbf"
+
+[[projects]]
+  branch = "master"
+  digest = "1:6904406a4f52ca93201e55bdda1a7c5730de7b5993676250da39bcd092888c10"
+  name = "github.com/giantswarm/kubeconfig"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3c2a493acc661ccb1ab63629cf319d111976fcc7"
 
 [[projects]]
   branch = "master"
@@ -358,7 +369,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2d1f3fc41fd8f55225233dce260827bbf1fa3425d758cdfe572f168da6e8cc55"
+  digest = "1:c6d2738ba18f3a1e77c65e4af777ff3e7b4ba91a4525094fa2ca42251a81706e"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -376,9 +387,10 @@
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
+    "resource/secret",
   ]
   pruneopts = "UT"
-  revision = "67aba158b01a7eb22405c4a5ad643853f29cb5f3"
+  revision = "0caf2c987e044564f6f7da48603f6142159bd784"
 
 [[projects]]
   branch = "master"
@@ -1316,6 +1328,7 @@
     "github.com/giantswarm/apprclient/apprclienttest",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
+    "github.com/giantswarm/certs/certstest",
     "github.com/giantswarm/e2e-harness/pkg/framework",
     "github.com/giantswarm/e2eclients/aws",
     "github.com/giantswarm/e2esetup/k8s",
@@ -1324,6 +1337,7 @@
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/helmclient",
     "github.com/giantswarm/helmclient/helmclienttest",
+    "github.com/giantswarm/kubeconfig",
     "github.com/giantswarm/microendpoint/endpoint/healthz",
     "github.com/giantswarm/microendpoint/endpoint/version",
     "github.com/giantswarm/microendpoint/service/version",
@@ -1342,6 +1356,7 @@
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource/secret",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
@@ -1353,6 +1368,7 @@
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/watch",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",

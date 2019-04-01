@@ -59,11 +59,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
+		certConfig := newOperatorAPICertConfig(clusterConfig, certs.AppOperatorAPICert, objectMeta.Namespace, r.projectName)
+		desiredCertConfigs = append(desiredCertConfigs, certConfig)
+	}
+	{
 		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
-		certConfig := newClusterOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, objectMeta.Namespace, r.projectName)
+		certConfig := newOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, objectMeta.Namespace, r.projectName)
 		desiredCertConfigs = append(desiredCertConfigs, certConfig)
 	}
 	{
@@ -223,7 +227,7 @@ func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert
 	}
 }
 
-func newClusterOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
+func newOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace, projectName string) *v1alpha1.CertConfig {
 	certName := string(cert)
 	return &v1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
