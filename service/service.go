@@ -194,6 +194,7 @@ func New(config Config) (*Service, error) {
 			CalicoPrefixLength: calicoPrefixLength,
 			ProjectName:        config.ProjectName,
 			RegistryDomain:     registryDomain,
+			ResourceNamespace:  resourceNamespace,
 		}
 
 		azureClusterController, err = azure.NewCluster(c)
@@ -224,6 +225,7 @@ func New(config Config) (*Service, error) {
 			CalicoPrefixLength: calicoPrefixLength,
 			ProjectName:        config.ProjectName,
 			RegistryDomain:     registryDomain,
+			ResourceNamespace:  resourceNamespace,
 		}
 
 		kvmClusterController, err = kvm.NewCluster(c)

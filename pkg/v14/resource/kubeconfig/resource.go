@@ -3,6 +3,7 @@ package kubeconfig
 import (
 	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -18,9 +19,10 @@ const (
 // Config represents the configuration used to create a new kubeconfig resource.
 type Config struct {
 	// Dependencies.
-	CertSearcher certs.Interface
-	K8sClient    kubernetes.Interface
-	Logger       micrologger.Logger
+	CertSearcher         certs.Interface
+	GetClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	K8sClient            kubernetes.Interface
+	Logger               micrologger.Logger
 
 	// Settings.
 	CertsWatchTimeout time.Duration
@@ -31,9 +33,10 @@ type Config struct {
 // StateGetter implements the kubeconfig resource.
 type StateGetter struct {
 	// Dependencies.
-	certsSearcher certs.Interface
-	k8sClient     kubernetes.Interface
-	logger        micrologger.Logger
+	certsSearcher        certs.Interface
+	k8sClient            kubernetes.Interface
+	logger               micrologger.Logger
+	getClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 
 	// Settings.
 	projectName       string
@@ -45,6 +48,9 @@ func New(config Config) (*StateGetter, error) {
 	// Dependencies.
 	if config.CertSearcher == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertSearcher must not be empty", config)
+	}
+	if config.GetClusterConfigFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TransformFunc must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -63,9 +69,10 @@ func New(config Config) (*StateGetter, error) {
 
 	r := &StateGetter{
 		// Dependencies.
-		certsSearcher: config.CertSearcher,
-		k8sClient:     config.K8sClient,
-		logger:        config.Logger,
+		certsSearcher:        config.CertSearcher,
+		k8sClient:            config.K8sClient,
+		logger:               config.Logger,
+		getClusterConfigFunc: config.GetClusterConfigFunc,
 
 		// Settings
 		projectName:       config.ProjectName,
