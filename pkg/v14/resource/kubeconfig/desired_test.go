@@ -120,7 +120,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 			c := Config{
 				CertSearcher:         ct,
-				GetClusterConfigFunc: toCR,
+				GetClusterConfigFunc: toClusterConfigCR,
 				K8sClient:            clientgofake.NewSimpleClientset(),
 				Logger:               microloggertest.New(),
 				ProjectName:          "cluster-operator",
@@ -167,7 +167,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	}
 }
 
-func toCR(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+func toClusterConfigCR(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
 	customConfig, ok := obj.(*v1alpha1.AWSClusterConfig)
 	if !ok {
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(wrongTypeError)
