@@ -43,6 +43,10 @@ func (h *helmMock) EnsureTillerInstalled() error {
 	return nil
 }
 
+func (h *helmMock) EnsureTillerInstalledWithValues(ctx context.Context, values []string) error {
+	return nil
+}
+
 func (h *helmMock) GetReleaseContent(releaseName string) (*helmclient.ReleaseContent, error) {
 	if h.defaultError != nil {
 		return nil, h.defaultError
