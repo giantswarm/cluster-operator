@@ -2,6 +2,7 @@ package kubeconfig
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/kubeconfig"
@@ -35,6 +36,13 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	u, err := url.Parse(apiDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	u.Scheme = "https"
+	apiDomain = u.String()
 
 	appOperator, err := r.certsSearcher.SearchAppOperator(clusterGuestConfig.ID)
 	if certs.IsTimeout(err) {
