@@ -2,7 +2,6 @@ package kubeconfig
 
 import (
 	"context"
-	"log"
 	"net/url"
 
 	"github.com/giantswarm/certs"
@@ -40,7 +39,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	u, err := url.Parse(apiDomain)
 	if err != nil {
-		log.Fatal(err)
+		return nil, microerror.Mask(err)
 	}
 	u.Scheme = "https"
 	apiDomain = u.String()
