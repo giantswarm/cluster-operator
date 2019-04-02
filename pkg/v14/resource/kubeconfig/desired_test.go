@@ -22,7 +22,7 @@ kind: Config
 clusters:
 - name: giantswarm-w7utg
   cluster:
-    server: api.giantswarm.io
+    server: https://api.giantswarm.io
     certificate-authority-data: Y2E=
 users:
 - name: giantswarm-w7utg-user
