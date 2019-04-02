@@ -9,6 +9,7 @@ rules:
       - secrets
     verbs:
       - create
+      - update
       - delete
       - get
       - watch
