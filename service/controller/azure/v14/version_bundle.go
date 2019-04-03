@@ -10,7 +10,7 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "cluster-operator",
 				Description: "Added support for setting the kubeconfig with the app-operator-api certs.",
-				Kind:        versionbundle.KindChanged,
+				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
