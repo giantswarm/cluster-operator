@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -21,6 +22,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
@@ -48,10 +50,11 @@ type Config struct {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
-	AWSClusterController   *aws.Cluster
-	AzureClusterController *azure.Cluster
-	KVMClusterController   *kvm.Cluster
-	Version                *version.Service
+	awsClusterController   *aws.Cluster
+	azureClusterController *azure.Cluster
+	kvmClusterController   *kvm.Cluster
+	metricsCollector       *collector.Collector
+	version                *version.Service
 
 	bootOnce sync.Once
 }
@@ -234,6 +237,20 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var metricsCollector *collector.Collector
+	{
+		c := collector.Config{
+			CertSearcher: certSearcher,
+			G8sClient:    g8sClient,
+			Logger:       config.Logger,
+		}
+
+		metricsCollector, err = collector.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
@@ -251,10 +268,11 @@ func New(config Config) (*Service, error) {
 	}
 
 	s := &Service{
-		AWSClusterController:   awsClusterController,
-		AzureClusterController: azureClusterController,
-		KVMClusterController:   kvmClusterController,
-		Version:                versionService,
+		awsClusterController:   awsClusterController,
+		azureClusterController: azureClusterController,
+		kvmClusterController:   kvmClusterController,
+		metricsCollector:       metricsCollector,
+		version:                versionService,
 
 		bootOnce: sync.Once{},
 	}
@@ -265,9 +283,12 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot() {
 	s.bootOnce.Do(func() {
-		go s.AWSClusterController.Boot(context.Background())
-		go s.AzureClusterController.Boot(context.Background())
-		go s.KVMClusterController.Boot(context.Background())
+		prometheus.MustRegister(s.metricsCollector)
+
+		// Start the controllers.
+		go s.awsClusterController.Boot(context.Background())
+		go s.azureClusterController.Boot(context.Background())
+		go s.kvmClusterController.Boot(context.Background())
 	})
 }
 
