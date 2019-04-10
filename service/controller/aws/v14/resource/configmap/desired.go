@@ -35,9 +35,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			ClusterIPRange:     r.clusterIPRange,
 		},
 		IngressController: configmap.IngressControllerValues{
-			// Migration is enabled so existing k8scloudconfig resources are
-			// replaced.
-			MigrationEnabled: true,
+			// Migration is disabled because AWS is already migrated.
+			MigrationEnabled: false,
 			// Proxy protocol is enabled for AWS clusters.
 			UseProxyProtocol: true,
 		},

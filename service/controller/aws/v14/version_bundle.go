@@ -12,6 +12,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added support for creating a kubeconfig for app-operator.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Disabled migration logic now migration to helm chart is complete.",
+				Kind:        versionbundle.KindRemoved,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
