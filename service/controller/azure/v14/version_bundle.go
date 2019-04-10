@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Added support for creating a kubeconfig for app-operator.",
+				Component:   "TODO",
+				Description: "TODO",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
