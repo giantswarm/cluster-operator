@@ -240,8 +240,8 @@ func New(config Config) (*Service, error) {
 	{
 		c := collector.SetConfig{
 			CertSearcher: certSearcher,
-			G8sClient:     g8sClient,
-			Logger:        config.Logger,
+			G8sClient:    g8sClient,
+			Logger:       config.Logger,
 		}
 
 		operatorCollector, err = collector.NewSet(c)
