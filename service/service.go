@@ -13,7 +13,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -56,7 +55,7 @@ type Service struct {
 	azureClusterController *azure.Cluster
 	bootOnce               sync.Once
 	kvmClusterController   *kvm.Cluster
-	metricsCollector       *collector.Collector
+	operatorCollector      *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -237,15 +236,15 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var metricsCollector *collector.Collector
+	var operatorCollector *collector.Set
 	{
-		c := collector.Config{
+		c := collector.SetConfig{
 			CertSearcher: certSearcher,
-			G8sClient:    g8sClient,
-			Logger:       config.Logger,
+			G8sClient:     g8sClient,
+			Logger:        config.Logger,
 		}
 
-		metricsCollector, err = collector.New(c)
+		operatorCollector, err = collector.NewSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -274,21 +273,21 @@ func New(config Config) (*Service, error) {
 		bootOnce:               sync.Once{},
 		azureClusterController: azureClusterController,
 		kvmClusterController:   kvmClusterController,
-		metricsCollector:       metricsCollector,
+		operatorCollector:      operatorCollector,
 	}
 
 	return s, nil
 }
 
 // Boot starts top level service implementation.
-func (s *Service) Boot() {
+func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		prometheus.MustRegister(s.metricsCollector)
+		go s.operatorCollector.Boot(ctx)
 
 		// Start the controllers.
-		go s.awsClusterController.Boot(context.Background())
-		go s.azureClusterController.Boot(context.Background())
-		go s.kvmClusterController.Boot(context.Background())
+		go s.awsClusterController.Boot(ctx)
+		go s.azureClusterController.Boot(ctx)
+		go s.kvmClusterController.Boot(ctx)
 	})
 }
 

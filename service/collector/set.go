@@ -70,6 +70,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			Collectors: []collector.Interface{
 				chartOperatorCollector,
 			},
+			Logger: config.Logger,
 		}
 
 		collectorSet, err = collector.NewSet(c)
