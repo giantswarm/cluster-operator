@@ -84,5 +84,5 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	wg.Wait()
 
-	c.logger.LogCtx(ctx, "level", "debug", "message", "finished collecting metrics")
+	c.logger.LogCtx(ctx, "level", "debug", "message", "collected metrics")
 }
