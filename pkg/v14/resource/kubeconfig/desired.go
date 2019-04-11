@@ -2,6 +2,7 @@ package kubeconfig
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/kubeconfig"
@@ -9,28 +10,39 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v14/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v14/key"
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	cr, err := awskey.ToCustomObject(obj)
+	clusterGuestConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if awskey.IsDeleted(cr) {
+	deleted, err := isDeleted(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if deleted {
 		return []*corev1.Secret{}, nil
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(cr)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	u, err := url.Parse(apiDomain)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	u.Scheme = "https"
+	apiDomain = u.String()
 
 	appOperator, err := r.certsSearcher.SearchAppOperator(clusterGuestConfig.ID)
 	if certs.IsTimeout(err) {
@@ -86,4 +98,13 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	return []*corev1.Secret{&secret}, nil
+}
+
+func isDeleted(obj interface{}) (bool, error) {
+	metaObject, err := meta.Accessor(obj)
+	if err != nil {
+		return false, microerror.Mask(err)
+	}
+
+	return metaObject.GetDeletionTimestamp() != nil, nil
 }

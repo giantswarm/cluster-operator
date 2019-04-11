@@ -45,6 +45,7 @@ type ClusterConfig struct {
 	ClusterIPRange     string
 	ProjectName        string
 	RegistryDomain     string
+	ResourceNamespace  string
 }
 
 type Cluster struct {
@@ -333,6 +334,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			ClusterIPRange:     config.ClusterIPRange,
 			ProjectName:        config.ProjectName,
 			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
 		}
 
 		v14ResourceSet, err = v14.NewResourceSet(c)

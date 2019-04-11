@@ -12,7 +12,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
-	"github.com/giantswarm/operatorkit/resource/secret"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,7 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/resource/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/resource/kubeconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -255,41 +253,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var kubeConfigResource controller.Resource
-	{
-		c := kubeconfig.Config{
-			CertSearcher: config.CertSearcher,
-			K8sClient:    config.K8sClient,
-			Logger:       config.Logger,
-
-			ProjectName:       config.ProjectName,
-			ResourceNamespace: config.ResourceNamespace,
-		}
-
-		stateGetter, err := kubeconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		configOps := secret.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			Name:        kubeconfig.Name,
-			StateGetter: stateGetter,
-		}
-
-		ops, err := secret.New(configOps)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		kubeConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var tillerResource controller.Resource
 	{
 		c := tiller.Config{
@@ -312,7 +275,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
-		kubeConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
 		namespaceResource,
@@ -375,6 +337,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
+}
+
+func getClusterConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	cr, err := key.ToCustomObject(obj)
+	if err != nil {
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
+	}
+
+	return key.ClusterGuestConfig(cr), nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {

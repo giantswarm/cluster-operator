@@ -48,6 +48,7 @@ type ResourceSetConfig struct {
 	HandledVersionBundles []string
 	ProjectName           string
 	RegistryDomain        string
+	ResourceNamespace     string
 }
 
 // NewResourceSet returns a configured AzureClusterConfig controller ResourceSet.
@@ -333,6 +334,15 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	return resourceSet, nil
+}
+
+func getClusterConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	cr, err := key.ToCustomObject(obj)
+	if err != nil {
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(err)
+	}
+
+	return key.ClusterGuestConfig(cr), nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {

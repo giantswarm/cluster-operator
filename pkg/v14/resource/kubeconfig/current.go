@@ -10,16 +10,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/v14/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v14/key"
 )
 
 func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	cr, err := awskey.ToCustomObject(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	clusterGuestConfig := awskey.ClusterGuestConfig(cr)
+	clusterGuestConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
