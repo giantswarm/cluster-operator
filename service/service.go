@@ -50,13 +50,13 @@ type Config struct {
 
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
+	Version *version.Service
+
 	awsClusterController   *aws.Cluster
 	azureClusterController *azure.Cluster
+	bootOnce               sync.Once
 	kvmClusterController   *kvm.Cluster
 	metricsCollector       *collector.Collector
-	version                *version.Service
-
-	bootOnce sync.Once
 }
 
 // New creates a new service with given configuration.
@@ -268,13 +268,13 @@ func New(config Config) (*Service, error) {
 	}
 
 	s := &Service{
+		Version: versionService,
+
 		awsClusterController:   awsClusterController,
+		bootOnce:               sync.Once{},
 		azureClusterController: azureClusterController,
 		kvmClusterController:   kvmClusterController,
 		metricsCollector:       metricsCollector,
-		version:                versionService,
-
-		bootOnce: sync.Once{},
 	}
 
 	return s, nil
