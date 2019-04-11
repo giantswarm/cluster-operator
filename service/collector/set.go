@@ -1,30 +1,28 @@
 package collector
 
 import (
-	"context"
-	"sync"
-
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/exporterkit/collector"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
-type Config struct {
+type SetConfig struct {
 	CertSearcher certs.Interface
 	G8sClient    versioned.Interface
 	Logger       micrologger.Logger
 }
 
-type Collector struct {
-	g8sClient     versioned.Interface
-	logger        micrologger.Logger
-	tenantCluster tenantcluster.Interface
+// Set is basically only a wrapper for the operator's collector implementations.
+// It eases the iniitialization and prevents some weird import mess so we do not
+// have to alias packages.
+type Set struct {
+	*collector.Set
 }
 
-func New(config Config) (*Collector, error) {
+func NewSet(config SetConfig) (*Set, error) {
 	if config.CertSearcher == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertSearcher must not be empty", config)
 	}
@@ -52,37 +50,37 @@ func New(config Config) (*Collector, error) {
 		}
 	}
 
-	c := &Collector{
-		g8sClient:     config.G8sClient,
-		logger:        config.Logger,
-		tenantCluster: tenantCluster,
+	var chartOperatorCollector *ChartOperator
+	{
+		c := ChartOperatorConfig{
+			G8sClient:     config.G8sClient,
+			Logger:        config.Logger,
+			TenantCluster: tenantCluster,
+		}
+
+		chartOperatorCollector, err = NewChartOperator(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
-	return c, nil
-}
+	var collectorSet *collector.Set
+	{
+		c := collector.SetConfig{
+			Collectors: []collector.Interface{
+				chartOperatorCollector,
+			},
+		}
 
-func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
-}
-
-func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	ctx := context.Background()
-
-	c.logger.LogCtx(ctx, "level", "debug", "message", "collecting metrics")
-
-	collectFuncs := []func(context.Context, chan<- prometheus.Metric){}
-
-	var wg sync.WaitGroup
-
-	for _, collectFunc := range collectFuncs {
-		wg.Add(1)
-
-		go func(collectFunc func(ctx context.Context, ch chan<- prometheus.Metric)) {
-			defer wg.Done()
-			collectFunc(ctx, ch)
-		}(collectFunc)
+		collectorSet, err = collector.NewSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
-	wg.Wait()
+	s := &Set{
+		Set: collectorSet,
+	}
 
-	c.logger.LogCtx(ctx, "level", "debug", "message", "collected metrics")
+	return s, nil
 }
