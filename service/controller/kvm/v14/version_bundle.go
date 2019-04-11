@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "coredns",
-				Description: "Updated to 1.5.0. More info here: https://coredns.io/2019/04/06/coredns-1.5.0-release/",
+				Description: "Updated to 1.5.0. More info here: https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
