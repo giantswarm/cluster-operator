@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/giantswarm/microerror"
@@ -33,7 +34,11 @@ func main() {
 	}
 }
 
-func mainWithError() (err error) {
+func mainWithError() error {
+	var err error
+
+	ctx := context.Background()
+
 	// Create a new logger that is used by all packages.
 	var newLogger micrologger.Logger
 	{
@@ -65,7 +70,7 @@ func mainWithError() (err error) {
 				panic(fmt.Sprintf("%#v\n", microerror.Maskf(err, "service.New")))
 			}
 
-			go newService.Boot()
+			go newService.Boot(ctx)
 		}
 
 		// New custom server that bundles microkit endpoints.
