@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "coredns",
-				Description: "Updated to 1.4.0. More info here: https://coredns.io/2019/03/03/coredns-1.4.0-release/",
+				Description: "Updated to 1.5.0. More info here: https://coredns.io/2019/04/06/coredns-1.5.0-release/",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -28,7 +28,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "coredns",
-				Version: "1.4.0",
+				Version: "1.5.0",
 			},
 			{
 				Name:    "cluster-autoscaler",
