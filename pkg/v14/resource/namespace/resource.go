@@ -70,10 +70,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		baseClusterConfig: config.BaseClusterConfig,
-		logger:            config.Logger,
-		projectName:       config.ProjectName,
-		tenant:            config.Tenant,
+		baseClusterConfig:        config.BaseClusterConfig,
+		logger:                   config.Logger,
+		projectName:              config.ProjectName,
+		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
