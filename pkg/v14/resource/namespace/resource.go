@@ -3,6 +3,7 @@ package namespace
 import (
 	"context"
 	"reflect"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -21,6 +22,10 @@ const (
 	Name = "namespacev14"
 
 	namespaceName = "giantswarm"
+
+	// contextTimeout is triggered if API connections to tenant cluster do not
+	// respond. We will retry on the next reconciliation loop.
+	contextTimeout = 3 * time.Second
 )
 
 // Config represents the configuration used to create a new namespace resource.
@@ -65,10 +70,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		baseClusterConfig:        config.BaseClusterConfig,
-		logger:                   config.Logger,
-		projectName:              config.ProjectName,
-		tenant:                   config.Tenant,
+		baseClusterConfig: config.BaseClusterConfig,
+		logger:            config.Logger,
+		projectName:       config.ProjectName,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}

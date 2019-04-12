@@ -50,8 +50,21 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Lookup the current state of the namespace.
 	var namespace *apiv1.Namespace
 	{
+		ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+		defer cancel()
+
 		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
+		if ctx.Err() == context.DeadlineExceeded {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster context timeout")
+
+			// We can't continue without a successful K8s connection. We will
+			// retry during the next execution.
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+			return nil, nil
+
+		} else if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
 		} else if apierrors.IsTimeout(err) {

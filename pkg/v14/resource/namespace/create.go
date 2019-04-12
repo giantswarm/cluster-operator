@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -24,8 +25,20 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
+		ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+		defer cancel()
+
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
-		if apierrors.IsAlreadyExists(err) {
+		if ctx.Err() == context.DeadlineExceeded {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster context timeout")
+
+			// We can't continue without a successful K8s connection. We will
+			// retry during the next execution.
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+			return nil
+		} else if apierrors.IsAlreadyExists(err) {
 			// fall through
 		} else if apierrors.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api timeout.")
