@@ -12,6 +12,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Updated to 1.5.0. More info here: https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Disabled migration logic now migration to helm chart is complete.",
+				Kind:        versionbundle.KindRemoved,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
