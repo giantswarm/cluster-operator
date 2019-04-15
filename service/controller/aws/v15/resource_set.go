@@ -1,4 +1,4 @@
-package v14
+package v15
 
 import (
 	"context"
@@ -19,16 +19,16 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v14/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v14/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v14/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v14/resource/chartoperator"
-	"github.com/giantswarm/cluster-operator/pkg/v14/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v14/resource/namespace"
-	"github.com/giantswarm/cluster-operator/pkg/v14/resource/tiller"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v14/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v15/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v15/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v15/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v15/resource/chartoperator"
+	"github.com/giantswarm/cluster-operator/pkg/v15/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v15/resource/namespace"
+	"github.com/giantswarm/cluster-operator/pkg/v15/resource/tiller"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
