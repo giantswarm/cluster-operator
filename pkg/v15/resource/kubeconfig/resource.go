@@ -13,7 +13,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "kubeconfigv14"
+	Name = "kubeconfigv15"
 )
 
 // Config represents the configuration used to create a new kubeconfig resource.
