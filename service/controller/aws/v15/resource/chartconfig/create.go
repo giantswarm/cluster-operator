@@ -9,7 +9,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v15/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v15/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v14/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v15/key"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {

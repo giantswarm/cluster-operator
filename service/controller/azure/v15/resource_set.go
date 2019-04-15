@@ -26,9 +26,9 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/tiller"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v14/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v15/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v15/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v15/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
