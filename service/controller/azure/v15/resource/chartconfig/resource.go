@@ -5,7 +5,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/cluster-operator/pkg/v14/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v15/chartconfig"
 )
 
 const (

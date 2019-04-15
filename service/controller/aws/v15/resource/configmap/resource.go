@@ -5,7 +5,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v14/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v15/configmap"
 )
 
 const (

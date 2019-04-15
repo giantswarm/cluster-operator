@@ -9,8 +9,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/giantswarm/cluster-operator/pkg/v14/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v14/key"
+	"github.com/giantswarm/cluster-operator/pkg/v15/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v15/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v14/key"
 )
 
