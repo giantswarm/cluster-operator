@@ -37,7 +37,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		IngressController: configmap.IngressControllerValues{
 			// Controller service is disabled because manifest is created by
 			// Ignition.
-			ControllerServiceEnabled: true,
+			ControllerServiceEnabled: false,
 			// Migration is disabled because AWS is already migrated.
 			MigrationEnabled: false,
 			// Proxy protocol is enabled for AWS clusters.
