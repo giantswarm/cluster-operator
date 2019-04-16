@@ -178,10 +178,6 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 }
 
 func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressController bool) ([]byte, error) {
-	// controllerServiceEnabled needs to be set separately for the chart
-	// migration logic but is the reverse of migration enabled.
-	controllerServiceEnabled := !configMapValues.IngressController.MigrationEnabled
-
 	migrationEnabled := configMapValues.IngressController.MigrationEnabled
 	if migrationEnabled {
 		// No legacy ingress controller. So no need for the migration process.
@@ -201,7 +197,7 @@ func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressCo
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
 			Service: IngressControllerControllerService{
-				Enabled: controllerServiceEnabled,
+				Enabled: configMapValues.IngressController.ControllerServiceEnabled,
 			},
 		},
 		Global: IngressControllerGlobal{
