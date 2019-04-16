@@ -35,6 +35,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			ClusterIPRange:     r.clusterIPRange,
 		},
 		IngressController: configmap.IngressControllerValues{
+			// Controller service is disabled because manifest is created by
+			// Ignition.
+			ControllerServiceEnabled: false,
 			// Migration is enabled so existing k8scloudconfig resources are
 			// replaced.
 			MigrationEnabled: true,

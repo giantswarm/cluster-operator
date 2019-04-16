@@ -35,6 +35,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			ClusterIPRange:     r.clusterIPRange,
 		},
 		IngressController: configmap.IngressControllerValues{
+			// Controller service is enabled because manifest is not created by
+			// Ignition.
+			ControllerServiceEnabled: true,
 			// Migration is disabled because Azure is already migrated.
 			MigrationEnabled: false,
 			// Proxy protocol is disabled for Azure clusters.

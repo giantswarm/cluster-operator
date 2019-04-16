@@ -59,8 +59,9 @@ type CoreDNSValues struct {
 // IngressControllerValues provides values for generating the Ingress
 // Controller configmap.
 type IngressControllerValues struct {
-	MigrationEnabled bool
-	UseProxyProtocol bool
+	ControllerServiceEnabled bool
+	MigrationEnabled         bool
+	UseProxyProtocol         bool
 }
 
 // Types below are used for generating values JSON for app configmaps.
