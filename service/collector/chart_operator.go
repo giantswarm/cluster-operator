@@ -11,6 +11,7 @@ import (
 // ChartOperatorConfig is this collector's configuration struct.
 type ChartOperatorConfig struct {
 	G8sClient     versioned.Interface
+	Helper        *helper
 	Logger        micrologger.Logger
 	TenantCluster tenantcluster.Interface
 }
@@ -18,6 +19,7 @@ type ChartOperatorConfig struct {
 // ChartOperator is the main struct for this collector.
 type ChartOperator struct {
 	g8sClient     versioned.Interface
+	helper        *helper
 	logger        micrologger.Logger
 	tenantCluster tenantcluster.Interface
 }
@@ -44,7 +46,7 @@ func NewChartOperator(config ChartOperatorConfig) (*ChartOperator, error) {
 }
 
 // Collect is the main metrics collection function.
-func (*ChartOperator) Collect(ch chan<- prometheus.Metric) error {
+func (c *ChartOperator) Collect(ch chan<- prometheus.Metric) error {
 	// TODO
 	return nil
 }
