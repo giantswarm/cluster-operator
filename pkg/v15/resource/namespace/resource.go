@@ -3,6 +3,7 @@ package namespace
 import (
 	"context"
 	"reflect"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -21,6 +22,10 @@ const (
 	Name = "namespacev15"
 
 	namespaceName = "giantswarm"
+
+	// contextTimeout is triggered if API connections to tenant cluster do not
+	// respond. We will retry on the next reconciliation loop.
+	contextTimeout = 3 * time.Second
 )
 
 // Config represents the configuration used to create a new namespace resource.
@@ -81,7 +86,7 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) gettenantK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
+func (r *Resource) getTenantK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)

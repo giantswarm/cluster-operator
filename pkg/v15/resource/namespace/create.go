@@ -2,10 +2,13 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/tenantcluster"
 	apiv1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
@@ -19,10 +22,22 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if namespaceToCreate != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster")
 
-		tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
-		if err != nil {
+		tenantK8sClient, err := r.getTenantK8sClient(ctx, obj)
+		if tenantcluster.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the tenant cluster")
+
+			// We can't continue without a K8s client. We will retry during the
+			// next execution.
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+			return nil
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
+
+		ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+		defer cancel()
 
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
@@ -45,7 +60,15 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
-		} else if err != nil {
+		} else if ctx.Err() == context.DeadlineExceeded {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tenant cluster context timeout after %d secs", contextTimeout))
+
+			// We can't continue without a successful K8s connection. We will
+			// retry during the next execution.
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
