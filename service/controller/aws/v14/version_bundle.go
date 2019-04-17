@@ -13,6 +13,11 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "coredns",
+				Description: "Adjusted auto scaling settings to respond better to peaks in requests.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
 				Component:   "nginx-ingress-controller",
 				Description: "Disabled migration logic now migration to helm chart is complete.",
 				Kind:        versionbundle.KindRemoved,
