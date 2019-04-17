@@ -25,7 +25,7 @@ const (
 
 	// contextTimeout is triggered if API connections to tenant cluster do not
 	// respond. We will retry on the next reconciliation loop.
-	contextTimeout = 3 * time.Second
+	contextTimeout = 5 * time.Second
 )
 
 // Config represents the configuration used to create a new namespace resource.
