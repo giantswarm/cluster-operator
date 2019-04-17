@@ -22,6 +22,10 @@ func AzureClusterID(cr v1alpha1.AzureClusterConfig) string {
 	return cr.Spec.Guest.ID
 }
 
+func ChartOperatorReleaseName() string {
+	return "chart-operator"
+}
+
 func KVMAPIDomain(cr v1alpha1.KVMClusterConfig) string {
 	return fmt.Sprintf("api.%s", cr.Spec.Guest.DNSZone)
 }

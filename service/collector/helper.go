@@ -35,7 +35,7 @@ func newHelper(config helperConfig) (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) GetTenantClusters() ([]tenantCluster, error) {
+func (h *helper) getTenantClusters() ([]tenantCluster, error) {
 	result := []tenantCluster{}
 
 	awsClusters, err := h.getAWSClusters()

@@ -48,7 +48,7 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
-	var tenantCluster tenantcluster.Interface
+	var tenant tenantcluster.Interface
 	{
 		c := tenantcluster.Config{
 			CertsSearcher: config.CertSearcher,
@@ -57,7 +57,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			CertID: certs.ClusterOperatorAPICert,
 		}
 
-		tenantCluster, err = tenantcluster.New(c)
+		tenant, err = tenantcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -66,10 +66,10 @@ func NewSet(config SetConfig) (*Set, error) {
 	var chartOperatorCollector *ChartOperator
 	{
 		c := ChartOperatorConfig{
-			G8sClient:     config.G8sClient,
-			Helper:        helper,
-			Logger:        config.Logger,
-			TenantCluster: tenantCluster,
+			G8sClient: config.G8sClient,
+			Helper:    helper,
+			Logger:    config.Logger,
+			Tenant:    tenant,
 		}
 
 		chartOperatorCollector, err = NewChartOperator(c)
