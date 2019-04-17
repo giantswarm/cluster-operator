@@ -594,8 +594,9 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 			name: "case 0: basic match",
 			configMapValues: ConfigMapValues{
 				IngressController: IngressControllerValues{
-					MigrationEnabled: true,
-					UseProxyProtocol: true,
+					ControllerServiceEnabled: false,
+					MigrationEnabled:         true,
+					UseProxyProtocol:         true,
 				},
 				RegistryDomain: "quay.io",
 				WorkerCount:    3,
@@ -607,8 +608,9 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 			name: "case 1: different worker count",
 			configMapValues: ConfigMapValues{
 				IngressController: IngressControllerValues{
-					MigrationEnabled: true,
-					UseProxyProtocol: true,
+					ControllerServiceEnabled: false,
+					MigrationEnabled:         true,
+					UseProxyProtocol:         true,
 				},
 				RegistryDomain: "quay.io",
 				WorkerCount:    7,
@@ -620,8 +622,9 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 			name: "case 2: different settings",
 			configMapValues: ConfigMapValues{
 				IngressController: IngressControllerValues{
-					MigrationEnabled: false,
-					UseProxyProtocol: false,
+					ControllerServiceEnabled: true,
+					MigrationEnabled:         false,
+					UseProxyProtocol:         false,
 				},
 				RegistryDomain: "quay.io",
 				WorkerCount:    1,
@@ -633,8 +636,9 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 			name: "case 3: already migrated",
 			configMapValues: ConfigMapValues{
 				IngressController: IngressControllerValues{
-					MigrationEnabled: true,
-					UseProxyProtocol: false,
+					ControllerServiceEnabled: false,
+					MigrationEnabled:         true,
+					UseProxyProtocol:         false,
 				},
 				RegistryDomain: "quay.io",
 				WorkerCount:    3,

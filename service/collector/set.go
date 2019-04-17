@@ -35,6 +35,19 @@ func NewSet(config SetConfig) (*Set, error) {
 
 	var err error
 
+	var helper *helper
+	{
+		c := helperConfig{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		helper, err = newHelper(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tenantCluster tenantcluster.Interface
 	{
 		c := tenantcluster.Config{
@@ -54,6 +67,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	{
 		c := ChartOperatorConfig{
 			G8sClient:     config.G8sClient,
+			Helper:        helper,
 			Logger:        config.Logger,
 			TenantCluster: tenantCluster,
 		}
