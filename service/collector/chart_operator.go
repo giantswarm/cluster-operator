@@ -6,7 +6,6 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/sync/errgroup"
 )
 
 // ChartOperatorConfig is this collector's configuration struct.
@@ -48,38 +47,12 @@ func NewChartOperator(config ChartOperatorConfig) (*ChartOperator, error) {
 
 // Collect is the main metrics collection function.
 func (c *ChartOperator) Collect(ch chan<- prometheus.Metric) error {
-	tenantClusters, err := c.helper.GetTenantClusters()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	var g errgroup.Group
-
-	for _, cluster := range tenantClusters {
-		g.Go(func() error {
-			err := c.collectForCluster(ch, cluster.id, cluster.apiDomain)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			return nil
-		})
-	}
-
-	err = g.Wait()
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
+	// TODO
 	return nil
 }
 
 // Describe emits the description for the metrics collected here.
 func (c *ChartOperator) Describe(ch chan<- *prometheus.Desc) error {
 	// TODO
-	return nil
-}
-
-func (c *ChartOperator) collectForCluster(ch chan<- prometheus.Metric, clusterID, apiDomain string) error {
 	return nil
 }
