@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/operatorkit/resource/secret"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,6 +25,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/chartoperator"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v15/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v15/key"
@@ -250,6 +252,42 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var kubeConfigResource controller.Resource
+	{
+		c := kubeconfig.Config{
+			CertSearcher:         config.CertSearcher,
+			GetClusterConfigFunc: getClusterConfig,
+			K8sClient:            config.K8sClient,
+			Logger:               config.Logger,
+
+			ProjectName:       config.ProjectName,
+			ResourceNamespace: config.ResourceNamespace,
+		}
+
+		stateGetter, err := kubeconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configOps := secret.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        kubeconfig.Name,
+			StateGetter: stateGetter,
+		}
+
+		ops, err := secret.New(configOps)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		kubeConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tillerResource controller.Resource
 	{
 		c := tiller.Config{
@@ -272,6 +310,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
+		kubeConfigResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,
