@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -50,20 +51,13 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// Lookup the current state of the namespace.
 	var namespace *apiv1.Namespace
 	{
+		ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+		defer cancel()
+
 		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
-		} else if apierrors.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api timeout")
-
-			// We can't continue without a successful K8s connection. Cluster
-			// may not be up yet. We will retry during the next execution.
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-
-			return nil, nil
-
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
@@ -73,7 +67,15 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 			return nil, nil
+		} else if ctx.Err() == context.DeadlineExceeded {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tenant cluster context timeout after %d secs", contextTimeout))
 
+			// We can't continue without a successful K8s connection. We will
+			// retry during the next execution.
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+
+			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
