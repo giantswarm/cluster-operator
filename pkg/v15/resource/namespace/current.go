@@ -58,7 +58,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
-
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
@@ -68,7 +67,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 			return nil, nil
-
 		} else if ctx.Err() == context.DeadlineExceeded {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("tenant cluster context timeout after %d secs", contextTimeout))
 
@@ -77,6 +75,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			reconciliationcanceledcontext.SetCanceled(ctx)
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
+			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
