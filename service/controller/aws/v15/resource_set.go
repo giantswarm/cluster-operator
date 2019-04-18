@@ -15,7 +15,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/secret"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -396,10 +396,10 @@ func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) 
 	return key.ClusterGuestConfig(awsClusterConfig), nil
 }
 
-func toClusterObjectMeta(obj interface{}) (apismetav1.ObjectMeta, error) {
+func toClusterObjectMeta(obj interface{}) (metav1.ObjectMeta, error) {
 	awsClusterConfig, err := key.ToCustomObject(obj)
 	if err != nil {
-		return apismetav1.ObjectMeta{}, microerror.Mask(err)
+		return metav1.ObjectMeta{}, microerror.Mask(err)
 	}
 
 	return awsClusterConfig.ObjectMeta, nil
