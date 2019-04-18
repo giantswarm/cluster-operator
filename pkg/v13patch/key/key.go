@@ -64,7 +64,7 @@ func CommonChartSpecs() []ChartSpec {
 	return []ChartSpec{
 		{
 			AppName:           "coredns",
-			ChannelName:       "0-4-stable",
+			ChannelName:       "0-3-stable",
 			ChartName:         "kubernetes-coredns-chart",
 			ConfigMapName:     "coredns-values",
 			Namespace:         metav1.NamespaceSystem,
@@ -161,16 +161,6 @@ func EncryptionKeySecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) str
 // deletion.
 func IsDeleted(objectMeta metav1.ObjectMeta) bool {
 	return objectMeta.DeletionTimestamp != nil
-}
-
-// KubeConfigClusterName returns the cluster name used in the kubeconfig generated for this tenant cluster.
-func KubeConfigClusterName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
-	return fmt.Sprintf("giantswarm-%s", clusterGuestConfig.ID)
-}
-
-// KubeConfigSecretName returns the name of secret resource for a tenant cluster
-func KubeConfigSecretName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
-	return fmt.Sprintf("%s-kubeconfig", clusterGuestConfig.ID)
 }
 
 // MasterServiceDomain returns the domain of the master service for the given
