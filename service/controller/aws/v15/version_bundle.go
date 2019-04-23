@@ -8,6 +8,11 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
+				Component:   "cluster-autoscaler",
+				Description: "Updated to 1.14.0. More info here: https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.14.0",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
 				Component:   "cluster-operator",
 				Description: "Added support for creating a kubeconfig for app-operator.",
 				Kind:        versionbundle.KindAdded,
@@ -32,7 +37,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "cluster-autoscaler",
-				Version: "1.3.1",
+				Version: "1.14.0",
 			},
 			{
 				Name:    "metrics-server",
