@@ -8,19 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "coredns",
-				Description: "Updated to 1.5.0. More info here: https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "coredns",
-				Description: "Adjusted auto scaling settings to respond better to peaks in requests.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
 				Component:   "nginx-ingress-controller",
-				Description: "Disabled migration logic now migration to helm chart is complete.",
-				Kind:        versionbundle.KindRemoved,
+				Description: "Updated to 0.24.1. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -30,7 +20,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.23.0",
+				Version: "0.24.1",
 			},
 			{
 				Name:    "node-exporter",
@@ -51,6 +41,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "aws",
-		Version:  "0.14.0",
+		Version:  "0.14.1",
 	}
 }
