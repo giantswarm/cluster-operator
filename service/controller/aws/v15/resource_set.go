@@ -264,7 +264,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:               config.Logger,
 
 			ProjectName:       config.ProjectName,
-			ResourceNamespace: config.ResourceNamespace,
 		}
 
 		stateGetter, err := kubeconfig.New(c)

@@ -84,7 +84,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	secret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
-			Namespace: r.resourceNamespace,
+			Namespace: clusterGuestConfig.ID,
 			Labels: map[string]string{
 				label.Cluster:      clusterGuestConfig.ID,
 				label.ManagedBy:    r.projectName,

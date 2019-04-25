@@ -27,7 +27,6 @@ type Config struct {
 	// Settings.
 	CertsWatchTimeout time.Duration
 	ProjectName       string
-	ResourceNamespace string
 }
 
 // StateGetter implements the kubeconfig resource.
@@ -40,7 +39,6 @@ type StateGetter struct {
 
 	// Settings.
 	projectName       string
-	resourceNamespace string
 }
 
 // New creates a new configured index resource.
@@ -63,9 +61,6 @@ func New(config Config) (*StateGetter, error) {
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName not be empty", config)
 	}
-	if config.ResourceNamespace == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceNamespace not be empty", config)
-	}
 
 	r := &StateGetter{
 		// Dependencies.
@@ -76,7 +71,6 @@ func New(config Config) (*StateGetter, error) {
 
 		// Settings
 		projectName:       config.ProjectName,
-		resourceNamespace: config.ResourceNamespace,
 	}
 
 	return r, nil

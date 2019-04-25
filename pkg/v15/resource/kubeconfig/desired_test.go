@@ -73,7 +73,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "w7utg-kubeconfig",
-						Namespace: "giantswarm",
+						Namespace: "w7utg",
 						Labels: map[string]string{
 							"giantswarm.io/cluster":      "w7utg",
 							"giantswarm.io/organization": "giantswarm",
@@ -124,7 +124,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				K8sClient:            clientgofake.NewSimpleClientset(),
 				Logger:               microloggertest.New(),
 				ProjectName:          "cluster-operator",
-				ResourceNamespace:    "giantswarm",
 			}
 
 			r, err := New(c)
