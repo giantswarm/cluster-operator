@@ -38,7 +38,7 @@ type StateGetter struct {
 	getClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 
 	// Settings.
-	projectName       string
+	projectName string
 }
 
 // New creates a new configured index resource.
@@ -70,7 +70,7 @@ func New(config Config) (*StateGetter, error) {
 		getClusterConfigFunc: config.GetClusterConfigFunc,
 
 		// Settings
-		projectName:       config.ProjectName,
+		projectName: config.ProjectName,
 	}
 
 	return r, nil
