@@ -14,7 +14,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Component:   "cluster-autoscaler",
-				Description: "Fix RBAC rules to include jobs and daemonsets.",
+				Description: "Fixed RBAC rules to include jobs and daemonsets.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
