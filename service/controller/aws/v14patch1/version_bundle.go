@@ -12,6 +12,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Updated to 0.24.1. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "cluster-autoscaler",
+				Description: "Fix RBAC rules to include jobs and daemonsets.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
