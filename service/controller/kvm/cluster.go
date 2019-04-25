@@ -387,7 +387,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v11ResourceSet,
 				v12ResourceSet,
 				v13ResourceSet,
-				v13patch1ResourceSet,
 				v14ResourceSet,
 				v15ResourceSet,
 			},
