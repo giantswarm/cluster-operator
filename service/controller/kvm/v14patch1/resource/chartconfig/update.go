@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v14/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v14/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v14/key"
+	"github.com/giantswarm/cluster-operator/pkg/v14patch1/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v14patch1/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
