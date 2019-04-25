@@ -259,7 +259,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:            config.K8sClient,
 			Logger:               config.Logger,
 
-			ProjectName:       config.ProjectName,
+			ProjectName: config.ProjectName,
 		}
 
 		stateGetter, err := kubeconfig.New(c)
