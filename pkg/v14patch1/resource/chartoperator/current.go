@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
 
-	"github.com/giantswarm/cluster-operator/pkg/v14/key"
+	"github.com/giantswarm/cluster-operator/pkg/v14patch1/key"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.
