@@ -18,7 +18,7 @@ import (
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	clusterGuestConfig, err := r.getClusterConfigFunc(obj)
+	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -32,7 +32,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return []*corev1.Secret{}, nil
 	}
 
-	apiDomain, err := key.APIDomain(clusterGuestConfig)
+	apiDomain, err := key.APIDomain(clusterConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -44,7 +44,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	u.Scheme = "https"
 	apiDomain = u.String()
 
-	appOperator, err := r.certsSearcher.SearchAppOperator(clusterGuestConfig.ID)
+	appOperator, err := r.certsSearcher.SearchAppOperator(clusterConfig.ID)
 	if certs.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the tenant cluster")
 
@@ -74,21 +74,21 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	yamlBytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, key.KubeConfigClusterName(clusterGuestConfig), "")
+	yamlBytes, err := kubeconfig.NewKubeConfigForRESTConfig(ctx, restConfig, key.KubeConfigClusterName(clusterConfig), "")
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	secretName := key.KubeConfigSecretName(clusterGuestConfig)
+	secretName := key.KubeConfigSecretName(clusterConfig)
 
 	secret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
-			Namespace: clusterGuestConfig.ID,
+			Namespace: clusterConfig.ID,
 			Labels: map[string]string{
-				label.Cluster:      clusterGuestConfig.ID,
+				label.Cluster:      clusterConfig.ID,
 				label.ManagedBy:    r.projectName,
-				label.Organization: clusterGuestConfig.Owner,
+				label.Organization: clusterConfig.Owner,
 				label.ServiceType:  label.ServiceTypeManaged,
 			},
 		},
