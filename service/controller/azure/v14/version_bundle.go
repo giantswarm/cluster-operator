@@ -8,15 +8,15 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "coredns",
-				Description: "Updated to 1.5.0. More info here: https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
+				Component:   "nginx-ingress-controller",
+				Description: "Updated to 0.24.1. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.23.0",
+				Version: "0.24.1",
 			},
 			{
 				Name:    "external-dns",
@@ -41,6 +41,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
-		Version:  "0.14.0",
+		Version:  "0.14.1",
 	}
 }
