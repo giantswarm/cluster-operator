@@ -19,7 +19,6 @@ import (
 	v11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
 	v12 "github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
 	v13 "github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
-	v13patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v13patch1"
 	v14 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14"
 	v15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
 	v6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
@@ -315,30 +314,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 
 		v13ResourceSet, err = v13.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v13patch1ResourceSet *controller.ResourceSet
-	{
-		c := v13patch1.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v13patch1ResourceSet, err = v13patch1.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
