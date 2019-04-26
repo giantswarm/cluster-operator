@@ -13,16 +13,16 @@ import (
 )
 
 func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	clusterGuestConfig, err := r.getClusterConfigFunc(obj)
+	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	secretName := key.KubeConfigSecretName(clusterGuestConfig)
+	secretName := key.KubeConfigSecretName(clusterConfig)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret %#q", secretName))
 
-	secret, err := r.k8sClient.CoreV1().Secrets(r.resourceNamespace).Get(secretName, metav1.GetOptions{})
+	secret, err := r.k8sClient.CoreV1().Secrets(clusterConfig.ID).Get(secretName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find kubeconfig secret %#q", secretName))
 		return nil, nil
