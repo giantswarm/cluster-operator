@@ -8,14 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "nginx-ingress-controller",
-				Description: "Updated to 0.24.1. More info here https://github.com/kubernetes/ingress-nginx/blob/master/Changelog.md",
+				Component:   "TODO",
+				Description: "TODO",
 				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Added support for creating a kubeconfig for app-operator.",
-				Kind:        versionbundle.KindAdded,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -46,6 +41,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "azure",
-		Version:  "0.15.0",
+		Version:  "0.16.0",
 	}
 }
