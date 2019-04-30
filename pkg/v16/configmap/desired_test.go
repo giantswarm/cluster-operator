@@ -13,7 +13,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v15/key"
+	"github.com/giantswarm/cluster-operator/pkg/v16/key"
 )
 
 const (

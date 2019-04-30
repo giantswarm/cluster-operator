@@ -5,7 +5,7 @@ import (
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v15/key"
+	"github.com/giantswarm/cluster-operator/pkg/v16/key"
 )
 
 // ChartSpecs returns charts installed only for AWS.

@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	Name = "tillerv15"
+	Name = "tillerv16"
 )
 
 // Config represents the configuration used to create a new tiller resource.
