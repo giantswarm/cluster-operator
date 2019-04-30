@@ -9,9 +9,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/giantswarm/cluster-operator/pkg/v15/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v15/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v15/key"
+	"github.com/giantswarm/cluster-operator/pkg/v16/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v16/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v16/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
