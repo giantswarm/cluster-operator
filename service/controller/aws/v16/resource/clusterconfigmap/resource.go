@@ -24,7 +24,7 @@ type Config struct {
 	ProjectName string
 }
 
-// Resource implements the index resource.
+// Resource implements the clusterConfigMap resource.
 type StateGetter struct {
 	// Dependencies.
 	k8sClient kubernetes.Interface
