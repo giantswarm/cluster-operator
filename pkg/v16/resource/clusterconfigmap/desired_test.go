@@ -2,6 +2,7 @@ package clusterconfigmap
 
 import (
 	"context"
+	"github.com/giantswarm/microerror"
 	"reflect"
 	"testing"
 
@@ -46,7 +47,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Data: map[string]string{
-					"baseDomain": "giantswarm.io",
+					"values": "baseDomain: giantswarm.io\n",
 				},
 			},
 		},
@@ -55,8 +56,9 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
-				K8sClient: k8sfake.NewSimpleClientset(),
-				Logger:    microloggertest.New(),
+				GetClusterConfigFunc: toClusterConfigCR,
+				K8sClient:            k8sfake.NewSimpleClientset(),
+				Logger:               microloggertest.New(),
 
 				ProjectName: "cluster-operator",
 			}
@@ -93,4 +95,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 		})
 	}
+}
+
+func toClusterConfigCR(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	customConfig, ok := obj.(*v1alpha1.AWSClusterConfig)
+	if !ok {
+		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(wrongTypeError)
+	}
+	return customConfig.Spec.Guest.ClusterGuestConfig, nil
 }
