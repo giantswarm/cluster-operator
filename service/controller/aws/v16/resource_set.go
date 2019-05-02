@@ -25,13 +25,13 @@ import (
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v16/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/chartoperator"
+	"github.com/giantswarm/cluster-operator/pkg/v16/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/resource/configmap"
 )
 
@@ -260,8 +260,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var clusterConfigMapResource controller.Resource
 	{
 		c := clusterconfigmap.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			GetClusterConfigFunc: getClusterConfig,
+			K8sClient:            config.K8sClient,
+			Logger:               config.Logger,
 
 			ProjectName: config.ProjectName,
 		}
