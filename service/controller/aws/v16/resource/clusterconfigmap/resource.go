@@ -1,7 +1,6 @@
 package clusterconfigmap
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/giantswarm/microerror"
@@ -15,7 +14,7 @@ const (
 	Name = "clusterconfigmapv16"
 )
 
-// Config represents the configuration used to create a new index resource.
+// Config represents the configuration used to create a new clusterConfigMap resource.
 type Config struct {
 	// Dependencies.
 	K8sClient kubernetes.Interface
@@ -35,7 +34,7 @@ type StateGetter struct {
 	projectName string
 }
 
-// New creates a new configured index resource.
+// New creates a new configured clusterConfigMap resource.
 func New(config Config) (*StateGetter, error) {
 	// Dependencies.
 	if config.K8sClient == nil {
@@ -99,8 +98,4 @@ func toConfigMap(v interface{}) (*corev1.ConfigMap, error) {
 	}
 
 	return configMap, nil
-}
-
-func configMapName(catalogName string) string {
-	return fmt.Sprintf("%s-index", catalogName)
 }
