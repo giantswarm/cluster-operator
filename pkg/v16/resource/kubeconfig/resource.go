@@ -33,9 +33,9 @@ type Config struct {
 type StateGetter struct {
 	// Dependencies.
 	certsSearcher        certs.Interface
+	getClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 	k8sClient            kubernetes.Interface
 	logger               micrologger.Logger
-	getClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
 
 	// Settings.
 	projectName string
