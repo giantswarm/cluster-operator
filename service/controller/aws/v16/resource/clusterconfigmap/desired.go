@@ -14,28 +14,28 @@ import (
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*v1.ConfigMap, error) {
-	customObject, err := awskey.ToCustomObject(obj)
+	cr, err := awskey.ToCustomObject(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
+	clusterConfig := awskey.ClusterGuestConfig(cr)
 
-	configMapName := key.ClusterConfigMapName(clusterGuestConfig)
+	configMapName := key.ClusterConfigMapName(clusterConfig)
 
 	cm := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName,
-			Namespace: clusterGuestConfig.ID,
+			Namespace: clusterConfig.ID,
 			Labels: map[string]string{
-				label.Cluster:      clusterGuestConfig.ID,
+				label.Cluster:      clusterConfig.ID,
 				label.ManagedBy:    r.projectName,
-				label.Organization: clusterGuestConfig.Owner,
+				label.Organization: clusterConfig.Owner,
 				label.ServiceType:  label.ServiceTypeManaged,
 			},
 		},
 		Data: map[string]string{
-			"baseDomain": key.DNSZone(clusterGuestConfig),
+			"baseDomain": key.DNSZone(clusterConfig),
 		},
 	}
 

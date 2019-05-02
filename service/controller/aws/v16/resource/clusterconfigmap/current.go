@@ -14,17 +14,17 @@ import (
 )
 
 func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1.ConfigMap, error) {
-	customObject, err := awskey.ToCustomObject(obj)
+	cr, err := awskey.ToCustomObject(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
-	name := key.ClusterConfigMapName(clusterGuestConfig)
+	clusterConfig := awskey.ClusterGuestConfig(cr)
+	name := key.ClusterConfigMapName(clusterConfig)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster configMap %#q", name))
 
-	cm, err := r.k8sClient.CoreV1().ConfigMaps(customObject.Namespace).Get(name, metav1.GetOptions{})
+	cm, err := r.k8sClient.CoreV1().ConfigMaps(cr.Namespace).Get(name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find cluster configMap %#q", name))
 		return nil, nil
