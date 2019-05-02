@@ -2,11 +2,11 @@ package clusterconfigmap
 
 import (
 	"context"
-	"github.com/giantswarm/microerror"
 	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
