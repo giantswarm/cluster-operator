@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	genericconfigmap "github.com/giantswarm/operatorkit/resource/configmap"
 	"github.com/giantswarm/operatorkit/resource/secret"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
@@ -30,6 +31,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v16/resource/configmap"
 )
 
@@ -255,6 +257,39 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterConfigMapResource controller.Resource
+	{
+		c := clusterconfigmap.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ProjectName: config.ProjectName,
+		}
+
+		stateGetter, err := clusterconfigmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configOps := genericconfigmap.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        clusterconfigmap.Name,
+			StateGetter: stateGetter,
+		}
+
+		ops, err := genericconfigmap.New(configOps)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kubeConfigResource controller.Resource
 	{
 		c := kubeconfig.Config{
@@ -320,6 +355,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		chartOperatorResource,
 		configMapResource,
 		chartConfigResource,
+		clusterConfigMapResource,
 	}
 
 	// Wrap resources with retry and metrics.
