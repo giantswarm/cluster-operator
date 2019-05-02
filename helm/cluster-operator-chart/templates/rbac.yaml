@@ -17,9 +17,10 @@ rules:
       - ""
     resources:
       - configmaps
-    resourceNames:
-      - cluster-operator-configmap
     verbs:
+      - create
+      - update
+      - delete
       - get
   - apiGroups:
       - apiextensions.k8s.io

@@ -286,14 +286,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:176b429f3e291d72639cb9197f8a1382e419e14b36053fe35c49b3cd4432d5c0"
+  digest = "1:4ffb360f05dd432f67c480c159cb76ef46ccd4ba5c1bdf3b277d81cf3210d5a0"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "72611db89eeb829055cdee2640b06ea725d5600d"
+  revision = "5e1daa4d201a9cce95023a2591874088b58e44fb"
 
 [[projects]]
   branch = "master"
@@ -369,7 +369,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c6d2738ba18f3a1e77c65e4af777ff3e7b4ba91a4525094fa2ca42251a81706e"
+  digest = "1:81be886a06a315b35319c9193108172c143d233b43ae1a8e34a1bf792b0c649a"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -387,6 +387,7 @@
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
+    "resource/configmap",
     "resource/secret",
   ]
   pruneopts = "UT"
@@ -1335,6 +1336,7 @@
     "github.com/giantswarm/e2etemplates/pkg/e2etemplates",
     "github.com/giantswarm/errors/guest",
     "github.com/giantswarm/errors/tenant",
+    "github.com/giantswarm/exporterkit/collector",
     "github.com/giantswarm/helmclient",
     "github.com/giantswarm/helmclient/helmclienttest",
     "github.com/giantswarm/kubeconfig",
@@ -1356,19 +1358,21 @@
     "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource/configmap",
     "github.com/giantswarm/operatorkit/resource/secret",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
+    "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/afero",
     "github.com/spf13/viper",
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
     "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/api/meta",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
-    "k8s.io/apimachinery/pkg/watch",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
