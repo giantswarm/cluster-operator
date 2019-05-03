@@ -20,7 +20,9 @@ import (
 	v12 "github.com/giantswarm/cluster-operator/service/controller/azure/v12"
 	v13 "github.com/giantswarm/cluster-operator/service/controller/azure/v13"
 	v14 "github.com/giantswarm/cluster-operator/service/controller/azure/v14"
+	v14patch1 "github.com/giantswarm/cluster-operator/service/controller/azure/v14patch1"
 	v15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
+	v16 "github.com/giantswarm/cluster-operator/service/controller/azure/v16"
 	v9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 )
 
@@ -227,6 +229,31 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v14patch1ResourceSet *controller.ResourceSet
+	{
+		c := v14patch1.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v14patch1ResourceSet, err = v14patch1.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var v15ResourceSet *controller.ResourceSet
 	{
 		c := v15.ResourceSetConfig{
@@ -252,6 +279,31 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
+	var v16ResourceSet *controller.ResourceSet
+	{
+		c := v16.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v16ResourceSet, err = v16.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -266,7 +318,9 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				v12ResourceSet,
 				v13ResourceSet,
 				v14ResourceSet,
+				v14patch1ResourceSet,
 				v15ResourceSet,
+				v16ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
