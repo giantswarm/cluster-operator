@@ -47,6 +47,11 @@ func CIDRBlock(address, prefix string) string {
 	return fmt.Sprintf("%s/%s", address, prefix)
 }
 
+// ClusterConfigMapName returns the cluster name used in the configMap generated for this tenant cluster.
+func ClusterConfigMapName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return fmt.Sprintf("%s-cluster-values", clusterGuestConfig.ID)
+}
+
 // ClusterID returns cluster ID for given guest cluster config.
 func ClusterID(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.ID

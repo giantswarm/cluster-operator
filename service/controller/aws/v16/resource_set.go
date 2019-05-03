@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	genericconfigmap "github.com/giantswarm/operatorkit/resource/configmap"
 	"github.com/giantswarm/operatorkit/resource/secret"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
@@ -24,6 +25,7 @@ import (
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v16/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/chartoperator"
+	"github.com/giantswarm/cluster-operator/pkg/v16/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v16/resource/namespace"
@@ -255,6 +257,40 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var clusterConfigMapResource controller.Resource
+	{
+		c := clusterconfigmap.Config{
+			GetClusterConfigFunc: getClusterConfig,
+			K8sClient:            config.K8sClient,
+			Logger:               config.Logger,
+
+			ProjectName: config.ProjectName,
+		}
+
+		stateGetter, err := clusterconfigmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configOps := genericconfigmap.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        clusterconfigmap.Name,
+			StateGetter: stateGetter,
+		}
+
+		ops, err := genericconfigmap.New(configOps)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kubeConfigResource controller.Resource
 	{
 		c := kubeconfig.Config{
@@ -320,6 +356,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		chartOperatorResource,
 		configMapResource,
 		chartConfigResource,
+		clusterConfigMapResource,
 	}
 
 	// Wrap resources with retry and metrics.
