@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Added support for creating a cluster configmap.",
+				Description: "Added support for creating a cluster configmap for use by managed apps.",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
