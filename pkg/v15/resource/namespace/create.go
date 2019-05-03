@@ -36,9 +36,6 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		ctx, cancel := context.WithTimeout(ctx, contextTimeout)
-		defer cancel()
-
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
