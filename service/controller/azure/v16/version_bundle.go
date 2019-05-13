@@ -12,6 +12,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Added support for creating a cluster configmap for use by managed apps.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Added separate podsecuritypolicy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Switched security context to non-root user.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
