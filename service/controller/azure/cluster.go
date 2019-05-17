@@ -26,9 +26,9 @@ import (
 	v9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 )
 
-// ClusterConfig contains necessary dependencies and settings for
+// LegacyClusterConfig contains necessary dependencies and settings for
 // AzureClusterConfig CRD controller implementation.
-type ClusterConfig struct {
+type LegacyClusterConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
 	CertSearcher      certs.Interface
@@ -46,12 +46,12 @@ type ClusterConfig struct {
 	ResourceNamespace  string
 }
 
-type Cluster struct {
+type LegacyCluster struct {
 	*controller.Controller
 }
 
-// NewCluster returns a configured AzureClusterConfig controller implementation.
-func NewCluster(config ClusterConfig) (*Cluster, error) {
+// NewLegacyCluster returns a configured AzureClusterConfig controller implementation.
+func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -333,7 +333,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	c := &Cluster{
+	c := &LegacyCluster{
 		Controller: clusterController,
 	}
 

@@ -51,10 +51,10 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	awsClusterController   *aws.Cluster
-	azureClusterController *azure.Cluster
+	awsClusterController   *aws.LegacyCluster
+	azureClusterController *azure.LegacyCluster
 	bootOnce               sync.Once
-	kvmClusterController   *kvm.Cluster
+	kvmClusterController   *kvm.LegacyCluster
 	operatorCollector      *collector.Set
 }
 
@@ -143,14 +143,14 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var awsClusterController *aws.Cluster
+	var awsClusterController *aws.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		c := aws.ClusterConfig{
+		c := aws.LegacyClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certSearcher,
@@ -168,20 +168,20 @@ func New(config Config) (*Service, error) {
 			ResourceNamespace:  resourceNamespace,
 		}
 
-		awsClusterController, err = aws.NewCluster(c)
+		awsClusterController, err = aws.NewLegacyCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var azureClusterController *azure.Cluster
+	var azureClusterController *azure.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		c := azure.ClusterConfig{
+		c := azure.LegacyClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certSearcher,
@@ -199,20 +199,20 @@ func New(config Config) (*Service, error) {
 			ResourceNamespace:  resourceNamespace,
 		}
 
-		azureClusterController, err = azure.NewCluster(c)
+		azureClusterController, err = azure.NewLegacyCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var kvmClusterController *kvm.Cluster
+	var kvmClusterController *kvm.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		c := kvm.ClusterConfig{
+		c := kvm.LegacyClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certSearcher,
@@ -230,7 +230,7 @@ func New(config Config) (*Service, error) {
 			ResourceNamespace:  resourceNamespace,
 		}
 
-		kvmClusterController, err = kvm.NewCluster(c)
+		kvmClusterController, err = kvm.NewLegacyCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
