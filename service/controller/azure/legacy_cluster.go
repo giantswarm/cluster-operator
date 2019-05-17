@@ -1,8 +1,6 @@
-package aws
+package azure
 
 import (
-	"time"
-
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
@@ -17,19 +15,20 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v10 "github.com/giantswarm/cluster-operator/service/controller/aws/v10"
-	v11 "github.com/giantswarm/cluster-operator/service/controller/aws/v11"
-	v12 "github.com/giantswarm/cluster-operator/service/controller/aws/v12"
-	v13 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
-	v14 "github.com/giantswarm/cluster-operator/service/controller/aws/v14"
-	v14patch1 "github.com/giantswarm/cluster-operator/service/controller/aws/v14patch1"
-	v15 "github.com/giantswarm/cluster-operator/service/controller/aws/v15"
-	v16 "github.com/giantswarm/cluster-operator/service/controller/aws/v16"
+	v10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
+	v11 "github.com/giantswarm/cluster-operator/service/controller/azure/v11"
+	v12 "github.com/giantswarm/cluster-operator/service/controller/azure/v12"
+	v13 "github.com/giantswarm/cluster-operator/service/controller/azure/v13"
+	v14 "github.com/giantswarm/cluster-operator/service/controller/azure/v14"
+	v14patch1 "github.com/giantswarm/cluster-operator/service/controller/azure/v14patch1"
+	v15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
+	v16 "github.com/giantswarm/cluster-operator/service/controller/azure/v16"
+	v9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 )
 
-// ClusterConfig contains necessary dependencies and settings for
-// AWSClusterConfig CRD controller implementation.
-type ClusterConfig struct {
+// LegacyClusterConfig contains necessary dependencies and settings for
+// AzureClusterConfig CRD controller implementation.
+type LegacyClusterConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
 	CertSearcher      certs.Interface
@@ -47,12 +46,12 @@ type ClusterConfig struct {
 	ResourceNamespace  string
 }
 
-type Cluster struct {
+type LegacyCluster struct {
 	*controller.Controller
 }
 
-// NewCluster returns a configured AWSClusterConfig controller implementation.
-func NewCluster(config ClusterConfig) (*Cluster, error) {
+// NewLegacyCluster returns a configured AzureClusterConfig controller implementation.
+func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -75,15 +74,35 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var newInformer *informer.Informer
 	{
 		c := informer.Config{
-			Logger: config.Logger,
-			// ResyncPeriod is 1 minute because some resources access guest
-			// clusters. So we need to wait until they become available. When
-			// a guest cluster is not available we cancel the reconciliation.
-			ResyncPeriod: 1 * time.Minute,
-			Watcher:      config.G8sClient.CoreV1alpha1().AWSClusterConfigs(""),
+			Logger:  config.Logger,
+			Watcher: config.G8sClient.CoreV1alpha1().AzureClusterConfigs(""),
 		}
 
 		newInformer, err = informer.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var v9ResourceSet *controller.ResourceSet
+	{
+		c := v9.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		v9ResourceSet, err = v9.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -288,11 +307,12 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAWSClusterConfigCRD(),
+			CRD:       v1alpha1.NewAzureClusterConfigCRD(),
 			CRDClient: crdClient,
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
+				v9ResourceSet,
 				v10ResourceSet,
 				v11ResourceSet,
 				v12ResourceSet,
@@ -313,7 +333,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	c := &Cluster{
+	c := &LegacyCluster{
 		Controller: clusterController,
 	}
 
