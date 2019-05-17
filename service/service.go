@@ -51,11 +51,11 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	awsClusterController   *aws.LegacyCluster
-	azureClusterController *azure.LegacyCluster
-	bootOnce               sync.Once
-	kvmClusterController   *kvm.LegacyCluster
-	operatorCollector      *collector.Set
+	awsLegacyClusterController   *aws.LegacyCluster
+	azureLegacyClusterController *azure.LegacyCluster
+	bootOnce                     sync.Once
+	kvmLegacyClusterController   *kvm.LegacyCluster
+	operatorCollector            *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -143,7 +143,7 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var awsClusterController *aws.LegacyCluster
+	var awsLegacyClusterController *aws.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
@@ -168,13 +168,13 @@ func New(config Config) (*Service, error) {
 			ResourceNamespace:  resourceNamespace,
 		}
 
-		awsClusterController, err = aws.NewLegacyCluster(c)
+		awsLegacyClusterController, err = aws.NewLegacyCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var azureClusterController *azure.LegacyCluster
+	var azureLegacyClusterController *azure.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
@@ -199,13 +199,13 @@ func New(config Config) (*Service, error) {
 			ResourceNamespace:  resourceNamespace,
 		}
 
-		azureClusterController, err = azure.NewLegacyCluster(c)
+		azureLegacyClusterController, err = azure.NewLegacyCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var kvmClusterController *kvm.LegacyCluster
+	var kvmLegacyClusterController *kvm.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
 		if err != nil {
@@ -230,7 +230,7 @@ func New(config Config) (*Service, error) {
 			ResourceNamespace:  resourceNamespace,
 		}
 
-		kvmClusterController, err = kvm.NewLegacyCluster(c)
+		kvmLegacyClusterController, err = kvm.NewLegacyCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -269,11 +269,11 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		awsClusterController:   awsClusterController,
-		bootOnce:               sync.Once{},
-		azureClusterController: azureClusterController,
-		kvmClusterController:   kvmClusterController,
-		operatorCollector:      operatorCollector,
+		awsLegacyClusterController:   awsLegacyClusterController,
+		bootOnce:                     sync.Once{},
+		azureLegacyClusterController: azureLegacyClusterController,
+		kvmLegacyClusterController:   kvmLegacyClusterController,
+		operatorCollector:            operatorCollector,
 	}
 
 	return s, nil
@@ -285,9 +285,9 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.operatorCollector.Boot(ctx)
 
 		// Start the controllers.
-		go s.awsClusterController.Boot(ctx)
-		go s.azureClusterController.Boot(ctx)
-		go s.kvmClusterController.Boot(ctx)
+		go s.awsLegacyClusterController.Boot(ctx)
+		go s.azureLegacyClusterController.Boot(ctx)
+		go s.kvmLegacyClusterController.Boot(ctx)
 	})
 }
 
