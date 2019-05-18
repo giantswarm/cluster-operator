@@ -42,6 +42,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Switched security context to non-root user.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "metrics-server",
+				Description: "Added separate podsecuritypolicy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "metrics-server",
+				Description: "Switched security context to non-root user.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{

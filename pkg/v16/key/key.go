@@ -94,7 +94,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:       "metrics-server",
-			ChannelName:   "0-1-stable",
+			ChannelName:   "0-2-stable",
 			ChartName:     "kubernetes-metrics-server-chart",
 			ConfigMapName: "metrics-server-values",
 			Namespace:     metav1.NamespaceSystem,
