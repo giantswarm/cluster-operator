@@ -28,6 +28,8 @@ type Config struct {
 // Resource implements the awsclusterconfig resource.
 type Resource struct {
 	baseClusterConfig cluster.Config
+	cmaClient         clientset.Interface
+	g8sClient         versioned.Interface
 	logger            micrologger.Logger
 }
 
@@ -36,12 +38,20 @@ func New(config Config) (*Resource, error) {
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
 	}
+	if config.CMAClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	}
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
 	r := &Resource{
 		baseClusterConfig: config.BaseClusterConfig,
+		cmaClient:         config.CMAClient,
+		g8sClient:         config.G8sClient,
 		logger:            config.Logger,
 	}
 
