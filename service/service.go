@@ -18,12 +18,14 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
 )
 
@@ -54,6 +56,7 @@ type Service struct {
 	awsLegacyClusterController   *aws.LegacyCluster
 	azureLegacyClusterController *azure.LegacyCluster
 	bootOnce                     sync.Once
+	clusterController            *clusterapi.Cluster
 	kvmLegacyClusterController   *kvm.LegacyCluster
 	operatorCollector            *collector.Set
 }
@@ -94,6 +97,11 @@ func New(config Config) (*Service, error) {
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
+	}
+
+	cmaClient, err := clientset.NewForConfig(restConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	g8sClient, err := versioned.NewForConfig(restConfig)
@@ -205,6 +213,29 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var clusterController *clusterapi.Cluster
+	{
+		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		c := clusterapi.ClusterConfig{
+			BaseClusterConfig: baseClusterConfig,
+			CMAClient:         cmaClient,
+			G8sClient:         g8sClient,
+			K8sExtClient:      k8sExtClient,
+			Logger:            config.Logger,
+
+			ProjectName: config.ProjectName,
+		}
+
+		clusterController, err = clusterapi.NewCluster(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmLegacyClusterController *kvm.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -272,6 +303,7 @@ func New(config Config) (*Service, error) {
 		awsLegacyClusterController:   awsLegacyClusterController,
 		bootOnce:                     sync.Once{},
 		azureLegacyClusterController: azureLegacyClusterController,
+		clusterController:            clusterController,
 		kvmLegacyClusterController:   kvmLegacyClusterController,
 		operatorCollector:            operatorCollector,
 	}
@@ -287,6 +319,7 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controllers.
 		go s.awsLegacyClusterController.Boot(ctx)
 		go s.azureLegacyClusterController.Boot(ctx)
+		go s.clusterController.Boot(ctx)
 		go s.kvmLegacyClusterController.Boot(ctx)
 	})
 }
