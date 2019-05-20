@@ -9,6 +9,10 @@ func ClusterID(cluster v1alpha1.Cluster) string {
 	return clusterProviderStatus(cluster).Cluster.ID
 }
 
+func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
+	return clusterProviderStatus(cluster).Cluster.ID
+}
+
 func IsProviderSpecForAWS(cluster v1alpha1.Cluster) bool {
 	_, err := g8sClusterSpecFromCMAClusterSpec(cluster.Spec.ProviderSpec)
 	return err == nil
