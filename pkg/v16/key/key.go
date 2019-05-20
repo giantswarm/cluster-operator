@@ -86,7 +86,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:       "kube-state-metrics",
-			ChannelName:   "0-2-stable",
+			ChannelName:   "0-3-stable",
 			ChartName:     "kubernetes-kube-state-metrics-chart",
 			ConfigMapName: "kube-state-metrics-values",
 			Namespace:     metav1.NamespaceSystem,

@@ -52,6 +52,26 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Switched security context to non-root user.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Added separate podsecuritypolicy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Switched security context to non-root user.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "cluster-autoscaler",
+				Description: "Added separate podsecuritypolicy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "cluster-autoscaler",
+				Description: "Switched security context to non-root user.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
