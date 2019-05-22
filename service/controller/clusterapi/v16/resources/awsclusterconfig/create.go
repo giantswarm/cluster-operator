@@ -22,6 +22,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// TODO: Map Cluster -> AWSClusterConfig.
-
+  
 	return nil
 }
