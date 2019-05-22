@@ -96,9 +96,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
-			// Name is used to compute finalizer names. This here results in something
-			// like operatorkit.giantswarm.io/aws-operator-cluster-controller.
-			Name: config.ProjectName + "-cluster-controller",
+			Name: config.ProjectName,
 		}
 
 		clusterController, err = controller.New(c)
