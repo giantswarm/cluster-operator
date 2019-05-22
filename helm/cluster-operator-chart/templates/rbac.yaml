@@ -29,6 +29,14 @@ rules:
     verbs:
       - "*"
   - apiGroups:
+      - cluster.k8s.io
+    resources:
+      - clusters
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
       - core.giantswarm.io
     resources:
       - awsclusterconfigs
