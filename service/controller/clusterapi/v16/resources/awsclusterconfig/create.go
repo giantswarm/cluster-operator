@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v16/key"
 
 	"github.com/giantswarm/microerror"
@@ -25,6 +26,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	machineDeployments, err := r.getMachineDeployments(ctx, cluster)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	// Get existing AWSClusterConfig or create new one.
 	awsClusterConfig, err := r.getAWSClusterConfig(ctx, cluster)
 	if err != nil {
@@ -32,7 +38,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Map desired state from Cluster to AWSClusterConfig.
-	err = r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster)
+	err = r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, machineDeployments)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -87,8 +93,46 @@ func (r *Resource) getAWSClusterConfig(ctx context.Context, cluster clusterv1alp
 	return awsClusterConfig, nil
 }
 
-func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster) error {
-	// TODO(tuommaki): Implement.
+func (r *Resource) getMachineDeployments(ctx context.Context, cluster clusterv1alpha1.Cluster) ([]clusterv1alpha1.MachineDeployment, error) {
+	labelSelector := v1.AddLabelToSelector(&v1.LabelSelector{}, label.Cluster, key.ClusterID(cluster))
+	// TODO: Add selector for provider annotation?
+
+	listOptions := v1.ListOptions{
+		LabelSelector: labelSelector.String(),
+	}
+
+	machineDeploymentList, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cluster.Namespace).List(listOptions)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return machineDeploymentList.Items, nil
+}
+
+func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment) error {
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.AvailabilityZones = len(key.ClusterAvailabilityZones(cluster, machineDeployments))
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.DNSZone = key.ClusterDNSZone(cluster)
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(cluster)
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.Name = key.ClusterName(cluster)
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ReleaseVersion = key.ClusterReleaseVersion(cluster)
+
+	// Are these needed?
+	// awsClusterConfig.Spec.Guest.ClusterGuestConfig.Owner
+	// awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles
+
+	awsClusterConfig.Spec.Guest.CredentialSecret.Name = key.ClusterCredentialSecretName(cluster)
+	awsClusterConfig.Spec.Guest.CredentialSecret.Namespace = key.ClusterCredentialSecretNamespace(cluster)
+
+	awsClusterConfig.Spec.Guest.Masters = []v1alpha1.AWSClusterConfigSpecGuestMaster{
+		{
+			AWSClusterConfigSpecGuestNode: v1alpha1.AWSClusterConfigSpecGuestNode{
+				InstanceType: key.ClusterMasterInstanceType(cluster),
+			},
+		},
+	}
+
+	// TODO: Workers shall be added when we have better understanding towards template structure.
+
 	return nil
 }
 
