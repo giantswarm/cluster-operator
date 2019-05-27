@@ -31,30 +31,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// Get existing AWSClusterConfig or create new one.
+	// Get existing AWSClusterConfig or create a new one.
 	awsClusterConfig, err := r.getAWSClusterConfig(ctx, cluster)
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	if errors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
 
-	// Map desired state from Cluster to AWSClusterConfig.
-	err = r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, machineDeployments)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	// Does AWSClusterConfig already exist?
-	if awsClusterConfig.Generation > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
-
-		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Update(awsClusterConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("createing AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+		awsClusterConfig = r.constructAWSClusterConfig(cluster, machineDeployments)
 
 		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Create(awsClusterConfig)
 		if errors.IsAlreadyExists(err) {
@@ -65,7 +47,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
 	}
+
+	// Map desired state from Cluster to AWSClusterConfig.
+	r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, machineDeployments)
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+
+	_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Update(awsClusterConfig)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
 
 	return nil
 }
@@ -83,12 +80,11 @@ func (r *Resource) getAWSClusterConfig(ctx context.Context, cluster clusterv1alp
 	awsClusterConfig, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(awsClusterConfigName, v1.GetOptions{})
 	if errors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfigName))
-		awsClusterConfig = constructAWSClusterConfig(cluster)
+		return nil, microerror.Mask(err)
 	} else if err != nil {
 		return nil, microerror.Mask(err)
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfigName))
 	}
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfigName))
 
 	return awsClusterConfig, nil
 }
@@ -109,15 +105,13 @@ func (r *Resource) getMachineDeployments(ctx context.Context, cluster clusterv1a
 	return machineDeploymentList.Items, nil
 }
 
-func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment) error {
+func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment) {
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.AvailabilityZones = len(key.ClusterAvailabilityZones(cluster, machineDeployments))
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.DNSZone = key.ClusterDNSZone(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.Name = key.ClusterName(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ReleaseVersion = key.ClusterReleaseVersion(cluster)
 
-	// Are these needed?
-	// awsClusterConfig.Spec.Guest.ClusterGuestConfig.Owner
 	// awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles
 
 	awsClusterConfig.Spec.Guest.CredentialSecret.Name = key.ClusterCredentialSecretName(cluster)
@@ -132,12 +126,10 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSCl
 	}
 
 	// TODO: Workers shall be added when we have better understanding towards template structure.
-
-	return nil
 }
 
-func constructAWSClusterConfig(cluster clusterv1alpha1.Cluster) *v1alpha1.AWSClusterConfig {
-	return &v1alpha1.AWSClusterConfig{
+func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment) *v1alpha1.AWSClusterConfig {
+	cc := &v1alpha1.AWSClusterConfig{
 		TypeMeta: v1.TypeMeta{
 			Kind:       "AWSClusterConfig",
 			APIVersion: "v1alpha1",
@@ -147,4 +139,8 @@ func constructAWSClusterConfig(cluster clusterv1alpha1.Cluster) *v1alpha1.AWSClu
 			Namespace: cluster.Namespace,
 		},
 	}
+
+	r.mapClusterToAWSClusterConfig(cc, cluster, machineDeployments)
+
+	return cc
 }
