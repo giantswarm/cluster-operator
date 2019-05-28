@@ -19,7 +19,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if namespaceToCreate != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "creating namespace in the tenant cluster")
 
-		tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
+		tenantK8sClient, err := r.getTenantK8sClient(ctx, obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
