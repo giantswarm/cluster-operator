@@ -256,9 +256,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var clusterConfigMapResource controller.Resource
 	{
 		c := clusterconfigmap.Config{
-			GetClusterConfigFunc: getClusterConfig,
-			K8sClient:            config.K8sClient,
-			Logger:               config.Logger,
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
 
 			ProjectName: config.ProjectName,
 		}
@@ -290,10 +291,11 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var kubeConfigResource controller.Resource
 	{
 		c := kubeconfig.Config{
-			CertSearcher:         config.CertSearcher,
-			GetClusterConfigFunc: getClusterConfig,
-			K8sClient:            config.K8sClient,
-			Logger:               config.Logger,
+			CertSearcher:             config.CertSearcher,
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
 
 			ProjectName: config.ProjectName,
 		}
@@ -344,8 +346,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// creation.
 		encryptionKeyResource,
 		certConfigResource,
-		kubeConfigResource,
 		clusterConfigMapResource,
+		kubeConfigResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
@@ -418,6 +420,15 @@ func getClusterConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
 	}
 
 	return key.ClusterGuestConfig(cr), nil
+}
+
+func getClusterObjectMeta(obj interface{}) (metav1.ObjectMeta, error) {
+	cr, err := key.ToCustomObject(obj)
+	if err != nil {
+		return metav1.ObjectMeta{}, microerror.Mask(err)
+	}
+
+	return cr.ObjectMeta, nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
