@@ -29,6 +29,7 @@ const (
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
+	chartOperatorFailedStatus  = "FAILED"
 )
 
 // Config represents the configuration used to create a new chartoperator resource.
@@ -213,6 +214,11 @@ func shouldUpdate(currentState, desiredState ResourceState) bool {
 	}
 
 	if !reflect.DeepEqual(currentState.ChartValues, desiredState.ChartValues) {
+		return true
+	}
+
+	if currentState.ReleaseStatus == chartOperatorFailedStatus {
+		// Release status is failed so do force upgrade to attempt to fix it.
 		return true
 	}
 

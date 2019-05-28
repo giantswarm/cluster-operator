@@ -108,6 +108,37 @@ func Test_Resource_Chart_newUpdate(t *testing.T) {
 				ReleaseVersion: "0.1.2",
 			},
 		},
+		{
+			name: "case 6: current release is failed, expected desired",
+			currentState: &ResourceState{
+				ChartName: "current",
+				ChartValues: Values{
+					Tiller: Tiller{
+						Namespace: "default",
+					},
+				},
+				ReleaseStatus:  "FAILED",
+				ReleaseVersion: "0.1.2",
+			},
+			desiredState: &ResourceState{
+				ChartName: "desired",
+				ChartValues: Values{
+					Tiller: Tiller{
+						Namespace: "giantswarm",
+					},
+				},
+				ReleaseVersion: "0.1.2",
+			},
+			expectedState: &ResourceState{
+				ChartName: "desired",
+				ChartValues: Values{
+					Tiller: Tiller{
+						Namespace: "giantswarm",
+					},
+				},
+				ReleaseVersion: "0.1.2",
+			},
+		},
 	}
 
 	for _, tc := range testCases {
