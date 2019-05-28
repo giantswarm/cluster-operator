@@ -84,6 +84,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 				updateState.ReleaseName,
 				tarballPath,
 				helm.UpdateValueOverrides(b),
+				helm.UpgradeForce(true),
 			)
 			if err != nil {
 				return microerror.Mask(err)
