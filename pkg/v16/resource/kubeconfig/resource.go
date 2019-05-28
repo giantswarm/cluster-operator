@@ -21,7 +21,7 @@ const (
 type Config struct {
 	// Dependencies.
 	CertSearcher             certs.Interface
-	GetClusterConfigFunc     func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
@@ -35,7 +35,7 @@ type Config struct {
 type StateGetter struct {
 	// Dependencies.
 	certsSearcher            certs.Interface
-	getClusterConfigFunc     func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger

@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -20,7 +19,7 @@ const (
 // Config represents the configuration used to create a new clusterConfigMap resource.
 type Config struct {
 	// Dependencies.
-	GetClusterConfigFunc     func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
@@ -32,7 +31,7 @@ type Config struct {
 // Resource implements the clusterConfigMap resource.
 type StateGetter struct {
 	// Dependencies.
-	getClusterConfigFunc     func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
