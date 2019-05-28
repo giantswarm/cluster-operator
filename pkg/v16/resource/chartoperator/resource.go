@@ -104,16 +104,16 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		apprClient:        config.ApprClient,
-		baseClusterConfig: config.BaseClusterConfig,
-		clusterIPRange:    config.ClusterIPRange,
-		fs:                config.Fs,
-		g8sClient:         config.G8sClient,
-		k8sClient:         config.K8sClient,
-		logger:            config.Logger,
-		projectName:       config.ProjectName,
-		registryDomain:    config.RegistryDomain,
-		tenant:            config.Tenant,
+		apprClient:               config.ApprClient,
+		baseClusterConfig:        config.BaseClusterConfig,
+		clusterIPRange:           config.ClusterIPRange,
+		fs:                       config.Fs,
+		g8sClient:                config.G8sClient,
+		k8sClient:                config.K8sClient,
+		logger:                   config.Logger,
+		projectName:              config.ProjectName,
+		registryDomain:           config.RegistryDomain,
+		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
