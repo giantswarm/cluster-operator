@@ -29,6 +29,7 @@ const (
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
 	chartOperatorDesiredStatus = "DEPLOYED"
+	chartOperatorFailedStatus  = "FAILED"
 )
 
 // Config represents the configuration used to create a new chartoperator resource.
@@ -103,16 +104,16 @@ func New(config Config) (*Resource, error) {
 	}
 
 	newResource := &Resource{
-		apprClient:               config.ApprClient,
-		baseClusterConfig:        config.BaseClusterConfig,
-		clusterIPRange:           config.ClusterIPRange,
-		fs:                       config.Fs,
-		g8sClient:                config.G8sClient,
-		k8sClient:                config.K8sClient,
-		logger:                   config.Logger,
-		projectName:              config.ProjectName,
-		registryDomain:           config.RegistryDomain,
-		tenant:                   config.Tenant,
+		apprClient:        config.ApprClient,
+		baseClusterConfig: config.BaseClusterConfig,
+		clusterIPRange:    config.ClusterIPRange,
+		fs:                config.Fs,
+		g8sClient:         config.G8sClient,
+		k8sClient:         config.K8sClient,
+		logger:            config.Logger,
+		projectName:       config.ProjectName,
+		registryDomain:    config.RegistryDomain,
+		tenant:            config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}
@@ -213,6 +214,11 @@ func shouldUpdate(currentState, desiredState ResourceState) bool {
 	}
 
 	if !reflect.DeepEqual(currentState.ChartValues, desiredState.ChartValues) {
+		return true
+	}
+
+	if currentState.ReleaseStatus == chartOperatorFailedStatus {
+		// Release status is failed so do force upgrade to attempt to fix it.
 		return true
 	}
 
