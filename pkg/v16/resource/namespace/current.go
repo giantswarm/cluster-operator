@@ -31,7 +31,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, nil
 	}
 
-	tenantK8sClient, err := r.gettenantK8sClient(ctx, obj)
+	tenantK8sClient, err := r.getTenantK8sClient(ctx, obj)
 	if tenantcluster.IsTimeout(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get a K8s client for the tenant cluster")
 

@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	apiv1 "k8s.io/api/core/v1"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -30,7 +30,7 @@ type Config struct {
 	ProjectName              string
 	Tenant                   tenantcluster.Interface
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
-	ToClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
+	ToClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
 }
 
 // Resource implements the namespace resource.
@@ -40,7 +40,7 @@ type Resource struct {
 	projectName              string
 	tenant                   tenantcluster.Interface
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
-	toClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
+	toClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
 }
 
 // New creates a new configured namespace resource.
@@ -64,16 +64,19 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterObjectMetaFunc must not be empty", config)
 	}
 
-	newResource := &Resource{
+	r := &Resource{
+		// Dependencies.
 		baseClusterConfig:        config.BaseClusterConfig,
 		logger:                   config.Logger,
-		projectName:              config.ProjectName,
 		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
+
+		// Settings
+		projectName: config.ProjectName,
 	}
 
-	return newResource, nil
+	return r, nil
 }
 
 // Name returns name of the Resource.
@@ -81,7 +84,7 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func (r *Resource) gettenantK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
+func (r *Resource) getTenantK8sClient(ctx context.Context, obj interface{}) (kubernetes.Interface, error) {
 	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
