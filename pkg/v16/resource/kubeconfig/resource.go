@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -19,10 +20,11 @@ const (
 // Config represents the configuration used to create a new kubeconfig resource.
 type Config struct {
 	// Dependencies.
-	CertSearcher         certs.Interface
-	GetClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
-	K8sClient            kubernetes.Interface
-	Logger               micrologger.Logger
+	CertSearcher             certs.Interface
+	GetClusterConfigFunc     func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
+	K8sClient                kubernetes.Interface
+	Logger                   micrologger.Logger
 
 	// Settings.
 	CertsWatchTimeout time.Duration
@@ -32,10 +34,11 @@ type Config struct {
 // StateGetter implements the kubeconfig resource.
 type StateGetter struct {
 	// Dependencies.
-	certsSearcher        certs.Interface
-	getClusterConfigFunc func(interface{}) (v1alpha1.ClusterGuestConfig, error)
-	k8sClient            kubernetes.Interface
-	logger               micrologger.Logger
+	certsSearcher            certs.Interface
+	getClusterConfigFunc     func(interface{}) (v1alpha1.ClusterGuestConfig, error)
+	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
+	k8sClient                kubernetes.Interface
+	logger                   micrologger.Logger
 
 	// Settings.
 	projectName string
@@ -49,6 +52,9 @@ func New(config Config) (*StateGetter, error) {
 	}
 	if config.GetClusterConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.TransformFunc must not be empty", config)
+	}
+	if config.GetClusterObjectMetaFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.GetClusterObjectMetaFunc must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -64,10 +70,11 @@ func New(config Config) (*StateGetter, error) {
 
 	r := &StateGetter{
 		// Dependencies.
-		certsSearcher:        config.CertSearcher,
-		k8sClient:            config.K8sClient,
-		logger:               config.Logger,
-		getClusterConfigFunc: config.GetClusterConfigFunc,
+		certsSearcher:            config.CertSearcher,
+		getClusterConfigFunc:     config.GetClusterConfigFunc,
+		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
+		k8sClient:                config.K8sClient,
+		logger:                   config.Logger,
 
 		// Settings
 		projectName: config.ProjectName,
