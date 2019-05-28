@@ -346,6 +346,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		encryptionKeyResource,
 		certConfigResource,
 		kubeConfigResource,
+		clusterConfigMapResource,
+
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		namespaceResource,
@@ -353,7 +355,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		chartOperatorResource,
 		configMapResource,
 		chartConfigResource,
-		clusterConfigMapResource,
 	}
 
 	// Wrap resources with retry and metrics.
