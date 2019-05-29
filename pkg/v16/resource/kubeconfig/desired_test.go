@@ -119,11 +119,12 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			c := Config{
-				CertSearcher:         ct,
-				GetClusterConfigFunc: toClusterConfigCR,
-				K8sClient:            clientgofake.NewSimpleClientset(),
-				Logger:               microloggertest.New(),
-				ProjectName:          "cluster-operator",
+				CertSearcher:             ct,
+				GetClusterConfigFunc:     getClusterConfigFunc,
+				GetClusterObjectMetaFunc: getClusterObjectMetaFunc,
+				K8sClient:                clientgofake.NewSimpleClientset(),
+				Logger:                   microloggertest.New(),
+				ProjectName:              "cluster-operator",
 			}
 
 			r, err := New(c)
@@ -166,10 +167,18 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	}
 }
 
-func toClusterConfigCR(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
-	customConfig, ok := obj.(*v1alpha1.AWSClusterConfig)
+func getClusterConfigFunc(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
+	cr, ok := obj.(*v1alpha1.AWSClusterConfig)
 	if !ok {
 		return v1alpha1.ClusterGuestConfig{}, microerror.Mask(wrongTypeError)
 	}
-	return customConfig.Spec.Guest.ClusterGuestConfig, nil
+	return cr.Spec.Guest.ClusterGuestConfig, nil
+}
+
+func getClusterObjectMetaFunc(obj interface{}) (metav1.ObjectMeta, error) {
+	cr, ok := obj.(*v1alpha1.AWSClusterConfig)
+	if !ok {
+		return metav1.ObjectMeta{}, microerror.Mask(wrongTypeError)
+	}
+	return cr.ObjectMeta, nil
 }

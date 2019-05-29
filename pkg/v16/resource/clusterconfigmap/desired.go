@@ -5,7 +5,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
-	"k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -13,7 +12,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v16/key"
 )
 
-func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*v1.ConfigMap, error) {
+func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
