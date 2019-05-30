@@ -8,5 +8,6 @@ type ChartSpec struct {
 	ConfigMapName     string
 	Namespace         string
 	ReleaseName       string
+	UseUpgradeForce   bool
 	UserConfigMapName string
 }
