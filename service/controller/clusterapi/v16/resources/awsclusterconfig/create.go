@@ -32,15 +32,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	// Get existing AWSClusterConfig or create a new one.
-	awsClusterConfig, err := r.getAWSClusterConfig(ctx, cluster)
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if AWSClusterConfig %q/%q exists", cluster.Namespace, key.AWSClusterConfigName(cluster)))
+
+	awsClusterConfig, err := r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(key.AWSClusterConfigName(cluster), v1.GetOptions{})
 	if errors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find AWSClusterConfig %q/%q", cluster.Namespace, key.AWSClusterConfigName(cluster)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, key.AWSClusterConfigName(cluster)))
 
 		awsClusterConfig = r.constructAWSClusterConfig(cluster, machineDeployments)
 
 		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Create(awsClusterConfig)
 		if errors.IsAlreadyExists(err) {
 			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("AWSClusterConfig %q/%q already exists", awsClusterConfig.Namespace, awsClusterConfig.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
@@ -51,6 +55,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfig.Name))
 
 	// Map desired state from Cluster to AWSClusterConfig.
 	r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, machineDeployments)
@@ -65,28 +71,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
 
 	return nil
-}
-
-// getAWSClusterConfig returns corresponding AWSClusterConfig CR for given
-// Cluster if one exists or constructs new empty one.
-func (r *Resource) getAWSClusterConfig(ctx context.Context, cluster clusterv1alpha1.Cluster) (*v1alpha1.AWSClusterConfig, error) {
-	var awsClusterConfig *v1alpha1.AWSClusterConfig
-	var err error
-
-	awsClusterConfigName := key.AWSClusterConfigName(cluster)
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if AWSClusterConfig %q/%q exists", cluster.Namespace, awsClusterConfigName))
-
-	awsClusterConfig, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(awsClusterConfigName, v1.GetOptions{})
-	if errors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfigName))
-		return nil, microerror.Mask(err)
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfigName))
-
-	return awsClusterConfig, nil
 }
 
 func (r *Resource) getMachineDeployments(ctx context.Context, cluster clusterv1alpha1.Cluster) ([]clusterv1alpha1.MachineDeployment, error) {
