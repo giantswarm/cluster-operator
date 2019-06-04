@@ -238,10 +238,9 @@ func newOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, nam
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.ManagedBy:       projectName,
-				label.Organization:    clusterConfig.Organization,
+				label.Cluster:      clusterConfig.ClusterID,
+				label.ManagedBy:    projectName,
+				label.Organization: clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
