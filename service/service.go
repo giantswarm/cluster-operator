@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -222,9 +223,27 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 
+		var clusterClient *clusterclient.Client
+		{
+			config.Logger.Log("level", "debug", "message", fmt.Sprintf("address for cluster-service: %q", config.Viper.GetString(config.Flag.Service.Cluster.Address)))
+
+			c := clusterclient.Config{
+				Address: config.Viper.GetString(config.Flag.Service.Cluster.Address),
+				Logger:  config.Logger,
+
+				// Timeout & RetryCount are straight from `api/service/service.go`.
+				RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
+			}
+
+			clusterClient, err = clusterclient.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
 		c := clusterapi.ClusterConfig{
 			BaseClusterConfig: baseClusterConfig,
-			ClusterClient:     NewClusterClient(config.Logger, config.Flag, config.Viper),
+			ClusterClient:     clusterClient,
 			CMAClient:         cmaClient,
 			G8sClient:         g8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -325,23 +344,6 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.clusterController.Boot(ctx)
 		go s.kvmLegacyClusterController.Boot(ctx)
 	})
-}
-
-func NewClusterClient(newLogger micrologger.Logger, f *flag.Flag, v *viper.Viper) *clusterclient.Client {
-	c := clusterclient.Config{
-		Address: v.GetString(f.Service.Cluster.Address),
-		Logger:  newLogger,
-
-		// Timeout & RetryCount are straight from `api/service/service.go`.
-		RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
-	}
-
-	client, err := clusterclient.New(c)
-	if err != nil {
-		panic(microerror.Mask(err))
-	}
-
-	return client
 }
 
 func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
