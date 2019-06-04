@@ -46,7 +46,7 @@
   version = "2.19.0"
 
 [[projects]]
-  digest = "1:d58ffcbefd213f04d243c9e1802265e2731ab2abfcb7b4d3121e66b999dac804"
+  digest = "1:7b110591ce8ca4f6de189129c5dcd9bcd7525fa4ccc51be617fcdd77a83312c3"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -71,32 +71,13 @@
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/ec2query",
-    "private/protocol/eventstream",
-    "private/protocol/eventstream/eventstreamapi",
-    "private/protocol/json/jsonutil",
-    "private/protocol/jsonrpc",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
-    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
-    "service/autoscaling",
     "service/cloudformation",
     "service/ec2",
-    "service/ec2/ec2iface",
-    "service/elb",
-    "service/elb/elbiface",
-    "service/iam",
-    "service/iam/iamiface",
-    "service/kms",
-    "service/kms/kmsiface",
-    "service/route53",
-    "service/s3",
-    "service/s3/s3iface",
     "service/sts",
-    "service/sts/stsiface",
-    "service/support",
-    "service/support/supportiface",
   ]
   pruneopts = "UT"
   revision = "2fa5290a6a8f6a664f2dab5337d5f64d0cfd8f68"
@@ -229,61 +210,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9b0137cfc5b8197fa1c29c53c1470920bc4f5ef7a0cc0a006c08c124374acbb2"
-  name = "github.com/giantswarm/aws-operator"
-  packages = [
-    "client/aws",
-    "pkg/awstags",
-    "service/accountid",
-    "service/controller/clusterapi",
-    "service/controller/clusterapi/v27",
-    "service/controller/clusterapi/v27/adapter",
-    "service/controller/clusterapi/v27/cloudconfig",
-    "service/controller/clusterapi/v27/cloudformation",
-    "service/controller/clusterapi/v27/controllercontext",
-    "service/controller/clusterapi/v27/credential",
-    "service/controller/clusterapi/v27/detection",
-    "service/controller/clusterapi/v27/ebs",
-    "service/controller/clusterapi/v27/encrypter",
-    "service/controller/clusterapi/v27/encrypter/kms",
-    "service/controller/clusterapi/v27/encrypter/vault",
-    "service/controller/clusterapi/v27/key",
-    "service/controller/clusterapi/v27/legacykey",
-    "service/controller/clusterapi/v27/resource/accountid",
-    "service/controller/clusterapi/v27/resource/asgstatus",
-    "service/controller/clusterapi/v27/resource/bridgezone",
-    "service/controller/clusterapi/v27/resource/cpf",
-    "service/controller/clusterapi/v27/resource/cpf/template",
-    "service/controller/clusterapi/v27/resource/cpi",
-    "service/controller/clusterapi/v27/resource/cpi/template",
-    "service/controller/clusterapi/v27/resource/drainer",
-    "service/controller/clusterapi/v27/resource/drainfinisher",
-    "service/controller/clusterapi/v27/resource/ebsvolume",
-    "service/controller/clusterapi/v27/resource/encryption",
-    "service/controller/clusterapi/v27/resource/endpoints",
-    "service/controller/clusterapi/v27/resource/ipam",
-    "service/controller/clusterapi/v27/resource/loadbalancer",
-    "service/controller/clusterapi/v27/resource/namespace",
-    "service/controller/clusterapi/v27/resource/natgatewayaddresses",
-    "service/controller/clusterapi/v27/resource/peerrolearn",
-    "service/controller/clusterapi/v27/resource/routetable",
-    "service/controller/clusterapi/v27/resource/s3bucket",
-    "service/controller/clusterapi/v27/resource/s3object",
-    "service/controller/clusterapi/v27/resource/service",
-    "service/controller/clusterapi/v27/resource/tccp",
-    "service/controller/clusterapi/v27/resource/tccpoutputs",
-    "service/controller/clusterapi/v27/resource/tccpsubnet",
-    "service/controller/clusterapi/v27/resource/vpccidr",
-    "service/controller/clusterapi/v27/templates",
-    "service/controller/clusterapi/v27/templates/cloudconfig",
-    "service/controller/clusterapi/v27/templates/cloudformation/tccp",
-    "service/network",
-  ]
-  pruneopts = "UT"
-  revision = "6aff7462e19f383699eda783318373fce3ace84c"
-
-[[projects]]
-  branch = "master"
   digest = "1:ab67fdefbc890c7880ffc2904048d7b9d14e29ebc716f8d637a17b16bb91d9e6"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
@@ -300,6 +226,52 @@
   ]
   pruneopts = "UT"
   revision = "ef12e78114374a154e8264615664255fd28949a7"
+
+[[projects]]
+  branch = "master"
+  digest = "1:38484d85a761e80545b46421607bdd3fe70796669d59681029ff61ca58d4b36a"
+  name = "github.com/giantswarm/clusterclient"
+  packages = [
+    ".",
+    "service/cluster",
+    "service/cluster/creator",
+    "service/cluster/creator/request",
+    "service/cluster/creator/request/aws",
+    "service/cluster/creator/request/azure",
+    "service/cluster/creator/response",
+    "service/cluster/deleter",
+    "service/cluster/deleter/config",
+    "service/cluster/lister",
+    "service/cluster/lister/config",
+    "service/cluster/searcher",
+    "service/cluster/searcher/request",
+    "service/cluster/searcher/response",
+    "service/cluster/searcher/response/aws",
+    "service/cluster/searcher/response/azure",
+    "service/cluster/searcher/response/kvm",
+    "service/cluster/updater",
+    "service/cluster/updater/config",
+    "service/cluster/updater/config/aws",
+    "service/cluster/updater/config/azure",
+    "service/info",
+    "service/info/aws",
+    "service/info/aws/response",
+    "service/info/azure",
+    "service/info/azure/response",
+    "service/info/kvm",
+    "service/info/kvm/response",
+    "service/keypair",
+    "service/keypair/creator",
+    "service/keypair/creator/config",
+    "service/keypair/lister",
+    "service/keypair/lister/config",
+    "service/release",
+    "service/release/lister",
+    "service/release/searcher",
+    "service/root",
+  ]
+  pruneopts = "UT"
+  revision = "51231e2422d8543e867cebc6a6783b846af0bb61"
 
 [[projects]]
   branch = "master"
@@ -327,7 +299,7 @@
   name = "github.com/giantswarm/e2esetup"
   packages = ["k8s"]
   pruneopts = "UT"
-  revision = "d5d694bf51575b7110d466b8fe7f9c590decaec2"
+  revision = "7dc774e74245eed73c00db3c9b935a6961517174"
 
 [[projects]]
   branch = "master"
@@ -338,7 +310,7 @@
     "pkg/e2etemplates",
   ]
   pruneopts = "UT"
-  revision = "e1dee7aa2368796a35e95a3672b5905c811b9974"
+  revision = "8f55ebe96ce5fc597bc0689970ab6fa6dfa6dfb9"
 
 [[projects]]
   branch = "master"
@@ -357,37 +329,18 @@
   name = "github.com/giantswarm/exporterkit"
   packages = ["collector"]
   pruneopts = "UT"
-  revision = "3c367b3fab44e69ff2657b7ba61ac7eb93f8c86b"
+  revision = "664e1317b3687f3a76ccc0df98a8dc784e60d376"
 
 [[projects]]
   branch = "master"
-  digest = "1:04333ae377aae328b45f1ab65072626376dbc94825f0b4475fb29f0813778416"
+  digest = "1:e9cbc4b8994548d532a3f8e0eb42840ce4de4348d58b0a6eead5dbe9d18b22ae"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "eacfaa9e5106758288bd9ee0449f1c8a82d5f550"
-
-[[projects]]
-  branch = "master"
-  digest = "1:a867ae2fbffdff3653a7e9dd398fe4654e6e571a9d906390368bcf53d0844bbf"
-  name = "github.com/giantswarm/ipam"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5ac1ece392f97e08ad0797a549702e3eba9dcd8d"
-
-[[projects]]
-  branch = "master"
-  digest = "1:4f0647c63a4314d8e86f20e9e4a9b4e0f182b07aa2c142e3bd1ffcefb32dfd06"
-  name = "github.com/giantswarm/k8scloudconfig"
-  packages = [
-    "ignition/v_2_2_0",
-    "v_4_3_0",
-  ]
-  pruneopts = "UT"
-  revision = "ea5814acc101d30b3cf4df5746f94bd86f5fdb61"
+  revision = "7a9add84325a92aef2d59320629ec849481bdbae"
 
 [[projects]]
   branch = "master"
@@ -404,6 +357,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "2c7a472873b005a410bf0e5bb6a096874cbece68"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d0df2c62cc066de1453548eb60695ee8423c8e51593f68242f99c0fa51b24522"
+  name = "github.com/giantswarm/microclient"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4badb1a50fa3fc044c32ccc98293eab5c969c082"
 
 [[projects]]
   branch = "master"
@@ -447,7 +408,7 @@
     "tls",
   ]
   pruneopts = "UT"
-  revision = "864e4cc9c80644e48e8ac3168b6aafb5cbd0e5bb"
+  revision = "ae70e65c60f81ba9442376702b7666b261a1895a"
 
 [[projects]]
   branch = "master"
@@ -460,14 +421,6 @@
   ]
   pruneopts = "UT"
   revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
-
-[[projects]]
-  branch = "master"
-  digest = "1:57bceb785c54b7eb57da7b1b1fbe8ee10513eaee85450c0b566747cce7f8ddec"
-  name = "github.com/giantswarm/microstorage"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5a0784e0ee23c5b732c0d15023ac3dce8aef145a"
 
 [[projects]]
   branch = "master"
@@ -493,23 +446,7 @@
     "resource/secret",
   ]
   pruneopts = "UT"
-  revision = "dc60ddf19e89ce0a1ade4a52e94258734bf82dab"
-
-[[projects]]
-  branch = "master"
-  digest = "1:67420d66e7cfdb0016dc696d224abe66b6c94f879681f0ad6e89e26cea5f24c4"
-  name = "github.com/giantswarm/randomkeys"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "7ce5c5accc2e7896575fac81721e1218a966a380"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3875d7f3d86809c14accabc458cdf3dd5d75e5655bb86e743dc5087ad2d41948"
-  name = "github.com/giantswarm/statusresource"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "79ed3e21ad13b73210f5b1acf71d45effcccb8d3"
+  revision = "593866f913df6120d60d12c92d04fa0dbc3c5b93"
 
 [[projects]]
   branch = "master"
@@ -562,6 +499,14 @@
   pruneopts = "UT"
   revision = "07c9b44f60d7ffdfb7d8efe1ad539965737836dc"
   version = "v0.4.0"
+
+[[projects]]
+  digest = "1:41206f4d0410803e64cfb203f665330c3183988408cb532b56305a816a87bd99"
+  name = "github.com/go-resty/resty"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "fa5875c0caa5c260ab78acec5a244215a730247f"
+  version = "v1.12.0"
 
 [[projects]]
   digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
@@ -635,12 +580,12 @@
   version = "v0.2.0"
 
 [[projects]]
-  digest = "1:8d12b0e8334cd6770e9b9b8b48c3340b9739b1469c2f448ced070b589adaa475"
+  digest = "1:ac72d92bdb69afbc21da5bb72a95bba140b3d74364cbc91a203d3986f23cef3f"
   name = "github.com/google/go-github"
   packages = ["github"]
   pruneopts = "UT"
-  revision = "901030391ab7f418a984389fd3f8f65e39e5c823"
-  version = "v25.0.4"
+  revision = "8354c0739a78b30158359e98fe14ca3bb823159c"
+  version = "v25.1.1"
 
 [[projects]]
   digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
@@ -871,8 +816,7 @@
   version = "v0.8.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ab02672953d3ea152efa14d60dc0b417dfb3895523d9f96e106a0b4a9509a9fd"
+  digest = "1:0de31727c88e9f4a4ae70c28b6caa27f39b25788daf2dc4f7406013421228144"
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
@@ -880,7 +824,8 @@
     "prometheus/promhttp",
   ]
   pruneopts = "UT"
-  revision = "b5f69192ee7288cccf94bd6bf8a2e270e9726ab6"
+  revision = "50c4339db732beb2165735d2cde0bff78eb3c5a5"
+  version = "v0.9.3"
 
 [[projects]]
   branch = "master"
@@ -891,7 +836,7 @@
   revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
 
 [[projects]]
-  digest = "1:35cf6bdf68db765988baa9c4f10cc5d7dda1126a54bd62e252dbcd0b1fc8da90"
+  digest = "1:8dcedf2e8f06c7f94e48267dea0bc0be261fa97b377f3ae3e87843a92a549481"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -899,19 +844,19 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "1ba88736f028e37bc17328369e94a537ae9e0234"
-  version = "v0.4.0"
+  revision = "17f5ca1748182ddf24fc33a5a7caaaf790a52fcc"
+  version = "v0.4.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:b4e48c7af197047d85fad1874951a927084c5be9ef686911258f78f52101d93a"
+  digest = "1:f8fac244ec2cb7daef48b0148dcf5a330ac7697fa83c2e1e78e65b21f7f43500"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
     "internal/fs",
   ]
   pruneopts = "UT"
-  revision = "9935e8e0588d26307d1d4a07bed7bd47271b6bbd"
+  revision = "65bdadfa96aecebf4dcf888da995a29eab4fc964"
+  version = "v0.0.1"
 
 [[projects]]
   digest = "1:bb495ec276ab82d3dd08504bbc0594a65de8c3b22c6f2aaa92d05b73fbf3a82e"
@@ -957,12 +902,12 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:1b773526998f3dbde3a51a4a5881680c4d237d3600f570d900f97ac93c7ba0a8"
+  digest = "1:11118bd196646c6515fea3d6c43f66162833c6ae4939bfb229b9956d91c6cf17"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "9e56dacc08fbbf8c9ee2dbc717553c758ce42bc9"
-  version = "v1.3.2"
+  revision = "b5bf975e5823809fb22c7644d008757f78a4259e"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -974,7 +919,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "22d7a77e9e5f409e934ed268692e56707cd169e5"
+  revision = "20be4c3c3ed52bfccdb2d59a412ee1a936d175a7"
 
 [[projects]]
   branch = "master"
@@ -992,18 +937,18 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "3ec19112720433827bbce8be9342797f5a6aaaf9"
+  revision = "60506f45cf65977eb3a9c6e30f995f54a721c271"
 
 [[projects]]
   branch = "master"
-  digest = "1:9927d6aceb89d188e21485f42a7a254e67e6fdcf4260aba375fe18e3c300dfb4"
+  digest = "1:8d1c112fb1679fa097e9a9255a786ee47383fa2549a3da71bcb1334a693ebcfe"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "internal",
   ]
   pruneopts = "UT"
-  revision = "950ef44c6e079baf075030377d90bf0c7e4b7b7a"
+  revision = "0f29369cfe4552d0e4bcddc57cc75f4d7e672a33"
 
 [[projects]]
   branch = "master"
@@ -1015,14 +960,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ed12b66f91f04a5101a0f635bdfc99d6c56a9f0e10e1f7557922a2e8551ab55b"
+  digest = "1:e456eadc3fc18795bdaf836c3a8f25d678cfdd52a5164cf1d3a64ffe23b8df1a"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "61b9204099cb1bebc803c9ffb9b2d3acd9d457d9"
+  revision = "4c4f7f33c9ed00de01c4c741d2177abfcfe19307"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1079,10 +1024,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "bb713bdc0e5239f2b68e560efbe1c701a6fe78f9"
+  revision = "fb225487d10142b5bcc35abfc6cb9a0609614976"
 
 [[projects]]
-  digest = "1:a1f1707d71a652caa4da563d6a98e1d1cf3a1500dec7059e5989753b09112e27"
+  digest = "1:96ffca1110a8b5c18ac067c8a8fe97e4a8b1b4df30cd3210b331dc45710baa2c"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -1120,8 +1065,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "25c4f928eaa6d96443009bd842389fb4fa48664e"
-  version = "v1.20.1"
+  revision = "869adfc8d5a43efc0d05780ad109106f457f51e4"
+  version = "v1.21.0"
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
@@ -1401,12 +1346,12 @@
   version = "v2.12.0"
 
 [[projects]]
-  digest = "1:c696379ad201c1e86591785579e16bf6cf886c362e9a7534e8eb0d1028b20582"
+  digest = "1:fa0be820e3b9d58b99264b0ca771ceeb36c7293f8409f70455d4a1e5253a87a0"
   name = "k8s.io/klog"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e531227889390a39d9533dde61f590fe9f4b0035"
-  version = "v0.3.0"
+  revision = "78315d914a8af2453db4864e69230b647b1ff711"
+  version = "v0.3.2"
 
 [[projects]]
   digest = "1:0761d08cbab7345aa2b7715073879dde6235aaa5671adcab409a91da67b97b8b"
@@ -1430,7 +1375,7 @@
   name = "k8s.io/kube-openapi"
   packages = ["pkg/util/proto"]
   pruneopts = "UT"
-  revision = "a01b7d5d6c2258c80a4a10070f3dee9cd575d9c7"
+  revision = "db7b694dc208eead64d38030265f702db593fcf2"
 
 [[projects]]
   digest = "1:732e97316db46310e95c320a1de004552734411b05eb2b09d47ffe5d4a71ad2c"
@@ -1470,16 +1415,17 @@
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/service/cloudformation",
     "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
-    "github.com/giantswarm/aws-operator/service/controller/clusterapi",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
+    "github.com/giantswarm/clusterclient",
     "github.com/giantswarm/e2e-harness/pkg/framework",
     "github.com/giantswarm/e2eclients/aws",
     "github.com/giantswarm/e2esetup/k8s",
@@ -1512,6 +1458,7 @@
     "github.com/giantswarm/operatorkit/resource/secret",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
+    "github.com/go-resty/resty",
     "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/afero",
@@ -1530,6 +1477,7 @@
     "k8s.io/client-go/rest",
     "k8s.io/client-go/testing",
     "k8s.io/helm/pkg/helm",
+    "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1",
     "sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset",
   ]
   solver-name = "gps-cdcl"

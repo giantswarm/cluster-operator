@@ -9,10 +9,12 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/go-resty/resty"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -222,6 +224,7 @@ func New(config Config) (*Service, error) {
 
 		c := clusterapi.ClusterConfig{
 			BaseClusterConfig: baseClusterConfig,
+			ClusterClient:     NewClusterClient(config.Logger, config.Flag, config.Viper),
 			CMAClient:         cmaClient,
 			G8sClient:         g8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -322,6 +325,23 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.clusterController.Boot(ctx)
 		go s.kvmLegacyClusterController.Boot(ctx)
 	})
+}
+
+func NewClusterClient(newLogger micrologger.Logger, f *flag.Flag, v *viper.Viper) *clusterclient.Client {
+	c := clusterclient.Config{
+		Address: v.GetString(f.Service.Cluster.Address),
+		Logger:  newLogger,
+
+		// Timeout & RetryCount are straight from `api/service/service.go`.
+		RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
+	}
+
+	client, err := clusterclient.New(c)
+	if err != nil {
+		panic(microerror.Mask(err))
+	}
+
+	return client
 }
 
 func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
