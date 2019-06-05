@@ -118,6 +118,7 @@ func mainWithError() error {
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Calico.Subnet, "", "Network address for the CIDR block used by Calico.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Kubernetes.API.ClusterIPRange, "", "CIDR Range for Pods in cluster.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Vault.Certificate.TTL, "", "Vault certificate TTL.")
+	daemonCommand.PersistentFlags().String(f.Service.Cluster.Address, "http://localhost:8089", "http://<host>:<port> of the cluster service.")
 	daemonCommand.PersistentFlags().String(f.Service.Image.Registry.Domain, "quay.io", "Image registry.")
 	daemonCommand.PersistentFlags().String(f.Service.KubeConfig.Secret.Namespace, "giantswarm", "The namespace where kubeconfig secrets are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Address, "", "Address used to connect to Kubernetes. When empty in-cluster config is created.")
