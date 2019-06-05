@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -19,6 +20,7 @@ import (
 // Cluster API's Cluster controller ResourceSet configuration.
 type ResourceSetConfig struct {
 	BaseClusterConfig *cluster.Config
+	ClusterClient     *clusterclient.Client
 	CMAClient         clientset.Interface
 	G8sClient         versioned.Interface
 	Logger            micrologger.Logger
@@ -28,6 +30,9 @@ type ResourceSetConfig struct {
 func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
+	if config.ClusterClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterClient must not be empty", config)
+	}
 	if config.CMAClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
 	}
@@ -42,6 +47,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := awsclusterconfig.Config{
 			BaseClusterConfig: *config.BaseClusterConfig,
+			ClusterClient:     config.ClusterClient,
 			CMAClient:         config.CMAClient,
 			G8sClient:         config.G8sClient,
 			Logger:            config.Logger,
