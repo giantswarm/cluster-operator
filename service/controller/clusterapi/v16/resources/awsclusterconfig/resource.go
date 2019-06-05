@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
@@ -20,6 +21,7 @@ const (
 // Config represents the configuration used to create a new awsclusterconfig resource.
 type Config struct {
 	BaseClusterConfig cluster.Config
+	ClusterClient     *clusterclient.Client
 	CMAClient         clientset.Interface
 	G8sClient         versioned.Interface
 	Logger            micrologger.Logger
@@ -28,6 +30,7 @@ type Config struct {
 // Resource implements the awsclusterconfig resource.
 type Resource struct {
 	baseClusterConfig cluster.Config
+	clusterClient     *clusterclient.Client
 	cmaClient         clientset.Interface
 	g8sClient         versioned.Interface
 	logger            micrologger.Logger
@@ -37,6 +40,9 @@ type Resource struct {
 func New(config Config) (*Resource, error) {
 	if reflect.DeepEqual(config.BaseClusterConfig, cluster.Config{}) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseClusterConfig must not be empty", config)
+	}
+	if config.ClusterClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterClient must not be empty", config)
 	}
 	if config.CMAClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)

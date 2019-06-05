@@ -3,6 +3,7 @@ package chartconfig
 import (
 	"context"
 	"reflect"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -10,6 +11,8 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 const (
@@ -98,6 +101,18 @@ func getChartConfigByName(list []*v1alpha1.ChartConfig, name string) (*v1alpha1.
 	return nil, microerror.Mask(notFoundError)
 }
 
+func filterChartOperatorAnnotations(cr *v1alpha1.ChartConfig) map[string]string {
+	annotations := map[string]string{}
+
+	for k, v := range cr.Annotations {
+		if strings.HasPrefix(k, label.ChartOperatorAnnotationPrefix) {
+			annotations[k] = v
+		}
+	}
+
+	return annotations
+}
+
 func isChartConfigModified(a, b *v1alpha1.ChartConfig) bool {
 	// If the Spec section has changed we need to update.
 	if !reflect.DeepEqual(a.Spec, b.Spec) {
@@ -105,6 +120,14 @@ func isChartConfigModified(a, b *v1alpha1.ChartConfig) bool {
 	}
 	// If the Labels have changed we also need to update.
 	if !reflect.DeepEqual(a.Labels, b.Labels) {
+		return true
+	}
+
+	// We only consider annotations with the chart-operator prefix.
+	filteredA := filterChartOperatorAnnotations(a)
+	filteredB := filterChartOperatorAnnotations(b)
+
+	if !reflect.DeepEqual(filteredA, filteredB) {
 		return true
 	}
 

@@ -23,6 +23,8 @@ data:
           certificate:
             ttl: '{{ .Values.Installation.V1.Auth.Vault.Certificate.TTL }}'
     service:
+      cluster:
+        address: 'http://cluster-service:8000'
       kubeconfig:
         resource:
           namespace: 'giantswarm'
