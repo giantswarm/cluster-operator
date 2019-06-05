@@ -42,7 +42,7 @@ func Test_Service_New(t *testing.T) {
 				config.Viper.Set(config.Flag.Guest.Cluster.Calico.CIDR, "16")
 				config.Viper.Set(config.Flag.Guest.Cluster.Calico.Subnet, "172.26.0.0")
 				config.Viper.Set(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange, "172.31.0.0/16")
-				config.Viper.Set(config.Flag.Service.Cluster.Address, "http://cluster-service:8000")
+				config.Viper.Set(config.Flag.Service.ClusterService.Address, "http://cluster-service:8000")
 				config.Viper.Set(config.Flag.Service.Image.Registry.Domain, "quay.io")
 				config.Viper.Set(config.Flag.Service.KubeConfig.Secret.Namespace, "giantswarm")
 				config.Viper.Set(config.Flag.Service.Kubernetes.Address, "http://127.0.0.1:6443")

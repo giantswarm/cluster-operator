@@ -225,10 +225,10 @@ func New(config Config) (*Service, error) {
 
 		var clusterClient *clusterclient.Client
 		{
-			config.Logger.Log("level", "debug", "message", fmt.Sprintf("address for cluster-service: %q", config.Viper.GetString(config.Flag.Service.Cluster.Address)))
+			config.Logger.Log("level", "debug", "message", fmt.Sprintf("address for cluster-service: %q", config.Viper.GetString(config.Flag.Service.ClusterService.Address)))
 
 			c := clusterclient.Config{
-				Address: config.Viper.GetString(config.Flag.Service.Cluster.Address),
+				Address: config.Viper.GetString(config.Flag.Service.ClusterService.Address),
 				Logger:  config.Logger,
 
 				// Timeout & RetryCount are straight from `api/service/service.go`.
