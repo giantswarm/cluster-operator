@@ -46,7 +46,7 @@
   version = "2.19.0"
 
 [[projects]]
-  digest = "1:d58ffcbefd213f04d243c9e1802265e2731ab2abfcb7b4d3121e66b999dac804"
+  digest = "1:7b110591ce8ca4f6de189129c5dcd9bcd7525fa4ccc51be617fcdd77a83312c3"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -71,32 +71,13 @@
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/ec2query",
-    "private/protocol/eventstream",
-    "private/protocol/eventstream/eventstreamapi",
-    "private/protocol/json/jsonutil",
-    "private/protocol/jsonrpc",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
-    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
-    "service/autoscaling",
     "service/cloudformation",
     "service/ec2",
-    "service/ec2/ec2iface",
-    "service/elb",
-    "service/elb/elbiface",
-    "service/iam",
-    "service/iam/iamiface",
-    "service/kms",
-    "service/kms/kmsiface",
-    "service/route53",
-    "service/s3",
-    "service/s3/s3iface",
     "service/sts",
-    "service/sts/stsiface",
-    "service/support",
-    "service/support/supportiface",
   ]
   pruneopts = "UT"
   revision = "2fa5290a6a8f6a664f2dab5337d5f64d0cfd8f68"
@@ -229,61 +210,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9b0137cfc5b8197fa1c29c53c1470920bc4f5ef7a0cc0a006c08c124374acbb2"
-  name = "github.com/giantswarm/aws-operator"
-  packages = [
-    "client/aws",
-    "pkg/awstags",
-    "service/accountid",
-    "service/controller/clusterapi",
-    "service/controller/clusterapi/v27",
-    "service/controller/clusterapi/v27/adapter",
-    "service/controller/clusterapi/v27/cloudconfig",
-    "service/controller/clusterapi/v27/cloudformation",
-    "service/controller/clusterapi/v27/controllercontext",
-    "service/controller/clusterapi/v27/credential",
-    "service/controller/clusterapi/v27/detection",
-    "service/controller/clusterapi/v27/ebs",
-    "service/controller/clusterapi/v27/encrypter",
-    "service/controller/clusterapi/v27/encrypter/kms",
-    "service/controller/clusterapi/v27/encrypter/vault",
-    "service/controller/clusterapi/v27/key",
-    "service/controller/clusterapi/v27/legacykey",
-    "service/controller/clusterapi/v27/resource/accountid",
-    "service/controller/clusterapi/v27/resource/asgstatus",
-    "service/controller/clusterapi/v27/resource/bridgezone",
-    "service/controller/clusterapi/v27/resource/cpf",
-    "service/controller/clusterapi/v27/resource/cpf/template",
-    "service/controller/clusterapi/v27/resource/cpi",
-    "service/controller/clusterapi/v27/resource/cpi/template",
-    "service/controller/clusterapi/v27/resource/drainer",
-    "service/controller/clusterapi/v27/resource/drainfinisher",
-    "service/controller/clusterapi/v27/resource/ebsvolume",
-    "service/controller/clusterapi/v27/resource/encryption",
-    "service/controller/clusterapi/v27/resource/endpoints",
-    "service/controller/clusterapi/v27/resource/ipam",
-    "service/controller/clusterapi/v27/resource/loadbalancer",
-    "service/controller/clusterapi/v27/resource/namespace",
-    "service/controller/clusterapi/v27/resource/natgatewayaddresses",
-    "service/controller/clusterapi/v27/resource/peerrolearn",
-    "service/controller/clusterapi/v27/resource/routetable",
-    "service/controller/clusterapi/v27/resource/s3bucket",
-    "service/controller/clusterapi/v27/resource/s3object",
-    "service/controller/clusterapi/v27/resource/service",
-    "service/controller/clusterapi/v27/resource/tccp",
-    "service/controller/clusterapi/v27/resource/tccpoutputs",
-    "service/controller/clusterapi/v27/resource/tccpsubnet",
-    "service/controller/clusterapi/v27/resource/vpccidr",
-    "service/controller/clusterapi/v27/templates",
-    "service/controller/clusterapi/v27/templates/cloudconfig",
-    "service/controller/clusterapi/v27/templates/cloudformation/tccp",
-    "service/network",
-  ]
-  pruneopts = "UT"
-  revision = "6aff7462e19f383699eda783318373fce3ace84c"
-
-[[projects]]
-  branch = "master"
   digest = "1:ab67fdefbc890c7880ffc2904048d7b9d14e29ebc716f8d637a17b16bb91d9e6"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
@@ -357,37 +283,18 @@
   name = "github.com/giantswarm/exporterkit"
   packages = ["collector"]
   pruneopts = "UT"
-  revision = "3c367b3fab44e69ff2657b7ba61ac7eb93f8c86b"
+  revision = "664e1317b3687f3a76ccc0df98a8dc784e60d376"
 
 [[projects]]
   branch = "master"
-  digest = "1:04333ae377aae328b45f1ab65072626376dbc94825f0b4475fb29f0813778416"
+  digest = "1:e9cbc4b8994548d532a3f8e0eb42840ce4de4348d58b0a6eead5dbe9d18b22ae"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "eacfaa9e5106758288bd9ee0449f1c8a82d5f550"
-
-[[projects]]
-  branch = "master"
-  digest = "1:a867ae2fbffdff3653a7e9dd398fe4654e6e571a9d906390368bcf53d0844bbf"
-  name = "github.com/giantswarm/ipam"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5ac1ece392f97e08ad0797a549702e3eba9dcd8d"
-
-[[projects]]
-  branch = "master"
-  digest = "1:4f0647c63a4314d8e86f20e9e4a9b4e0f182b07aa2c142e3bd1ffcefb32dfd06"
-  name = "github.com/giantswarm/k8scloudconfig"
-  packages = [
-    "ignition/v_2_2_0",
-    "v_4_3_0",
-  ]
-  pruneopts = "UT"
-  revision = "ea5814acc101d30b3cf4df5746f94bd86f5fdb61"
+  revision = "7a9add84325a92aef2d59320629ec849481bdbae"
 
 [[projects]]
   branch = "master"
@@ -447,7 +354,7 @@
     "tls",
   ]
   pruneopts = "UT"
-  revision = "864e4cc9c80644e48e8ac3168b6aafb5cbd0e5bb"
+  revision = "ae70e65c60f81ba9442376702b7666b261a1895a"
 
 [[projects]]
   branch = "master"
@@ -460,14 +367,6 @@
   ]
   pruneopts = "UT"
   revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
-
-[[projects]]
-  branch = "master"
-  digest = "1:57bceb785c54b7eb57da7b1b1fbe8ee10513eaee85450c0b566747cce7f8ddec"
-  name = "github.com/giantswarm/microstorage"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5a0784e0ee23c5b732c0d15023ac3dce8aef145a"
 
 [[projects]]
   branch = "master"
@@ -493,23 +392,7 @@
     "resource/secret",
   ]
   pruneopts = "UT"
-  revision = "dc60ddf19e89ce0a1ade4a52e94258734bf82dab"
-
-[[projects]]
-  branch = "master"
-  digest = "1:67420d66e7cfdb0016dc696d224abe66b6c94f879681f0ad6e89e26cea5f24c4"
-  name = "github.com/giantswarm/randomkeys"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "7ce5c5accc2e7896575fac81721e1218a966a380"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3875d7f3d86809c14accabc458cdf3dd5d75e5655bb86e743dc5087ad2d41948"
-  name = "github.com/giantswarm/statusresource"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "79ed3e21ad13b73210f5b1acf71d45effcccb8d3"
+  revision = "593866f913df6120d60d12c92d04fa0dbc3c5b93"
 
 [[projects]]
   branch = "master"
@@ -871,8 +754,7 @@
   version = "v0.8.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ab02672953d3ea152efa14d60dc0b417dfb3895523d9f96e106a0b4a9509a9fd"
+  digest = "1:0de31727c88e9f4a4ae70c28b6caa27f39b25788daf2dc4f7406013421228144"
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
@@ -880,7 +762,8 @@
     "prometheus/promhttp",
   ]
   pruneopts = "UT"
-  revision = "b5f69192ee7288cccf94bd6bf8a2e270e9726ab6"
+  revision = "50c4339db732beb2165735d2cde0bff78eb3c5a5"
+  version = "v0.9.3"
 
 [[projects]]
   branch = "master"
@@ -1470,13 +1353,13 @@
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/service/cloudformation",
     "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
-    "github.com/giantswarm/aws-operator/service/controller/clusterapi",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
@@ -1530,6 +1413,7 @@
     "k8s.io/client-go/rest",
     "k8s.io/client-go/testing",
     "k8s.io/helm/pkg/helm",
+    "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1",
     "sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset",
   ]
   solver-name = "gps-cdcl"
