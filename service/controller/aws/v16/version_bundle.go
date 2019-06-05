@@ -92,6 +92,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Use force when doing helm upgrades to fix failed releases.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "node-exporter",
+				Description: "Updated to v0.18.0",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -104,7 +109,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "node-exporter",
-				Version: "0.15.1",
+				Version: "0.18.0",
 			},
 			{
 				Name:    "coredns",
