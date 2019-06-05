@@ -17,7 +17,7 @@ import (
 const (
 	chartConfigAPIVersion           = "core.giantswarm.io"
 	chartConfigKind                 = "ChartConfig"
-	chartConfigVersionBundleVersion = "0.5.0"
+	chartConfigVersionBundleVersion = "0.6.0"
 )
 
 func (c *ChartConfig) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, providerChartSpecs []key.ChartSpec) ([]*v1alpha1.ChartConfig, error) {
