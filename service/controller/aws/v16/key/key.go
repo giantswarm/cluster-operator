@@ -19,6 +19,7 @@ func ChartSpecs() []key.ChartSpec {
 			ConfigMapName:     "cluster-autoscaler-values",
 			Namespace:         metav1.NamespaceSystem,
 			ReleaseName:       "cluster-autoscaler",
+			UseUpgradeForce:   true,
 			UserConfigMapName: "cluster-autoscaler-user-values",
 		},
 	}
