@@ -11,6 +11,7 @@ import (
 	awsv14patch1 "github.com/giantswarm/cluster-operator/service/controller/aws/v14patch1"
 	awsv15 "github.com/giantswarm/cluster-operator/service/controller/aws/v15"
 	awsv16 "github.com/giantswarm/cluster-operator/service/controller/aws/v16"
+	awsv17 "github.com/giantswarm/cluster-operator/service/controller/aws/v17"
 	azurev10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
 	azurev11 "github.com/giantswarm/cluster-operator/service/controller/azure/v11"
 	azurev12 "github.com/giantswarm/cluster-operator/service/controller/azure/v12"
@@ -19,6 +20,7 @@ import (
 	azurev14patch1 "github.com/giantswarm/cluster-operator/service/controller/azure/v14patch1"
 	azurev15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
 	azurev16 "github.com/giantswarm/cluster-operator/service/controller/azure/v16"
+	azurev17 "github.com/giantswarm/cluster-operator/service/controller/azure/v17"
 	azurev9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 	kvmv10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
 	kvmv11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
@@ -28,6 +30,7 @@ import (
 	kvmv14patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
 	kvmv15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
 	kvmv16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
+	kvmv17 "github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
 	kvmv6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
 	kvmv6patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
 	kvmv7 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
@@ -82,6 +85,10 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv16.VersionBundle())
 	versionBundles = append(versionBundles, azurev16.VersionBundle())
 	versionBundles = append(versionBundles, kvmv16.VersionBundle())
+
+	versionBundles = append(versionBundles, awsv17.VersionBundle())
+	versionBundles = append(versionBundles, azurev17.VersionBundle())
+	versionBundles = append(versionBundles, kvmv17.VersionBundle())
 
 	return versionBundles
 }
