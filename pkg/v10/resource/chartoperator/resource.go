@@ -185,5 +185,10 @@ func shouldUpdate(currentState, desiredState ResourceState) bool {
 		return true
 	}
 
+	if currentState.ReleaseStatus == "FAILED" {
+		// Release status is failed so do force upgrade to attempt to fix it.
+		return true
+	}
+
 	return false
 }

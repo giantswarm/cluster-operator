@@ -12,11 +12,12 @@ import (
 func ChartSpecs() []key.ChartSpec {
 	return []key.ChartSpec{
 		{
-			AppName:     "external-dns",
-			ChannelName: "0-2-stable",
-			ChartName:   "kubernetes-external-dns-chart",
-			Namespace:   metav1.NamespaceSystem,
-			ReleaseName: "external-dns",
+			AppName:         "external-dns",
+			ChannelName:     "0-2-stable",
+			ChartName:       "kubernetes-external-dns-chart",
+			Namespace:       metav1.NamespaceSystem,
+			ReleaseName:     "external-dns",
+			UseUpgradeForce: true,
 		},
 	}
 }

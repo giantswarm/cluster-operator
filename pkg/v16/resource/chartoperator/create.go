@@ -84,9 +84,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			}
 
 			err = tenantHelmClient.InstallReleaseFromTarball(ctx, p, chartOperatorNamespace,
+				helm.InstallWait(true),
 				helm.ReleaseName(createState.ReleaseName),
 				helm.ValueOverrides(b),
-				helm.InstallWait(true),
 			)
 			if err != nil {
 				return microerror.Mask(err)

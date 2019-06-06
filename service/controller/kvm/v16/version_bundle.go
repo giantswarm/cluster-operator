@@ -43,6 +43,11 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "node-exporter",
+				Description: "Use force when doing helm upgrades to fix failed releases.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
 				Component:   "metrics-server",
 				Description: "Added separate podsecuritypolicy.",
 				Kind:        versionbundle.KindAdded,
@@ -53,6 +58,11 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "metrics-server",
+				Description: "Use force when doing helm upgrades to fix failed releases.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
 				Component:   "kube-state-metrics",
 				Description: "Added separate podsecuritypolicy.",
 				Kind:        versionbundle.KindAdded,
@@ -60,6 +70,16 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "kube-state-metrics",
 				Description: "Switched security context to non-root user.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Use force when doing helm upgrades to fix failed releases.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "node-exporter",
+				Description: "Updated to v0.18.0",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -78,7 +98,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "node-exporter",
-				Version: "0.15.1",
+				Version: "0.18.0",
 			},
 			{
 				Name:    "metrics-server",

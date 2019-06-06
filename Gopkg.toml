@@ -76,6 +76,10 @@ required = [
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
+  branch = "update-prometheus-client"
+  name = "github.com/giantswarm/microclient"
+
+[[constraint]]
   branch = "master"
   name = "github.com/giantswarm/microendpoint"
 
@@ -139,3 +143,7 @@ required = [
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/clusterclient"

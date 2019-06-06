@@ -3,6 +3,7 @@ package clusterapi
 import (
 	clusterv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
@@ -20,6 +21,7 @@ import (
 // Cluster API's Cluster CRD controller implementation.
 type ClusterConfig struct {
 	BaseClusterConfig *cluster.Config
+	ClusterClient     *clusterclient.Client
 	CMAClient         clientset.Interface
 	G8sClient         versioned.Interface
 	K8sExtClient      apiextensionsclient.Interface
@@ -73,6 +75,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	{
 		c := v16.ResourceSetConfig{
 			BaseClusterConfig: config.BaseClusterConfig,
+			ClusterClient:     config.ClusterClient,
 			CMAClient:         config.CMAClient,
 			G8sClient:         config.G8sClient,
 			Logger:            config.Logger,

@@ -2,6 +2,7 @@ package chartconfig
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/guest"
@@ -16,7 +17,7 @@ import (
 const (
 	chartConfigAPIVersion           = "core.giantswarm.io"
 	chartConfigKind                 = "ChartConfig"
-	chartConfigVersionBundleVersion = "0.5.0"
+	chartConfigVersionBundleVersion = "0.6.0"
 )
 
 func (c *ChartConfig) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, providerChartSpecs []key.ChartSpec) ([]*v1alpha1.ChartConfig, error) {
@@ -51,15 +52,21 @@ func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterC
 		return nil, microerror.Mask(err)
 	}
 
+	annotations := map[string]string{
+		label.ForceHelmUpgradeAnnotationName: strconv.FormatBool(chartSpec.UseUpgradeForce),
+	}
+
 	labels := newChartConfigLabels(clusterConfig, chartSpec.AppName, c.projectName)
+
 	chartConfigCR := &v1alpha1.ChartConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       chartConfigKind,
 			APIVersion: chartConfigAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   chartSpec.ChartName,
-			Labels: labels,
+			Annotations: annotations,
+			Name:        chartSpec.ChartName,
+			Labels:      labels,
 		},
 		Spec: v1alpha1.ChartConfigSpec{
 			Chart: v1alpha1.ChartConfigSpecChart{
