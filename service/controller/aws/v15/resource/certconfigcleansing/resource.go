@@ -30,19 +30,18 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	currentMap := map[string]bool{}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "Collecting all AWSConfigs")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "Collecting all AWSClusterConfigs")
 
-	rs, err := r.g8sClient.ProviderV1alpha1().AWSConfigs("").List(metav1.ListOptions{})
+	rs, err := r.g8sClient.CoreV1alpha1().AWSClusterConfigs("").List(metav1.ListOptions{})
 	if err != nil {
 		r.logger.LogCtx(ctx, "level", "error", "message", "could not get AWSClusterConfig resource", "stack", fmt.Sprintf("%#v", err))
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Collected %d AWSConfigs", len(rs.Items)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("Collected %d AWSClusterConfigs", len(rs.Items)))
 
-	// Construct map with awsConfigs metadata name
 	for _, awsConfig := range rs.Items {
-		currentMap[awsConfig.Name] = true
+		currentMap[awsConfig.Spec.Guest.ID] = true
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "Collecting all CertConfigs")
@@ -62,7 +61,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		if _, ok := currentMap[clusterID]; !ok {
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CertConfig %#q do not have related AWSConfigs, going to delete it", cert.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CertConfig %#q do not have related AWSClusterConfigs, going to delete it", cert.Name))
 
 			err := r.g8sClient.CoreV1alpha1().CertConfigs("").Delete(cert.Name, &metav1.DeleteOptions{})
 			if err != nil {
@@ -73,7 +72,7 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			}
 
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CertConfig %#q HAVE related AWSConfigs, should not delete it", cert.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CertConfig %#q HAVE related AWSClusterConfigs, should not delete it", cert.Name))
 		}
 	}
 
