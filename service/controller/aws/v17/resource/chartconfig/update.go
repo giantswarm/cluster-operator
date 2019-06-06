@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v16/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v16/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v16/key"
+	"github.com/giantswarm/cluster-operator/pkg/v17/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v17/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v17/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
