@@ -50,7 +50,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Get existing AWSClusterConfig or create a new one.
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if AWSClusterConfig %q/%q exists", cluster.Namespace, key.AWSClusterConfigName(cluster)))
 
-	awsClusterConfig, err := r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(key.AWSClusterConfigName(cluster), v1.GetOptions{})
+	awsClusterConfig, err := r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(key.AWSClusterConfigName(cluster), metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find AWSClusterConfig %q/%q", cluster.Namespace, key.AWSClusterConfigName(cluster)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, key.AWSClusterConfigName(cluster)))
@@ -90,10 +90,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func (r *Resource) getMachineDeployments(ctx context.Context, cluster clusterv1alpha1.Cluster) ([]clusterv1alpha1.MachineDeployment, error) {
-	labelSelector := v1.AddLabelToSelector(&v1.LabelSelector{}, label.Cluster, key.ClusterID(cluster))
+	labelSelector := metav1.AddLabelToSelector(&metav1.LabelSelector{}, label.Cluster, key.ClusterID(cluster))
 	// TODO: Add selector for provider annotation?
 
-	listOptions := v1.ListOptions{
+	listOptions := metav1.ListOptions{
 		LabelSelector: labelSelector.String(),
 	}
 
@@ -136,11 +136,11 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSCl
 
 func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment, versionBundles []versionbundle.Bundle) *v1alpha1.AWSClusterConfig {
 	cc := &v1alpha1.AWSClusterConfig{
-		TypeMeta: v1.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "AWSClusterConfig",
 			APIVersion: "v1alpha1",
 		},
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      key.AWSClusterConfigName(cluster),
 			Namespace: cluster.Namespace,
 		},
