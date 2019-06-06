@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	Name = "awsclusterconfigv16"
+	Name = "awsclusterconfigv17"
 )
 
 // Config represents the configuration used to create a new awsclusterconfig resource.

@@ -11,7 +11,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "encryptionkeyv16"
+	Name = "encryptionkeyv17"
 )
 
 // Config represents the configuration used to create a new cloud config resource.
