@@ -55,6 +55,9 @@ const (
 	// cluster.
 	RandomKey = "giantswarm.io/randomkey"
 
+	// Release label specifices tenant cluster release version.
+	ReleaseKey = "release.giantswarm.io/version"
+
 	// ServiceType is a standard label for guest resources.
 	ServiceType = "giantswarm.io/service-type"
 

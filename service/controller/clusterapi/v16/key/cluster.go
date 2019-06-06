@@ -1,6 +1,7 @@
 package key
 
 import (
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 )
@@ -52,7 +53,11 @@ func ClusterName(cluster v1alpha1.Cluster) string {
 }
 
 func ClusterReleaseVersion(cluster v1alpha1.Cluster) string {
-	return clusterProviderSpec(cluster).Cluster.VersionBundle.Version
+	relVer, ok := cluster.Labels[label.ReleaseKey]
+	if !ok {
+		relVer = "unknown"
+	}
+	return relVer
 }
 
 func IsProviderSpecForAWS(cluster v1alpha1.Cluster) bool {
