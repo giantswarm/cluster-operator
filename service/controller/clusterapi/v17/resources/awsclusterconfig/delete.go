@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v16/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 
 	"github.com/giantswarm/microerror"
 )

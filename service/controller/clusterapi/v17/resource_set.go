@@ -1,4 +1,4 @@
-package v16
+package v17
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v16/resources/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/awsclusterconfig"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for

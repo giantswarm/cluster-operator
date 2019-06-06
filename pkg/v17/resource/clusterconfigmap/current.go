@@ -10,7 +10,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v16/key"
+	"github.com/giantswarm/cluster-operator/pkg/v17/key"
 )
 
 func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {

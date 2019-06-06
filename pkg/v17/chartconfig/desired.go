@@ -11,7 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v16/key"
+	"github.com/giantswarm/cluster-operator/pkg/v17/key"
 )
 
 const (
