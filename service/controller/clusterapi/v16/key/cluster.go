@@ -55,7 +55,9 @@ func ClusterName(cluster v1alpha1.Cluster) string {
 func ClusterReleaseVersion(cluster v1alpha1.Cluster) string {
 	relVer, ok := cluster.Labels[label.ReleaseKey]
 	if !ok {
-		relVer = "unknown"
+		// Later on we will have admission controller validating Cluster object
+		// so we shall not hit this panic.
+		panic("Cluster object is missing release version label.")
 	}
 	return relVer
 }
