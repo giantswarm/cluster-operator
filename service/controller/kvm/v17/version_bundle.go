@@ -8,79 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Added support for creating a cluster configmap for use by managed apps.",
+				Component:   "TODO",
+				Description: "TODO",
 				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Added separate podsecuritypolicy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Switched security context to non-root user.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "coredns",
-				Description: "Added separate podsecuritypolicy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "coredns",
-				Description: "Switched security context to non-root user.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Added separate podsecuritypolicy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Switched security context to non-root user.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Use force when doing helm upgrades to fix failed releases.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "metrics-server",
-				Description: "Added separate podsecuritypolicy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "metrics-server",
-				Description: "Switched security context to non-root user.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "metrics-server",
-				Description: "Use force when doing helm upgrades to fix failed releases.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "kube-state-metrics",
-				Description: "Added separate podsecuritypolicy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "kube-state-metrics",
-				Description: "Switched security context to non-root user.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "kube-state-metrics",
-				Description: "Use force when doing helm upgrades to fix failed releases.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Updated to v0.18.0",
-				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -107,6 +37,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "kvm",
-		Version:  "0.16.0",
+		Version:  "0.17.0",
 	}
 }
