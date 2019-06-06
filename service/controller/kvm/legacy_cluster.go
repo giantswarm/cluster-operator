@@ -15,20 +15,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
-	v11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
-	v12 "github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
-	v13 "github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
-	v14 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14"
-	v14patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
-	v15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
-	v16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
-	v6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v14"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
-	v7 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7patch1"
-	v8 "github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
-	v9 "github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for
@@ -421,6 +422,31 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
+	var v17ResourceSet *controller.ResourceSet
+	{
+		c := v17.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v17ResourceSet, err = v17.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -443,6 +469,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 				v14patch1ResourceSet,
 				v15ResourceSet,
 				v16ResourceSet,
+				v17ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
