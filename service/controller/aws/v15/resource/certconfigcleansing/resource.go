@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Name = "certconfigcleansingv1"
+	Name = "certconfigcleansingv15"
 )
 
 // Config represents the configuration used to create a new certconfigcleansing resource.
