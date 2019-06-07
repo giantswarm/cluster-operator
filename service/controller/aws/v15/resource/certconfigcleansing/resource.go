@@ -48,7 +48,6 @@ func (r Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	certs, err := r.g8sClient.CoreV1alpha1().CertConfigs("").List(metav1.ListOptions{})
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", "could not get CertConfigs resource", "stack", fmt.Sprintf("%#v", err))
 		return microerror.Mask(err)
 	}
 
