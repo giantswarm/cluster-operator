@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/microerror"
-
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v16/key"
+
+	"github.com/giantswarm/microerror"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
