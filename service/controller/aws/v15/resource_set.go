@@ -29,7 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/namespace"
 	"github.com/giantswarm/cluster-operator/pkg/v15/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/resource/certconfigcleansing"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v15/resource/configmap"
 )
@@ -256,19 +255,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var certConfigCleansingResource controller.Resource
-	{
-		c := certconfigcleansing.Config{
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
-		}
-
-		certConfigCleansingResource, err = certconfigcleansing.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var kubeConfigResource controller.Resource
 	{
 		c := kubeconfig.Config{
@@ -327,7 +313,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		encryptionKeyResource,
 		certConfigResource,
 		kubeConfigResource,
-		certConfigCleansingResource,
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
 		namespaceResource,
