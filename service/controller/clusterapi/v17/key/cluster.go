@@ -10,7 +10,7 @@ func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
 	return clusterProviderStatus(cluster).Cluster.ID
 }
 
-func ClusterAvailabilityZones(cluster v1alpha1.Cluster, machineDeployments []v1alpha1.MachineDeployment) []string {
+func ClusterAvailabilityZones(cluster v1alpha1.Cluster) []string {
 	azMap := make(map[string]struct{})
 
 	azMap[ClusterMasterAZ(cluster)] = struct{}{}

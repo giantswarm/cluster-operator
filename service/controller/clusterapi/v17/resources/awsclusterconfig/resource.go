@@ -16,6 +16,11 @@ import (
 
 const (
 	Name = "awsclusterconfigv17"
+
+	// With first version of Node Pools implementation, the maximum number of
+	// AZs for a tenant cluster is always 4. This is due to restrictions in
+	// current network design.
+	NumberOfAZsWithNodePools = 4
 )
 
 // Config represents the configuration used to create a new awsclusterconfig resource.

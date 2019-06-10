@@ -12,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 )
 
@@ -26,11 +25,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("provider extension in cluster cr %q is not for AWS", cluster.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
-	}
-
-	machineDeployments, err := r.getMachineDeployments(ctx, cluster)
-	if err != nil {
-		return microerror.Mask(err)
 	}
 
 	var versionBundles []versionbundle.Bundle
@@ -55,7 +49,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find AWSClusterConfig %q/%q", cluster.Namespace, key.AWSClusterConfigName(cluster)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, key.AWSClusterConfigName(cluster)))
 
-		awsClusterConfig = r.constructAWSClusterConfig(cluster, machineDeployments, versionBundles)
+		awsClusterConfig = r.constructAWSClusterConfig(cluster, versionBundles)
 
 		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Create(awsClusterConfig)
 		if errors.IsAlreadyExists(err) {
@@ -75,7 +69,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfig.Name))
 
 	// Map desired state from Cluster to AWSClusterConfig.
-	r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, machineDeployments, versionBundles)
+	r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, versionBundles)
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
 
@@ -89,24 +83,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) getMachineDeployments(ctx context.Context, cluster clusterv1alpha1.Cluster) ([]clusterv1alpha1.MachineDeployment, error) {
-	labelSelector := metav1.AddLabelToSelector(&metav1.LabelSelector{}, label.Cluster, key.ClusterID(cluster))
-	// TODO: Add selector for provider annotation?
-
-	listOptions := metav1.ListOptions{
-		LabelSelector: labelSelector.String(),
-	}
-
-	machineDeploymentList, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cluster.Namespace).List(listOptions)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return machineDeploymentList.Items, nil
-}
-
-func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment, versionBundles []versionbundle.Bundle) {
-	awsClusterConfig.Spec.Guest.ClusterGuestConfig.AvailabilityZones = len(key.ClusterAvailabilityZones(cluster, machineDeployments))
+func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) {
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.AvailabilityZones = NumberOfAZsWithNodePools
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.DNSZone = key.ClusterDNSZone(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.Name = key.ClusterName(cluster)
@@ -134,7 +112,7 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSCl
 	// TODO: Workers shall be added when we have better understanding towards template structure.
 }
 
-func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, machineDeployments []clusterv1alpha1.MachineDeployment, versionBundles []versionbundle.Bundle) *v1alpha1.AWSClusterConfig {
+func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) *v1alpha1.AWSClusterConfig {
 	cc := &v1alpha1.AWSClusterConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "AWSClusterConfig",
@@ -146,7 +124,7 @@ func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, ma
 		},
 	}
 
-	r.mapClusterToAWSClusterConfig(cc, cluster, machineDeployments, versionBundles)
+	r.mapClusterToAWSClusterConfig(cc, cluster, versionBundles)
 
 	return cc
 }
