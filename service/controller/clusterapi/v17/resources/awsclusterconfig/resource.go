@@ -61,6 +61,7 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		baseClusterConfig: config.BaseClusterConfig,
+		clusterClient:     config.ClusterClient,
 		cmaClient:         config.CMAClient,
 		g8sClient:         config.G8sClient,
 		logger:            config.Logger,
