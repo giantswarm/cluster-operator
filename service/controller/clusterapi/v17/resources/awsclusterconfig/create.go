@@ -27,6 +27,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	// ClusterID is core part of e.g. PKI initialization etc. so it must be
+	// present before proceeding further.
+	if key.ClusterID(cluster) == "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("provider status in cluster cr %q does not contain cluster ID", cluster.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	var versionBundles []versionbundle.Bundle
 	{
 		req := searcher.Request{
