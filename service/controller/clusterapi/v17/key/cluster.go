@@ -38,7 +38,7 @@ func ClusterDNSZone(cluster v1alpha1.Cluster) string {
 }
 
 func ClusterID(cluster v1alpha1.Cluster) string {
-	return clusterProviderStatus(cluster).Cluster.ID
+	return cluster.Labels[label.Cluster]
 }
 
 func ClusterMasterAZ(cluster v1alpha1.Cluster) string {
