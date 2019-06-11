@@ -96,6 +96,10 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSCl
 			Version: b.Version,
 		}
 		awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles = append(awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles, bundle)
+
+		if b.Name == "cluster-operator" {
+			awsClusterConfig.Spec.VersionBundle = v1alpha1.AWSClusterConfigSpecVersionBundle{Version: b.Version}
+		}
 	}
 
 	awsClusterConfig.Spec.Guest.CredentialSecret.Name = key.ClusterCredentialSecretName(cluster)
