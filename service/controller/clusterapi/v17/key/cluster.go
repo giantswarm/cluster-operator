@@ -8,7 +8,7 @@ import (
 )
 
 func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
-	return clusterProviderStatus(cluster).Cluster.ID
+	return cluster.Name
 }
 
 func ClusterAvailabilityZones(cluster v1alpha1.Cluster) []string {
