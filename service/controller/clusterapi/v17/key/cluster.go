@@ -1,9 +1,10 @@
 package key
 
 import (
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
