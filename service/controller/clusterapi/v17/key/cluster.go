@@ -66,11 +66,6 @@ func IsProviderSpecForAWS(cluster v1alpha1.Cluster) bool {
 	return err == nil
 }
 
-func IsProviderStatusForAWS(cluster v1alpha1.Cluster) bool {
-	_, err := g8sClusterStatusFromCMAClusterStatus(cluster.Status.ProviderStatus)
-	return err == nil
-}
-
 func ToCluster(v interface{}) (v1alpha1.Cluster, error) {
 	if v == nil {
 		return v1alpha1.Cluster{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Cluster{}, v)
