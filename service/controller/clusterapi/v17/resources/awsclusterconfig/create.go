@@ -3,6 +3,7 @@ package awsclusterconfig
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/clusterclient/service/release/searcher"
@@ -52,66 +53,80 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Get existing AWSClusterConfig or create a new one.
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if AWSClusterConfig %q/%q exists", cluster.Namespace, key.AWSClusterConfigName(cluster)))
 
-	awsClusterConfig, err := r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(key.AWSClusterConfigName(cluster), metav1.GetOptions{})
+	presentAWSClusterConfig, err := r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Get(key.AWSClusterConfigName(cluster), metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find AWSClusterConfig %q/%q", cluster.Namespace, key.AWSClusterConfigName(cluster)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, key.AWSClusterConfigName(cluster)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating AWSClusterConfig %q/%q", cluster.Namespace, key.AWSClusterConfigName(cluster)))
 
-		awsClusterConfig = r.constructAWSClusterConfig(cluster, versionBundles)
+		newAWSClusterConfig := r.constructAWSClusterConfig(cluster, versionBundles)
 
-		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Create(awsClusterConfig)
+		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Create(&newAWSClusterConfig)
 		if errors.IsAlreadyExists(err) {
-			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("AWSClusterConfig %q/%q already exists", awsClusterConfig.Namespace, awsClusterConfig.Name))
+			r.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("AWSClusterConfig %q/%q already exists", newAWSClusterConfig.Namespace, newAWSClusterConfig.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created AWSClusterConfig %q/%q", newAWSClusterConfig.Namespace, newAWSClusterConfig.Name))
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, awsClusterConfig.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found AWSClusterConfig %q/%q", cluster.Namespace, presentAWSClusterConfig.Name))
 
 	// Map desired state from Cluster to AWSClusterConfig.
-	r.mapClusterToAWSClusterConfig(awsClusterConfig, cluster, versionBundles)
+	newAWSClusterConfig := r.mapClusterToAWSClusterConfig(*presentAWSClusterConfig, cluster, versionBundles)
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+	if reflect.DeepEqual(presentAWSClusterConfig.Spec, newAWSClusterConfig.Spec) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("current AWSClusterConfig %q/%q is up-to-date; no update needed.", newAWSClusterConfig.Namespace, newAWSClusterConfig.Name))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
 
-	_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Update(awsClusterConfig)
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating AWSClusterConfig %q/%q", newAWSClusterConfig.Namespace, newAWSClusterConfig.Name))
+
+	_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Update(&newAWSClusterConfig)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated AWSClusterConfig %q/%q", awsClusterConfig.Namespace, awsClusterConfig.Name))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated AWSClusterConfig %q/%q", newAWSClusterConfig.Namespace, newAWSClusterConfig.Name))
 
 	return nil
 }
 
-func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) {
+func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) v1alpha1.AWSClusterConfig {
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.AvailabilityZones = NumberOfAZsWithNodePools
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.DNSZone = key.ClusterDNSZone(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.Name = key.ClusterName(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ReleaseVersion = key.ClusterReleaseVersion(cluster)
 
-	for _, b := range versionBundles {
-		bundle := v1alpha1.ClusterGuestConfigVersionBundle{
-			Name:    b.Name,
-			Version: b.Version,
-		}
-		awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles = append(awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles, bundle)
+	var awsClusterConfigVersionBundle v1alpha1.AWSClusterConfigSpecVersionBundle
+	var transformedVBs []v1alpha1.ClusterGuestConfigVersionBundle
+	{
+		for _, b := range versionBundles {
+			bundle := v1alpha1.ClusterGuestConfigVersionBundle{
+				Name:    b.Name,
+				Version: b.Version,
+			}
 
-		if b.Name == "cluster-operator" {
-			awsClusterConfig.Spec.VersionBundle = v1alpha1.AWSClusterConfigSpecVersionBundle{Version: b.Version}
+			transformedVBs = append(transformedVBs, bundle)
+
+			if b.Name == "cluster-operator" {
+				awsClusterConfigVersionBundle.Version = b.Version
+			}
 		}
+
 	}
 
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.VersionBundles = transformedVBs
 	awsClusterConfig.Spec.Guest.CredentialSecret.Name = key.ClusterCredentialSecretName(cluster)
 	awsClusterConfig.Spec.Guest.CredentialSecret.Namespace = key.ClusterCredentialSecretNamespace(cluster)
+	awsClusterConfig.Spec.VersionBundle = awsClusterConfigVersionBundle
 
 	awsClusterConfig.Spec.Guest.Masters = []v1alpha1.AWSClusterConfigSpecGuestMaster{
 		{
@@ -122,10 +137,12 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig *v1alpha1.AWSCl
 	}
 
 	// TODO: Workers shall be added when we have better understanding towards template structure.
+
+	return awsClusterConfig
 }
 
-func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) *v1alpha1.AWSClusterConfig {
-	cc := &v1alpha1.AWSClusterConfig{
+func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) v1alpha1.AWSClusterConfig {
+	cc := v1alpha1.AWSClusterConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "AWSClusterConfig",
 			APIVersion: "v1alpha1",
@@ -136,7 +153,5 @@ func (r *Resource) constructAWSClusterConfig(cluster clusterv1alpha1.Cluster, ve
 		},
 	}
 
-	r.mapClusterToAWSClusterConfig(cc, cluster, versionBundles)
-
-	return cc
+	return r.mapClusterToAWSClusterConfig(cc, cluster, versionBundles)
 }
