@@ -13,6 +13,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/awsclusterconfig"
 )
 
@@ -88,7 +89,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		return true
+		cr, err := key.ToCluster(obj)
+		if err != nil {
+			return false
+		}
+
+		if key.OperatorVersion(&cr) == VersionBundle().Version {
+			return true
+		}
+
+		return false
 	}
 
 	var resourceSet *controller.ResourceSet

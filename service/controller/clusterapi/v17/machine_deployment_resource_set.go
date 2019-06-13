@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/machinedeploymentstatus"
 )
 
@@ -65,7 +66,16 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		return true
+		cr, err := key.ToMachineDeployment(obj)
+		if err != nil {
+			return false
+		}
+
+		if key.OperatorVersion(&cr) == VersionBundle().Version {
+			return true
+		}
+
+		return false
 	}
 
 	var resourceSet *controller.ResourceSet
