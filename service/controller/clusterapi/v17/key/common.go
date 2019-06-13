@@ -1,9 +1,7 @@
 package key
 
-const (
-	LabelOperatorVersion = "aws-operator.giantswarm.io/version"
-)
+import "github.com/giantswarm/cluster-operator/pkg/label"
 
 func OperatorVersion(getter LabelsGetter) string {
-	return getter.GetLabels()[LabelOperatorVersion]
+	return getter.GetLabels()[label.OperatorVersion]
 }
