@@ -2,7 +2,6 @@ package key
 
 import (
 	"encoding/json"
-	"fmt"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -38,9 +37,6 @@ func g8sClusterSpecFromCMAClusterSpec(cmaSpec cmav1alpha1.ProviderSpec) (g8sv1al
 			return g8sv1alpha1.AWSClusterSpec{}, microerror.Mask(err)
 		}
 	}
-
-	// Debug; will be removed in a bit.
-	fmt.Printf("\n\n\n\n\n%#v\n\n\n\n\n\n", g8sSpec)
 
 	return g8sSpec, nil
 }
