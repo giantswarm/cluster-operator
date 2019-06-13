@@ -69,7 +69,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 	var resourceSetV17 *controller.ResourceSet
 	{
-		c := v17.ResourceSetConfig{
+		c := v17.ClusterResourceSetConfig{
 			BaseClusterConfig: config.BaseClusterConfig,
 			ClusterClient:     config.ClusterClient,
 			CMAClient:         config.CMAClient,
@@ -77,7 +77,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Logger:            config.Logger,
 		}
 
-		resourceSetV17, err = v17.NewResourceSet(c)
+		resourceSetV17, err = v17.NewClusterResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

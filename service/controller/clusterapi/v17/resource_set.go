@@ -18,9 +18,9 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterstatus"
 )
 
-// ResourceSetConfig contains necessary dependencies and settings for
+// ClusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
-type ResourceSetConfig struct {
+type ClusterResourceSetConfig struct {
 	BaseClusterConfig *cluster.Config
 	ClusterClient     *clusterclient.Client
 	CMAClient         clientset.Interface
@@ -28,22 +28,10 @@ type ResourceSetConfig struct {
 	Logger            micrologger.Logger
 }
 
-// NewResourceSet returns a configured Cluster API's Cluster controller ResourceSet.
-func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
+// NewClusterResourceSet returns a configured Cluster API's Cluster controller
+// ResourceSet.
+func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
-
-	if config.ClusterClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterClient must not be empty", config)
-	}
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
 
 	var clusterstatusResource controller.Resource
 	{
