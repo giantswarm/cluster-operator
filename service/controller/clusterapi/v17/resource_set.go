@@ -14,6 +14,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterstatus"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
@@ -43,6 +44,20 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	var clusterstatusResource controller.Resource
+	{
+		c := clusterstatus.Config{
+			CMAClient: config.CMAClient,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		clusterstatusResource, err = clusterstatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var awsclusterconfigResource controller.Resource
 	{
 		c := awsclusterconfig.Config{
@@ -60,6 +75,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	resources := []controller.Resource{
+		clusterstatusResource,
 		awsclusterconfigResource,
 	}
 
