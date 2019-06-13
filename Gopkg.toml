@@ -57,6 +57,10 @@ required = [
 
 [[constraint]]
   branch = "master"
+  name = "github.com/giantswarm/clusterclient"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/e2e-harness"
 
 [[constraint]]
@@ -74,10 +78,6 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/helmclient"
-
-[[constraint]]
-  branch = "update-prometheus-client"
-  name = "github.com/giantswarm/microclient"
 
 [[constraint]]
   branch = "master"
@@ -140,10 +140,7 @@ required = [
   version = "=v0.1.1"
 
 
+
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/clusterclient"
