@@ -3,7 +3,6 @@ package clusterapi
 import (
 	clusterv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
@@ -13,29 +12,23 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
 )
 
-// ClusterConfig contains necessary dependencies and settings for
-// Cluster API's Cluster CRD controller implementation.
-type ClusterConfig struct {
-	BaseClusterConfig *cluster.Config
-	ClusterClient     *clusterclient.Client
-	CMAClient         clientset.Interface
-	G8sClient         versioned.Interface
-	K8sExtClient      apiextensionsclient.Interface
-	Logger            micrologger.Logger
+type MachineDeploymentConfig struct {
+	CMAClient    clientset.Interface
+	G8sClient    versioned.Interface
+	K8sExtClient apiextensionsclient.Interface
+	Logger       micrologger.Logger
 
 	ProjectName string
 }
 
-type Cluster struct {
+type MachineDeployment struct {
 	*controller.Controller
 }
 
-// NewCluster returns a configured AWSClusterConfig controller implementation.
-func NewCluster(config ClusterConfig) (*Cluster, error) {
+func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, error) {
 	var err error
 
 	var crdClient *k8scrdclient.CRDClient
@@ -55,7 +48,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	{
 		c := informer.Config{
 			Logger:  config.Logger,
-			Watcher: config.CMAClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll),
+			Watcher: config.CMAClient.ClusterV1alpha1().MachineDeployments(corev1.NamespaceAll),
 
 			RateWait:     informer.DefaultRateWait,
 			ResyncPeriod: informer.DefaultResyncPeriod,
@@ -69,15 +62,13 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 	var resourceSetV17 *controller.ResourceSet
 	{
-		c := v17.ResourceSetConfig{
-			BaseClusterConfig: config.BaseClusterConfig,
-			ClusterClient:     config.ClusterClient,
-			CMAClient:         config.CMAClient,
-			G8sClient:         config.G8sClient,
-			Logger:            config.Logger,
+		c := v17.MachineDeploymentResourceSetConfig{
+			CMAClient: config.CMAClient,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
 		}
 
-		resourceSetV17, err = v17.NewResourceSet(c)
+		resourceSetV17, err = v17.NewMachineDeploymentResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -86,7 +77,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       clusterv1alpha1.NewClusterCRD(),
+			CRD:       clusterv1alpha1.NewMachineDeploymentCRD(),
 			CRDClient: crdClient,
 			Informer:  newInformer,
 			Logger:    config.Logger,
@@ -96,8 +87,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
 			// Name is used to compute finalizer names. This here results in something
-			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.
-			Name: config.ProjectName + "-cluster-controller",
+			// like operatorkit.giantswarm.io/cluster-operator-machine-deployment-controller.
+			Name: config.ProjectName + "-machine-deployment-controller",
 		}
 
 		clusterController, err = controller.New(c)
@@ -106,7 +97,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	c := &Cluster{
+	c := &MachineDeployment{
 		Controller: clusterController,
 	}
 
