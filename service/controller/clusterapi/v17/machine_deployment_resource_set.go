@@ -9,8 +9,10 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/tenantclients"
@@ -20,6 +22,7 @@ type MachineDeploymentResourceSetConfig struct {
 	CMAClient clientset.Interface
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
+	Tenant    tenantcluster.Interface
 }
 
 func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
@@ -43,8 +46,8 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	{
 		c := tenantclients.Config{
 			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
+			Tenant:    config.Tenant,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
@@ -78,6 +81,7 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
 		return ctx, nil
 	}
 
