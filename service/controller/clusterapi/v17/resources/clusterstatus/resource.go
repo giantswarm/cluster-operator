@@ -12,20 +12,25 @@ const (
 )
 
 type Config struct {
-	CMAClient clientset.Interface
-	G8sClient versioned.Interface
-	Logger    micrologger.Logger
+	CMAClient                   clientset.Interface
+	CommonClusterStatusAccessor CommonClusterStatusAccessor
+	G8sClient                   versioned.Interface
+	Logger                      micrologger.Logger
 }
 
 type Resource struct {
-	cmaClient clientset.Interface
-	g8sClient versioned.Interface
-	logger    micrologger.Logger
+	cmaClient                   clientset.Interface
+	commonClusterStatusAccessor CommonClusterStatusAccessor
+	g8sClient                   versioned.Interface
+	logger                      micrologger.Logger
 }
 
 func New(config Config) (*Resource, error) {
 	if config.CMAClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	}
+	if config.CommonClusterStatusAccessor == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CommonClusterStatusAccessor must not be empty", config)
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
