@@ -13,6 +13,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/tenantclients"
 )
 
 type MachineDeploymentResourceSetConfig struct {
@@ -38,7 +39,22 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 		}
 	}
 
+	var tenantClientsResource controller.Resource
+	{
+		c := tenantclients.Config{
+			CMAClient: config.CMAClient,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+		}
+
+		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
+		tenantClientsResource,
 		machineDeploymentStatusResource,
 	}
 
