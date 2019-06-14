@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
@@ -20,6 +21,7 @@ type MachineDeploymentConfig struct {
 	G8sClient    versioned.Interface
 	K8sExtClient apiextensionsclient.Interface
 	Logger       micrologger.Logger
+	Tenant       tenantcluster.Interface
 
 	ProjectName string
 }
@@ -66,6 +68,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 			CMAClient: config.CMAClient,
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
+			Tenant:    config.Tenant,
 		}
 
 		resourceSetV17, err = v17.NewMachineDeploymentResourceSet(c)

@@ -1,6 +1,8 @@
 package key
 
 import (
+	"fmt"
+
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
@@ -9,6 +11,10 @@ import (
 
 func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
 	return cluster.Name
+}
+
+func ClusterAPIEndpoint(cluster v1alpha1.Cluster) string {
+	return fmt.Sprintf("api.%s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
 }
 
 func ClusterAvailabilityZones(cluster v1alpha1.Cluster) []string {
@@ -25,6 +31,10 @@ func ClusterAvailabilityZones(cluster v1alpha1.Cluster) []string {
 	return azs
 }
 
+func ClusterBaseDomain(cluster v1alpha1.Cluster) string {
+	return clusterProviderSpec(cluster).Cluster.DNS.Domain
+}
+
 func ClusterCredentialSecretName(cluster v1alpha1.Cluster) string {
 	return clusterProviderSpec(cluster).Provider.CredentialSecret.Name
 }
@@ -35,10 +45,6 @@ func ClusterCredentialSecretNamespace(cluster v1alpha1.Cluster) string {
 
 func ClusterDNSZone(cluster v1alpha1.Cluster) string {
 	return clusterProviderSpec(cluster).Cluster.DNS.Domain
-}
-
-func ClusterID(cluster v1alpha1.Cluster) string {
-	return cluster.Labels[label.Cluster]
 }
 
 func ClusterMasterAZ(cluster v1alpha1.Cluster) string {
