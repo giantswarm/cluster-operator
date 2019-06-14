@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:daf10c81e95a4ddd764c524dcc91bf1c80a8862cdc3badd7216112be29c1d451"
+  digest = "1:43b534ee61171015e2a0a822963a1b3016cafbfd57449f0b71c5331bcee73cdf"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "7f5f6572f7ae8a94f46291e97178cd15818e4caf"
+  revision = "e4b861457817b3a08055536b81aaf2b1785b560e"
 
 [[projects]]
   branch = "master"
@@ -207,18 +207,6 @@
   ]
   pruneopts = "UT"
   revision = "4615b197120e48c20818898c04df0845b0bf15c9"
-
-[[projects]]
-  branch = "master"
-  digest = "1:d899c292ccaaff487e1c84369cd7d4374d3bb05518e3a3a8208824485ba606ee"
-  name = "github.com/giantswarm/aws-operator"
-  packages = [
-    "service/controller/clusterapi/v28/key",
-    "service/controller/clusterapi/v28/templates/cloudconfig",
-    "service/controller/clusterapi/v28/templates/cloudformation/tccp",
-  ]
-  pruneopts = "UT"
-  revision = "5eb405fdf761f30740f257b350041750f0c28217"
 
 [[projects]]
   branch = "master"
@@ -949,7 +937,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "3f473d35a33aa6fdd203e306dc439b797820e3f1"
+  revision = "d28f0bde5980168871434b95cfc858db9f2a7a99"
 
 [[projects]]
   branch = "master"
@@ -972,14 +960,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5d73dac5b6c4fc0d6ca19db25857fa8765fbab79bd7f7a6ae8b3c328eec65c30"
+  digest = "1:3632ee2affa9e498af05fbddf75d88a14302788cb88f3afd85c9cc6c3f7b0966"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "5ed2794edfdc1c54dfb61d619c5944285f35d444"
+  revision = "d442b75600c5d6484576502b3c53a55c54311be9"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1434,11 +1422,11 @@
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
-    "github.com/giantswarm/aws-operator/service/controller/clusterapi/v28/key",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
     "github.com/giantswarm/clusterclient",
+    "github.com/giantswarm/clusterclient/service/release/searcher",
     "github.com/giantswarm/e2e-harness/pkg/framework",
     "github.com/giantswarm/e2eclients/aws",
     "github.com/giantswarm/e2esetup/k8s",

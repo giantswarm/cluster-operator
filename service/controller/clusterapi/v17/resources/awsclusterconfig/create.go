@@ -30,7 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// ClusterID is core part of e.g. PKI initialization etc. so it must be
 	// present before proceeding further.
-	if key.ClusterID(cluster) == "" {
+	if key.ClusterID(&cluster) == "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("provider status in cluster cr %q does not contain cluster ID", cluster.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
@@ -101,7 +101,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig v1alpha1.AWSClusterConfig, cluster clusterv1alpha1.Cluster, versionBundles []versionbundle.Bundle) v1alpha1.AWSClusterConfig {
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.AvailabilityZones = NumberOfAZsWithNodePools
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.DNSZone = key.ClusterDNSZone(cluster)
-	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(cluster)
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(&cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.Name = key.ClusterName(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ReleaseVersion = key.ClusterReleaseVersion(cluster)
 
