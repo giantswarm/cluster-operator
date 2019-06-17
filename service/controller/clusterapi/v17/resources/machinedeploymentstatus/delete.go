@@ -16,6 +16,8 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
+	var err error
+
 	cr, err := key.ToMachineDeployment(obj)
 	if err != nil {
 		return microerror.Mask(err)
@@ -72,14 +74,12 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment needs to be updated")
 	}
 
-	var cl v1alpha1.MachineDeployment
+	var cl *v1alpha1.MachineDeployment
 	{
-		m, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
+		cl, err = r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
-
-		cl = *m
 	}
 
 	{
@@ -90,7 +90,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of machine deployment")
 
-		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cl.Namespace).Update(&cl)
+		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cl.Namespace).Update(cl)
 		if err != nil {
 			return microerror.Mask(err)
 		}
