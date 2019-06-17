@@ -73,11 +73,7 @@ func (r *Resource) ensureClusterHasID(ctx context.Context, cluster cmav1alpha1.C
 		return status, nil
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "did not found cluster ID; generating one")
-
-	panic("tuommaki: Implement cluster ID generation.")
-
-	//return status, nil
+	return status, microerror.Maskf(notFoundError, "cluster ID")
 }
 
 func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, status v1alpha1.CommonClusterStatus) v1alpha1.CommonClusterStatus {
