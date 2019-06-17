@@ -15,32 +15,32 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cluster, err := key.ToCluster(obj)
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "ensuring cluster status is up to date")
 
-	currentStatus := r.commonClusterStatusAccessor.GetCommonClusterStatus(cluster)
+	currentStatus := r.commonClusterStatusAccessor.GetCommonClusterStatus(cr)
 
-	updatedStatus, err := r.ensureClusterHasID(ctx, cluster, currentStatus)
+	updatedStatus, err := r.ensureClusterHasID(ctx, cr, currentStatus)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	// Ensure that cluster has cluster ID label.
-	cluster.Labels[label.Cluster] = updatedStatus.ID
+	cr.Labels[label.Cluster] = updatedStatus.ID
 
-	updatedStatus = r.computeClusterConditions(ctx, cluster, updatedStatus)
+	updatedStatus = r.computeClusterConditions(ctx, cr, updatedStatus)
 
-	updatedStatus = r.computeClusterVersion(ctx, cluster, updatedStatus)
+	updatedStatus = r.computeClusterVersion(ctx, cr, updatedStatus)
 
 	if !reflect.DeepEqual(currentStatus, updatedStatus) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-		cluster = r.commonClusterStatusAccessor.SetCommonClusterStatus(cluster, updatedStatus)
-		_, err = r.cmaClient.ClusterV1alpha1().Clusters(cluster.Namespace).Update(&cluster)
+		cr = r.commonClusterStatusAccessor.SetCommonClusterStatus(cr, updatedStatus)
+		_, err = r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Update(&cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
