@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/go-resty/resty"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
@@ -155,6 +156,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var tenantCluster tenantcluster.Interface
+	{
+		c := tenantcluster.Config{
+			CertsSearcher: certSearcher,
+			Logger:        config.Logger,
+
+			CertID: certs.ClusterOperatorAPICert,
+		}
+
+		tenantCluster, err = tenantcluster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var awsLegacyClusterController *aws.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -266,6 +282,7 @@ func New(config Config) (*Service, error) {
 			G8sClient:    g8sClient,
 			K8sExtClient: k8sExtClient,
 			Logger:       config.Logger,
+			Tenant:       tenantCluster,
 
 			ProjectName: config.ProjectName,
 		}
