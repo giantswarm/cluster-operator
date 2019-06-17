@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v17 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -36,10 +36,6 @@ type Cluster struct {
 
 // NewCluster returns a configured AWSClusterConfig controller implementation.
 func NewCluster(config ClusterConfig) (*Cluster, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-
 	var err error
 
 	var crdClient *k8scrdclient.CRDClient
@@ -73,7 +69,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 	var resourceSetV17 *controller.ResourceSet
 	{
-		c := v17.ResourceSetConfig{
+		c := v17.ClusterResourceSetConfig{
 			BaseClusterConfig: config.BaseClusterConfig,
 			ClusterClient:     config.ClusterClient,
 			CMAClient:         config.CMAClient,
@@ -81,7 +77,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Logger:            config.Logger,
 		}
 
-		resourceSetV17, err = v17.NewResourceSet(c)
+		resourceSetV17, err = v17.NewClusterResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -99,7 +95,9 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
-			Name: config.ProjectName,
+			// Name is used to compute finalizer names. This here results in something
+			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.
+			Name: config.ProjectName + "-cluster-controller",
 		}
 
 		clusterController, err = controller.New(c)

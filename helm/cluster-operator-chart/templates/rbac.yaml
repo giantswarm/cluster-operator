@@ -32,9 +32,11 @@ rules:
       - cluster.k8s.io
     resources:
       - clusters
+      - machinedeployments
     verbs:
       - get
       - list
+      - patch
       - watch
   - apiGroups:
       - core.giantswarm.io

@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/go-resty/resty"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
@@ -60,6 +61,7 @@ type Service struct {
 	azureLegacyClusterController *azure.LegacyCluster
 	bootOnce                     sync.Once
 	clusterController            *clusterapi.Cluster
+	machineDeploymentController  *clusterapi.MachineDeployment
 	kvmLegacyClusterController   *kvm.LegacyCluster
 	operatorCollector            *collector.Set
 }
@@ -149,6 +151,21 @@ func New(config Config) (*Service, error) {
 		}
 
 		certSearcher, err = certs.NewSearcher(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var tenantCluster tenantcluster.Interface
+	{
+		c := tenantcluster.Config{
+			CertsSearcher: certSearcher,
+			Logger:        config.Logger,
+
+			CertID: certs.ClusterOperatorAPICert,
+		}
+
+		tenantCluster, err = tenantcluster.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -258,6 +275,24 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var machineDeploymentController *clusterapi.MachineDeployment
+	{
+		c := clusterapi.MachineDeploymentConfig{
+			CMAClient:    cmaClient,
+			G8sClient:    g8sClient,
+			K8sExtClient: k8sExtClient,
+			Logger:       config.Logger,
+			Tenant:       tenantCluster,
+
+			ProjectName: config.ProjectName,
+		}
+
+		machineDeploymentController, err = clusterapi.NewMachineDeployment(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kvmLegacyClusterController *kvm.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -326,6 +361,7 @@ func New(config Config) (*Service, error) {
 		bootOnce:                     sync.Once{},
 		azureLegacyClusterController: azureLegacyClusterController,
 		clusterController:            clusterController,
+		machineDeploymentController:  machineDeploymentController,
 		kvmLegacyClusterController:   kvmLegacyClusterController,
 		operatorCollector:            operatorCollector,
 	}
@@ -342,6 +378,7 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.awsLegacyClusterController.Boot(ctx)
 		go s.azureLegacyClusterController.Boot(ctx)
 		go s.clusterController.Boot(ctx)
+		go s.machineDeploymentController.Boot(ctx)
 		go s.kvmLegacyClusterController.Boot(ctx)
 	})
 }

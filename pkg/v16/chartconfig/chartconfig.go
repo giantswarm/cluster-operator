@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/annotation"
 )
 
 const (
@@ -105,7 +105,7 @@ func filterChartOperatorAnnotations(cr *v1alpha1.ChartConfig) map[string]string 
 	annotations := map[string]string{}
 
 	for k, v := range cr.Annotations {
-		if strings.HasPrefix(k, label.ChartOperatorAnnotationPrefix) {
+		if strings.HasPrefix(k, annotation.ChartOperator) {
 			annotations[k] = v
 		}
 	}

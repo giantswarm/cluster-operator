@@ -42,6 +42,10 @@ const (
 	// in the front-end.
 	Organization = "giantswarm.io/organization"
 
+	// OperatorVersion label transports the operator version requested to be used
+	// when reconciling the observed runtime object.
+	OperatorVersion = "cluster-operator.giantswarm.io/version"
+
 	// ProviderAWS label specifies format for AWS provider ID.
 	ProviderAWS = "aws"
 
@@ -54,6 +58,9 @@ const (
 	// RandomKey label specifies type of a secret that is used for guest
 	// cluster.
 	RandomKey = "giantswarm.io/randomkey"
+
+	// ReleaseKey is a label specifying a tenant cluster release version.
+	ReleaseKey = "release.giantswarm.io/version"
 
 	// ServiceType is a standard label for guest resources.
 	ServiceType = "giantswarm.io/service-type"

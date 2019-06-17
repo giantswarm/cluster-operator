@@ -10,6 +10,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/v16/key"
 )
@@ -53,7 +54,7 @@ func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterC
 	}
 
 	annotations := map[string]string{
-		label.ForceHelmUpgradeAnnotationName: strconv.FormatBool(chartSpec.UseUpgradeForce),
+		annotation.ForceHelmUpgrade: strconv.FormatBool(chartSpec.UseUpgradeForce),
 	}
 
 	labels := newChartConfigLabels(clusterConfig, chartSpec.AppName, c.projectName)

@@ -18,11 +18,7 @@ func clusterProviderSpec(cluster cmav1alpha1.Cluster) g8sv1alpha1.AWSClusterSpec
 }
 
 func clusterProviderStatus(cluster cmav1alpha1.Cluster) g8sv1alpha1.AWSClusterStatus {
-	status, err := g8sClusterStatusFromCMAClusterStatus(cluster.Status.ProviderStatus)
-	if err != nil {
-		panic(err)
-	}
-	return status
+	return g8sClusterStatusFromCMAClusterStatus(cluster.Status.ProviderStatus)
 }
 
 func g8sClusterSpecFromCMAClusterSpec(cmaSpec cmav1alpha1.ProviderSpec) (g8sv1alpha1.AWSClusterSpec, error) {
@@ -45,22 +41,22 @@ func g8sClusterSpecFromCMAClusterSpec(cmaSpec cmav1alpha1.ProviderSpec) (g8sv1al
 	return g8sSpec, nil
 }
 
-func g8sClusterStatusFromCMAClusterStatus(cmaStatus *runtime.RawExtension) (g8sv1alpha1.AWSClusterStatus, error) {
-	if cmaStatus == nil {
-		return g8sv1alpha1.AWSClusterStatus{}, microerror.Maskf(notFoundError, "provider status extension for AWS not found")
-	}
-
+func g8sClusterStatusFromCMAClusterStatus(cmaStatus *runtime.RawExtension) g8sv1alpha1.AWSClusterStatus {
 	var g8sStatus g8sv1alpha1.AWSClusterStatus
 	{
+		if cmaStatus == nil {
+			return g8sStatus
+		}
+
 		if len(cmaStatus.Raw) == 0 {
-			return g8sStatus, nil
+			return g8sStatus
 		}
 
 		err := json.Unmarshal(cmaStatus.Raw, &g8sStatus)
 		if err != nil {
-			return g8sv1alpha1.AWSClusterStatus{}, microerror.Mask(err)
+			panic(err)
 		}
 	}
 
-	return g8sStatus, nil
+	return g8sStatus
 }
