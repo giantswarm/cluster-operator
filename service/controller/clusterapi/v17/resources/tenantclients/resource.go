@@ -75,12 +75,22 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	var k8sClient kubernetes.Interface
 	{
 		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
-		if err != nil {
+		if tenantcluster.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
 		k8sClient, err = r.tenant.NewK8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
-		if err != nil {
+		if tenantcluster.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 	}
