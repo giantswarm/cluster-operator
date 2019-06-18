@@ -9,3 +9,7 @@ func ClusterID(getter LabelsGetter) string {
 func OperatorVersion(getter LabelsGetter) string {
 	return getter.GetLabels()[label.OperatorVersion]
 }
+
+func ReleaseVersion(getter LabelsGetter) string {
+	return getter.GetLabels()[label.ReleaseKey]
+}
