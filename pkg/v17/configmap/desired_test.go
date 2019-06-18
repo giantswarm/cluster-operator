@@ -315,7 +315,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 				Name:      "test-app-values",
 				Namespace: metav1.NamespaceSystem,
 				Labels: map[string]string{
-					"app":                   "test-app",
+					"app": "test-app",
 					"giantswarm.io/cluster": "5xchu",
 				},
 			},
@@ -324,7 +324,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 					Name:      "test-app-values",
 					Namespace: metav1.NamespaceSystem,
 					Labels: map[string]string{
-						"app":                   "test-app",
+						"app": "test-app",
 						"giantswarm.io/cluster": "5xchu",
 					},
 				},
@@ -338,7 +338,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 				Name:      "test-app-values",
 				Namespace: metav1.NamespaceSystem,
 				Labels: map[string]string{
-					"app":                   "test-app",
+					"app": "test-app",
 					"giantswarm.io/cluster": "5xchu",
 				},
 				ValuesJSON: "{\"image\":{\"registry\":\"quay.io\"}}",
@@ -348,7 +348,7 @@ func Test_ConfigMap_newConfigMap(t *testing.T) {
 					Name:      "test-app-values",
 					Namespace: metav1.NamespaceSystem,
 					Labels: map[string]string{
-						"app":                   "test-app",
+						"app": "test-app",
 						"giantswarm.io/cluster": "5xchu",
 					},
 				},
@@ -586,7 +586,6 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 	testCases := []struct {
 		name               string
 		configMapValues    ConfigMapValues
-		hasLegacyIC        bool
 		errorMatcher       func(error) bool
 		expectedValuesJSON string
 	}{
@@ -601,7 +600,6 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain: "quay.io",
 				WorkerCount:    3,
 			},
-			hasLegacyIC:        true,
 			expectedValuesJSON: basicMatchJSON,
 		},
 		{
@@ -615,7 +613,6 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain: "quay.io",
 				WorkerCount:    7,
 			},
-			hasLegacyIC:        true,
 			expectedValuesJSON: differentWorkerCountJSON,
 		},
 		{
@@ -629,28 +626,13 @@ func Test_ConfigMap_ingressControllerValues(t *testing.T) {
 				RegistryDomain: "quay.io",
 				WorkerCount:    1,
 			},
-			hasLegacyIC:        true,
 			expectedValuesJSON: differentSettingsJSON,
-		},
-		{
-			name: "case 3: already migrated",
-			configMapValues: ConfigMapValues{
-				IngressController: IngressControllerValues{
-					ControllerServiceEnabled: false,
-					MigrationEnabled:         true,
-					UseProxyProtocol:         false,
-				},
-				RegistryDomain: "quay.io",
-				WorkerCount:    3,
-			},
-			hasLegacyIC:        false,
-			expectedValuesJSON: alreadyMigratedJSON,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			values, err := ingressControllerValues(tc.configMapValues, tc.hasLegacyIC)
+			values, err := ingressControllerValues(tc.configMapValues)
 
 			switch {
 			case err == nil && tc.errorMatcher == nil:
