@@ -40,9 +40,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		cmaClient: config.CMAClient,
-		g8sClient: config.G8sClient,
-		logger:    config.Logger,
+		cmaClient:                   config.CMAClient,
+		commonClusterStatusAccessor: config.CommonClusterStatusAccessor,
+		g8sClient:                   config.G8sClient,
+		logger:                      config.Logger,
 	}
 
 	return r, nil
