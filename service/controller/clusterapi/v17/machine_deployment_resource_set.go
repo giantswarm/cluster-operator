@@ -10,6 +10,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"github.com/giantswarm/tenantcluster"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
@@ -45,9 +48,10 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
-			CMAClient: config.CMAClient,
-			Logger:    config.Logger,
-			Tenant:    config.Tenant,
+			CMAClient:     config.CMAClient,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.CMAClient),
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
@@ -114,4 +118,20 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	}
 
 	return resourceSet, nil
+}
+
+func newMachineDeploymentToClusterFunc(cmaClient clientset.Interface) func(obj interface{}) (v1alpha1.Cluster, error) {
+	return func(obj interface{}) (v1alpha1.Cluster, error) {
+		cr, err := key.ToMachineDeployment(obj)
+		if err != nil {
+			return v1alpha1.Cluster{}, microerror.Mask(err)
+		}
+
+		m, err := cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).Get(key.ClusterID(&cr), metav1.GetOptions{})
+		if err != nil {
+			return v1alpha1.Cluster{}, microerror.Mask(err)
+		}
+
+		return *m, nil
+	}
 }
