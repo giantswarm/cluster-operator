@@ -51,12 +51,18 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	{
 		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(&cluster), key.ClusterAPIEndpoint(cluster))
 		if err != nil {
-			return microerror.Mask(err)
+			r.logger.LogCtx(ctx, "level", "warning", "message", "failed to create tenant cluster g8s client", "stack", microerror.Stack(microerror.Mask(err)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
 		}
 
 		k8sClient, err = r.tenant.NewK8sClient(ctx, key.ClusterID(&cluster), key.ClusterAPIEndpoint(cluster))
 		if err != nil {
-			return microerror.Mask(err)
+			r.logger.LogCtx(ctx, "level", "warning", "message", "failed to create tenant cluster k8s client", "stack", microerror.Stack(microerror.Mask(err)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+			return nil
 		}
 	}
 
