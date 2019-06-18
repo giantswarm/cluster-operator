@@ -21,13 +21,13 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	// This resource is used both from Cluster and MachineDeployment
 	// controllers so it must work with both types.
 	switch obj.(type) {
-	case v1alpha1.Cluster:
+	case *v1alpha1.Cluster:
 		cluster, err = key.ToCluster(obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-	case v1alpha1.MachineDeployment:
+	case *v1alpha1.MachineDeployment:
 		cr, err := key.ToMachineDeployment(obj)
 		if err != nil {
 			return microerror.Mask(err)
@@ -39,6 +39,9 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		}
 
 		cluster = *m
+
+	default:
+		return microerror.Maskf(wrongTypeError, "expected '%T' or '%T', got '%T'", &v1alpha1.Cluster{}, &v1alpha1.MachineDeployment{}, obj)
 	}
 
 	cc, err := controllercontext.FromContext(ctx)
