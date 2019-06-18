@@ -49,11 +49,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
 		if tenantcluster.IsTimeout(err) {
-			// Getting timeout while fetching certs is expected during cluster
+			// Getting timeout while fetching nodes is expected during cluster
 			// creation. This resource gets executed before provider specific
 			// ClusterConfig CR gets created which would eventually drive cert
 			// generation.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching nodes")
 		} else if tenant.IsAPINotAvailable(err) {
 			// Similarly to above timeout, during cluster creation it is
 			// expected that API is not available.
