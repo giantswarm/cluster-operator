@@ -70,9 +70,10 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
-			CMAClient: config.CMAClient,
-			Logger:    config.Logger,
-			Tenant:    config.Tenant,
+			CMAClient:     config.CMAClient,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
+			ToClusterFunc: key.ToCluster,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
