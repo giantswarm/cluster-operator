@@ -10,12 +10,15 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
+	"github.com/giantswarm/tenantcluster"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/awsclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/tenantclients"
 )
 
 // ClusterResourceSetConfig contains necessary dependencies and settings for
@@ -26,6 +29,7 @@ type ClusterResourceSetConfig struct {
 	CMAClient         clientset.Interface
 	G8sClient         versioned.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 }
 
 // NewClusterResourceSet returns a configured Cluster API's Cluster controller
@@ -64,7 +68,22 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	var tenantClientsResource controller.Resource
+	{
+		c := tenantclients.Config{
+			CMAClient: config.CMAClient,
+			Logger:    config.Logger,
+			Tenant:    config.Tenant,
+		}
+
+		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
+		tenantClientsResource,
 		clusterstatusResource,
 		awsclusterconfigResource,
 	}
@@ -90,6 +109,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
 		return ctx, nil
 	}
 
