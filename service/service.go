@@ -265,6 +265,7 @@ func New(config Config) (*Service, error) {
 			G8sClient:         g8sClient,
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
+			Tenant:            tenantCluster,
 
 			ProjectName: config.ProjectName,
 		}
