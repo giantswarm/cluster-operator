@@ -15,23 +15,35 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToMachineDeployment(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	var cluster v1alpha1.Cluster
-	{
+	var err error
+
+	// This resource is used both from Cluster and MachineDeployment
+	// controllers so it must work with both types.
+	switch obj.(type) {
+	case v1alpha1.Cluster:
+		cluster, err = key.ToCluster(obj)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+	case v1alpha1.MachineDeployment:
+		cr, err := key.ToMachineDeployment(obj)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
 		m, err := r.cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).Get(key.ClusterID(&cr), metav1.GetOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		cluster = *m
+	}
+
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	var g8sClient versioned.Interface

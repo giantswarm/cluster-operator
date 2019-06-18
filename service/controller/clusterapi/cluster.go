@@ -9,12 +9,13 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
+	v17 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -26,6 +27,7 @@ type ClusterConfig struct {
 	G8sClient         versioned.Interface
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	ProjectName string
 }
@@ -75,6 +77,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			CMAClient:         config.CMAClient,
 			G8sClient:         config.G8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 		}
 
 		resourceSetV17, err = v17.NewClusterResourceSet(c)
