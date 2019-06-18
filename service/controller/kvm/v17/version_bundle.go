@@ -8,9 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
-				Kind:        versionbundle.KindAdded,
+				Component:   "nginx-ingress-controller",
+				Description: "Disabled migration logic now migration to helm chart is complete.",
+				Kind:        versionbundle.KindRemoved,
 			},
 		},
 		Components: []versionbundle.Component{

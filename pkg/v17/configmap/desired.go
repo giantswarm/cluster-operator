@@ -7,7 +7,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -49,12 +48,7 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 					return nil, microerror.Mask(err)
 				}
 			case "nginx-ingress-controller":
-				hasLegacyIC, err := s.hasLegacyIngressController(ctx, spec.ReleaseName, clusterConfig)
-				if err != nil {
-					return nil, microerror.Mask(err)
-				}
-
-				values, err = ingressControllerValues(configMapValues, hasLegacyIC)
+				values, err = ingressControllerValues(configMapValues)
 				if err != nil {
 					return nil, microerror.Mask(err)
 				}
@@ -72,33 +66,6 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	}
 
 	return desiredConfigMaps, nil
-}
-
-// hasLegacyIngressController checks if the Ingress Controller deployment
-// exists and was created via k8scloudconfig. If so the chart migration
-// logic must be enabled.
-func (s *Service) hasLegacyIngressController(ctx context.Context, releaseName string, clusterConfig ClusterConfig) (bool, error) {
-	tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
-	if err != nil {
-		return false, microerror.Mask(err)
-	}
-
-	ingressControllerDeploy, err := tenantK8sClient.Extensions().Deployments(metav1.NamespaceSystem).Get("nginx-ingress-controller", metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		// No deployment. So nothing to migrate.
-		return false, nil
-	} else if err != nil {
-		return false, microerror.Mask(err)
-	}
-
-	// ServiceType label is only present on deployments created via
-	// chart-operator.
-	serviceType, ok := ingressControllerDeploy.Labels[label.ServiceType]
-	if !ok || serviceType != label.ServiceTypeManaged {
-		return true, nil
-	}
-
-	return false, nil
 }
 
 func clusterAutoscalerValues(configMapValues ConfigMapValues) ([]byte, error) {
@@ -177,15 +144,7 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 	return json, nil
 }
 
-func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressController bool) ([]byte, error) {
-	migrationEnabled := configMapValues.IngressController.MigrationEnabled
-	if migrationEnabled {
-		// No legacy ingress controller. So no need for the migration process.
-		if hasLegacyIngressController == false {
-			migrationEnabled = false
-		}
-	}
-
+func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
 	// tempReplicas is set to 50% of the worker count to ensure all pods can be
 	// scheduled.
 	tempReplicas, err := setIngressControllerTempReplicas(configMapValues.WorkerCount)
@@ -206,7 +165,7 @@ func ingressControllerValues(configMapValues ConfigMapValues, hasLegacyIngressCo
 				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
-				Enabled: migrationEnabled,
+				Enabled: configMapValues.IngressController.MigrationEnabled,
 			},
 		},
 		Image: Image{
