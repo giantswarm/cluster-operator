@@ -38,9 +38,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			// Controller service is disabled because manifest is created by
 			// Ignition.
 			ControllerServiceEnabled: false,
-			// Migration is enabled so existing k8scloudconfig resources are
-			// replaced.
-			MigrationEnabled: true,
+			// Migration is disabled because KVM is already migrated.
+			MigrationEnabled: false,
 			// Proxy protocol is disabled for KVM clusters.
 			UseProxyProtocol: false,
 		},
