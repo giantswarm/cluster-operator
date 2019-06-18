@@ -15,16 +15,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v10"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v11"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v12"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v13"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v14"
+	v10 "github.com/giantswarm/cluster-operator/service/controller/azure/v10"
+	v11 "github.com/giantswarm/cluster-operator/service/controller/azure/v11"
+	v12 "github.com/giantswarm/cluster-operator/service/controller/azure/v12"
+	v13 "github.com/giantswarm/cluster-operator/service/controller/azure/v13"
+	v14 "github.com/giantswarm/cluster-operator/service/controller/azure/v14"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v14patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v15"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v16"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v17"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v9"
+	v15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
+	v16 "github.com/giantswarm/cluster-operator/service/controller/azure/v16"
+	v17 "github.com/giantswarm/cluster-operator/service/controller/azure/v17"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for
@@ -80,30 +79,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 
 		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v9ResourceSet *controller.ResourceSet
-	{
-		c := v9.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v9ResourceSet, err = v9.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -338,7 +313,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v9ResourceSet,
 				v10ResourceSet,
 				v11ResourceSet,
 				v12ResourceSet,
