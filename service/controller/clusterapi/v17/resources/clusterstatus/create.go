@@ -9,7 +9,6 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,13 +47,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
-		if tenantcluster.IsTimeout(err) {
-			// Getting timeout while fetching nodes is expected during cluster
-			// creation. This resource gets executed before provider specific
-			// ClusterConfig CR gets created which would eventually drive cert
-			// generation.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching nodes")
-		} else if tenant.IsAPINotAvailable(err) {
+		if tenant.IsAPINotAvailable(err) {
 			// Similarly to above timeout, during cluster creation it is
 			// expected that API is not available.
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
@@ -104,6 +97,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
+// TODO have separate resource for this.
+//
+//     always execute
+//
 func (r *Resource) ensureClusterHasID(ctx context.Context, cluster cmav1alpha1.Cluster, status v1alpha1.CommonClusterStatus) (v1alpha1.CommonClusterStatus, error) {
 	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if cluster status has ID")
 
@@ -122,6 +119,10 @@ func (r *Resource) ensureClusterHasID(ctx context.Context, cluster cmav1alpha1.C
 	return status, microerror.Maskf(notFoundError, "cluster ID")
 }
 
+// TODO have separate resource for this.
+//
+//     cancel when client is not in controller context
+//
 func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, clusterStatus v1alpha1.CommonClusterStatus, tenantAPIAvailable bool, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) v1alpha1.CommonClusterStatus {
 	currentVersion := clusterStatus.LatestVersion()
 	desiredVersion := key.ClusterReleaseVersion(cluster)
