@@ -15,21 +15,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v14"
+	v10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
+	v11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
+	v12 "github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
+	v13 "github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
+	v14 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v7patch1"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
+	v15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
+	v16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
+	v17 "github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for
@@ -85,142 +79,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 
 		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v6ResourceSet *controller.ResourceSet
-	{
-		c := v6.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
-		}
-
-		v6ResourceSet, err = v6.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v6patch1ResourceSet *controller.ResourceSet
-	{
-		c := v6patch1.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-			ProjectName:       config.ProjectName,
-			RegistryDomain:    config.RegistryDomain,
-		}
-
-		v6patch1ResourceSet, err = v6patch1.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v7ResourceSet *controller.ResourceSet
-	{
-		c := v7.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v7ResourceSet, err = v7.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v7patch1ResourceSet *controller.ResourceSet
-	{
-		c := v7patch1.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v7patch1ResourceSet, err = v7patch1.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v8ResourceSet *controller.ResourceSet
-	{
-		c := v8.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v8ResourceSet, err = v8.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v9ResourceSet *controller.ResourceSet
-	{
-		c := v9.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v9ResourceSet, err = v9.NewResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -455,12 +313,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v6ResourceSet,
-				v6patch1ResourceSet,
-				v7ResourceSet,
-				v7patch1ResourceSet,
-				v8ResourceSet,
-				v9ResourceSet,
 				v10ResourceSet,
 				v11ResourceSet,
 				v12ResourceSet,

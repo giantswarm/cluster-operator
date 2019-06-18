@@ -21,7 +21,6 @@ import (
 	azurev15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
 	azurev16 "github.com/giantswarm/cluster-operator/service/controller/azure/v16"
 	azurev17 "github.com/giantswarm/cluster-operator/service/controller/azure/v17"
-	azurev9 "github.com/giantswarm/cluster-operator/service/controller/azure/v9"
 	kvmv10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
 	kvmv11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
 	kvmv12 "github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
@@ -31,28 +30,10 @@ import (
 	kvmv15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
 	kvmv16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
 	kvmv17 "github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
-	kvmv6 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6"
-	kvmv6patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v6patch1"
-	kvmv7 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7"
-	kvmv7patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v7patch1"
-	kvmv8 "github.com/giantswarm/cluster-operator/service/controller/kvm/v8"
-	kvmv9 "github.com/giantswarm/cluster-operator/service/controller/kvm/v9"
 )
 
 func NewVersionBundles() []versionbundle.Bundle {
 	var versionBundles []versionbundle.Bundle
-
-	versionBundles = append(versionBundles, kvmv6.VersionBundle())
-	versionBundles = append(versionBundles, kvmv6patch1.VersionBundle())
-
-	versionBundles = append(versionBundles, kvmv7.VersionBundle())
-
-	versionBundles = append(versionBundles, kvmv7patch1.VersionBundle())
-
-	versionBundles = append(versionBundles, kvmv8.VersionBundle())
-
-	versionBundles = append(versionBundles, azurev9.VersionBundle())
-	versionBundles = append(versionBundles, kvmv9.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv10.VersionBundle())
 	versionBundles = append(versionBundles, azurev10.VersionBundle())
