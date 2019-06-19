@@ -37,6 +37,7 @@ rules:
       - get
       - list
       - patch
+      - update
       - watch
   - apiGroups:
       - core.giantswarm.io
