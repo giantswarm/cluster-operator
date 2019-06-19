@@ -47,6 +47,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	r.logger.LogCtx(ctx, "level", "debug", "message", "ensured cluster status has cluster ID")
 	r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
+	// All further resources require cluster ID to be present in the status so
+	// it makes sense to cancel whole CR reconciliation here and start from the
+	// beginning.
 	reconciliationcanceledcontext.SetCanceled(ctx)
 
 	return nil
