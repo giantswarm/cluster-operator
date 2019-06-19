@@ -38,7 +38,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-	_, err = r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Update(&updatedCR)
+	_, err = r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&updatedCR)
 	if err != nil {
 		return microerror.Mask(err)
 	}
