@@ -31,6 +31,10 @@ const (
 	// specific CertConfig belongs to.
 	LegacyComponent = "clusterComponent"
 
+	// Certificate is a label used to identify which component a specific
+	// CertConfig belongs to.
+	Certificate = "giantswarm.io/certificate"
+
 	// RandomKeyTypeEncryption is a type of randomkey secret used for guest
 	// cluster.
 	RandomKeyTypeEncryption = "encryption"
