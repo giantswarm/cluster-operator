@@ -12,6 +12,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Disabled migration logic now migration to helm chart is complete.",
 				Kind:        versionbundle.KindRemoved,
 			},
+			{
+				Component:   "node-exporter",
+				Description: "Disabled ipvs collector.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "node-exporter",
+				Description: "Fix monitored file system mount points.",
+				Kind:        versionbundle.KindFixed,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
