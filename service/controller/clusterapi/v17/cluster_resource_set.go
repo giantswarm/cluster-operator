@@ -41,9 +41,10 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var clusterIDResource controller.Resource
 	{
 		c := clusterid.Config{
-			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
+			CMAClient:                   config.CMAClient,
+			CommonClusterStatusAccessor: &key.AWSClusterStatusAccessor{},
+			G8sClient:                   config.G8sClient,
+			Logger:                      config.Logger,
 		}
 
 		clusterIDResource, err = clusterid.New(c)

@@ -60,3 +60,18 @@ func g8sClusterStatusFromCMAClusterStatus(cmaStatus *runtime.RawExtension) g8sv1
 
 	return g8sStatus
 }
+
+func withG8sClusterStatusToCMAClusterStatus(cluster cmav1alpha1.Cluster, status g8sv1alpha1.AWSClusterStatus) cmav1alpha1.Cluster {
+	var err error
+
+	if cluster.Status.ProviderStatus == nil {
+		cluster.Status.ProviderStatus = &runtime.RawExtension{}
+	}
+
+	cluster.Status.ProviderStatus.Raw, err = json.Marshal(status)
+	if err != nil {
+		panic(err)
+	}
+
+	return cluster
+}
