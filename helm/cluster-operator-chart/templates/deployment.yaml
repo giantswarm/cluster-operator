@@ -36,6 +36,9 @@ spec:
           - key: config.yml
             path: config.yml
       serviceAccountName: cluster-operator
+      securityContext:
+        runAsUser: {{ .Values.userID }}
+        runAsGroup: {{ .Values.groupID }}
       containers:
       - name: cluster-operator
         image: quay.io/giantswarm/cluster-operator:[[ .SHA ]]
