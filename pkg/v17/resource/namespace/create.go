@@ -27,15 +27,6 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
-		} else if apierrors.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api timeout.")
-
-			// We should not hammer tenant API if it is not available, the tenant cluster
-			// might be initializing. We will retry on next reconciliation loop.
-			resourcecanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-			return nil
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available.")
 
