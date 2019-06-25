@@ -27,12 +27,12 @@
 
 
 [[constraint]]
-  branch = "master"
+  branch = "k8s-1.15"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "kubernetes-1.13.2"
+  version = "kubernetes-1.15.0"
 
 
 
