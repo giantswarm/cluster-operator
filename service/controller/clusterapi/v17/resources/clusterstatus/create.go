@@ -29,20 +29,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "ensuring cluster status is up to date")
+	if cc.Client.TenantCluster.K8s == nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available in controller context")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
-	currentStatus := r.commonClusterStatusAccessor.GetCommonClusterStatus(cr)
-
-	updatedStatus, err := r.ensureClusterHasID(ctx, cr, currentStatus)
-	if err != nil {
-		return microerror.Mask(err)
+		return nil
 	}
 
-	// Ensure that cluster has cluster ID label.
-	cr.Labels[label.Cluster] = updatedStatus.ID
-
 	var nodes []corev1.Node
-	var tenantAPIAvailable bool
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 
@@ -54,7 +48,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
-			tenantAPIAvailable = true
 			nodes = l.Items
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes from tenant cluster", len(nodes)))
@@ -65,20 +58,32 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
 
-		machineDeployments, err = r.getMachineDeployments(ctx, cr)
+		l := metav1.AddLabelToSelector(
+			&v1.LabelSelector{},
+			label.Cluster,
+			key.ClusterID(&cr),
+		)
+		o := metav1.ListOptions{
+			LabelSelector: l.String(),
+		}
+
+		list, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).List(o)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
+		machineDeployments = list.Items
+
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(machineDeployments)))
 	}
 
-	updatedStatus = r.computeClusterConditions(ctx, cr, updatedStatus, tenantAPIAvailable, nodes, machineDeployments)
+	updatedStatus := r.computeClusterConditions(ctx, cr, r.accessor.GetCommonClusterStatus(cr), nodes, machineDeployments)
 
-	if !reflect.DeepEqual(currentStatus, updatedStatus) {
+	if !reflect.DeepEqual(r.accessor.GetCommonClusterStatus(cr), updatedStatus) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-		cr = r.commonClusterStatusAccessor.SetCommonClusterStatus(cr, updatedStatus)
+		cr = r.accessor.SetCommonClusterStatus(cr, updatedStatus)
+
 		_, err = r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Update(&cr)
 		if err != nil {
 			return microerror.Mask(err)
@@ -92,56 +97,28 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "ensured cluster status is up to date")
-
 	return nil
 }
 
-// TODO have separate resource for this.
-//
-//     always execute
-//
-func (r *Resource) ensureClusterHasID(ctx context.Context, cluster cmav1alpha1.Cluster, status v1alpha1.CommonClusterStatus) (v1alpha1.CommonClusterStatus, error) {
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if cluster status has ID")
-
-	if status.ID != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found out cluster has ID %s", status.ID))
-		return status, nil
+func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, clusterStatus v1alpha1.CommonClusterStatus, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) v1alpha1.CommonClusterStatus {
+	var currentVersion string
+	var desiredVersion string
+	{
+		currentVersion = clusterStatus.LatestVersion()
+		desiredVersion = key.ReleaseVersion(&cluster)
 	}
-
-	clusterID := cluster.Labels[label.Cluster]
-	if clusterID != "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found out cluster has cluster label containing %s; reusing that", status.ID))
-		status.ID = clusterID
-		return status, nil
-	}
-
-	return status, microerror.Maskf(notFoundError, "cluster ID")
-}
-
-// TODO have separate resource for this.
-//
-//     cancel when client is not in controller context
-//
-func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, clusterStatus v1alpha1.CommonClusterStatus, tenantAPIAvailable bool, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) v1alpha1.CommonClusterStatus {
-	currentVersion := clusterStatus.LatestVersion()
-	desiredVersion := key.ClusterReleaseVersion(cluster)
 
 	// Count total number of all workers and number of Ready workers that
 	// belong to this cluster.
-	var desiredWorkers int
-	var readyWorkers int
+	var desiredReplicas int
+	var readyReplicas int
 	{
 		for _, md := range machineDeployments {
-			desiredWorkers += int(md.Status.Replicas)
+			desiredReplicas += int(md.Status.Replicas)
 		}
 
-		for _, n := range nodes {
-			for _, c := range n.Status.Conditions {
-				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
-					readyWorkers++
-				}
-			}
+		for _, md := range machineDeployments {
+			readyReplicas += int(md.Status.ReadyReplicas)
 		}
 	}
 
@@ -165,10 +142,10 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 	{
 		isCreating := clusterStatus.HasCreatingCondition()
 		notCreated := !clusterStatus.HasCreatedCondition()
-		sameCount := readyWorkers == desiredWorkers
+		sameCount := readyReplicas == desiredReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion)
 
-		if isCreating && notCreated && sameCount && sameVersion && tenantAPIAvailable {
+		if isCreating && notCreated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithCreatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionCreated))
 		}
@@ -194,10 +171,10 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 	{
 		isUpdating := clusterStatus.HasUpdatingCondition()
 		notUpdated := !clusterStatus.HasUpdatedCondition()
-		sameCount := readyWorkers != 0 && readyWorkers == desiredWorkers
+		sameCount := readyReplicas != 0 && readyReplicas == desiredReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion)
 
-		if isUpdating && notUpdated && sameCount && sameVersion && tenantAPIAvailable {
+		if isUpdating && notUpdated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithUpdatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionUpdated))
 		}
@@ -208,7 +185,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 	{
 		hasTransitioned := clusterStatus.HasCreatedCondition() || clusterStatus.HasUpdatedCondition()
 		notSet := !clusterStatus.HasVersion(desiredVersion)
-		sameCount := readyWorkers != 0 && readyWorkers == desiredWorkers
+		sameCount := readyReplicas != 0 && readyReplicas == desiredReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion)
 
 		if hasTransitioned && notSet && sameCount && sameVersion {
@@ -218,20 +195,6 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 	}
 
 	return clusterStatus
-}
-
-func (r *Resource) getMachineDeployments(ctx context.Context, cluster cmav1alpha1.Cluster) ([]cmav1alpha1.MachineDeployment, error) {
-	labelSelector := metav1.AddLabelToSelector(&v1.LabelSelector{}, label.Cluster, key.ClusterID(&cluster))
-	listOpts := metav1.ListOptions{
-		LabelSelector: labelSelector.String(),
-	}
-
-	mdList, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cluster.Namespace).List(listOpts)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return mdList.Items, nil
 }
 
 func allNodesHaveVersion(nodes []corev1.Node, version string) bool {

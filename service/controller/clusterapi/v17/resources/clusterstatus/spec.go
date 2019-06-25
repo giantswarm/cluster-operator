@@ -5,9 +5,9 @@ import (
 	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 )
 
-// CommonClusterStatusAccessor interface provides abstracted API to manipulate
-// provider specific types in provider independent way.
-type CommonClusterStatusAccessor interface {
+// Accessor interface provides abstracted API to manipulate provider specific
+// types in provider independent way.
+type Accessor interface {
 	GetCommonClusterStatus(c cmav1alpha1.Cluster) v1alpha1.CommonClusterStatus
 	SetCommonClusterStatus(c cmav1alpha1.Cluster, status v1alpha1.CommonClusterStatus) cmav1alpha1.Cluster
 }
