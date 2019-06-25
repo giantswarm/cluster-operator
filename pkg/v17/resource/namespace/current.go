@@ -54,16 +54,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
-		} else if apierrors.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api timeout")
-
-			// We can't continue without a successful K8s connection. Cluster
-			// may not be up yet. We will retry during the next execution.
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-
-			return nil, nil
-
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
