@@ -14,7 +14,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Component:   "node-exporter",
-				Description: "Disabled ipvs collector.",
+				Description: "Disable ipvs collector.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
