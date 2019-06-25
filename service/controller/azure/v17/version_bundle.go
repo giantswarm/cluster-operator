@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "node-exporter",
-				Description: "Disabled ipvs collector.",
+				Description: "Disable ipvs collector.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
