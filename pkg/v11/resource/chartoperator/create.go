@@ -204,7 +204,7 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 // checkDeploymentReady checks for the specified deployment that the number of
 // ready replicas matches the desired state.
 func (r *Resource) checkDeploymentReady(ctx context.Context, k8sClient kubernetes.Interface, namespace, deploymentName string) error {
-	deploy, err := k8sClient.Extensions().Deployments(namespace).Get(deploymentName, metav1.GetOptions{})
+	deploy, err := k8sClient.ExtensionsV1beta1().Deployments(namespace).Get(deploymentName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return microerror.Maskf(notReadyError, "deployment %#q not found", deploymentName)
 	} else if err != nil {
