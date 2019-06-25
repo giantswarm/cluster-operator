@@ -19,7 +19,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret")
 
 	if secret != nil {
-		_, err = r.k8sClient.Core().Secrets(secret.Namespace).Create(secret)
+		_, err = r.k8sClient.CoreV1().Secrets(secret.Namespace).Create(secret)
 		if err != nil {
 			err = microerror.Mask(err)
 		}

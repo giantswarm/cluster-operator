@@ -26,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret")
 
 	if secret != nil {
-		err = r.k8sClient.Core().Secrets(objectMeta.Namespace).Delete(secret.Name, &metav1.DeleteOptions{})
+		err = r.k8sClient.CoreV1().Secrets(objectMeta.Namespace).Delete(secret.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// It's ok if secret doesn't exist anymore. It would have been
 			// deleted anyway. Rational reason for this is during migration
