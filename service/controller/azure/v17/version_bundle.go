@@ -8,9 +8,14 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
-				Kind:        versionbundle.KindAdded,
+				Component:   "node-exporter",
+				Description: "Disabled ipvs collector.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "node-exporter",
+				Description: "Fix monitored file system mount points.",
+				Kind:        versionbundle.KindFixed,
 			},
 		},
 		Components: []versionbundle.Component{
