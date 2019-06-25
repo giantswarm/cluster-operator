@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/tenantclients"
 )
@@ -36,6 +37,21 @@ type ClusterResourceSetConfig struct {
 // ResourceSet.
 func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
+
+	var clusterIDResource controller.Resource
+	{
+		c := clusterid.Config{
+			CMAClient:                   config.CMAClient,
+			CommonClusterStatusAccessor: &key.AWSClusterStatusAccessor{},
+			G8sClient:                   config.G8sClient,
+			Logger:                      config.Logger,
+		}
+
+		clusterIDResource, err = clusterid.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var clusterstatusResource controller.Resource
 	{
@@ -71,9 +87,10 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
-			CMAClient: config.CMAClient,
-			Logger:    config.Logger,
-			Tenant:    config.Tenant,
+			CMAClient:     config.CMAClient,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
+			ToClusterFunc: key.ToCluster,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
@@ -83,6 +100,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	}
 
 	resources := []controller.Resource{
+		clusterIDResource,
 		tenantClientsResource,
 		clusterstatusResource,
 		awsclusterconfigResource,

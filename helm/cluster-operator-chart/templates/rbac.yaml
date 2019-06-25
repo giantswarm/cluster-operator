@@ -23,6 +23,24 @@ rules:
       - delete
       - get
   - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+  - apiGroups:
+      - "networking.k8s.io"
+    resources:
+      - networkpolicies
+    verbs:
+      - create
+  - apiGroups:
+      - "rbac.authorization.k8s.io"
+    resources:
+      - clusterrolebindings
+    verbs:
+      - create
+  - apiGroups:
       - apiextensions.k8s.io
     resources:
       - customresourcedefinitions
@@ -32,11 +50,14 @@ rules:
       - cluster.k8s.io
     resources:
       - clusters
+      - clusters/status
       - machinedeployments
+      - machinedeployments/status
     verbs:
       - get
       - list
       - patch
+      - update
       - watch
   - apiGroups:
       - core.giantswarm.io
