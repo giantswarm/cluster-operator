@@ -114,6 +114,7 @@ func mainWithError() error {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
+	daemonCommand.PersistentFlags().StringSlice(f.ControlPlane.WorkerSubnets, []string{}, "Control plane worker subnets as a slice.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Calico.CIDR, "", "Prefix length for the CIDR block used by Calico.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Calico.Subnet, "", "Network address for the CIDR block used by Calico.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Kubernetes.API.ClusterIPRange, "", "CIDR Range for Pods in cluster.")

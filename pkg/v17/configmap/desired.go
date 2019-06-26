@@ -43,7 +43,7 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 					return nil, microerror.Mask(err)
 				}
 			case "net-exporter":
-				values, err = exporterValues(configMapValues)
+				values, err = netExporterValues(configMapValues)
 				if err != nil {
 					return nil, microerror.Mask(err)
 				}
@@ -109,6 +109,19 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 		Image: Image{
 			Registry: configMapValues.RegistryDomain,
 		},
+	}
+	json, err := json.Marshal(values)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return json, nil
+}
+
+func netExporterValues(configMapValues ConfigMapValues) ([]byte, error) {
+	values := NetExporter{
+		ControlPlaneWorkerSubnets: configMapValues.NetExporter.ControlPlaneWorkerSubnets,
+		Namespace:                 metav1.NamespaceSystem,
 	}
 	json, err := json.Marshal(values)
 	if err != nil {

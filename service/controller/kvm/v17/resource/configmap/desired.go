@@ -43,6 +43,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			// Proxy protocol is disabled for KVM clusters.
 			UseProxyProtocol: false,
 		},
+		NetExporter: configmap.NetExporterValues{
+			ControlPlaneWorkerSubnets: r.controlPlaneWorkerSubnets,
+		},
 		Organization:   key.ClusterOrganization(clusterGuestConfig),
 		RegistryDomain: r.registryDomain,
 		WorkerCount:    kvmkey.WorkerCount(customObject),

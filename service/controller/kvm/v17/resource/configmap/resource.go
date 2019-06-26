@@ -18,11 +18,12 @@ type Config struct {
 	ConfigMap configmap.Interface
 	Logger    micrologger.Logger
 
-	CalicoAddress      string
-	CalicoPrefixLength string
-	ClusterIPRange     string
-	ProjectName        string
-	RegistryDomain     string
+	CalicoAddress             string
+	CalicoPrefixLength        string
+	ClusterIPRange            string
+	ControlPlaneWorkerSubnets []string
+	ProjectName               string
+	RegistryDomain            string
 }
 
 // Resource implements the chart config resource.
@@ -30,11 +31,12 @@ type Resource struct {
 	configMap configmap.Interface
 	logger    micrologger.Logger
 
-	calicoAddress      string
-	calicoPrefixLength string
-	clusterIPRange     string
-	projectName        string
-	registryDomain     string
+	calicoAddress             string
+	calicoPrefixLength        string
+	clusterIPRange            string
+	controlPlaneWorkerSubnets []string
+	projectName               string
+	registryDomain            string
 }
 
 // New creates a new configured chart config resource.
@@ -60,11 +62,12 @@ func New(config Config) (*Resource, error) {
 		configMap: config.ConfigMap,
 		logger:    config.Logger,
 
-		calicoAddress:      config.CalicoAddress,
-		calicoPrefixLength: config.CalicoPrefixLength,
-		clusterIPRange:     config.ClusterIPRange,
-		projectName:        config.ProjectName,
-		registryDomain:     config.RegistryDomain,
+		calicoAddress:             config.CalicoAddress,
+		calicoPrefixLength:        config.CalicoPrefixLength,
+		clusterIPRange:            config.ClusterIPRange,
+		controlPlaneWorkerSubnets: config.ControlPlaneWorkerSubnets,
+		projectName:               config.ProjectName,
+		registryDomain:            config.RegistryDomain,
 	}
 
 	return r, nil

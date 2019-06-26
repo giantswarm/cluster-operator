@@ -44,6 +44,7 @@ type ConfigMapValues struct {
 	ClusterID         string
 	CoreDNS           CoreDNSValues
 	IngressController IngressControllerValues
+	NetExporter       NetExporterValues
 	Organization      string
 	RegistryDomain    string
 	WorkerCount       int
@@ -62,6 +63,12 @@ type IngressControllerValues struct {
 	ControllerServiceEnabled bool
 	MigrationEnabled         bool
 	UseProxyProtocol         bool
+}
+
+// NetExporterValues provides values for generating the Ingress
+// Controller configmap.
+type NetExporterValues struct {
+	ControlPlaneWorkerSubnets []string
 }
 
 // Types below are used for generating values JSON for app configmaps.
@@ -112,7 +119,8 @@ type CertExporter struct {
 }
 
 type NetExporter struct {
-	Namespace string `json:"namespace"`
+	ControlPlaneWorkerSubnets []string `json:"controlPlaneWorkerSubnets"`
+	Namespace                 string   `json:"namespace"`
 }
 
 type ClusterAutoscaler struct {
