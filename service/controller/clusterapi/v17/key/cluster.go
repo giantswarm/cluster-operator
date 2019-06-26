@@ -5,8 +5,6 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-
-	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
@@ -44,7 +42,7 @@ func ClusterCredentialSecretNamespace(cluster v1alpha1.Cluster) string {
 }
 
 func ClusterDNSZone(cluster v1alpha1.Cluster) string {
-	return fmt.Sprintf("%s.%s", ClusterID(&cluster), clusterProviderSpec(cluster).Cluster.DNS.Domain)
+	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), clusterProviderSpec(cluster).Cluster.DNS.Domain)
 }
 
 func ClusterMasterAZ(cluster v1alpha1.Cluster) string {
@@ -57,14 +55,6 @@ func ClusterMasterInstanceType(cluster v1alpha1.Cluster) string {
 
 func ClusterName(cluster v1alpha1.Cluster) string {
 	return clusterProviderSpec(cluster).ClusterName
-}
-
-func ClusterReleaseVersion(cluster v1alpha1.Cluster) string {
-	relVer, ok := cluster.Labels[label.ReleaseKey]
-	if !ok {
-		panic("Cluster object is missing release version label.")
-	}
-	return relVer
 }
 
 func IsProviderSpecForAWS(cluster v1alpha1.Cluster) bool {

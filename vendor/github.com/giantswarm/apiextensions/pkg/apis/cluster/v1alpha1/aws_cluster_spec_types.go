@@ -13,13 +13,16 @@ import (
 //     apiVersion: cluster.giantswarm.io/v1alpha1
 //     metadata:
 //       labels:
-//         aws-operator.giantswarm.io/version: 2.0.0
-//         cluster-operator.giantswarm.io/version: 1.0.0
+//         aws-operator.giantswarm.io/version: 6.2.0
+//         cluster-operator.giantswarm.io/version: 0.17.0
+//         giantswarm.io/cluster: "8y5kc"
+//         giantswarm.io/organization: "giantswarm"
+//         release.giantswarm.io/version: 7.3.1
 //       name: 8y5kc
 //     cluster:
 //       description: my fancy cluster
 //       dns:
-//         domain: gauss.eu-central-1.aws.gigantic.io
+//         domain: k8s.gauss.eu-central-1.aws.gigantic.io
 //       oidc:
 //         claims:
 //           username: email

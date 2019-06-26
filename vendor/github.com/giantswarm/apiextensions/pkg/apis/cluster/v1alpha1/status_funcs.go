@@ -106,9 +106,9 @@ func (s CommonClusterStatus) WithUpdatingCondition() []CommonClusterStatusCondit
 	return withCondition(s.Conditions, ClusterStatusConditionUpdated, ClusterStatusConditionUpdating, time.Now())
 }
 
-func getCondition(conditions []CommonClusterStatusCondition, t string) CommonClusterStatusCondition {
+func getCondition(conditions []CommonClusterStatusCondition, condition string) CommonClusterStatusCondition {
 	for _, c := range conditions {
-		if c.Type == t {
+		if c.Condition == condition {
 			return c
 		}
 	}
@@ -116,9 +116,9 @@ func getCondition(conditions []CommonClusterStatusCondition, t string) CommonClu
 	return CommonClusterStatusCondition{}
 }
 
-func hasCondition(conditions []CommonClusterStatusCondition, t string) bool {
+func hasCondition(conditions []CommonClusterStatusCondition, condition string) bool {
 	for _, c := range conditions {
-		if c.Type == t {
+		if c.Condition == condition {
 			return true
 		}
 	}
@@ -140,12 +140,12 @@ func withCondition(conditions []CommonClusterStatusCondition, search string, rep
 	newConditions := []CommonClusterStatusCondition{
 		{
 			LastTransitionTime: DeepCopyTime{t},
-			Type:               replace,
+			Condition:          replace,
 		},
 	}
 
 	for _, c := range conditions {
-		if c.Type == search {
+		if c.Condition == search {
 			continue
 		}
 

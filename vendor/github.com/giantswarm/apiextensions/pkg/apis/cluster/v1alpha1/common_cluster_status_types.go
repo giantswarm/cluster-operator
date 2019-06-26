@@ -29,7 +29,7 @@ type CommonClusterStatus struct {
 
 type CommonClusterStatusCondition struct {
 	LastTransitionTime DeepCopyTime `json:"lastTransitionTime" yaml:"lastTransitionTime"`
-	Type               string       `json:"type" yaml:"type"`
+	Condition          string       `json:"condition" yaml:"condition"`
 }
 
 type CommonClusterStatusVersion struct {

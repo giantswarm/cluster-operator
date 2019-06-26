@@ -11,5 +11,5 @@ func OperatorVersion(getter LabelsGetter) string {
 }
 
 func ReleaseVersion(getter LabelsGetter) string {
-	return getter.GetLabels()[label.ReleaseKey]
+	return getter.GetLabels()[label.ReleaseVersion]
 }
