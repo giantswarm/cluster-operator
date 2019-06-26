@@ -232,7 +232,7 @@ func resources(ctx context.Context, h *framework.Host, g *framework.Guest, s *k8
 	//		}
 	//	}
 
-	err = installCredential(h)
+	err := installCredential(h)
 	if err != nil {
 		return microerror.Mask(err)
 	}
