@@ -11,6 +11,8 @@ data:
           server: true
       listen:
         address: 'http://0.0.0.0:8000'
+    controlPlane:
+      workerSubnets: '{{ .Values.Installation.V1.ControPlane.WorkerSubnets }}'
     guest:
       cluster:
         calico:
