@@ -82,7 +82,7 @@ func New(config Config) (*Service, error) {
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
-	controlPlaneWorkerSubnets := config.Viper.GetStringSlice(config.Flag.ControlPlane.WorkerSubnets)
+	controlPlaneSubnets := config.Viper.GetStringSlice(config.Flag.ControlPlane.Subnets)
 
 	var restConfig *rest.Config
 	{
@@ -312,13 +312,13 @@ func New(config Config) (*Service, error) {
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 
-			ClusterIPRange:            clusterIPRange,
-			CalicoAddress:             calicoAddress,
-			CalicoPrefixLength:        calicoPrefixLength,
-			ControlPlaneWorkerSubnets: controlPlaneWorkerSubnets,
-			ProjectName:               config.ProjectName,
-			RegistryDomain:            registryDomain,
-			ResourceNamespace:         resourceNamespace,
+			ClusterIPRange:      clusterIPRange,
+			CalicoAddress:       calicoAddress,
+			CalicoPrefixLength:  calicoPrefixLength,
+			ControlPlaneSubnets: controlPlaneSubnets,
+			ProjectName:         config.ProjectName,
+			RegistryDomain:      registryDomain,
+			ResourceNamespace:   resourceNamespace,
 		}
 
 		kvmLegacyClusterController, err = kvm.NewLegacyCluster(c)

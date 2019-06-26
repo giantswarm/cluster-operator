@@ -68,7 +68,7 @@ type IngressControllerValues struct {
 // NetExporterValues provides values for generating the Ingress
 // Controller configmap.
 type NetExporterValues struct {
-	ControlPlaneWorkerSubnets []string
+	ControlPlaneSubnets []string
 }
 
 // Types below are used for generating values JSON for app configmaps.
@@ -119,8 +119,8 @@ type CertExporter struct {
 }
 
 type NetExporter struct {
-	ControlPlaneWorkerSubnets []string `json:"controlPlaneWorkerSubnets"`
-	Namespace                 string   `json:"namespace"`
+	ControlPlaneSubnets []string `json:"controlPlaneSubnets"`
+	Namespace           string   `json:"namespace"`
 }
 
 type ClusterAutoscaler struct {

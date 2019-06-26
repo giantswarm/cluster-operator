@@ -120,8 +120,8 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 
 func netExporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 	values := NetExporter{
-		ControlPlaneWorkerSubnets: configMapValues.NetExporter.ControlPlaneWorkerSubnets,
-		Namespace:                 metav1.NamespaceSystem,
+		ControlPlaneSubnets: configMapValues.NetExporter.ControlPlaneSubnets,
+		Namespace:           metav1.NamespaceSystem,
 	}
 	json, err := json.Marshal(values)
 	if err != nil {

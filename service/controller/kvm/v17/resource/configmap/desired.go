@@ -44,7 +44,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			UseProxyProtocol: false,
 		},
 		NetExporter: configmap.NetExporterValues{
-			ControlPlaneWorkerSubnets: r.controlPlaneWorkerSubnets,
+			ControlPlaneSubnets: r.controlPlaneSubnets,
 		},
 		Organization:   key.ClusterOrganization(clusterGuestConfig),
 		RegistryDomain: r.registryDomain,

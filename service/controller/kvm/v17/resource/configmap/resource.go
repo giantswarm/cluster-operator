@@ -1,6 +1,8 @@
 package configmap
 
 import (
+	"net"
+
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -18,12 +20,12 @@ type Config struct {
 	ConfigMap configmap.Interface
 	Logger    micrologger.Logger
 
-	CalicoAddress             string
-	CalicoPrefixLength        string
-	ClusterIPRange            string
-	ControlPlaneWorkerSubnets []string
-	ProjectName               string
-	RegistryDomain            string
+	CalicoAddress       string
+	CalicoPrefixLength  string
+	ClusterIPRange      string
+	ControlPlaneSubnets []string
+	ProjectName         string
+	RegistryDomain      string
 }
 
 // Resource implements the chart config resource.
@@ -31,12 +33,12 @@ type Resource struct {
 	configMap configmap.Interface
 	logger    micrologger.Logger
 
-	calicoAddress             string
-	calicoPrefixLength        string
-	clusterIPRange            string
-	controlPlaneWorkerSubnets []string
-	projectName               string
-	registryDomain            string
+	calicoAddress       string
+	calicoPrefixLength  string
+	clusterIPRange      string
+	controlPlaneSubnets []string
+	projectName         string
+	registryDomain      string
 }
 
 // New creates a new configured chart config resource.
@@ -58,16 +60,23 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
 	}
 
+	for _, subnet := range config.ControlPlaneSubnets {
+		_, _, err := net.ParseCIDR(subnet)
+		if err != nil {
+			return nil, microerror.Maskf(invalidConfigError, "%T.ControlPlaneSubnets must consist valid IP subnets", config)
+		}
+	}
+
 	r := &Resource{
 		configMap: config.ConfigMap,
 		logger:    config.Logger,
 
-		calicoAddress:             config.CalicoAddress,
-		calicoPrefixLength:        config.CalicoPrefixLength,
-		clusterIPRange:            config.ClusterIPRange,
-		controlPlaneWorkerSubnets: config.ControlPlaneWorkerSubnets,
-		projectName:               config.ProjectName,
-		registryDomain:            config.RegistryDomain,
+		calicoAddress:       config.CalicoAddress,
+		calicoPrefixLength:  config.CalicoPrefixLength,
+		clusterIPRange:      config.ClusterIPRange,
+		controlPlaneSubnets: config.ControlPlaneSubnets,
+		projectName:         config.ProjectName,
+		registryDomain:      config.RegistryDomain,
 	}
 
 	return r, nil

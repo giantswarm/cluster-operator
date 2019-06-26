@@ -46,14 +46,14 @@ type ResourceSetConfig struct {
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
 
-	CalicoAddress             string
-	CalicoPrefixLength        string
-	ClusterIPRange            string
-	ControlPlaneWorkerSubnets []string
-	HandledVersionBundles     []string
-	ProjectName               string
-	RegistryDomain            string
-	ResourceNamespace         string
+	CalicoAddress         string
+	CalicoPrefixLength    string
+	ClusterIPRange        string
+	ControlPlaneSubnets   []string
+	HandledVersionBundles []string
+	ProjectName           string
+	RegistryDomain        string
+	ResourceNamespace     string
 }
 
 // NewResourceSet returns a configured KVMClusterConfig controller ResourceSet.
@@ -201,12 +201,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			ConfigMap: configMapService,
 			Logger:    config.Logger,
 
-			CalicoAddress:             config.CalicoAddress,
-			CalicoPrefixLength:        config.CalicoPrefixLength,
-			ClusterIPRange:            config.ClusterIPRange,
-			ControlPlaneWorkerSubnets: config.ControlPlaneWorkerSubnets,
-			ProjectName:               config.ProjectName,
-			RegistryDomain:            config.RegistryDomain,
+			CalicoAddress:       config.CalicoAddress,
+			CalicoPrefixLength:  config.CalicoPrefixLength,
+			ClusterIPRange:      config.ClusterIPRange,
+			ControlPlaneSubnets: config.ControlPlaneSubnets,
+			ProjectName:         config.ProjectName,
+			RegistryDomain:      config.RegistryDomain,
 		}
 
 		ops, err := configmap.New(c)

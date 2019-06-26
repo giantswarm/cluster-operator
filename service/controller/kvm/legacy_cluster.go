@@ -38,13 +38,13 @@ type LegacyClusterConfig struct {
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 
-	CalicoAddress             string
-	CalicoPrefixLength        string
-	ClusterIPRange            string
-	ControlPlaneWorkerSubnets []string
-	ProjectName               string
-	RegistryDomain            string
-	ResourceNamespace         string
+	CalicoAddress       string
+	CalicoPrefixLength  string
+	ClusterIPRange      string
+	ControlPlaneSubnets []string
+	ProjectName         string
+	RegistryDomain      string
+	ResourceNamespace   string
 }
 
 type LegacyCluster struct {
@@ -292,13 +292,13 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
 
-			CalicoAddress:             config.CalicoAddress,
-			CalicoPrefixLength:        config.CalicoPrefixLength,
-			ClusterIPRange:            config.ClusterIPRange,
-			ControlPlaneWorkerSubnets: config.ControlPlaneWorkerSubnets,
-			ProjectName:               config.ProjectName,
-			RegistryDomain:            config.RegistryDomain,
-			ResourceNamespace:         config.ResourceNamespace,
+			CalicoAddress:       config.CalicoAddress,
+			CalicoPrefixLength:  config.CalicoPrefixLength,
+			ClusterIPRange:      config.ClusterIPRange,
+			ControlPlaneSubnets: config.ControlPlaneSubnets,
+			ProjectName:         config.ProjectName,
+			RegistryDomain:      config.RegistryDomain,
+			ResourceNamespace:   config.ResourceNamespace,
 		}
 
 		v17ResourceSet, err = v17.NewResourceSet(c)
