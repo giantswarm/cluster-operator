@@ -39,7 +39,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var versionBundles []versionbundle.Bundle
 	{
 		req := searcher.Request{
-			ReleaseVersion: key.ClusterReleaseVersion(cluster),
+			ReleaseVersion: key.ReleaseVersion(&cluster),
 		}
 
 		res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
@@ -103,7 +103,7 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig v1alpha1.AWSClu
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.DNSZone = key.ClusterDNSZone(cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ID = key.ClusterID(&cluster)
 	awsClusterConfig.Spec.Guest.ClusterGuestConfig.Name = key.ClusterName(cluster)
-	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ReleaseVersion = key.ClusterReleaseVersion(cluster)
+	awsClusterConfig.Spec.Guest.ClusterGuestConfig.ReleaseVersion = key.ReleaseVersion(&cluster)
 
 	var awsClusterConfigVersionBundle v1alpha1.AWSClusterConfigSpecVersionBundle
 	var transformedVBs []v1alpha1.ClusterGuestConfigVersionBundle
