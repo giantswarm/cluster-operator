@@ -12,7 +12,7 @@ data:
       listen:
         address: 'http://0.0.0.0:8000'
     controlPlane:
-      workerSubnets: '{{ range $index, $element := .Values.Installation.V1.GiantSwarm.ClusterOperator.ControlPlaneWorkerSubnets }}{{if $index}} {{end}}{{$element}}{{end}}'
+      subnets: '{{ range $index, $element := .Values.Installation.V1.GiantSwarm.ClusterOperator.ControlPlaneSubnets }}{{if $index}} {{end}}{{$element}}{{end}}'
     guest:
       cluster:
         calico:
