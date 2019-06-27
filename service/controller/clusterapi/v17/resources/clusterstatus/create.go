@@ -42,8 +42,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
 		if tenant.IsAPINotAvailable(err) {
-			// Similarly to above timeout, during cluster creation it is
-			// expected that API is not available.
+			// During cluster creation / upgrade the tenant API is naturally not
+			// available but this resource must still continue execution as that's
+			// when `Creating` and `Upgrading` conditions may need to be applied.
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
 		} else if err != nil {
 			return microerror.Mask(err)
