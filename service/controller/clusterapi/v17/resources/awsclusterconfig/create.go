@@ -170,7 +170,7 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig corev1alpha1.AW
 			w := corev1alpha1.AWSClusterConfigSpecGuestWorker{
 				AWSClusterConfigSpecGuestNode: corev1alpha1.AWSClusterConfigSpecGuestNode{
 					ID:           fmt.Sprintf("%s-%d", key.MachineDeployment(&md), i),
-					InstanceType: key.ClusterMasterInstanceType(cr),
+					InstanceType: key.MachineDeploymentWorkerInstanceType(md),
 				},
 				Labels: map[string]string{
 					label.Cluster:           key.ClusterID(&cr),
