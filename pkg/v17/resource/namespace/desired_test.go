@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/micrologger/microloggertest"
-	apiv1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
@@ -62,12 +62,12 @@ func Test_Resource_Namespace_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			name := result.(*apiv1.Namespace).Name
+			name := result.(*corev1.Namespace).Name
 			if tc.expectedName != name {
 				t.Fatalf("expected %q got %q", tc.expectedName, name)
 			}
 
-			labels := result.(*apiv1.Namespace).Labels
+			labels := result.(*corev1.Namespace).Labels
 			if !reflect.DeepEqual(tc.expectedLabels, labels) {
 				t.Fatalf("expected %#v got %#v", tc.expectedLabels, labels)
 			}

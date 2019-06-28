@@ -1,5 +1,24 @@
 package v1alpha1
 
+const (
+	ClusterVersionLimit = 5
+)
+
+const (
+	ClusterStatusConditionCreated  = "Created"
+	ClusterStatusConditionCreating = "Creating"
+)
+
+const (
+	ClusterStatusConditionDeleted  = "Deleted"
+	ClusterStatusConditionDeleting = "Deleting"
+)
+
+const (
+	ClusterStatusConditionUpdated  = "Updated"
+	ClusterStatusConditionUpdating = "Updating"
+)
+
 // CommonClusterStatus is shared type to contain provider independent cluster status
 // information.
 type CommonClusterStatus struct {
@@ -10,7 +29,7 @@ type CommonClusterStatus struct {
 
 type CommonClusterStatusCondition struct {
 	LastTransitionTime DeepCopyTime `json:"lastTransitionTime" yaml:"lastTransitionTime"`
-	Type               string       `json:"type" yaml:"type"`
+	Condition          string       `json:"condition" yaml:"condition"`
 }
 
 type CommonClusterStatusVersion struct {

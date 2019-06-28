@@ -42,7 +42,7 @@ func ClusterCredentialSecretNamespace(cluster v1alpha1.Cluster) string {
 }
 
 func ClusterDNSZone(cluster v1alpha1.Cluster) string {
-	return fmt.Sprintf("%s.%s", ClusterID(&cluster), clusterProviderSpec(cluster).Cluster.DNS.Domain)
+	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), clusterProviderSpec(cluster).Cluster.DNS.Domain)
 }
 
 func ClusterMasterAZ(cluster v1alpha1.Cluster) string {
