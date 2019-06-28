@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_APIDomain(t *testing.T) {
@@ -355,25 +355,25 @@ func Test_EncryptionKeySecretName(t *testing.T) {
 func Test_IsDeleted(t *testing.T) {
 	testCases := []struct {
 		description    string
-		objectMeta     apismetav1.ObjectMeta
+		objectMeta     metav1.ObjectMeta
 		expectedResult bool
 	}{
 		{
 			description:    "case 0: false when struct is empty",
-			objectMeta:     apismetav1.ObjectMeta{},
+			objectMeta:     metav1.ObjectMeta{},
 			expectedResult: false,
 		},
 		{
 			description: "case 1: false when field is nil",
-			objectMeta: apismetav1.ObjectMeta{
+			objectMeta: metav1.ObjectMeta{
 				DeletionTimestamp: nil,
 			},
 			expectedResult: false,
 		},
 		{
 			description: "case 2: true when field is set",
-			objectMeta: apismetav1.ObjectMeta{
-				DeletionTimestamp: &apismetav1.Time{Time: time.Now()},
+			objectMeta: metav1.ObjectMeta{
+				DeletionTimestamp: &metav1.Time{Time: time.Now()},
 			},
 			expectedResult: true,
 		},

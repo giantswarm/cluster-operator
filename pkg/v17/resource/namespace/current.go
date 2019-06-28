@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
-	apiv1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -48,7 +48,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for the namespace in the tenant cluster")
 
 	// Lookup the current state of the namespace.
-	var namespace *apiv1.Namespace
+	var namespace *corev1.Namespace
 	{
 		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
