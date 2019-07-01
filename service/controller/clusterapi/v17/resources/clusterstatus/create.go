@@ -88,7 +88,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		cr = r.accessor.SetCommonClusterStatus(cr, updatedStatus)
 
-		updatedCR, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Update(&cr)
+		updatedCR, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
