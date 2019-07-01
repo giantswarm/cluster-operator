@@ -81,19 +81,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	updatedStatus := r.computeClusterConditions(ctx, cr, r.accessor.GetCommonClusterStatus(cr), nodes, machineDeployments)
 
-	fmt.Printf("\n\n\n\n\n\n%#v\n\n\n\n\n\n", updatedStatus)
-
 	if !reflect.DeepEqual(r.accessor.GetCommonClusterStatus(cr), updatedStatus) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
 		cr = r.accessor.SetCommonClusterStatus(cr, updatedStatus)
 
-		updatedCR, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&cr)
+		_, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-
-		fmt.Printf("\n\n\n\n\n\n\n\n\n\n\n\nUpdated CR: %#v\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", updatedCR)
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
 
