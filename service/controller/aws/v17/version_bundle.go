@@ -17,6 +17,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Fix monitored file system mount points.",
 				Kind:        versionbundle.KindFixed,
 			},
+			{
+				Component:   "node-exporter",
+				Description: "Fix systemd collector D-Bus connection. https://github.com/giantswarm/kubernetes-node-exporter/pull/44",
+				Kind:        versionbundle.KindFixed,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
