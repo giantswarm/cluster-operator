@@ -83,7 +83,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
 		if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available", "stack", microerror.Stack(err))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
