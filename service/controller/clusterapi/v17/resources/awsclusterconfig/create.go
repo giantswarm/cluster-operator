@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	clusterv1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -48,7 +49,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			key.ClusterID(&cr),
 		)
 		o := metav1.ListOptions{
-			LabelSelector: l.String(),
+			LabelSelector: labels.Set(l.MatchLabels).String(),
 		}
 
 		list, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).List(o)
