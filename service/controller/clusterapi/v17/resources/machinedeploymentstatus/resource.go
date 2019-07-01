@@ -134,7 +134,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of machine deployment")
 
-		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).Update(md)
+		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).UpdateStatus(md)
 		if err != nil {
 			return microerror.Mask(err)
 		}
