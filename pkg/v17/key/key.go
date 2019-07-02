@@ -107,7 +107,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:         "net-exporter",
-			ChannelName:     "stable",
+			ChannelName:     "wip-b43a36a04b82ad3dbd66cd29ec621d030c48298f",
 			ChartName:       "net-exporter-chart",
 			ConfigMapName:   "net-exporter-values",
 			Namespace:       metav1.NamespaceSystem,
