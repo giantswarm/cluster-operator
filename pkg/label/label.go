@@ -38,6 +38,9 @@ const (
 	// ManagedBy label denotes which operator manages corresponding resource.
 	ManagedBy = "giantswarm.io/managed-by"
 
+	// MasterNodeRole label denotes K8s cluster master node role.
+	MasterNodeRole = "node-role.kubernetes.io/master"
+
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.
 	Organization = "giantswarm.io/organization"

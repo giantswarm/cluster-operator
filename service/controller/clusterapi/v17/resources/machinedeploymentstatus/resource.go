@@ -13,6 +13,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 )
@@ -94,6 +95,12 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		nodes = l.Items
 
 		for _, n := range nodes {
+			_, exists := n.Labels[label.MasterNodeRole]
+			if exists {
+				// Omit master node.
+				continue
+			}
+
 			for _, c := range n.Status.Conditions {
 				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
 					ready = append(ready, n)
