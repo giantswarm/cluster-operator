@@ -8,6 +8,11 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
+				Component:   "coredns",
+				Description: "Update to 1.5.1. More info here: https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
+				Kind:        versionbundle.KindRemoved,
+			},
+			{
 				Component:   "nginx-ingress-controller",
 				Description: "Disabled migration logic now migration to helm chart is complete.",
 				Kind:        versionbundle.KindRemoved,
@@ -36,7 +41,7 @@ func VersionBundle() versionbundle.Bundle {
 		Components: []versionbundle.Component{
 			{
 				Name:    "coredns",
-				Version: "1.5.0",
+				Version: "1.5.1",
 			},
 			{
 				Name:    "kube-state-metrics",
