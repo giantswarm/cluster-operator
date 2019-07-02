@@ -86,8 +86,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		o := metav1.ListOptions{
 			// This label selector excludes the master nodes from node list.
 			//
-			// Constructing this LabelSelector is not currently possibly with
-			// types & functions in k8s. Therefore it's hardcoded here.
+			// Constructing this LabelSelector is not currently possible with
+			// k8s types and functions. Therefore it's hardcoded here.
 			LabelSelector: fmt.Sprintf("!%s", label.MasterNodeRole),
 		}
 
