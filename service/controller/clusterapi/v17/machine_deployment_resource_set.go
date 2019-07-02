@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
 	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
 	"github.com/giantswarm/tenantcluster"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
@@ -127,7 +126,7 @@ func newMachineDeploymentToClusterFunc(cmaClient clientset.Interface) func(obj i
 			return v1alpha1.Cluster{}, microerror.Mask(err)
 		}
 
-		m, err := cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).Get(key.ClusterID(&cr), metav1.GetOptions{})
+		m, err := cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Get(key.ClusterID(&cr), metav1.GetOptions{})
 		if err != nil {
 			return v1alpha1.Cluster{}, microerror.Mask(err)
 		}
