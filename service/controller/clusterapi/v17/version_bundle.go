@@ -16,7 +16,7 @@ func VersionBundle() versionbundle.Bundle {
 		Components: []versionbundle.Component{
 			{
 				Name:    "coredns",
-				Version: "1.5.0",
+				Version: "1.5.1",
 			},
 			{
 				Name:    "kube-state-metrics",
