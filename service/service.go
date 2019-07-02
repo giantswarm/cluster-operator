@@ -189,12 +189,13 @@ func New(config Config) (*Service, error) {
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
+			ClusterIPRange:      clusterIPRange,
+			CalicoAddress:       calicoAddress,
+			CalicoPrefixLength:  calicoPrefixLength,
+			ControlPlaneSubnets: controlPlaneSubnets,
+			ProjectName:         config.ProjectName,
+			RegistryDomain:      registryDomain,
+			ResourceNamespace:   resourceNamespace,
 		}
 
 		awsLegacyClusterController, err = aws.NewLegacyCluster(c)
@@ -220,12 +221,13 @@ func New(config Config) (*Service, error) {
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
+			ClusterIPRange:      clusterIPRange,
+			CalicoAddress:       calicoAddress,
+			CalicoPrefixLength:  calicoPrefixLength,
+			ControlPlaneSubnets: controlPlaneSubnets,
+			ProjectName:         config.ProjectName,
+			RegistryDomain:      registryDomain,
+			ResourceNamespace:   resourceNamespace,
 		}
 
 		azureLegacyClusterController, err = azure.NewLegacyCluster(c)

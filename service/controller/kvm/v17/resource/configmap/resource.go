@@ -59,7 +59,6 @@ func New(config Config) (*Resource, error) {
 	if config.RegistryDomain == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
 	}
-
 	for _, subnet := range config.ControlPlaneSubnets {
 		_, _, err := net.ParseCIDR(subnet)
 		if err != nil {
