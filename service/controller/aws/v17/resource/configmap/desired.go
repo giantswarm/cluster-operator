@@ -43,6 +43,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			// Proxy protocol is enabled for AWS clusters.
 			UseProxyProtocol: true,
 		},
+		NetExporter: configmap.NetExporterValues{
+			ControlPlaneSubnets: r.controlPlaneSubnets,
+		},
 		Organization:   key.ClusterOrganization(clusterGuestConfig),
 		RegistryDomain: r.registryDomain,
 		WorkerCount:    awskey.WorkerCount(customObject),
