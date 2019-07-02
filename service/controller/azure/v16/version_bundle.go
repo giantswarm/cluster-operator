@@ -34,7 +34,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Component:   "coredns",
-				Description: "Default container port changed from 53 to 1053. Please read project's changelog carefully https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md#v050",
+				Description: "Change default container port from 53 to 1053. Please read project's changelog carefully https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md#v050",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
