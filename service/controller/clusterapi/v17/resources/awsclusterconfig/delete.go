@@ -12,27 +12,27 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cluster, err := key.ToCluster(obj)
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting AWSClusterConfig %q", key.AWSClusterConfigName(cluster)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting AWSClusterConfig %#q", key.AWSClusterConfigName(cr)))
 
-	if !key.IsProviderSpecForAWS(cluster) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("provider extension in cluster cr %q is not for AWS", cluster.Name))
+	if !key.IsProviderSpecForAWS(cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("provider extension in cluster %#q is not for AWS", cr.Name))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
-	err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cluster.Namespace).Delete(key.AWSClusterConfigName(cluster), &metav1.DeleteOptions{})
+	err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cr.Namespace).Delete(key.AWSClusterConfigName(cr), &metav1.DeleteOptions{})
 	if errors.IsNotFound(err) {
 		// fall through
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted AWSClusterConfig %q", key.AWSClusterConfigName(cluster)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted AWSClusterConfig %#q", key.AWSClusterConfigName(cr)))
 
 	return nil
 }

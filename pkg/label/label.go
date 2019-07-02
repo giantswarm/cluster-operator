@@ -31,12 +31,15 @@ const (
 	// specific CertConfig belongs to.
 	LegacyComponent = "clusterComponent"
 
-	// RandomKeyTypeEncryption is a type of randomkey secret used for guest
-	// cluster.
-	RandomKeyTypeEncryption = "encryption"
+	// MachineDeployment label denotes which node pool corresponding resources
+	// belongs.
+	MachineDeployment = "giantswarm.io/machine-deployment"
 
 	// ManagedBy label denotes which operator manages corresponding resource.
 	ManagedBy = "giantswarm.io/managed-by"
+
+	// MasterNodeRole label denotes K8s cluster master node role.
+	MasterNodeRole = "node-role.kubernetes.io/master"
 
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.
@@ -58,6 +61,10 @@ const (
 	// RandomKey label specifies type of a secret that is used for guest
 	// cluster.
 	RandomKey = "giantswarm.io/randomkey"
+
+	// RandomKeyTypeEncryption is a type of randomkey secret used for guest
+	// cluster.
+	RandomKeyTypeEncryption = "encryption"
 
 	// ReleaseVersion is a label specifying a tenant cluster release version.
 	ReleaseVersion = "release.giantswarm.io/version"

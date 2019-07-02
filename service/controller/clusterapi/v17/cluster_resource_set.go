@@ -56,6 +56,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var clusterstatusResource controller.Resource
 	{
 		c := clusterstatus.Config{
+			Accessor:  &key.AWSClusterStatusAccessor{},
 			CMAClient: config.CMAClient,
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,

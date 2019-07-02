@@ -12,7 +12,7 @@ func AWSClusterConfigName(cluster v1alpha1.Cluster) string {
 }
 
 func ClusterAPIEndpoint(cluster v1alpha1.Cluster) string {
-	return fmt.Sprintf("api.%s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
+	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
 }
 
 func ClusterAvailabilityZones(cluster v1alpha1.Cluster) []string {
@@ -42,7 +42,7 @@ func ClusterCredentialSecretNamespace(cluster v1alpha1.Cluster) string {
 }
 
 func ClusterDNSZone(cluster v1alpha1.Cluster) string {
-	return fmt.Sprintf("%s.%s", ClusterID(&cluster), clusterProviderSpec(cluster).Cluster.DNS.Domain)
+	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), clusterProviderSpec(cluster).Cluster.DNS.Domain)
 }
 
 func ClusterMasterAZ(cluster v1alpha1.Cluster) string {
