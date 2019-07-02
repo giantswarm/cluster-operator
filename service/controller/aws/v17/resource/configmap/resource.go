@@ -70,11 +70,12 @@ func New(config Config) (*Resource, error) {
 		configMap: config.ConfigMap,
 		logger:    config.Logger,
 
-		calicoAddress:      config.CalicoAddress,
-		calicoPrefixLength: config.CalicoPrefixLength,
-		clusterIPRange:     config.ClusterIPRange,
-		projectName:        config.ProjectName,
-		registryDomain:     config.RegistryDomain,
+		calicoAddress:       config.CalicoAddress,
+		calicoPrefixLength:  config.CalicoPrefixLength,
+		clusterIPRange:      config.ClusterIPRange,
+		controlPlaneSubnets: config.ControlPlaneSubnets,
+		projectName:         config.ProjectName,
+		registryDomain:      config.RegistryDomain,
 	}
 
 	return r, nil
