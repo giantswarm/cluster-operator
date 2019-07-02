@@ -161,12 +161,16 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig corev1alpha1.AW
 		},
 	}
 
+	fmt.Printf("---- len(machineDeployments): %d\n", len(machineDeployments))
+
 	var workers []corev1alpha1.AWSClusterConfigSpecGuestWorker
 	for _, md := range machineDeployments {
 		if md.Spec.Replicas == nil {
+			fmt.Printf("---- md.Spec.Replices == nil\n")
 			continue
 		}
 
+		fmt.Printf("---- md.Spec.Replicas: %d\n", int(*md.Spec.Replicas))
 		for i := 0; i < int(*md.Spec.Replicas); i++ {
 			w := corev1alpha1.AWSClusterConfigSpecGuestWorker{
 				AWSClusterConfigSpecGuestNode: corev1alpha1.AWSClusterConfigSpecGuestNode{
@@ -178,6 +182,7 @@ func (r *Resource) mapClusterToAWSClusterConfig(awsClusterConfig corev1alpha1.AW
 					label.MachineDeployment: key.MachineDeployment(&md),
 				},
 			}
+			fmt.Printf("----- adding worker: %#v\n\n\n", w)
 			workers = append(workers, w)
 		}
 	}
