@@ -2,6 +2,7 @@ package machinedeploymentstatus
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/errors/tenant"
@@ -82,7 +83,15 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return nil
 		}
 
-		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
+		o := metav1.ListOptions{
+			// This label selector excludes the master nodes from node list.
+			//
+			// Constructing this LabelSelector is not currently possibly with
+			// types & functions in k8s. Therefore it's hardcoded here.
+			LabelSelector: fmt.Sprintf("!%s", label.MasterNodeRole),
+		}
+
+		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(o)
 		if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available", "stack", microerror.Stack(err))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -95,12 +104,6 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		nodes = l.Items
 
 		for _, n := range nodes {
-			_, exists := n.Labels[label.MasterNodeRole]
-			if exists {
-				// Omit master node.
-				continue
-			}
-
 			for _, c := range n.Status.Conditions {
 				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
 					ready = append(ready, n)
