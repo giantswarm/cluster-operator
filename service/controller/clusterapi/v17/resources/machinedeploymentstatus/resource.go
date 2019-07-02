@@ -2,6 +2,7 @@ package machinedeploymentstatus
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/errors/tenant"
@@ -13,6 +14,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 )
@@ -81,9 +83,17 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return nil
 		}
 
-		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
+		o := metav1.ListOptions{
+			// This label selector excludes the master nodes from node list.
+			//
+			// Constructing this LabelSelector is not currently possible with
+			// k8s types and functions. Therefore it's hardcoded here.
+			LabelSelector: fmt.Sprintf("!%s", label.MasterNodeRole),
+		}
+
+		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(o)
 		if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available", "stack", microerror.Stack(err))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
@@ -134,7 +144,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of machine deployment")
 
-		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).Update(md)
+		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).UpdateStatus(md)
 		if err != nil {
 			return microerror.Mask(err)
 		}
