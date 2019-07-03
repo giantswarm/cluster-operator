@@ -28,32 +28,32 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindFixed,
 			},
 			{
-				Components:  "external-dns",
+				Component:   "external-dns",
 				Description: "Add network policy.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
-				Components:  "metrics-server",
+				Component:   "metrics-server",
 				Description: "Add network policy.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
-				Components:  "net-exporter",
+				Component:   "net-exporter",
 				Description: "Add network policy.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
-				Components:  "coredns",
+				Component:   "coredns",
 				Description: "Add network policy.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
-				Components:  "kube-state-metrics",
+				Component:   "kube-state-metrics",
 				Description: "Add network policy.",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
-				Components:  "nginx-ingress-controller",
+				Component:   "nginx-ingress-controller",
 				Description: "Add network policy.",
 				Kind:        versionbundle.KindAdded,
 			},
