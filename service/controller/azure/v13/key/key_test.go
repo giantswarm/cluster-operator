@@ -106,7 +106,7 @@ func Test_WorkerCount(t *testing.T) {
 				Spec: v1alpha1.AzureClusterConfigSpec{
 					Guest: v1alpha1.AzureClusterConfigSpecGuest{
 						Workers: []v1alpha1.AzureClusterConfigSpecGuestWorker{
-							v1alpha1.AzureClusterConfigSpecGuestWorker{},
+							{},
 						},
 					},
 				},
@@ -119,9 +119,9 @@ func Test_WorkerCount(t *testing.T) {
 				Spec: v1alpha1.AzureClusterConfigSpec{
 					Guest: v1alpha1.AzureClusterConfigSpecGuest{
 						Workers: []v1alpha1.AzureClusterConfigSpecGuestWorker{
-							v1alpha1.AzureClusterConfigSpecGuestWorker{},
-							v1alpha1.AzureClusterConfigSpecGuestWorker{},
-							v1alpha1.AzureClusterConfigSpecGuestWorker{},
+							{},
+							{},
+							{},
 						},
 					},
 				},

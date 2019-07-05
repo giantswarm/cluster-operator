@@ -156,7 +156,7 @@ func Test_WorkerCount(t *testing.T) {
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						Workers: []v1alpha1.KVMClusterConfigSpecGuestWorker{
-							v1alpha1.KVMClusterConfigSpecGuestWorker{},
+							{},
 						},
 					},
 				},
@@ -169,9 +169,9 @@ func Test_WorkerCount(t *testing.T) {
 				Spec: v1alpha1.KVMClusterConfigSpec{
 					Guest: v1alpha1.KVMClusterConfigSpecGuest{
 						Workers: []v1alpha1.KVMClusterConfigSpecGuestWorker{
-							v1alpha1.KVMClusterConfigSpecGuestWorker{},
-							v1alpha1.KVMClusterConfigSpecGuestWorker{},
-							v1alpha1.KVMClusterConfigSpecGuestWorker{},
+							{},
+							{},
+							{},
 						},
 					},
 				},
