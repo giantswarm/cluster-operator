@@ -7,10 +7,12 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
+	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
 type SetConfig struct {
 	CertSearcher certs.Interface
+	CMAClient    clientset.Interface
 	G8sClient    versioned.Interface
 	Logger       micrologger.Logger
 }
@@ -23,16 +25,6 @@ type Set struct {
 }
 
 func NewSet(config SetConfig) (*Set, error) {
-	if config.CertSearcher == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CertSearcher must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-
 	var err error
 
 	var helper *helper
@@ -78,11 +70,25 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
+	var clusterCollector *Cluster
+	{
+		c := ClusterConfig{
+			CMAClient: config.CMAClient,
+			Logger:    config.Logger,
+		}
+
+		clusterCollector, err = NewCluster(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
 				chartOperatorCollector,
+				clusterCollector,
 			},
 			Logger: config.Logger,
 		}

@@ -1,14 +1,15 @@
 package collector
 
 import (
-	providerv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/provider/v1alpha1"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
+	"github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 )
 
 var (
-	clusterStatusCollectorDescription *prometheus.Desc = prometheus.NewDesc(
+	clusterDescription *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemCluster, "status"),
 		"Latest cluster status conditions as provided by the Cluster CR status.",
 		[]string{
@@ -27,17 +28,17 @@ var (
 	)
 )
 
-type ClusterStatusCollectorConfig struct {
+type ClusterConfig struct {
 	CMAClient clientset.Interface
 	Logger    micrologger.Logger
 }
 
-type ClusterStatusCollector struct {
+type Cluster struct {
 	cmaClient clientset.Interface
 	logger    micrologger.Logger
 }
 
-func NewClusterStatusCollector(config ClusterStatusCollectorConfig) (*ClusterStatusCollector, error) {
+func NewCluster(config ClusterConfig) (*Cluster, error) {
 	if config.CMAClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
 	}
@@ -45,7 +46,7 @@ func NewClusterStatusCollector(config ClusterStatusCollectorConfig) (*ClusterSta
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	c := &ClusterStatusCollector{
+	c := &Cluster{
 		cmaClient: config.CMAClient,
 		logger:    config.Logger,
 	}
@@ -53,7 +54,7 @@ func NewClusterStatusCollector(config ClusterStatusCollectorConfig) (*ClusterSta
 	return c, nil
 }
 
-func (c *ClusterStatusCollector) Collect(ch chan<- prometheus.Metric) error {
+func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	list, err := c.cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).List(metav1.ListOptions{})
 	if err != nil {
 		return microerror.Mask(err)
@@ -61,53 +62,55 @@ func (c *ClusterStatusCollector) Collect(ch chan<- prometheus.Metric) error {
 
 	for _, cluster := range list.Items {
 		{
-		condition := key.ClusterCommonStatus(cluster).Conditions
+			latest := key.ClusterCommonStatus(cluster).LatestCondition()
 
 			ch <- prometheus.MustNewConstMetric(
-				clusterStatusCollectorDescription,
+				clusterDescription,
 				prometheus.GaugeValue,
-				float64(boolToInt(p.ClusterStatus().HasCreatingCondition())),
-				m.GetName(),
-				providerv1alpha1.StatusClusterTypeCreating,
+				boolToFloat64(latest == v1alpha1.ClusterStatusConditionCreating),
+				key.ClusterID(&cluster),
+				v1alpha1.ClusterStatusConditionCreating,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterStatusCollectorDescription,
+				clusterDescription,
 				prometheus.GaugeValue,
-				float64(boolToInt(p.ClusterStatus().HasCreatedCondition())),
-				m.GetName(),
-				providerv1alpha1.StatusClusterTypeCreated,
+				boolToFloat64(latest == v1alpha1.ClusterStatusConditionCreated),
+				key.ClusterID(&cluster),
+				v1alpha1.ClusterStatusConditionCreated,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterStatusCollectorDescription,
+				clusterDescription,
 				prometheus.GaugeValue,
-				float64(boolToInt(p.ClusterStatus().HasUpdatingCondition())),
-				m.GetName(),
-				providerv1alpha1.StatusClusterTypeUpdating,
+				boolToFloat64(latest == v1alpha1.ClusterStatusConditionUpdating),
+				key.ClusterID(&cluster),
+				v1alpha1.ClusterStatusConditionUpdating,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterStatusCollectorDescription,
+				clusterDescription,
 				prometheus.GaugeValue,
-				float64(boolToInt(p.ClusterStatus().HasUpdatedCondition())),
-				m.GetName(),
-				providerv1alpha1.StatusClusterTypeUpdated,
+				boolToFloat64(latest == v1alpha1.ClusterStatusConditionUpdated),
+				key.ClusterID(&cluster),
+				v1alpha1.ClusterStatusConditionUpdated,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterStatusCollectorDescription,
+				clusterDescription,
 				prometheus.GaugeValue,
-				float64(boolToInt(p.ClusterStatus().HasDeletingCondition())),
-				m.GetName(),
-				providerv1alpha1.StatusClusterTypeDeleting,
+				boolToFloat64(latest == v1alpha1.ClusterStatusConditionDeleting),
+				key.ClusterID(&cluster),
+				v1alpha1.ClusterStatusConditionDeleting,
 			)
 		}
 	}
-}
 
-func (c *ClusterStatusCollector) Describe(ch chan<- *prometheus.Desc) error {
-	ch <- clusterStatusCollectorDescription
 	return nil
 }
 
-func boolToInt(b bool) int {
+func (c *Cluster) Describe(ch chan<- *prometheus.Desc) error {
+	ch <- clusterDescription
+	return nil
+}
+
+func boolToFloat64(b bool) float64 {
 	if b {
 		return 1
 	}
