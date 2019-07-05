@@ -8,6 +8,7 @@ import (
 
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/e2e-harness/pkg/framework"
+	"github.com/giantswarm/e2e-harness/pkg/harness"
 	"github.com/giantswarm/e2esetup/k8s"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/micrologger"
@@ -56,8 +57,7 @@ func init() {
 		c := framework.HostConfig{
 			Logger: l,
 
-			ClusterID:  env.ClusterID(),
-			VaultToken: env.VaultToken(),
+			ClusterID: env.ClusterID(),
 		}
 
 		h, err = framework.NewHost(c)
@@ -66,10 +66,24 @@ func init() {
 		}
 	}
 
+	var cpK8sClients *k8s.Clients
+	{
+		c := k8s.ClientsConfig{
+			Logger: l,
+
+			KubeConfigPath: harness.DefaultKubeConfig,
+		}
+
+		cpK8sClients, err = k8s.NewClients(c)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
 	{
 		c := k8s.SetupConfig{
-			K8sClient: h.K8sClient(),
-			Logger:    l,
+			Clients: cpK8sClients,
+			Logger:  l,
 		}
 
 		s, err = k8s.NewSetup(c)
