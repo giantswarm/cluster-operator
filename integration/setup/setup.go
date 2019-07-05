@@ -102,8 +102,6 @@ func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, s 
 					log.Printf("%#v\n", err)
 					v = 1
 				}
-				// TODO there should be error handling for the framework teardown.
-				h.Teardown()
 			}
 		}
 		os.Exit(v)

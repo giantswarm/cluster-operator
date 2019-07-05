@@ -106,7 +106,7 @@ func Test_WorkerCount(t *testing.T) {
 				Spec: v1alpha1.AWSClusterConfigSpec{
 					Guest: v1alpha1.AWSClusterConfigSpecGuest{
 						Workers: []v1alpha1.AWSClusterConfigSpecGuestWorker{
-							v1alpha1.AWSClusterConfigSpecGuestWorker{},
+							{},
 						},
 					},
 				},
@@ -119,9 +119,9 @@ func Test_WorkerCount(t *testing.T) {
 				Spec: v1alpha1.AWSClusterConfigSpec{
 					Guest: v1alpha1.AWSClusterConfigSpecGuest{
 						Workers: []v1alpha1.AWSClusterConfigSpecGuestWorker{
-							v1alpha1.AWSClusterConfigSpecGuestWorker{},
-							v1alpha1.AWSClusterConfigSpecGuestWorker{},
-							v1alpha1.AWSClusterConfigSpecGuestWorker{},
+							{},
+							{},
+							{},
 						},
 					},
 				},
