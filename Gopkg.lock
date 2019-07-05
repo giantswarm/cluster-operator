@@ -132,7 +132,7 @@
     "reference",
   ]
   pruneopts = "UT"
-  revision = "90dfea79523f61245c503b2e4ebdb4b60c3e3485"
+  revision = "be07be99045e304898724e8a8c21aaefbfdc8446"
 
 [[projects]]
   branch = "master"
@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6fad467c6c5612d7a7c998d3134b33675a670c8221e739d6fce33c893024b22e"
+  digest = "1:d504af0f8150e13f0a65ae20d5e4bb6e866695f6c319dc5f8c0c823928059d5e"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "a21bb0978d428172d1e0f5d17ffcc944ca96ce2c"
+  revision = "594d5422de1e5df8d047f66f48e924d2ac3f3a22"
 
 [[projects]]
   branch = "master"
@@ -275,7 +275,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:112bd84416da1b0dfc2d7aef1e8c4fec0f36de592c6d0f350e8085e3afa9212a"
+  digest = "1:d43b8031bb7b0635285c401765890f3c8d218555d3a03129de0b676e324ec465"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
     "internal/filelogger",
@@ -283,7 +283,7 @@
     "pkg/harness",
   ]
   pruneopts = "UT"
-  revision = "fa7385ca3cbf686bb09a39f45c657f0fe76c5710"
+  revision = "94388dde639308b70027f93cee0ae9012c989a6c"
 
 [[projects]]
   branch = "master"
@@ -408,7 +408,7 @@
     "tls",
   ]
   pruneopts = "UT"
-  revision = "ae70e65c60f81ba9442376702b7666b261a1895a"
+  revision = "d6fac43ca97d8630b27d70810b1e1df7b7c1e775"
 
 [[projects]]
   branch = "master"
@@ -424,7 +424,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bd4ec7f43f6f6c9a29f9b8a1f187b3a5d4ef390af60c2ebb6abd8cbb554e6980"
+  digest = "1:70bb247428048d11b3e00c5f464c4f8e0f9373aef6ac96e04d23c3a2600b218b"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -434,19 +434,19 @@
     "controller/context/reconciliationcanceledcontext",
     "controller/context/resourcecanceledcontext",
     "controller/context/updateallowedcontext",
-    "controller/resource/internal",
-    "controller/resource/metricsresource",
-    "controller/resource/retryresource",
     "flag/service/kubernetes",
     "flag/service/kubernetes/tls",
     "flag/service/kubernetes/watch",
     "informer",
     "informer/collector",
-    "resource/configmap",
-    "resource/secret",
+    "resource/k8s/configmapresource",
+    "resource/k8s/secretresource",
+    "resource/wrapper/internal",
+    "resource/wrapper/metricsresource",
+    "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "b1bed61beabc7cfff87fcbe8177fb5621e2c2784"
+  revision = "e5d2b8071b3678d427e342e6ae500b5059de778a"
 
 [[projects]]
   branch = "master"
@@ -458,11 +458,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f0a5bcad44c3c4cc5a254aa34b2415fd63028e71a13f6368805cd9ec7c62044d"
+  digest = "1:76f67d43a57b4391ec6e608e28cf2ddb2cd3a5ad065c96e22933d876912bf4cc"
   name = "github.com/giantswarm/to"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ad9fc4aaa835db2a17ddb188047aff6a436886d7"
+  revision = "38e6500015bed1853163a441801d399a2f1a638d"
 
 [[projects]]
   branch = "master"
@@ -624,12 +624,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:3af6be4fee7c08f81f13d36f04ffb63ad4b6b5aaba12cce96095c7c2863d4912"
+  digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ed099d42384823742bba0bf9a72b53b55c9e2e38"
-  version = "v1.7.2"
+  revision = "00bdffe0f3c77e27d2cf6f5c70232a2d3e4d9c15"
+  version = "v1.7.3"
 
 [[projects]]
   branch = "master"
@@ -919,7 +919,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "cc06ce4a13d484c0101a9e92913248488a75786d"
+  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
 
 [[projects]]
   branch = "master"
@@ -937,7 +937,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "3b0461eec859c4b73bb64fdc8285971fd33e3938"
+  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
 
 [[projects]]
   branch = "master"
@@ -960,14 +960,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:fe40fbf915905f8a2397b321b3f10190edbdf5d293f087d01d7eb3a6d1a4adca"
+  digest = "1:afb5346f71acefc3da7ad800f952cb2bcdb762194b05304bbf54d7f9490e31c5"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "c5567b49c5d04a5f83870795b8c0e2df43a8ce32"
+  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1024,10 +1024,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "6af8c5fc6601ab6b41cd32742a65ce2f5bd9db57"
+  revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
 
 [[projects]]
-  digest = "1:cde568cda33e1c7f75353ae84df1880d5d364d9ffbf269c34cdc23fffe539a45"
+  digest = "1:931727c62baa7a9958acac5d712ae9cc0ea3ff86a664b560febf4f4b0677ee28"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -1060,13 +1060,14 @@
     "resolver",
     "resolver/dns",
     "resolver/passthrough",
+    "serviceconfig",
     "stats",
     "status",
     "tap",
   ]
   pruneopts = "UT"
-  revision = "501c41df7f472c740d0674ff27122f3f48c80ce7"
-  version = "v1.21.1"
+  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
+  version = "v1.22.0"
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
@@ -1451,12 +1452,12 @@
     "github.com/giantswarm/operatorkit/controller",
     "github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext",
     "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
-    "github.com/giantswarm/operatorkit/controller/resource/metricsresource",
-    "github.com/giantswarm/operatorkit/controller/resource/retryresource",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
-    "github.com/giantswarm/operatorkit/resource/configmap",
-    "github.com/giantswarm/operatorkit/resource/secret",
+    "github.com/giantswarm/operatorkit/resource/k8s/configmapresource",
+    "github.com/giantswarm/operatorkit/resource/k8s/secretresource",
+    "github.com/giantswarm/operatorkit/resource/wrapper/metricsresource",
+    "github.com/giantswarm/operatorkit/resource/wrapper/retryresource",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/go-resty/resty",
@@ -1470,6 +1471,7 @@
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/api/meta",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
     "k8s.io/apiserver/pkg/endpoints/request",
