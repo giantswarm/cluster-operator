@@ -10,10 +10,10 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/controller/resource/metricsresource"
-	"github.com/giantswarm/operatorkit/controller/resource/retryresource"
-	genericconfigmap "github.com/giantswarm/operatorkit/resource/configmap"
-	"github.com/giantswarm/operatorkit/resource/secret"
+	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
+	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
+	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -269,7 +269,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		configOps := genericconfigmap.Config{
+		configOps := configmapresource.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -277,7 +277,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			StateGetter: stateGetter,
 		}
 
-		ops, err := genericconfigmap.New(configOps)
+		ops, err := configmapresource.New(configOps)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -305,7 +305,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			return nil, microerror.Mask(err)
 		}
 
-		configOps := secret.Config{
+		configOps := secretresource.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -313,7 +313,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			StateGetter: stateGetter,
 		}
 
-		ops, err := secret.New(configOps)
+		ops, err := secretresource.New(configOps)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
