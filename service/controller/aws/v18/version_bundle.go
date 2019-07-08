@@ -41,6 +41,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "aws",
-		Version:  "0.17.0",
+		Version:  "0.18.0",
 	}
 }
