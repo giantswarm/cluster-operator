@@ -1,4 +1,4 @@
-package v17
+package v18
 
 import (
 	"context"
@@ -14,12 +14,12 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/awsclusterconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterid"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/clusterstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/clusterid"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/tenantclients"
 )
 
 // ClusterResourceSetConfig contains necessary dependencies and settings for

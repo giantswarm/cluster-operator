@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v17/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v17/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v17/key"
+	"github.com/giantswarm/cluster-operator/pkg/v18/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v18/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v18/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {

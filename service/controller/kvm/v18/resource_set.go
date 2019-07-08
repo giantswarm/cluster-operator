@@ -1,4 +1,4 @@
-package v17
+package v18
 
 import (
 	"context"
@@ -21,18 +21,18 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v17/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v17/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/chartoperator"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/namespace"
-	"github.com/giantswarm/cluster-operator/pkg/v17/resource/tiller"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v17/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v17/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v17/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v18/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v18/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/chartoperator"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/namespace"
+	"github.com/giantswarm/cluster-operator/pkg/v18/resource/tiller"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v18/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v18/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v18/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
