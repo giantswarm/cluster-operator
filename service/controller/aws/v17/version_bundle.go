@@ -27,6 +27,36 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Fix systemd collector D-Bus connection. https://github.com/giantswarm/kubernetes-node-exporter/pull/44",
 				Kind:        versionbundle.KindFixed,
 			},
+			{
+				Component:   "cluster-autoscaler",
+				Description: "Add network policy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "metrics-server",
+				Description: "Add network policy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "net-exporter",
+				Description: "Add network policy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "coredns",
+				Description: "Add network policy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Add network policy.",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Add network policy.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
