@@ -14,7 +14,7 @@ func ChartSpecs() []key.ChartSpec {
 	return []key.ChartSpec{
 		{
 			AppName:           "cluster-autoscaler",
-			ChannelName:       "0-6-stable",
+			ChannelName:       "0-7-stable",
 			ChartName:         "kubernetes-cluster-autoscaler-chart",
 			ConfigMapName:     "cluster-autoscaler-values",
 			Namespace:         metav1.NamespaceSystem,

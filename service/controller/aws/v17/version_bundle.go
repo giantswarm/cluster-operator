@@ -8,6 +8,11 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
+				Component:   "cluster-autoscaler",
+				Description: "Update to 1.14.3. https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.14.3",
+				Kind:        versionbundle.KindAdded,
+			},
+			{
 				Component:   "coredns",
 				Description: "Update to 1.5.1. More info here: https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
 				Kind:        versionbundle.KindRemoved,
