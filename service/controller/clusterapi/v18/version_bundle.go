@@ -36,6 +36,6 @@ func VersionBundle() versionbundle.Bundle {
 			},
 		},
 		Name:    "cluster-operator",
-		Version: "0.17.0",
+		Version: "0.18.0",
 	}
 }
