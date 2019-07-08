@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d504af0f8150e13f0a65ae20d5e4bb6e866695f6c319dc5f8c0c823928059d5e"
+  digest = "1:2423eeb737fbdc0cc310b0946574c8d9355a90be5fdfe5eb5fe8025e7f17aaff"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "594d5422de1e5df8d047f66f48e924d2ac3f3a22"
+  revision = "9d069f6d43122d2ed916109e1a58ba3f0b47cbe6"
 
 [[projects]]
   branch = "master"
@@ -1429,6 +1429,7 @@
     "github.com/giantswarm/clusterclient",
     "github.com/giantswarm/clusterclient/service/release/searcher",
     "github.com/giantswarm/e2e-harness/pkg/framework",
+    "github.com/giantswarm/e2e-harness/pkg/harness",
     "github.com/giantswarm/e2eclients/aws",
     "github.com/giantswarm/e2esetup/k8s",
     "github.com/giantswarm/e2etemplates/pkg/e2etemplates",

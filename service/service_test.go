@@ -4,71 +4,7 @@ import (
 	"net"
 	"reflect"
 	"testing"
-
-	"github.com/giantswarm/micrologger/microloggertest"
-	"github.com/spf13/viper"
-
-	"github.com/giantswarm/cluster-operator/flag"
 )
-
-func Test_Service_New(t *testing.T) {
-	testCases := []struct {
-		description          string
-		config               func() Config
-		expectedErrorHandler func(error) bool
-	}{
-		{
-			description: "empty value config must return invalidConfigError",
-			config: func() Config {
-				return Config{}
-			},
-			expectedErrorHandler: IsInvalidConfig,
-		},
-		{
-			description: "production-like config must be valid",
-			config: func() Config {
-				config := Config{}
-
-				config.Logger = microloggertest.New()
-
-				config.Flag = flag.New()
-				config.Viper = viper.New()
-
-				config.Description = "test"
-				config.GitCommit = "test"
-				config.ProjectName = "test"
-				config.Source = "test"
-
-				config.Viper.Set(config.Flag.Guest.Cluster.Calico.CIDR, "16")
-				config.Viper.Set(config.Flag.Guest.Cluster.Calico.Subnet, "172.26.0.0")
-				config.Viper.Set(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange, "172.31.0.0/16")
-				config.Viper.Set(config.Flag.Service.ClusterService.Address, "http://cluster-service:8000")
-				config.Viper.Set(config.Flag.Service.Image.Registry.Domain, "quay.io")
-				config.Viper.Set(config.Flag.Service.KubeConfig.Secret.Namespace, "giantswarm")
-				config.Viper.Set(config.Flag.Service.Kubernetes.Address, "http://127.0.0.1:6443")
-				config.Viper.Set(config.Flag.Service.Kubernetes.InCluster, "false")
-
-				return config
-			},
-			expectedErrorHandler: nil,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.description, func(t *testing.T) {
-			_, err := New(tc.config())
-
-			if err != nil {
-				if tc.expectedErrorHandler == nil {
-					t.Fatalf("unexpected error returned: %#v", err)
-				}
-				if !tc.expectedErrorHandler(err) {
-					t.Fatalf("incorrect error returned: %#v", err)
-				}
-			}
-		})
-	}
-}
 
 func Test_parseClusterIPRange(t *testing.T) {
 	testCases := []struct {

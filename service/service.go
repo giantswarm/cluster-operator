@@ -329,6 +329,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := collector.SetConfig{
 			CertSearcher: certSearcher,
+			CMAClient:    cmaClient,
 			G8sClient:    g8sClient,
 			Logger:       config.Logger,
 		}

@@ -57,20 +57,24 @@ func (s CommonClusterStatus) HasVersion(semver string) bool {
 	return hasVersion(s.Versions, semver)
 }
 
+func (s CommonClusterStatus) LatestCondition() string {
+	if len(s.Conditions) == 0 {
+		return ""
+	}
+
+	sort.Sort(sort.Reverse(sortClusterStatusConditionsByDate(s.Conditions)))
+
+	return s.Conditions[0].Condition
+}
+
 func (s CommonClusterStatus) LatestVersion() string {
 	if len(s.Versions) == 0 {
 		return ""
 	}
 
-	latest := s.Versions[0]
+	sort.Sort(sort.Reverse(sortClusterStatusVersionsByDate(s.Versions)))
 
-	for _, v := range s.Versions {
-		if latest.LastTransitionTime.Time.Before(v.LastTransitionTime.Time) {
-			latest = v
-		}
-	}
-
-	return latest.Version
+	return s.Versions[0].Version
 }
 
 func (s CommonClusterStatus) WithCreatedCondition() []CommonClusterStatusCondition {
