@@ -42,6 +42,8 @@ func g8sClusterSpecFromCMAClusterSpec(cmaSpec cmav1alpha1.ProviderSpec) (g8sv1al
 }
 
 func g8sClusterCommonStatusFromCMAClusterStatus(cmaStatus *runtime.RawExtension) g8sv1alpha1.CommonClusterStatus {
+	// Whatever provider status we unmarshal here, the wrapper should extract the
+	// common cluster status types that way.
 	type wrapper struct {
 		Cluster g8sv1alpha1.CommonClusterStatus `json:"cluster" yaml:"cluster"`
 	}
