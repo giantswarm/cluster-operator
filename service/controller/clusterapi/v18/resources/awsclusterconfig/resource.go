@@ -11,11 +11,11 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v17/key"
+	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
 const (
-	Name = "awsclusterconfigv17"
+	Name = "awsclusterconfigv18"
 
 	// With first version of Node Pools implementation, the maximum number of
 	// AZs for a tenant cluster is always 4. This is due to restrictions in

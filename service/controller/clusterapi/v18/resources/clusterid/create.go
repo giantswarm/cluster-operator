@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {

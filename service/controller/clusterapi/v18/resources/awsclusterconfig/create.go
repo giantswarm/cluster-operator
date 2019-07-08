@@ -16,7 +16,7 @@ import (
 	clusterv1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
