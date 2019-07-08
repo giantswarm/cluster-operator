@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-autoscaler",
-				Description: "Update to 1.14.3. More info here: https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.14.3",
+				Description: "Update to 1.14.3. https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.14.3",
 				Kind:        versionbundle.KindAdded,
 			},
 			{
