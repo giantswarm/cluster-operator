@@ -6,7 +6,6 @@ import (
 	"github.com/giantswarm/exporterkit/collector"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
@@ -27,49 +26,6 @@ type Set struct {
 func NewSet(config SetConfig) (*Set, error) {
 	var err error
 
-	var helper *helper
-	{
-		c := helperConfig{
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
-		}
-
-		helper, err = newHelper(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var tenantCluster tenantcluster.Interface
-	{
-		c := tenantcluster.Config{
-			CertsSearcher: config.CertSearcher,
-			Logger:        config.Logger,
-
-			CertID: certs.ClusterOperatorAPICert,
-		}
-
-		tenantCluster, err = tenantcluster.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartOperatorCollector *ChartOperator
-	{
-		c := ChartOperatorConfig{
-			G8sClient:     config.G8sClient,
-			Helper:        helper,
-			Logger:        config.Logger,
-			TenantCluster: tenantCluster,
-		}
-
-		chartOperatorCollector, err = NewChartOperator(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var clusterCollector *Cluster
 	{
 		c := ClusterConfig{
@@ -87,7 +43,6 @@ func NewSet(config SetConfig) (*Set, error) {
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
-				chartOperatorCollector,
 				clusterCollector,
 			},
 			Logger: config.Logger,
