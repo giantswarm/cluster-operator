@@ -13,7 +13,8 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
+	v17 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
+	v18 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18"
 )
 
 type MachineDeploymentConfig struct {
@@ -77,6 +78,21 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 		}
 	}
 
+	var resourceSetV18 *controller.ResourceSet
+	{
+		c := v18.MachineDeploymentResourceSetConfig{
+			CMAClient: config.CMAClient,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+			Tenant:    config.Tenant,
+		}
+
+		resourceSetV18, err = v18.NewMachineDeploymentResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -86,6 +102,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
 				resourceSetV17,
+				resourceSetV18,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 

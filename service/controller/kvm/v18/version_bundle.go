@@ -8,53 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "coredns",
-				Description: "Update to 1.5.1. https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md",
-				Kind:        versionbundle.KindRemoved,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Disabled migration logic now migration to helm chart is complete.",
-				Kind:        versionbundle.KindRemoved,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Disable ipvs collector.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Fix monitored file system mount points.",
-				Kind:        versionbundle.KindFixed,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Fix systemd collector D-Bus connection. https://github.com/giantswarm/kubernetes-node-exporter/pull/44",
-				Kind:        versionbundle.KindFixed,
-			},
-			{
-				Component:   "metrics-server",
-				Description: "Add network policy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "net-exporter",
-				Description: "Add network policy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "coredns",
-				Description: "Add network policy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "kube-state-metrics",
-				Description: "Add network policy.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Add network policy.",
+				Component:   "TODO",
+				Description: "TODO",
 				Kind:        versionbundle.KindAdded,
 			},
 		},
