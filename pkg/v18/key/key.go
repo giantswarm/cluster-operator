@@ -128,7 +128,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:         "node-exporter",
-			ChannelName:     "0-4-stable",
+			ChannelName:     "0-5-stable",
 			ChartName:       "kubernetes-node-exporter-chart",
 			ConfigMapName:   "node-exporter-values",
 			Namespace:       metav1.NamespaceSystem,

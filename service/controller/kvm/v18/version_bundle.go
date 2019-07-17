@@ -8,9 +8,19 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
-				Kind:        versionbundle.KindAdded,
+				Component:   "cert-exporter",
+				Description: "Add toleration for all taints",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "net-exporter",
+				Description: "Add toleration for all taints",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "node-exporter",
+				Description: "Add toleration for all taints",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
