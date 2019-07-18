@@ -105,9 +105,6 @@ func filterChartOperatorAnnotations(cr *v1alpha1.ChartConfig) map[string]string 
 	annotations := map[string]string{}
 
 	for k, v := range cr.Annotations {
-		if k == annotation.CordonReason || k == annotation.CordonUntilDate {
-			continue
-		}
 		if strings.HasPrefix(k, annotation.ChartOperator) {
 			annotations[k] = v
 		}
