@@ -1,12 +1,13 @@
 package chartconfig
 
 import (
-	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"reflect"
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/annotation"
 )
 
 func Test_filterChartOperatorAnnotations(t *testing.T) {
