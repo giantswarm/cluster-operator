@@ -125,7 +125,7 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, obj interface{}) e
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 
 		// A timeout error here means that the cluster-operator certificate
-		// for the current guest cluster was not found. We can't continue
+		// for the current tenant cluster was not found. We can't continue
 		// without a Helm client. We will retry during the next execution, when
 		// the certificate might be available.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
@@ -142,9 +142,9 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, obj interface{}) e
 
 		return nil
 	} else if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
 
-		// We should not hammer guest API if it is not available, the guest
+		// We should not hammer tenant API if it is not available, the tenant
 		// cluster might be initializing. We will retry on next reconciliation
 		// loop.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
