@@ -132,11 +132,11 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, obj interface{}) e
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
-	} else if helmclient.IsTillerInstallationFailed(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
+	} else if helmclient.IsTillerNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no healthy tiller pod found")
 
-		// Tiller installation can fail during guest cluster setup. We will
-		// retry on next reconciliation loop.
+		// Tiller may not be healthy and we cannot continue without a connection
+		// to Tiller. We will retry on next reconciliation loop.
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
