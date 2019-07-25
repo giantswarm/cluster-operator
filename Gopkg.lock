@@ -332,15 +332,15 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:cc0964ba07fcc6bcd116c261d972d378415268c73dd67cdcea8417652bcbe71c"
+  branch = "get-pod"
+  digest = "1:cf8996540ff9f10ab258e58eab5ca3e59c8a45860fede623c779dd4c426f5011"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "194739f9cc7e4c910fd66955001469ca9d516201"
+  revision = "8043f0b44e52439e1c2d0afdcb058cb85da9e04d"
 
 [[projects]]
   branch = "master"
@@ -449,12 +449,12 @@
   revision = "e5d2b8071b3678d427e342e6ae500b5059de778a"
 
 [[projects]]
-  branch = "master"
-  digest = "1:850e9080eb2d5651136f10ae6c6f049bdcdd28de41e0cc94dc5fb188fc3caf6c"
+  branch = "ensure-tiller-installed"
+  digest = "1:d4f212c6870eebedb88cf6cbb41b2da3a9b96d443726254c252f60d45ed83b23"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5393d99231d18bd6613ee5a2a0b7664e588f726a"
+  revision = "985464b1081c15330fe71e9f9347853801c910c1"
 
 [[projects]]
   branch = "master"

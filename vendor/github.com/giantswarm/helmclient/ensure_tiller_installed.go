@@ -191,12 +191,13 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 	var err error
 	var installTiller bool
+	var maxWait time.Duration
 	var pod *corev1.Pod
 	var upgradeTiller bool
 
 	{
 		o := func() error {
-			pod, err = getPod(c.k8sClient, tillerLabelSelector, c.tillerNamespace)
+			pod, err = getPod(c.k8sClient, c.tillerNamespace)
 			if IsNotFound(err) {
 				// Fall through as we need to install Tiller.
 				installTiller = true
@@ -207,10 +208,18 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 			return nil
 		}
-		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
+
+		// maxWait is configurable so we can use more time in e2e tests
+		// than in operators.
+		maxWait, err = time.ParseDuration(c.ensureTillerInstalledMaxWait)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		b := backoff.NewConstant(maxWait, 3*time.Second)
 		n := backoff.NewNotifier(c.logger, context.Background())
 
-		err := backoff.RetryNotify(o, b, n)
+		err = backoff.RetryNotify(o, b, n)
 		if err != nil {
 			return microerror.Mask(err)
 		}

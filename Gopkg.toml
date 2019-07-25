@@ -80,7 +80,7 @@ required = [
   name = "github.com/giantswarm/errors"
 
 [[constraint]]
-  branch = "master"
+  branch = "get-pod"
   name = "github.com/giantswarm/helmclient"
 
 [[constraint]]
@@ -104,7 +104,7 @@ required = [
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
-  branch = "master"
+  branch = "ensure-tiller-installed"
   name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
