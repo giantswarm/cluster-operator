@@ -163,7 +163,8 @@ func New(config Config) (*Service, error) {
 			CertsSearcher: certSearcher,
 			Logger:        config.Logger,
 
-			CertID: certs.ClusterOperatorAPICert,
+			CertID:                       certs.ClusterOperatorAPICert,
+			EnsureTillerInstalledMaxWait: "30s",
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
