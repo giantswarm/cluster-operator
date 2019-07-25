@@ -11,20 +11,13 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/giantswarm/cluster-operator/flag"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/server"
 	"github.com/giantswarm/cluster-operator/service"
 )
 
-const (
-	notAvailable = "n/a"
-)
-
 var (
-	description = "The cluster-operator manages Kubernetes guest cluster resources."
-	f           = flag.New()
-	gitCommit   = notAvailable
-	name        = "cluster-operator"
-	source      = "https://github.com/giantswarm/cluster-operator"
+	f = flag.New()
 )
 
 func main() {
@@ -59,10 +52,11 @@ func mainWithError() error {
 				Logger: newLogger,
 				Viper:  v,
 
-				Description: description,
-				GitCommit:   gitCommit,
-				ProjectName: name,
-				Source:      source,
+				Description: project.Description(),
+				GitCommit:   project.GitSHA(),
+				ProjectName: project.Name(),
+				Source:      project.Source(),
+				Version:     project.Version(),
 			}
 
 			newService, err = service.New(serviceConfig)
@@ -81,7 +75,7 @@ func mainWithError() error {
 				Service: newService,
 				Viper:   v,
 
-				ProjectName: name,
+				ProjectName: project.Name(),
 			}
 
 			newServer, err = server.New(c)
@@ -100,10 +94,11 @@ func mainWithError() error {
 			Logger:        newLogger,
 			ServerFactory: newServerFactory,
 
-			Description: description,
-			GitCommit:   gitCommit,
-			Name:        name,
-			Source:      source,
+			Description: project.Description(),
+			GitCommit:   project.GitSHA(),
+			Name:        project.Name(),
+			Source:      project.Source(),
+			Version:     project.Version(),
 		}
 
 		newCommand, err = command.New(c)
