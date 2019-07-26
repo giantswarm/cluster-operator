@@ -42,7 +42,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				resourcecanceledcontext.SetCanceled(ctx)
 
 				return nil
-			} else if helmclient.IsTillerInstallationFailed(err) {
+			} else if helmclient.IsTillerNotFound(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
 
 				// Tiller installation can fail during guest cluster setup. We will
