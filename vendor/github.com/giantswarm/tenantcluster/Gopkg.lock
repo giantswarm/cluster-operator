@@ -125,12 +125,12 @@
   revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
 
 [[projects]]
-  branch = "get-pod"
-  digest = "1:af84ee17830733250503a5073cbc7301c936bd4d451512ad568f10d69afd5946"
+  branch = "master"
+  digest = "1:5d33d7e00efe308d118d1170e56643aa0380599c2963b0eeb01a7d0521ec500a"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8043f0b44e52439e1c2d0afdcb058cb85da9e04d"
+  revision = "2734fbbea648359692b6a6d3e8704026787cb053"
 
 [[projects]]
   branch = "master"

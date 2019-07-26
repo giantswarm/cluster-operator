@@ -191,7 +191,6 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 	var err error
 	var installTiller bool
-	var maxWait time.Duration
 	var pod *corev1.Pod
 	var upgradeTiller bool
 
@@ -209,14 +208,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 			return nil
 		}
 
-		// maxWait is configurable so we can use more time in e2e tests
-		// than in operators.
-		maxWait, err = time.ParseDuration(c.ensureTillerInstalledMaxWait)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		b := backoff.NewConstant(maxWait, 3*time.Second)
+		b := backoff.NewConstant(c.ensureTillerInstalledMaxWait, 3*time.Second)
 		n := backoff.NewNotifier(c.logger, context.Background())
 
 		err = backoff.RetryNotify(o, b, n)

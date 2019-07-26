@@ -2,6 +2,7 @@ package tenantcluster
 
 import (
 	"context"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
@@ -20,7 +21,7 @@ type Config struct {
 	Logger        micrologger.Logger
 
 	CertID                       certs.Cert
-	EnsureTillerInstalledMaxWait string
+	EnsureTillerInstalledMaxWait time.Duration
 	TillerNamespace              string
 }
 
@@ -30,7 +31,7 @@ type TenantCluster struct {
 	logger        micrologger.Logger
 
 	certID                       certs.Cert
-	ensureTillerInstalledMaxWait string
+	ensureTillerInstalledMaxWait time.Duration
 	tillerNamespace              string
 }
 

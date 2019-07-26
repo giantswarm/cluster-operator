@@ -52,7 +52,7 @@ type Config struct {
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 
-	EnsureTillerInstalledMaxWait string
+	EnsureTillerInstalledMaxWait time.Duration
 	RestConfig                   *rest.Config
 	TillerImage                  string
 	TillerNamespace              string
@@ -66,7 +66,7 @@ type Client struct {
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 
-	ensureTillerInstalledMaxWait string
+	ensureTillerInstalledMaxWait time.Duration
 	restConfig                   *rest.Config
 	tillerImage                  string
 	tillerNamespace              string
@@ -84,7 +84,7 @@ func New(config Config) (*Client, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 
-	if config.EnsureTillerInstalledMaxWait == "" {
+	if config.EnsureTillerInstalledMaxWait == 0 {
 		config.EnsureTillerInstalledMaxWait = defaultEnsureTillerInstalledMaxWait
 	}
 	if config.RestConfig == nil {

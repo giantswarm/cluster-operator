@@ -83,15 +83,15 @@ func NewClients(config ClientsConfig) (*Clients, error) {
 	return c, nil
 }
 
-func (c *Clients) ExtClient() *apiextensionsclient.Clientset {
+func (c *Clients) ExtClient() apiextensionsclient.Interface {
 	return c.extClient
 }
 
-func (c *Clients) G8sClient() *versioned.Clientset {
+func (c *Clients) G8sClient() versioned.Interface {
 	return c.g8sClient
 }
 
-func (c *Clients) K8sClient() *kubernetes.Clientset {
+func (c *Clients) K8sClient() kubernetes.Interface {
 	return c.k8sClient
 }
 
