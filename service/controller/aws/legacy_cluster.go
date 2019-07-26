@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -40,6 +41,7 @@ type LegacyClusterConfig struct {
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	CalicoAddress      string
 	CalicoPrefixLength string

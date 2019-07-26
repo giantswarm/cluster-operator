@@ -3,6 +3,8 @@ package v11
 import (
 	"context"
 
+	"github.com/giantswarm/tenantcluster"
+
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
@@ -12,7 +14,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
-	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -41,6 +42,7 @@ type ResourceSetConfig struct {
 	G8sClient         versioned.Interface
 	K8sClient         kubernetes.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	CalicoAddress         string
 	CalicoPrefixLength    string
@@ -110,28 +112,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var tenantClusterService tenantcluster.Interface
-	{
-		c := tenantcluster.Config{
-			CertsSearcher: config.CertSearcher,
-			Logger:        config.Logger,
-
-			CertID: certs.ClusterOperatorAPICert,
-		}
-
-		tenantClusterService, err = tenantcluster.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var namespaceResource controller.Resource
 	{
 		c := namespace.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
-			Tenant:                   tenantClusterService,
+			Tenant:                   config.Tenant
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -159,7 +146,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
 			RegistryDomain:           config.RegistryDomain,
-			Tenant:                   tenantClusterService,
+			Tenant:                   config.Tenant
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -179,7 +166,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := configmapservice.Config{
 			Logger: config.Logger,
-			Tenant: tenantClusterService,
+			Tenant: config.Tenant
 
 			ProjectName: config.ProjectName,
 		}
@@ -218,7 +205,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := chartconfigservice.Config{
 			Logger: config.Logger,
-			Tenant: tenantClusterService,
+			Tenant: config.Tenant
 
 			ProjectName: config.ProjectName,
 		}
@@ -254,7 +241,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := tiller.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Logger:                   config.Logger,
-			Tenant:                   tenantClusterService,
+			Tenant:                   config.Tenant
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 		}
 
