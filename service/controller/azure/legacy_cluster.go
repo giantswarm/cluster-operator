@@ -38,6 +38,7 @@ type LegacyClusterConfig struct {
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	CalicoAddress      string
 	CalicoPrefixLength string
