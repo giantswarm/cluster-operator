@@ -163,8 +163,11 @@ func New(config Config) (*Service, error) {
 			CertsSearcher: certSearcher,
 			Logger:        config.Logger,
 
-			CertID:                       certs.ClusterOperatorAPICert,
-			EnsureTillerInstalledMaxWait: "30s",
+			CertID: certs.ClusterOperatorAPICert,
+			// This is used by the Tiller resource where we use a shorter max
+			// wait because the tenant cluster is unavailable. The retry
+			// resource is enabled so we retry once.
+			EnsureTillerInstalledMaxWait: 15 * time.Second,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
