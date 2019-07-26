@@ -123,7 +123,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
-			Tenant:                   config.Tenant
+			Tenant:                   config.Tenant,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -151,7 +151,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:                   config.Logger,
 			ProjectName:              config.ProjectName,
 			RegistryDomain:           config.RegistryDomain,
-			Tenant:                   config.Tenant
+			Tenant:                   config.Tenant,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -171,7 +171,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := configmapservice.Config{
 			Logger: config.Logger,
-			Tenant: config.Tenant
+			Tenant: config.Tenant,
 
 			ProjectName: config.ProjectName,
 		}
@@ -210,7 +210,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := chartconfigservice.Config{
 			Logger: config.Logger,
-			Tenant: config.Tenant
+			Tenant: config.Tenant,
 
 			ProjectName: config.ProjectName,
 		}
@@ -281,7 +281,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := tiller.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Logger:                   config.Logger,
-			Tenant:                   config.Tenant
+			Tenant:                   config.Tenant,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
