@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
@@ -38,6 +39,7 @@ type LegacyClusterConfig struct {
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	CalicoAddress      string
 	CalicoPrefixLength string
@@ -95,6 +97,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -119,6 +122,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -143,6 +147,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -167,6 +172,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -191,6 +197,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -216,6 +223,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -241,6 +249,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -291,6 +300,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -316,6 +326,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
