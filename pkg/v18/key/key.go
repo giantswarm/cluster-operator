@@ -126,15 +126,6 @@ func CommonChartSpecs() []ChartSpec {
 			UseUpgradeForce:   false,
 			UserConfigMapName: "nginx-ingress-controller-user-values",
 		},
-		{
-			AppName:         "node-exporter",
-			ChannelName:     "0-5-stable",
-			ChartName:       "kubernetes-node-exporter-chart",
-			ConfigMapName:   "node-exporter-values",
-			Namespace:       metav1.NamespaceSystem,
-			ReleaseName:     "node-exporter",
-			UseUpgradeForce: true,
-		},
 	}
 }
 

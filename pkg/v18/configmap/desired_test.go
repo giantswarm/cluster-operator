@@ -162,10 +162,6 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 			Name:      "nginx-ingress-controller-user-values",
 			Namespace: metav1.NamespaceSystem,
 		},
-		{
-			Name:      "node-exporter-values",
-			Namespace: metav1.NamespaceSystem,
-		},
 	}
 
 	testCases := []struct {
