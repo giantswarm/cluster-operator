@@ -22,11 +22,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Add toleration for all taints",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Update to 0.25.0. https://github.com/giantswarm/kubernetes-nginx-ingress-controller/blob/master/CHANGELOG.md",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.24.1",
+				Version: "0.25.0",
 			},
 			{
 				Name:    "external-dns",
