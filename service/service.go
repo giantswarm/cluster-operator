@@ -192,6 +192,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
+			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
@@ -223,6 +224,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
+			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
