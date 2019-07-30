@@ -167,7 +167,7 @@ func New(config Config) (*Service, error) {
 			// This is used by the Tiller resource where we use a shorter max
 			// wait because the tenant cluster may be unavailable. If so the
 			// reconciliation loop is cancelled and we retry in the next loop.
-			EnsureTillerInstalledMaxWait: 30 * time.Second,
+			EnsureTillerInstalledMaxWait: 45 * time.Second,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
