@@ -36,7 +36,7 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 
 	// Cluster namespace is created by the provider operator. If it doesn't
 	// exist yet we should retry in the next reconciliation loop.
-	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
+	ns, err := r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -44,6 +44,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 
 		return nil, nil
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("FOUND NAMESPACE %#v", ns))
 
 	name := key.ClusterConfigMapName(clusterConfig)
 
