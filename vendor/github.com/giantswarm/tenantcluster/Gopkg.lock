@@ -125,12 +125,12 @@
   revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
 
 [[projects]]
-  branch = "master"
-  digest = "1:5d33d7e00efe308d118d1170e56643aa0380599c2963b0eeb01a7d0521ec500a"
+  branch = "improve-error-handling"
+  digest = "1:ee8e11a7d873c953022ca7df41ccd451a292bb2b4ccdcca3520b61d33943b86a"
   name = "github.com/giantswarm/helmclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "2734fbbea648359692b6a6d3e8704026787cb053"
+  revision = "2ddd74a833f84a177bea5edf5b0a394175bd5686"
 
 [[projects]]
   branch = "master"

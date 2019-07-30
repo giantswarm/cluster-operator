@@ -332,15 +332,15 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:3fb268a79b9825f40e91f2a847054756e6dd32e471fc954abedfef1ef243d6b0"
+  branch = "improve-error-handling"
+  digest = "1:9f24a45a33b4f8f742b41a2ef0d898788d582dc85bbc6f0ba4da8671bcedc851"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "2734fbbea648359692b6a6d3e8704026787cb053"
+  revision = "2ddd74a833f84a177bea5edf5b0a394175bd5686"
 
 [[projects]]
   branch = "master"
@@ -449,12 +449,12 @@
   revision = "a2a6a2f14115f32c611ee0373bc4e637c3a6da63"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ddad90905ae8a4df576432b02d97a6048e4b4a9f9809fe2f4fac7875c6bd9058"
+  branch = "improve-error-handling"
+  digest = "1:a9c6c8d2034f4c9ab524a0ae1899d11aec7a16a18d630d568bebdbb8b51ab746"
   name = "github.com/giantswarm/tenantcluster"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8a2b8e43430a83f0841281ff519fddc5eac22903"
+  revision = "9e9fc5dfcdcdb90af1785e5e15aaaf7fafc34f7a"
 
 [[projects]]
   branch = "master"
