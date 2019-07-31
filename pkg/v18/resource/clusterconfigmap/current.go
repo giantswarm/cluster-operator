@@ -46,6 +46,7 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("FOUND NAMESPACE %#v", ns))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("FOUND NAMESPACE STATUS %#v", ns.Status)
 
 	name := key.ClusterConfigMapName(clusterConfig)
 
