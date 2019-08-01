@@ -143,34 +143,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartOperatorResource controller.Resource
-	{
-		c := chartoperator.Config{
-			ApprClient:               config.ApprClient,
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			ClusterIPRange:           config.ClusterIPRange,
-			Fs:                       config.Fs,
-			G8sClient:                config.G8sClient,
-			K8sClient:                config.K8sClient,
-			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
-			RegistryDomain:           config.RegistryDomain,
-			Tenant:                   config.Tenant,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
-			ToClusterObjectMetaFunc:  toClusterObjectMeta,
-		}
-
-		ops, err := chartoperator.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartOperatorResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var appResource controller.Resource
 	{
 		c := appservice.Config{
