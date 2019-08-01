@@ -25,7 +25,6 @@ import (
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v18/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v18/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v18/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v18/resource/chartoperator"
 	"github.com/giantswarm/cluster-operator/pkg/v18/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v18/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v18/resource/kubeconfig"
