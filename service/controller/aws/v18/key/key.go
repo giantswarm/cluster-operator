@@ -13,7 +13,7 @@ func AppSpecs() []key.AppSpec {
 	return []key.AppSpec{
 		{
 			App:       "chart-operator",
-			Catalog:   "giantswarm-test-catalog",
+			Catalog:   "giantswarm-test",
 			Chart:     "chart-operator",
 			Namespace: "giantswarm",
 			Version:   "0.9.0",
