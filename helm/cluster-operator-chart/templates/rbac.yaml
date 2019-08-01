@@ -68,6 +68,12 @@ rules:
       - kvmclusterconfigs
     verbs:
       - "*"
+  - apiGroups:
+      - application.giantswarm.io
+    resources:
+      - apps
+    verbs:
+      - "*"
   - nonResourceURLs:
       - "/"
       - "/healthz"
