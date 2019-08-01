@@ -6,6 +6,8 @@ const (
 	// App is a standard label for guest resources.
 	App = "app"
 
+	AppOperatorVersion = "app-operator.giantswarm.io/version"
+
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
 

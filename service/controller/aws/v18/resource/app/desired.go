@@ -29,12 +29,13 @@ func (s *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				Name:      spec.App,
 				Namespace: clusterID,
 				Labels: map[string]string{
-					label.ManagedBy:   s.projectName,
-					label.ServiceType: label.ServiceTypeManaged,
+					label.AppOperatorVersion: "1.0.0",
+					label.ManagedBy:          s.projectName,
+					label.ServiceType:        label.ServiceTypeManaged,
 				},
 			},
 			Spec: v1alpha1.AppSpec{
-				Catalog: spec.Chart,
+				Catalog: spec.Catalog,
 				KubeConfig: v1alpha1.AppSpecKubeConfig{
 					Context: v1alpha1.AppSpecKubeConfigContext{},
 					Secret: v1alpha1.AppSpecKubeConfigSecret{
