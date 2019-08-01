@@ -8,6 +8,19 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
+// AppSpecs returns apps installed only for AWS.
+func AppSpecs() []key.AppSpec {
+	return []key.AppSpec{
+		{
+			App:       "chart-operator",
+			Catalog:   "giantswarm-test-catalog",
+			Chart:     "chart-operator",
+			Namespace: "giantswarm",
+			Version:   "0.9.0",
+		},
+	}
+}
+
 // ChartSpecs returns charts installed only for AWS.
 func ChartSpecs() []key.ChartSpec {
 	// Add any provider specific charts here.
