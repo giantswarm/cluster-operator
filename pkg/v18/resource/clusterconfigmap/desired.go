@@ -20,6 +20,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	configMapName := key.ClusterConfigMapName(clusterConfig)
 
+	// Calculating DNS IP from the IP range so we other operators could use it w/o processing it.
 	clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
 	if err != nil {
 		return nil, microerror.Mask(err)
