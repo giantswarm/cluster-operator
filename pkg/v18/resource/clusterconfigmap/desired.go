@@ -20,9 +20,14 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	configMapName := key.ClusterConfigMapName(clusterConfig)
 
+	clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	values := map[string]string{
-		"baseDomain":     key.DNSZone(clusterConfig),
-		"clusterIPRange": r.clusterIPRange,
+		"baseDomain":   key.DNSZone(clusterConfig),
+		"clusterDNSIP": clusterDNSIP,
 	}
 
 	yamlValues, err := yaml.Marshal(values)

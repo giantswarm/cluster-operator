@@ -47,7 +47,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Data: map[string]string{
-					"values": "baseDomain: giantswarm.io\nclusterIPRange: 192.168.0.1/30\n",
+					"values": "baseDomain: giantswarm.io\nclusterDNSIP: 172.31.0.10\n",
 				},
 			},
 		},
@@ -61,7 +61,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				K8sClient:                k8sfake.NewSimpleClientset(),
 				Logger:                   microloggertest.New(),
 
-				ClusterIPRange: "192.168.0.1/30",
+				ClusterIPRange: "172.31.0.0/16",
 				ProjectName:    "cluster-operator",
 			}
 			r, err := New(c)
