@@ -21,7 +21,8 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	configMapName := key.ClusterConfigMapName(clusterConfig)
 
 	values := map[string]string{
-		"baseDomain": key.DNSZone(clusterConfig),
+		"baseDomain":     key.DNSZone(clusterConfig),
+		"clusterIPRange": r.clusterIPRange,
 	}
 
 	yamlValues, err := yaml.Marshal(values)
