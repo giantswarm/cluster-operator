@@ -251,7 +251,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 
-			ProjectName: config.ProjectName,
+			ClusterIPRange: config.ClusterIPRange,
+			ProjectName:    config.ProjectName,
 		}
 
 		stateGetter, err := clusterconfigmap.New(c)

@@ -25,7 +25,8 @@ type Config struct {
 	Logger                   micrologger.Logger
 
 	// Settings.
-	ProjectName string
+	ClusterIPRange string
+	ProjectName    string
 }
 
 // Resource implements the clusterConfigMap resource.
@@ -37,7 +38,8 @@ type StateGetter struct {
 	logger                   micrologger.Logger
 
 	// Settings.
-	projectName string
+	clusterIPRange string
+	projectName    string
 }
 
 // New creates a new configured clusterConfigMap resource.
@@ -57,6 +59,9 @@ func New(config Config) (*StateGetter, error) {
 	}
 
 	// Settings
+	if config.ClusterIPRange == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
+	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
@@ -69,7 +74,8 @@ func New(config Config) (*StateGetter, error) {
 		logger:                   config.Logger,
 
 		// Settings
-		projectName: config.ProjectName,
+		clusterIPRange: config.ClusterIPRange,
+		projectName:    config.ProjectName,
 	}
 
 	return r, nil
