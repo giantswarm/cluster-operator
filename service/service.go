@@ -167,7 +167,7 @@ func New(config Config) (*Service, error) {
 			// TODO: Reduce the max wait to reduce delay when processing
 			// broken tenant clusters.
 			//
-			// See https://github.com/giantswarm/giantswarm/issues/6703.
+			//     https://github.com/giantswarm/giantswarm/issues/6703
 			//
 			// EnsureTillerInstalledMaxWait: 2 * time.Minute,
 		}
