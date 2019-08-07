@@ -164,10 +164,12 @@ func New(config Config) (*Service, error) {
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
-			// This is used by the Tiller resource where we use a shorter max
-			// wait because the tenant cluster may be unavailable. If so the
-			// reconciliation loop is cancelled and we retry in the next loop.
-			EnsureTillerInstalledMaxWait: 45 * time.Second,
+			// TODO: Reduce the max wait to reduce delay when processing
+			// broken tenant clusters.
+			//
+			// See https://github.com/giantswarm/giantswarm/issues/6703.
+			//
+			// EnsureTillerInstalledMaxWait: 2 * time.Minute,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
