@@ -46,7 +46,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			resourcecanceledcontext.SetCanceled(ctx)
 
 			return nil, nil
-		} else if helmclient.IsTillerInstallationFailed(err) {
+		} else if helmclient.IsTillerNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
 
 			// Tiller installation can fail during guest cluster setup. We will retry

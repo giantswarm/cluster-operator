@@ -164,6 +164,12 @@ func New(config Config) (*Service, error) {
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
+			// TODO: Reduce the max wait to reduce delay when processing
+			// broken tenant clusters.
+			//
+			//     https://github.com/giantswarm/giantswarm/issues/6703
+			//
+			// EnsureTillerInstalledMaxWait: 2 * time.Minute,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
