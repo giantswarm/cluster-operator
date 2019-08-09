@@ -18,7 +18,6 @@ const (
 type Config struct {
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
-	ProjectName              string
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	ToClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
@@ -27,7 +26,6 @@ type Config struct {
 type Resource struct {
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
-	projectName              string
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	toClusterObjectMetaFunc  func(obj interface{}) (apismetav1.ObjectMeta, error)
 }
@@ -40,9 +38,6 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
 	}
@@ -53,7 +48,6 @@ func New(config Config) (*Resource, error) {
 	newService := &Resource{
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
-		projectName:              config.ProjectName,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
 	}

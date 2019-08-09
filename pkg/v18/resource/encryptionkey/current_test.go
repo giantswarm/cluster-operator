@@ -85,9 +85,8 @@ func Test_GetCurrentState_Reads_Secrets_For_Relevant_ClusterID(t *testing.T) {
 			client.ReactionChain = append(tc.apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				K8sClient:   client,
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				K8sClient: client,
+				Logger:    logger,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

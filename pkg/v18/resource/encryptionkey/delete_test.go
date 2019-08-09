@@ -101,9 +101,8 @@ func Test_ApplyDeleteChange(t *testing.T) {
 			client.ReactionChain = append(apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				K8sClient:   client,
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				K8sClient: client,
+				Logger:    logger,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

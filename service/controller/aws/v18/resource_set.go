@@ -102,7 +102,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := encryptionkey.Config{
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
