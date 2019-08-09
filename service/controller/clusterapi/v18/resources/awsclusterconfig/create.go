@@ -30,7 +30,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if key.ClusterID(&cr) == "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q misses the cluster id label", cr.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q misses cluster id in labels", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		}
