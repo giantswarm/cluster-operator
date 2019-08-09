@@ -119,7 +119,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := namespace.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
 			Tenant:                   config.Tenant,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
