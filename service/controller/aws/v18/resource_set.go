@@ -374,12 +374,16 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		awsClusterConfig, err := key.ToCustomObject(obj)
+		cr, err := key.ToCustomObject(obj)
 		if err != nil {
 			return false
 		}
 
-		if key.VersionBundleVersion(awsClusterConfig) == VersionBundle().Version {
+		if key.OperatorVersion(&cr) == VersionBundle().Version {
+			return true
+		}
+
+		if key.VersionBundleVersion(cr) == VersionBundle().Version {
 			return true
 		}
 
