@@ -86,6 +86,9 @@ func newAWSClusterConfigFromCluster(cr clusterv1alpha1.Cluster) *corev1alpha1.AW
 					Namespace: key.ClusterCredentialSecretNamespace(cr),
 				},
 			},
+			VersionBundle: corev1alpha1.AWSClusterConfigSpecVersionBundle{
+				Version: key.OperatorVersion(&cr),
+			},
 		},
 	}
 }
