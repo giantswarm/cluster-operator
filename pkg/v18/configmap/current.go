@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 )
 
 func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*corev1.ConfigMap, error) {
@@ -30,7 +31,7 @@ func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConf
 	}
 
 	listOptions := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s, %s=%s", label.ServiceType, label.ServiceTypeManaged, label.ManagedBy, s.projectName),
+		LabelSelector: fmt.Sprintf("%s=%s, %s=%s", label.ServiceType, label.ServiceTypeManaged, label.ManagedBy, project.Name()),
 	}
 
 	for namespace := range namespaces {

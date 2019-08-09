@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
@@ -42,7 +43,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			Namespace: clusterConfig.ID,
 			Labels: map[string]string{
 				label.Cluster:      clusterConfig.ID,
-				label.ManagedBy:    r.projectName,
+				label.ManagedBy:    project.Name(),
 				label.Organization: clusterConfig.Owner,
 				label.ServiceType:  label.ServiceTypeManaged,
 			},

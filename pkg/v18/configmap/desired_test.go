@@ -13,6 +13,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
@@ -257,8 +258,6 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Tenant: &tenantMock{
 					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
-
-				ProjectName: "cluster-operator",
 			}
 			newService, err := New(c)
 			if err != nil {
@@ -385,7 +384,6 @@ func Test_ConfigMap_newConfigMapLabels(t *testing.T) {
 		name            string
 		configMapSpec   ConfigMapSpec
 		configMapValues ConfigMapValues
-		projectName     string
 		expectedLabels  map[string]string
 	}{
 		{
@@ -398,7 +396,6 @@ func Test_ConfigMap_newConfigMapLabels(t *testing.T) {
 				ClusterID:    "5xchu",
 				Organization: "giantswarm",
 			},
-			projectName: "cluster-operator",
 			expectedLabels: map[string]string{
 				label.App:           "test-app",
 				label.Cluster:       "5xchu",
@@ -418,7 +415,6 @@ func Test_ConfigMap_newConfigMapLabels(t *testing.T) {
 				ClusterID:    "5xchu",
 				Organization: "giantswarm",
 			},
-			projectName: "cluster-operator",
 			expectedLabels: map[string]string{
 				label.App:           "test-app",
 				label.Cluster:       "5xchu",
@@ -432,7 +428,7 @@ func Test_ConfigMap_newConfigMapLabels(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			labels := newConfigMapLabels(tc.configMapSpec, tc.configMapValues, tc.projectName)
+			labels := newConfigMapLabels(tc.configMapSpec, tc.configMapValues, project.Name())
 
 			if !reflect.DeepEqual(labels, tc.expectedLabels) {
 				t.Fatalf("expected labels %#v got %#v", tc.expectedLabels, labels)

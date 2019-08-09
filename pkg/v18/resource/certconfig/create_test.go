@@ -52,7 +52,6 @@ func Test_ApplyCreateChange_Creates_createChange(t *testing.T) {
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
-		ProjectName:       "cluster-operator",
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
@@ -104,7 +103,6 @@ func Test_ApplyCreateChange_Does_Not_Make_API_Call_With_Empty_CreateChange(t *te
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
-		ProjectName:       "cluster-operator",
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
@@ -150,7 +148,6 @@ func Test_ApplyCreateChange_Handles_K8S_API_Error(t *testing.T) {
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
-		ProjectName:       "cluster-operator",
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
@@ -284,7 +281,6 @@ func Test_newCreateChange(t *testing.T) {
 				G8sClient:         fake.NewSimpleClientset(),
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
-				ProjectName:       "cluster-operator",
 				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil

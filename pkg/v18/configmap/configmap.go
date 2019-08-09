@@ -15,16 +15,12 @@ import (
 type Config struct {
 	Logger micrologger.Logger
 	Tenant tenantcluster.Interface
-
-	ProjectName string
 }
 
 // Service provides shared functionality for managing configmaps.
 type Service struct {
 	logger micrologger.Logger
 	tenant tenantcluster.Interface
-
-	projectName string
 }
 
 // New creates a new configmap service.
@@ -36,15 +32,9 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
 
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
-
 	s := &Service{
 		logger: config.Logger,
 		tenant: config.Tenant,
-
-		projectName: config.ProjectName,
 	}
 
 	return s, nil
