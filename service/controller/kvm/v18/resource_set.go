@@ -209,8 +209,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := chartconfigservice.Config{
 			Logger: config.Logger,
 			Tenant: config.Tenant,
-
-			ProjectName: config.ProjectName,
 		}
 
 		chartConfigService, err = chartconfigservice.New(c)

@@ -189,8 +189,6 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				Tenant: &tenantMock{
 					fakeTenantG8sClient: fakeTenantG8sClient,
 				},
-
-				ProjectName: "cluster-operator",
 			}
 			cc, err := New(c)
 			if err != nil {
