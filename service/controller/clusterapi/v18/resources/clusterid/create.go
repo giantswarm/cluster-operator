@@ -22,7 +22,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 
-		cl, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Get(old.Name, metav1.GetOptions{})
+		cl, err := r.cmaClient.ClusterV1alpha1().Clusters(old.Namespace).Get(old.Name, metav1.GetOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}
