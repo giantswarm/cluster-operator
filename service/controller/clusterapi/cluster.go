@@ -15,7 +15,6 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v17 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v17"
 	v18 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18"
 )
 
@@ -70,23 +69,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	var resourceSetV17 *controller.ResourceSet
-	{
-		c := v17.ClusterResourceSetConfig{
-			BaseClusterConfig: config.BaseClusterConfig,
-			ClusterClient:     config.ClusterClient,
-			CMAClient:         config.CMAClient,
-			G8sClient:         config.G8sClient,
-			Logger:            config.Logger,
-			Tenant:            config.Tenant,
-		}
-
-		resourceSetV17, err = v17.NewClusterResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var resourceSetV18 *controller.ResourceSet
 	{
 		c := v18.ClusterResourceSetConfig{
@@ -112,7 +94,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV17,
 				resourceSetV18,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
