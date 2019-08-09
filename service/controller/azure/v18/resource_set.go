@@ -277,8 +277,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
-
-			ProjectName: config.ProjectName,
 		}
 
 		stateGetter, err := kubeconfig.New(c)
