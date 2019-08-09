@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	corev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/clusterclient/service/release/searcher"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/versionbundle"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
@@ -48,7 +50,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating aws cluster config for cluster %#q", cr.Name))
 
-		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cr.Namespace).Create(newAWSClusterConfigFromCluster(cr))
+		awsClusterConfig, err := r.newAWSClusterConfigFromCluster(ctx, cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		_, err = r.g8sClient.CoreV1alpha1().AWSClusterConfigs(cr.Namespace).Create(awsClusterConfig)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -59,8 +66,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func newAWSClusterConfigFromCluster(cr clusterv1alpha1.Cluster) *corev1alpha1.AWSClusterConfig {
-	return &corev1alpha1.AWSClusterConfig{
+func (r *Resource) newAWSClusterConfigFromCluster(ctx context.Context, cr clusterv1alpha1.Cluster) (*corev1alpha1.AWSClusterConfig, error) {
+	var versionBundles []versionbundle.Bundle
+	{
+		req := searcher.Request{
+			ReleaseVersion: key.ReleaseVersion(&cr),
+		}
+
+		res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		versionBundles = res.VersionBundles
+	}
+
+	awsClusterConfig := &corev1alpha1.AWSClusterConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "AWSClusterConfig",
 			APIVersion: "v1alpha1",
@@ -77,13 +98,14 @@ func newAWSClusterConfigFromCluster(cr clusterv1alpha1.Cluster) *corev1alpha1.AW
 		},
 		Spec: corev1alpha1.AWSClusterConfigSpec{
 			Guest: corev1alpha1.AWSClusterConfigSpecGuest{
-				ClusterGuestConfig: corev1alpha1.ClusterGuestConfig{
-					DNSZone: key.ClusterDNSZone(cr),
-					ID:      key.ClusterID(&cr),
-				},
 				CredentialSecret: corev1alpha1.AWSClusterConfigSpecGuestCredentialSecret{
 					Name:      key.ClusterCredentialSecretName(cr),
 					Namespace: key.ClusterCredentialSecretNamespace(cr),
+				},
+				ClusterGuestConfig: corev1alpha1.ClusterGuestConfig{
+					DNSZone:        key.ClusterDNSZone(cr),
+					ID:             key.ClusterID(&cr),
+					VersionBundles: transformVersionBundles(versionBundles),
 				},
 			},
 			VersionBundle: corev1alpha1.AWSClusterConfigSpecVersionBundle{
@@ -91,4 +113,21 @@ func newAWSClusterConfigFromCluster(cr clusterv1alpha1.Cluster) *corev1alpha1.AW
 			},
 		},
 	}
+
+	return awsClusterConfig, nil
+}
+
+func transformVersionBundles(versionBundles []versionbundle.Bundle) []corev1alpha1.ClusterGuestConfigVersionBundle {
+	var list []corev1alpha1.ClusterGuestConfigVersionBundle
+
+	for _, b := range versionBundles {
+		bundle := corev1alpha1.ClusterGuestConfigVersionBundle{
+			Name:    b.Name,
+			Version: b.Version,
+		}
+
+		list = append(list, bundle)
+	}
+
+	return list
 }

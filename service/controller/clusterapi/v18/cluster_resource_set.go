@@ -71,8 +71,9 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var awsclusterconfigResource controller.Resource
 	{
 		c := awsclusterconfig.Config{
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
+			ClusterClient: config.ClusterClient,
+			G8sClient:     config.G8sClient,
+			Logger:        config.Logger,
 		}
 
 		awsclusterconfigResource, err = awsclusterconfig.New(c)
