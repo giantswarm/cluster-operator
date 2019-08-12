@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
@@ -20,7 +21,7 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
 
 	for _, spec := range configMapSpecs {
-		spec.Labels = newConfigMapLabels(spec, configMapValues, s.projectName)
+		spec.Labels = newConfigMapLabels(spec, configMapValues, project.Name())
 
 		// Values are only set for app configmaps.
 		if spec.Type == label.ConfigMapTypeApp {

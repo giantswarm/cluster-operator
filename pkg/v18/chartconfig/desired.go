@@ -12,6 +12,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
@@ -57,7 +58,7 @@ func (c *ChartConfig) newChartConfig(ctx context.Context, clusterConfig ClusterC
 		annotation.ForceHelmUpgrade: strconv.FormatBool(chartSpec.UseUpgradeForce),
 	}
 
-	labels := newChartConfigLabels(clusterConfig, chartSpec.AppName, c.projectName)
+	labels := newChartConfigLabels(clusterConfig, chartSpec.AppName, project.Name())
 
 	chartConfigCR := &v1alpha1.ChartConfig{
 		TypeMeta: metav1.TypeMeta{

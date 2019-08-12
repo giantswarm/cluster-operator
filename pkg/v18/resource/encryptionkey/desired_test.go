@@ -26,9 +26,8 @@ func Test_GetDesiredState_Secret_Properties(t *testing.T) {
 	}
 
 	r, err := New(Config{
-		K8sClient:   fake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		K8sClient: fake.NewSimpleClientset(),
+		Logger:    logger,
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},
@@ -95,9 +94,8 @@ func Test_GetDesiredState_Rand_Error_Handling(t *testing.T) {
 	}
 
 	r, err := New(Config{
-		K8sClient:   fake.NewSimpleClientset(),
-		Logger:      logger,
-		ProjectName: "cluster-operator",
+		K8sClient: fake.NewSimpleClientset(),
+		Logger:    logger,
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
 		},

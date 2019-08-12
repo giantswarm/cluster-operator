@@ -1,8 +1,6 @@
 package kubeconfig
 
 import (
-	"time"
-
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
@@ -25,10 +23,6 @@ type Config struct {
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
-
-	// Settings.
-	CertsWatchTimeout time.Duration
-	ProjectName       string
 }
 
 // StateGetter implements the kubeconfig resource.
@@ -39,9 +33,6 @@ type StateGetter struct {
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
-
-	// Settings.
-	projectName string
 }
 
 // New creates a new configured index resource.
@@ -63,11 +54,6 @@ func New(config Config) (*StateGetter, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	// Settings
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName not be empty", config)
-	}
-
 	r := &StateGetter{
 		// Dependencies.
 		certsSearcher:            config.CertSearcher,
@@ -75,9 +61,6 @@ func New(config Config) (*StateGetter, error) {
 		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
-
-		// Settings
-		projectName: config.ProjectName,
 	}
 
 	return r, nil

@@ -62,7 +62,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Logger:                   microloggertest.New(),
 
 				ClusterIPRange: "172.31.0.0/16",
-				ProjectName:    "cluster-operator",
 			}
 			r, err := New(c)
 			if err != nil {

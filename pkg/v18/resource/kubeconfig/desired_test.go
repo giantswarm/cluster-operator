@@ -124,7 +124,6 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				GetClusterObjectMetaFunc: getClusterObjectMetaFunc,
 				K8sClient:                clientgofake.NewSimpleClientset(),
 				Logger:                   microloggertest.New(),
-				ProjectName:              "cluster-operator",
 			}
 
 			r, err := New(c)

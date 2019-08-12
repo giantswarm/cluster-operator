@@ -81,7 +81,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			G8sClient:                config.G8sClient,
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
 			Provider:                 label.ProviderAWS,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
@@ -103,7 +102,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := encryptionkey.Config{
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
 		}
@@ -124,7 +122,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := namespace.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
 			Logger:                   config.Logger,
-			ProjectName:              config.ProjectName,
 			Tenant:                   config.Tenant,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
@@ -174,8 +171,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := configmapservice.Config{
 			Logger: config.Logger,
 			Tenant: config.Tenant,
-
-			ProjectName: config.ProjectName,
 		}
 
 		configMapService, err = configmapservice.New(c)
@@ -213,8 +208,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := chartconfigservice.Config{
 			Logger: config.Logger,
 			Tenant: config.Tenant,
-
-			ProjectName: config.ProjectName,
 		}
 
 		chartConfigService, err = chartconfigservice.New(c)
@@ -252,7 +245,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:                   config.Logger,
 
 			ClusterIPRange: config.ClusterIPRange,
-			ProjectName:    config.ProjectName,
 		}
 
 		stateGetter, err := clusterconfigmap.New(c)
@@ -287,8 +279,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
-
-			ProjectName: config.ProjectName,
 		}
 
 		stateGetter, err := kubeconfig.New(c)

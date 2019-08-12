@@ -52,7 +52,6 @@ func Test_ApplyDeleteChange_Deletes_deleteChange(t *testing.T) {
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
-		ProjectName:       "cluster-operator",
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
@@ -104,7 +103,6 @@ func Test_ApplyDeleteChange_Does_Not_Make_API_Call_With_Empty_deleteChange(t *te
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
-		ProjectName:       "cluster-operator",
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
@@ -150,7 +148,6 @@ func Test_ApplyDeleteChange_Handles_K8S_API_Error(t *testing.T) {
 		G8sClient:         client,
 		K8sClient:         clientgofake.NewSimpleClientset(),
 		Logger:            logger,
-		ProjectName:       "cluster-operator",
 		Provider:          "kvm",
 		ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 			return v.(v1alpha1.ClusterGuestConfig), nil
@@ -264,7 +261,6 @@ func Test_newDeleteChangeForDeletePatch_Deletes_Existing_CertConfigs(t *testing.
 				G8sClient:         fake.NewSimpleClientset(),
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
-				ProjectName:       "cluster-operator",
 				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
@@ -439,7 +435,6 @@ func Test_newDeleteChangeForUpdatePatch_Deletes_Existing_CertConfigs_That_Are_No
 				G8sClient:         fake.NewSimpleClientset(),
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            logger,
-				ProjectName:       "cluster-operator",
 				Provider:          "kvm",
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil

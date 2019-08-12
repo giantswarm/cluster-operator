@@ -106,7 +106,6 @@ func Test_GetDesiredState_Returns_CertConfig_For_All_Managed_Certs(t *testing.T)
 				G8sClient:         fake.NewSimpleClientset(),
 				K8sClient:         clientgofake.NewSimpleClientset(),
 				Logger:            microloggertest.New(),
-				ProjectName:       "cluster-operator",
 				Provider:          tc.provider,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil

@@ -157,8 +157,6 @@ func Test_ConfigMap_newCreateChange(t *testing.T) {
 	c := Config{
 		Logger: microloggertest.New(),
 		Tenant: &tenantMock{},
-
-		ProjectName: "cluster-operator",
 	}
 	newService, err := New(c)
 	if err != nil {

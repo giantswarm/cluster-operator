@@ -10,6 +10,7 @@ import (
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
@@ -48,7 +49,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 				label.Cluster:          key.ClusterID(clusterGuestConfig),
 				label.LegacyClusterID:  key.ClusterID(clusterGuestConfig),
 				label.LegacyClusterKey: label.RandomKeyTypeEncryption,
-				label.ManagedBy:        r.projectName,
+				label.ManagedBy:        project.Name(),
 				label.RandomKey:        label.RandomKeyTypeEncryption,
 			},
 		},

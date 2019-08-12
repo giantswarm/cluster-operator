@@ -24,16 +24,12 @@ const (
 type Config struct {
 	Logger micrologger.Logger
 	Tenant tenantcluster.Interface
-
-	ProjectName string
 }
 
 // ChartConfig provides shared functionality for managing chartconfigs.
 type ChartConfig struct {
 	logger micrologger.Logger
 	tenant tenantcluster.Interface
-
-	projectName string
 }
 
 // New creates a new chartconfig service.
@@ -45,15 +41,9 @@ func New(config Config) (*ChartConfig, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
 	}
 
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
-	}
-
 	s := &ChartConfig{
 		logger: config.Logger,
 		tenant: config.Tenant,
-
-		projectName: config.ProjectName,
 	}
 
 	return s, nil

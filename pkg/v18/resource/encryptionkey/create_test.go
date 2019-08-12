@@ -85,9 +85,8 @@ func Test_ApplyCreateChange(t *testing.T) {
 			client.ReactionChain = append(apiReactors, client.ReactionChain...)
 
 			r, err := New(Config{
-				K8sClient:   client,
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				K8sClient: client,
+				Logger:    logger,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},
@@ -165,9 +164,8 @@ func Test_newCreateChange(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			r, err := New(Config{
-				K8sClient:   fake.NewSimpleClientset(),
-				Logger:      logger,
-				ProjectName: "cluster-operator",
+				K8sClient: fake.NewSimpleClientset(),
+				Logger:    logger,
 				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
 					return v.(v1alpha1.ClusterGuestConfig), nil
 				},

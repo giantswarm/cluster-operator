@@ -412,8 +412,6 @@ func Test_ConfigMap_GetCurrentState(t *testing.T) {
 			c := Config{
 				Logger: microloggertest.New(),
 				Tenant: tenantService,
-
-				ProjectName: "cluster-operator",
 			}
 			newService, err := New(c)
 			if err != nil {

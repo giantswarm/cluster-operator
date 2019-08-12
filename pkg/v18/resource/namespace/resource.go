@@ -27,7 +27,6 @@ const (
 type Config struct {
 	BaseClusterConfig        cluster.Config
 	Logger                   micrologger.Logger
-	ProjectName              string
 	Tenant                   tenantcluster.Interface
 	ToClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	ToClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
@@ -37,7 +36,6 @@ type Config struct {
 type Resource struct {
 	baseClusterConfig        cluster.Config
 	logger                   micrologger.Logger
-	projectName              string
 	tenant                   tenantcluster.Interface
 	toClusterGuestConfigFunc func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	toClusterObjectMetaFunc  func(obj interface{}) (metav1.ObjectMeta, error)
@@ -50,9 +48,6 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-	if config.ProjectName == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ProjectName must not be empty", config)
 	}
 	if config.ToClusterGuestConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterGuestConfigFunc must not be empty", config)
@@ -71,9 +66,6 @@ func New(config Config) (*Resource, error) {
 		tenant:                   config.Tenant,
 		toClusterGuestConfigFunc: config.ToClusterGuestConfigFunc,
 		toClusterObjectMetaFunc:  config.ToClusterObjectMetaFunc,
-
-		// Settings
-		projectName: config.ProjectName,
 	}
 
 	return r, nil

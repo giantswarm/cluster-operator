@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -32,7 +33,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			Name: namespaceName,
 			Labels: map[string]string{
 				label.Cluster:      clusterConfig.ClusterID,
-				label.ManagedBy:    r.projectName,
+				label.ManagedBy:    project.Name(),
 				label.Organization: clusterConfig.Organization,
 			},
 		},

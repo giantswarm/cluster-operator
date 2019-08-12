@@ -103,8 +103,6 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				Tenant: &tenantMock{
 					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
-
-				ProjectName: "cluster-operator",
 			}
 			cc, err := New(c)
 			if err != nil {
@@ -260,8 +258,6 @@ func Test_ChartConfig_newChartConfig(t *testing.T) {
 				Tenant: &tenantMock{
 					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
-
-				ProjectName: "cluster-operator",
 			}
 			cc, err := New(c)
 			if err != nil {
@@ -433,8 +429,6 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 				Tenant: &tenantMock{
 					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
-
-				ProjectName: "cluster-operator",
 			}
 			cc, err := New(c)
 			if err != nil {
