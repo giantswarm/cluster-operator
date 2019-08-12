@@ -101,7 +101,25 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		clusterIDResource,
 		tenantClientsResource,
 		clusterstatusResource,
+
+		// TODO drop this once the resources below are all actiavted.
 		awsclusterconfigResource,
+
+		// Put encryptionKeyResource first because it executes faster than
+		// certConfigResource and could introduce dependency during cluster
+		// creation.
+		//encryptionKeyResource,
+		//certConfigResource,
+		//clusterConfigMapResource,
+		//kubeConfigResource,
+
+		// Following resources manage resources in tenant clusters so they
+		// should be executed last.
+		//namespaceResource,
+		//tillerResource,
+		//chartOperatorResource,
+		//configMapResource,
+		//chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
