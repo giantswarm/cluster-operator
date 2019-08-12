@@ -2,37 +2,41 @@ package encryptionkey
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
+
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
-// ApplyCreateChange takes observed custom object and create portion of the
-// Patch provided by NewUpdatePatch or NewDeletePatch. It creates k8s secret
-// for encryption key if needed.
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 	secret, err := toSecret(createChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret")
-
 	if secret != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating secret %#q", key.EncryptionKeySecretName(cr)))
+
 		_, err = r.k8sClient.Core().Secrets(secret.Namespace).Create(secret)
 		if err != nil {
-			err = microerror.Mask(err)
+			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret: created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created secret %#q", key.EncryptionKeySecretName(cr)))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating encryptionkey secret: already created")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not create secret %#q", key.EncryptionKeySecretName(cr)))
 	}
 
-	return err
+	return nil
 }
 
-func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desiredState interface{}) (*v1.Secret, error) {
+func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desiredState interface{}) (*corev1.Secret, error) {
 	currentSecret, err := toSecret(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -42,14 +46,10 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if the secret has to be created")
-
-	var secretToCreate *v1.Secret
+	var secretToCreate *corev1.Secret
 	if currentSecret == nil {
 		secretToCreate = desiredSecret
 	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "found out if the secret has to be created")
 
 	return secretToCreate, nil
 }

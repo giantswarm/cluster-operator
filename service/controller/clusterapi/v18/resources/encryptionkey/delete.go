@@ -2,54 +2,58 @@ package encryptionkey
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
-// ApplyDeleteChange takes observed custom object and delete portion of the
-// Patch provided by NewUpdatePatch and NewDeletePatch. It deletes k8s secret
-// for related encryption key if needed.
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
-	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
-
 	secret, err := toSecret(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret")
-
 	if secret != nil {
-		err = r.k8sClient.Core().Secrets(objectMeta.Namespace).Delete(secret.Name, &metav1.DeleteOptions{})
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting secret %#q", key.EncryptionKeySecretName(cr)))
+
+		err = r.k8sClient.Core().Secrets(secret.Namespace).Delete(secret.Name, &metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
-			// It's ok if secret doesn't exist anymore. It would have been
-			// deleted anyway. Rational reason for this is during migration
-			// period from kubernetesd to cluster-operator when there's a race
-			// between these on which one is first to delete pending resource.
-			err = nil
+			// fall through
 		} else if err != nil {
-			err = microerror.Mask(err)
+			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret: deleted")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted secret %#q", key.EncryptionKeySecretName(cr)))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret: already deleted")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not delete secret %#q", key.EncryptionKeySecretName(cr)))
 	}
 
-	return err
+	return nil
 }
 
-// NewDeletePatch is called upon observed custom object deletion. It receives
-// the deleted custom object, the current state as provided by GetCurrentState
-// and the desired state as provided by GetDesiredState. NewDeletePatch
-// analyses the current and desired state and returns the patch to be applied by
-// Create, Delete, and Update functions.
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	return nil, nil
+	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch := controller.NewPatch()
+	patch.SetDeleteChange(delete)
+
+	return patch, nil
+}
+
+func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (interface{}, error) {
+	// Upon deletion we only remove what we found in the system. That should
+	// cleanup the resource we manage properly.
+	return currentState, nil
 }

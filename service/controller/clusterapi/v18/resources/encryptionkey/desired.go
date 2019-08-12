@@ -4,67 +4,62 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v18/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 const (
-	// AESCBCKeyLength represent the 32bytes length for AES-CBC with PKCS#7
+	// AESCBCKeyLength represents the 32 bytes length for AES-CBC with PKCS#7
 	// padding encryption key.
 	AESCBCKeyLength = 32
 )
 
-// GetDesiredState takes observed (during create, delete and update events)
-// custom object as an input and returns computed desired state for it.
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	objectMeta, err := r.toClusterObjectMetaFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	var secret *corev1.Secret
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computing secret %#q", key.EncryptionKeySecretName(cr)))
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "computing desired encryption key secret")
-	secretName := key.EncryptionKeySecretName(clusterGuestConfig)
+		keyBytes, err := newRandomKey(AESCBCKeyLength)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
-	keyBytes, err := newRandomKey(AESCBCKeyLength)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	secret := &v1.Secret{
-		ObjectMeta: apismetav1.ObjectMeta{
-			Name:      secretName,
-			Namespace: objectMeta.Namespace,
-			Labels: map[string]string{
-				label.Cluster:          key.ClusterID(clusterGuestConfig),
-				label.LegacyClusterID:  key.ClusterID(clusterGuestConfig),
-				label.LegacyClusterKey: label.RandomKeyTypeEncryption,
-				label.ManagedBy:        project.Name(),
-				label.RandomKey:        label.RandomKeyTypeEncryption,
+		secret = &corev1.Secret{
+			ObjectMeta: apismetav1.ObjectMeta{
+				Name:      key.EncryptionKeySecretName(cr),
+				Namespace: cr.Namespace,
+				Labels: map[string]string{
+					label.Cluster:   key.ClusterID(&cr),
+					label.ManagedBy: project.Name(),
+					label.RandomKey: label.RandomKeyTypeEncryption,
+				},
 			},
-		},
-		StringData: map[string]string{
-			label.RandomKeyTypeEncryption: keyBytes,
-		},
-	}
+			StringData: map[string]string{
+				label.RandomKeyTypeEncryption: keyBytes,
+			},
+		}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "computed desired encryption key secret")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computed secret %#q", key.EncryptionKeySecretName(cr)))
+	}
 
 	return secret, nil
 }
 
 func newRandomKey(length int) (string, error) {
 	key := make([]byte, length)
+
 	_, err := rand.Read(key)
 	if err != nil {
 		return "", microerror.Mask(err)
