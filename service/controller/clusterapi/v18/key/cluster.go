@@ -57,12 +57,6 @@ func ClusterName(cluster v1alpha1.Cluster) string {
 	return clusterProviderSpec(cluster).ClusterName
 }
 
-// EncryptionKeySecretName generates name for a Kubernetes secret based on
-// information in given v1alpha1.ClusterGuestConfig.
-func EncryptionKeySecretName(cr v1alpha1.Cluster) string {
-	return fmt.Sprintf("%s-%s", ClusterID(&cr), "encryption")
-}
-
 func IsProviderSpecForAWS(cluster v1alpha1.Cluster) bool {
 	_, err := g8sClusterSpecFromCMAClusterSpec(cluster.Spec.ProviderSpec)
 	return err == nil

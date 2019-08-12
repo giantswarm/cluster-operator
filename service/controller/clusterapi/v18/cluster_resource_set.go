@@ -53,7 +53,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var clusterstatusResource controller.Resource
+	var clusterStatusResource controller.Resource
 	{
 		c := clusterstatus.Config{
 			Accessor:  &key.AWSClusterStatusAccessor{},
@@ -62,11 +62,45 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 			Logger:    config.Logger,
 		}
 
-		clusterstatusResource, err = clusterstatus.New(c)
+		clusterStatusResource, err = clusterstatus.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
+
+	//var encryptionKeyGetter secretresource.StateGetter
+	//{
+	//	c := encryptionkey.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//	}
+	//
+	//	encryptionKeyGetter, err = encryptionkey.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+	//
+	//var encryptionKeyResource controller.Resource
+	//{
+	//	c := secretresource.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//
+	//		Name:        encryptionkey.Name,
+	//		StateGetter: encryptionKeyGetter,
+	//	}
+	//
+	//	ops, err := secretresource.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
 
 	var awsclusterconfigResource controller.Resource
 	{
@@ -100,7 +134,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	resources := []controller.Resource{
 		clusterIDResource,
 		tenantClientsResource,
-		clusterstatusResource,
+		clusterStatusResource,
 
 		// TODO drop this once the resources below are all actiavted.
 		awsclusterconfigResource,
@@ -176,4 +210,18 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	}
 
 	return resourceSet, nil
+}
+
+func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
+	c := controller.CRUDResourceConfig{
+		Logger: logger,
+		Ops:    ops,
+	}
+
+	r, err := controller.NewCRUDResource(c)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return r, nil
 }

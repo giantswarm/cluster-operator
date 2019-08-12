@@ -3,7 +3,6 @@ package encryptionkey
 import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -24,7 +23,11 @@ type Resource struct {
 	logger    micrologger.Logger
 }
 
-// New creates a new configured cloud config resource.
+// New creates a new configured secret state getter resource managing encryption
+// keys.
+//
+//     https://godoc.org/github.com/giantswarm/operatorkit/resource/k8s/secretresource#StateGetter
+//
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -44,17 +47,4 @@ func New(config Config) (*Resource, error) {
 // Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
-}
-
-func toSecret(v interface{}) (*v1.Secret, error) {
-	if v == nil {
-		return nil, nil
-	}
-
-	secret, ok := v.(*v1.Secret)
-	if !ok {
-		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", secret, v)
-	}
-
-	return secret, nil
 }

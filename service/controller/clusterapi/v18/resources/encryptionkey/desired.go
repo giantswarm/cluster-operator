@@ -21,7 +21,7 @@ const (
 	AESCBCKeyLength = 32
 )
 
-func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
+func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -29,7 +29,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	var secret *corev1.Secret
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computing secret %#q", key.EncryptionKeySecretName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computing secret %#q", secretName(cr)))
 
 		keyBytes, err := newRandomKey(AESCBCKeyLength)
 		if err != nil {
@@ -38,7 +38,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 		secret = &corev1.Secret{
 			ObjectMeta: apismetav1.ObjectMeta{
-				Name:      key.EncryptionKeySecretName(cr),
+				Name:      secretName(cr),
 				Namespace: cr.Namespace,
 				Labels: map[string]string{
 					label.Cluster:   key.ClusterID(&cr),
@@ -51,10 +51,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			},
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computed secret %#q", key.EncryptionKeySecretName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computed secret %#q", secretName(cr)))
 	}
 
-	return secret, nil
+	return []*corev1.Secret{secret}, nil
 }
 
 func newRandomKey(length int) (string, error) {

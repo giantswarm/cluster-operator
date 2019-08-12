@@ -12,7 +12,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
+func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -20,18 +20,18 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	var secret *corev1.Secret
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q", key.EncryptionKeySecretName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
 
-		secret, err = r.k8sClient.Core().Secrets(cr.Namespace).Get(key.EncryptionKeySecretName(cr), apismetav1.GetOptions{})
+		secret, err = r.k8sClient.Core().Secrets(cr.Namespace).Get(secretName(cr), apismetav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q", key.EncryptionKeySecretName(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))
 			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q", key.EncryptionKeySecretName(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), cr.Namespace))
 	}
 
-	return secret, nil
+	return []*corev1.Secret{secret}, nil
 }
