@@ -2,42 +2,36 @@ package encryptionkey
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v18/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
-// GetCurrentState takes observed custom object as an input and based on that
-// information looks for current state of cluster encryption key secret and
-// returns it. Return value is of type *v1.Secret.
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	objectMeta, err := r.toClusterObjectMetaFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
+	var secret *corev1.Secret
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+
+		secret, err = r.k8sClient.Core().Secrets(cr.Namespace).Get(secretName(cr), apismetav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			return nil, nil
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), cr.Namespace))
 	}
 
-	secretName := key.EncryptionKeySecretName(clusterGuestConfig)
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for encryptionkey secret in the Kubernetes API", "secretName", secretName)
-
-	secret, err := r.k8sClient.Core().Secrets(objectMeta.Namespace).Get(secretName, apismetav1.GetOptions{})
-
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
-		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "found a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
-
-	return secret, nil
+	return []*corev1.Secret{secret}, nil
 }
