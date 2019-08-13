@@ -25,7 +25,8 @@ type Resource struct {
 	logger micrologger.Logger
 }
 
-// New creates a new configured namespace resource.
+// New creates a new configured namespace resource which manages the Kubernetes
+// namespace within tenant clusters.
 func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
