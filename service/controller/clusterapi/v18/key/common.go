@@ -15,6 +15,10 @@ func ClusterID(getter LabelsGetter) string {
 	return getter.GetLabels()[label.Cluster]
 }
 
+func IsDeleted(getter DeletionTimestampGetter) bool {
+	return getter.GetDeletionTimestamp() != nil
+}
+
 func MachineDeployment(getter LabelsGetter) string {
 	return getter.GetLabels()[label.MachineDeployment]
 }

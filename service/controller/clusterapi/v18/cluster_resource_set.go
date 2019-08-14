@@ -116,6 +116,23 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	//var namespaceResource controller.Resource
+	//{
+	//	c := namespace.Config{
+	//		Logger: config.Logger,
+	//	}
+	//
+	//	ops, err := namespace.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	namespaceResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
