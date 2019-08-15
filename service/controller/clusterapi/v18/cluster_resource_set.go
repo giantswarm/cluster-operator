@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/awsclusterconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/resources/tenantclients"
 )
 
@@ -133,6 +134,19 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//}
 
+	var operatorVersionsResource controller.Resource
+	{
+		c := operatorversions.Config{
+			ClusterClient: config.ClusterClient,
+			Logger:        config.Logger,
+		}
+
+		operatorVersionsResource, err = operatorversions.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
@@ -150,6 +164,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 
 	resources := []controller.Resource{
 		clusterIDResource,
+		operatorVersionsResource,
 		tenantClientsResource,
 		clusterStatusResource,
 
