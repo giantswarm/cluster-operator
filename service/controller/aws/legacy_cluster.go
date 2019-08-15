@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v14patch2"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -167,6 +168,32 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
+	var v14patch2ResourceSet *controller.ResourceSet
+	{
+		c := v14patch2.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			Tenant:            config.Tenant,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v14patch2ResourceSet, err = v14patch2.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var v15ResourceSet *controller.ResourceSet
 	{
 		c := v15.ResourceSetConfig{
@@ -282,6 +309,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 				v13ResourceSet,
 				v14ResourceSet,
 				v14patch1ResourceSet,
+				v14patch2ResourceSet,
 				v15ResourceSet,
 				v16ResourceSet,
 				v17ResourceSet,
