@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v14patch2"
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -22,6 +21,7 @@ import (
 	v13 "github.com/giantswarm/cluster-operator/service/controller/aws/v13"
 	v14 "github.com/giantswarm/cluster-operator/service/controller/aws/v14"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v14patch1"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v14patch2"
 	v15 "github.com/giantswarm/cluster-operator/service/controller/aws/v15"
 	v16 "github.com/giantswarm/cluster-operator/service/controller/aws/v16"
 	v17 "github.com/giantswarm/cluster-operator/service/controller/aws/v17"
