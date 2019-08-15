@@ -3,39 +3,17 @@ package certconfig
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/versionbundle"
 	apimetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
-)
-
-const (
-	certAPIVersion = "core.giantswarm.io"
-	certKind       = "CertConfig"
-	certOperatorID = "cert-operator"
-
-	loopbackIP = "127.0.0.1"
-
-	// systemMastersOrganization is the RBAC kubernetes admin group.
-	systemMastersOrganization = "system:masters"
-)
-
-var (
-	kubeAltNames = []string{
-		"kubernetes",
-		"kubernetes.default",
-		"kubernetes.default.svc",
-		"kubernetes.default.svc.cluster.local",
-	}
 )
 
 // GetDesiredState returns all desired CertConfigs for managed certificates.
@@ -44,423 +22,157 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	var certConfigs []*v1alpha1.CertConfig
+	var certConfigs []*g8sv1alpha1.CertConfig
 	{
-		certConfig := newAPICertConfig(clusterConfig, certs.APICert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAppOperator(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForNodeOperator(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForPrometheus(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForServiceAccount(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForWorker(cr)))
 	}
-	{
-		certConfig := newOperatorAPICertConfig(clusterConfig, certs.AppOperatorAPICert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newCalicoEtcdClientCertConfig(clusterConfig, certs.CalicoEtcdClientCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newOperatorAPICertConfig(clusterConfig, certs.ClusterOperatorAPICert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newEtcdCertConfig(clusterConfig, certs.EtcdCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
+
 	if r.provider == label.ProviderKVM {
-		certConfig := newFlanneldEtcdClientCertConfig(clusterConfig, certs.FlanneldEtcdClientCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newNodeOperatorCertConfig(clusterConfig, certs.NodeOperatorCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newPrometheusCertConfig(clusterConfig, certs.PrometheusCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newServiceAccountCertConfig(clusterConfig, certs.ServiceAccountCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
-	}
-	{
-		certConfig := newWorkerCertConfig(clusterConfig, certs.WorkerCert, objectMeta.Namespace)
-		certConfigs = append(certConfigs, certConfig)
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForFlanneldEtcdClient(cr)))
 	}
 
 	return certConfigs, nil
 }
 
-func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v1alpha1.ClusterGuestConfig) (cluster.Config, error) {
-	var err error
-
-	// Copy baseClusterConfig as basis and supplement it with information from
-	// clusterGuestConfig.
-	clusterConfig := baseClusterConfig
-
-	clusterConfig.ClusterID = key.ClusterID(clusterGuestConfig)
-
-	clusterConfig.Domain.API, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.APICert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	// Using `certs.Cert("calico") is broken here. We should use
-	// `baseDomain` setting to construct the domains anyway. This will be
-	// sorted here https://github.com/giantswarm/giantswarm/issues/3861.
-	clusterConfig.Domain.Calico, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.Cert("calico"))
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	clusterConfig.Domain.CalicoEtcdClient = fmt.Sprintf("calico.%s", key.DNSZone(clusterGuestConfig))
-	clusterConfig.Domain.Etcd, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.EtcdCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	clusterConfig.Domain.FlanneldEtcdClient, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.FlanneldEtcdClientCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.NodeOperatorCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	clusterConfig.Domain.Prometheus, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.PrometheusCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	clusterConfig.Domain.ServiceAccount, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.ServiceAccountCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-	clusterConfig.Domain.Worker, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.WorkerCert)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-
-	clusterConfig.Organization = clusterGuestConfig.Owner
-
-	versionBundle, err := versionbundle.GetBundleByName(key.VersionBundles(clusterGuestConfig), certOperatorID)
-	if err != nil {
-		return cluster.Config{}, microerror.Mask(err)
-	}
-
-	clusterConfig.VersionBundleVersion = versionBundle.Version
-
-	return clusterConfig, nil
-}
-
-func newServerDomain(commonDomain string, cert certs.Cert) (string, error) {
-	if !strings.Contains(commonDomain, ".") {
-		return "", microerror.Maskf(invalidConfigError, "commonDomain must be a valid domain")
-	}
-
-	return string(cert) + "." + strings.TrimLeft(commonDomain, "\t ."), nil
-}
-
-func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	return &v1alpha1.CertConfig{
+func newCertConfig(cc controllercontext.Context, cr cmav1alpha1.Cluster, cert g8sv1alpha1.CertConfigSpecCert) *g8sv1alpha1.CertConfig {
+	return &g8sv1alpha1.CertConfig{
 		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
+			Kind:       "CertConfig",
+			APIVersion: "core.giantswarm.io",
 		},
 		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
+			Name:      key.CertConfigName(&cr, cert.ClusterComponent),
+			Namespace: cr.Namespace,
 			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    true,
-				AltNames:            key.APIAltNames(clusterConfig.ClusterID, kubeAltNames),
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.API,
-				DisableRegeneration: false,
-				IPSANs:              []string{clusterConfig.IP.API.String()},
-				Organizations:       []string{systemMastersOrganization},
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: cc.Status.Version[label.CertOperatorVersion],
-			},
-		},
-	}
-}
-
-func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.CalicoEtcdClient,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
-	}
-}
-
-func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    true,
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.Etcd,
-				DisableRegeneration: false,
-				IPSANs:              []string{loopbackIP},
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
-	}
-}
-
-func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.FlanneldEtcdClient,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
-	}
-}
-
-func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains: false,
-				ClusterComponent: cert.String(),
-				ClusterID:        clusterConfig.ClusterID,
-				// TODO: Once there's role for node-operator in guest cluster, fix CN below.
-				//		 See: https://github.com/giantswarm/giantswarm/issues/3450
-				CommonName:          clusterConfig.Domain.API,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
-	}
-}
-
-func newOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:      clusterConfig.ClusterID,
+				label.Certificate:  cert.ClusterComponent,
+				label.Cluster:      key.ClusterID(&cr),
 				label.ManagedBy:    project.Name(),
-				label.Organization: clusterConfig.Organization,
+				label.Organization: key.OrganizationID(&cr),
 			},
 		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.API,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
+		Spec: g8sv1alpha1.CertConfigSpec{
+			Cert: cert,
+			VersionBundle: g8sv1alpha1.CertConfigSpecVersionBundle{
+				Version: cc.Status.Versions["cert-operator.giantswarm.io/version"],
 			},
 		},
 	}
 }
 
-func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains: false,
-				ClusterComponent: cert.String(),
-				ClusterID:        clusterConfig.ClusterID,
-				// TODO: Once there's role for prometheus in guest cluster, fix CN below.
-				//		 See: https://github.com/giantswarm/giantswarm/issues/3599
-				CommonName:          clusterConfig.Domain.API,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
+func (r *Resource) newSpecForAPI(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		AltNames:         key.CertAltNames(fmt.Sprintf("master.%s", key.ClusterID(&cr))),
+		ClusterComponent: certs.APICert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		IPSANs:           []string{r.apiIP},
+		Organizations:    []string{"system:masters"},
+		TTL:              r.certTTL,
 	}
 }
 
-func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    false,
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.ServiceAccount,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
+func (r *Resource) newSpecForCalico(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.CalicoEtcdClientCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("calico.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
 	}
 }
 
-func newWorkerCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace string) *v1alpha1.CertConfig {
-	return &v1alpha1.CertConfig{
-		TypeMeta: apimetav1.TypeMeta{
-			Kind:       certKind,
-			APIVersion: certAPIVersion,
-		},
-		ObjectMeta: apimetav1.ObjectMeta{
-			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
-			Namespace: namespace,
-			Labels: map[string]string{
-				label.Cluster:         clusterConfig.ClusterID,
-				label.LegacyClusterID: clusterConfig.ClusterID,
-				label.LegacyComponent: cert.String(),
-				label.ManagedBy:       project.Name(),
-				label.Organization:    clusterConfig.Organization,
-			},
-		},
-		Spec: v1alpha1.CertConfigSpec{
-			Cert: v1alpha1.CertConfigSpecCert{
-				AllowBareDomains:    true,
-				AltNames:            kubeAltNames,
-				ClusterComponent:    cert.String(),
-				ClusterID:           clusterConfig.ClusterID,
-				CommonName:          clusterConfig.Domain.Worker,
-				DisableRegeneration: false,
-				TTL:                 clusterConfig.CertTTL,
-			},
-			VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-				Version: clusterConfig.VersionBundleVersion,
-			},
-		},
+func (r *Resource) newSpecForEtcd(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.EtcdCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		IPSANs:           []string{"127.0.0.1"},
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForFlanneldEtcdClient(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.FlanneldEtcdClientCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("flanneld-etcd-client.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForAppOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.AppOperatorAPICert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForClusterOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.ClusterOperatorAPICert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForNodeOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.NodeOperatorCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("node-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForPrometheus(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.PrometheusCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("prometheus.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForServiceAccount(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.ServiceAccountCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("service-account.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForWorker(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		AltNames:         key.CertAltNames(),
+		ClusterComponent: certs.WorkerCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("worker.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		TTL:              r.certTTL,
 	}
 }
