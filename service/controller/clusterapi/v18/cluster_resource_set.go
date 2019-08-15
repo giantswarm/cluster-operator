@@ -103,6 +103,29 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//}
 
+	//var certConfigResource controller.Resource
+	//{
+	//  c := certconfig.Config{
+	//  	G8sClient: config.K8sClient,
+	//  	K8sClient: config.K8sClient,
+	//  	Logger:    config.Logger,
+	//
+	//  	APIIP:    config.APIIP,
+	//  	CertTTL:  config.CertTTL,
+	//  	Provider: config.Provider,
+	//  }
+	//
+	//	ops, err := certconfig.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	certConfigResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	var awsclusterconfigResource controller.Resource
 	{
 		c := awsclusterconfig.Config{

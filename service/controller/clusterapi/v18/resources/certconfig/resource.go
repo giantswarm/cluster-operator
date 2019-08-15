@@ -25,10 +25,10 @@ type Config struct {
 	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
-	Provider  string
 
-	APIIP   string
-	CertTTL string
+	APIIP    string
+	CertTTL  string
+	Provider string
 }
 
 // Resource implements the cloud config resource.
@@ -36,10 +36,10 @@ type Resource struct {
 	g8sClient versioned.Interface
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
-	provider  string
 
-	apiIP   string
-	certTTL string
+	apiIP    string
+	certTTL  string
+	provider string
 }
 
 // New creates a new configured cloud config resource.
@@ -53,9 +53,6 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.Provider == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
-	}
 
 	if config.APIIP == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.APIIP must not be empty", config)
@@ -63,15 +60,18 @@ func New(config Config) (*Resource, error) {
 	if config.CertTTL == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertTTL must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	newService := &Resource{
 		g8sClient: config.G8sClient,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
-		provider:  config.Provider,
 
-		apiIP:   config.APIIP,
-		certTTL: config.CertTTL,
+		apiIP:    config.APIIP,
+		certTTL:  config.CertTTL,
+		provider: config.Provider,
 	}
 
 	return newService, nil
