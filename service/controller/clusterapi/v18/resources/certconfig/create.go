@@ -13,26 +13,26 @@ import (
 // Patch provided by NewUpdatePatch or NewDeletePatch. It creates CertConfig
 // objects when new cluster certificates are needed.
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
-	certConfigsToCreate, err := toCertConfigs(createChange)
+	certConfigs, err := toCertConfigs(createChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if len(certConfigsToCreate) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "creating certconfigs")
+	if len(certConfigs) > 0 {
+		for _, certConfig := range certConfigs {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
-		for _, certConfigToCreate := range certConfigsToCreate {
-			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfigToCreate.Namespace).Create(certConfigToCreate)
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Create(certConfig)
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
-		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "created certconfigs")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to create certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not create certconfigs")
 	}
 
 	return nil
@@ -48,8 +48,6 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be created")
-
 	var certConfigsToCreate []*v1alpha1.CertConfig
 
 	for _, desiredCertConfig := range desiredCertConfigs {
@@ -57,8 +55,6 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 			certConfigsToCreate = append(certConfigsToCreate, desiredCertConfig)
 		}
 	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs that have to be created", len(certConfigsToCreate)))
 
 	return certConfigsToCreate, nil
 }

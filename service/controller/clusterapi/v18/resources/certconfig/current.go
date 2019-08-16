@@ -9,65 +9,49 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v18/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 // GetCurrentState takes observed custom object as an input and based on that
 // information looks for current state of cluster certconfigs and returns them.
 // Return value is of type []*v1alpha1.CertConfig.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	clusterGuestConfig, err := r.toClusterGuestConfigFunc(obj)
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	objectMeta, err := r.toClusterObjectMetaFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for a list of certconfigs in the Kubernetes API")
 
 	var certConfigs []*v1alpha1.CertConfig
 	{
-		labelSelector := &metav1.LabelSelector{}
-		labelSelector = metav1.AddLabelToSelector(labelSelector, label.Cluster, key.ClusterID(clusterGuestConfig))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding certconfigs in namespace %#q", cr.Namespace))
 
-		selector, err := metav1.LabelSelectorAsSelector(labelSelector)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		listOptions := metav1.ListOptions{
-			LabelSelector: selector.String(),
+		o := metav1.ListOptions{
+			Continue:      "",
+			LabelSelector: fmt.Sprintf("%s=%s", label.Cluster, key.ClusterID(&cr)),
 			Limit:         listCertConfigLimit,
 		}
 
-		continueToken := ""
-
 		for {
-			listOptions.Continue = continueToken
-
-			certConfigList, err := r.g8sClient.CoreV1alpha1().CertConfigs(objectMeta.Namespace).List(listOptions)
+			list, err := r.g8sClient.CoreV1alpha1().CertConfigs(cr.Namespace).List(o)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
 
-			for _, item := range certConfigList.Items {
-				// Make a copy of an Item in order to not refer to loop
-				// iterator variable.
+			for _, item := range list.Items {
+				// Make a copy of an Item in order to not refer to loop iterator
+				// variable. This is because we want to track a list of pointers.
 				item := item
 				certConfigs = append(certConfigs, &item)
 			}
 
-			continueToken = certConfigList.Continue
-			if continueToken == "" {
+			o.Continue = list.Continue
+			if o.Continue == "" {
 				break
 			}
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a list of %d certconfigs in the Kubernetes API", len(certConfigs)))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs in namespace %#q", len(certConfigs), cr.Namespace))
 
 	return certConfigs, nil
 }
