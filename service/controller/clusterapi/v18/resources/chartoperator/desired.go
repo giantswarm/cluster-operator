@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/cluster-operator/pkg/v18/key"
 )
 
 // GetDesiredState returns the chart that should be installed including the
@@ -16,20 +14,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	// TODO we use the global key package here and not the clusterapi controller
-	// specific one. This is confusing and inconsistent and should be cleaned up
-	// eventually. There is no reason to compute the DNS IP over and over again.
-	// It should instead be injected into the resource during programm
-	// initialization.
-	clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	chartState := &ResourceState{
 		ChartName: chart,
 		ChartValues: Values{
-			ClusterDNSIP: clusterDNSIP,
+			ClusterDNSIP: r.dnsIP,
 			Image: Image{
 				Registry: r.registryDomain,
 			},

@@ -5,17 +5,14 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	g8sfake "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/apprclient/apprclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"
 	"github.com/spf13/afero"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clientgofake "k8s.io/client-go/kubernetes/fake"
-
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	k8sfake "k8s.io/client-go/kubernetes/fake"
+	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 )
 
 func Test_Chart_GetDesiredState(t *testing.T) {
@@ -27,11 +24,7 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 	}{
 		{
 			name: "case 0: basic match",
-			obj: v1alpha1.ClusterGuestConfig{
-				DNSZone: "5xchu.aws.giantswarm.io",
-				ID:      "5xchu",
-				Owner:   "giantswarm",
-			},
+			obj:  v1alpha1.Cluster{},
 			expectedState: ResourceState{
 				ChartName: "chart-operator-chart",
 				ChartValues: Values{
@@ -62,23 +55,13 @@ func Test_Chart_GetDesiredState(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			c := Config{
 				ApprClient: apprClient,
-				BaseClusterConfig: cluster.Config{
-					ClusterID: "test-cluster",
-				},
-				ClusterIPRange: "172.31.0.0/16",
-				Fs:             afero.NewMemMapFs(),
-				G8sClient:      fake.NewSimpleClientset(),
-				K8sClient:      clientgofake.NewSimpleClientset(),
-				Logger:         microloggertest.New(),
-				ProjectName:    "cluster-operator",
+				Fs:         afero.NewMemMapFs(),
+				G8sClient:  g8sfake.NewSimpleClientset(),
+				K8sClient:  k8sfake.NewSimpleClientset(),
+				Logger:     microloggertest.New(),
+
+				DNSIP:          "172.31.0.10",
 				RegistryDomain: "quay.io",
-				Tenant:         &tenantMock{},
-				ToClusterGuestConfigFunc: func(v interface{}) (v1alpha1.ClusterGuestConfig, error) {
-					return v.(v1alpha1.ClusterGuestConfig), nil
-				},
-				ToClusterObjectMetaFunc: func(v interface{}) (metav1.ObjectMeta, error) {
-					return metav1.ObjectMeta{}, nil
-				},
 			}
 
 			r, err := New(c)

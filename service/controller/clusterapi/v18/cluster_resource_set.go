@@ -32,6 +32,8 @@ type ClusterResourceSetConfig struct {
 	G8sClient         versioned.Interface
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
+
+	DNSIP string
 }
 
 // NewClusterResourceSet returns a configured Cluster API's Cluster controller

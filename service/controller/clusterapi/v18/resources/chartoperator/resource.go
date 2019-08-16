@@ -14,7 +14,9 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "chartoperatorv18"
+)
 
+const (
 	chart         = "chart-operator-chart"
 	channel       = "0-9-stable"
 	deployment    = "chart-operator"
@@ -32,7 +34,7 @@ type Config struct {
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 
-	ClusterIPRange string
+	DNSIP          string
 	RegistryDomain string
 }
 
@@ -44,7 +46,7 @@ type Resource struct {
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 
-	clusterIPRange string
+	dnsIP          string
 	registryDomain string
 }
 
@@ -66,8 +68,8 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.ClusterIPRange == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
+	if config.DNSIP == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DNSIP must not be empty", config)
 	}
 	if config.RegistryDomain == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
@@ -80,7 +82,7 @@ func New(config Config) (*Resource, error) {
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 
-		clusterIPRange: config.ClusterIPRange,
+		dnsIP:          config.DNSIP,
 		registryDomain: config.RegistryDomain,
 	}
 
@@ -116,7 +118,7 @@ func shouldUpdate(currentState, desiredState ResourceState) bool {
 		return true
 	}
 
-	if currentState.ReleaseStatus == chartOperatorFailedStatus {
+	if currentState.ReleaseStatus == failedStatus {
 		// Release status is failed so do force upgrade to attempt to fix it.
 		return true
 	}
