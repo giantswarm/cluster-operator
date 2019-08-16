@@ -12,29 +12,24 @@ import (
 // ApplyUpdateChange takes observed custom object and update portion of the
 // Patch provided by NewUpdatePatch or NewDeletePatch.
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
-	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	certConfigs, err := toCertConfigs(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	certConfigsToUpdate, err := toCertConfigs(updateChange)
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	if len(certConfigs) > 0 {
+		for _, certConfig := range certConfigs {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
-	if len(certConfigsToUpdate) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating certconfigs")
-
-		for _, certConfigToUpdate := range certConfigsToUpdate {
-			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(objectMeta.Namespace).Update(certConfigToUpdate)
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Update(certConfig)
 			if err != nil {
 				return microerror.Mask(err)
 			}
-		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated certconfigs")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to update certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not update certconfigs")
 	}
 
 	return nil
@@ -47,23 +42,44 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	update, err := r.newUpdateChange(ctx, obj, currentState, desiredState)
+	delete, err := r.newDeleteChangeForUpdatePatch(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	delete, err := r.newDeleteChangeForUpdatePatch(ctx, obj, currentState, desiredState)
+	update, err := r.newUpdateChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
-	patch.SetUpdateChange(update)
 	patch.SetDeleteChange(delete)
+	patch.SetUpdateChange(update)
 
 	return patch, nil
+}
+
+func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) ([]*v1alpha1.CertConfig, error) {
+	currentCertConfigs, err := toCertConfigs(currentState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	desiredCertConfigs, err := toCertConfigs(desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	var certConfigsToDelete []*v1alpha1.CertConfig
+	for _, currentCertConfig := range currentCertConfigs {
+		_, err := getCertConfigByName(desiredCertConfigs, currentCertConfig.Name)
+		if IsNotFound(err) {
+			certConfigsToDelete = append(certConfigsToDelete, currentCertConfig)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	return certConfigsToDelete, nil
 }
 
 func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desiredState interface{}) ([]*v1alpha1.CertConfig, error) {
@@ -76,8 +92,6 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be updated")
-
 	var certConfigsToUpdate []*v1alpha1.CertConfig
 	for _, currentCertConfig := range currentCertConfigs {
 		desiredCertConfig, err := getCertConfigByName(desiredCertConfigs, currentCertConfig.Name)
@@ -89,15 +103,11 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		}
 
 		if isCertConfigModified(desiredCertConfig, currentCertConfig) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found certconfig '%s' that has to be updated", desiredCertConfig.GetName()))
-
 			// Create a copy and set the resource version to allow the CR to be updated.
 			certConfigToUpdate := desiredCertConfig.DeepCopy()
 			certConfigToUpdate.ObjectMeta.ResourceVersion = currentCertConfig.ObjectMeta.ResourceVersion
 
 			certConfigsToUpdate = append(certConfigsToUpdate, certConfigToUpdate)
-		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not updating certconfig '%s': no changes found", currentCertConfig.GetName()))
 		}
 	}
 
