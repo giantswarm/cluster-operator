@@ -3,91 +3,69 @@ package chartoperator
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
-	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
-	"github.com/giantswarm/tenantcluster"
 
-	"github.com/giantswarm/cluster-operator/pkg/v18/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 // GetCurrentState gets the state of the chart in the guest cluster.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
-	var err error
-
-	objectMeta, err := r.toClusterObjectMetaFunc(obj)
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	// Tenant chart-operator is not deleted so cancel the resource. The operator
-	// will be deleted when the tenant cluster resources are deleted.
-	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting chartoperator deletion to provider operators")
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil, nil
-	}
-
-	var tenantHelmClient helmclient.Interface
 	{
-		tenantHelmClient, err = r.getTenantHelmClient(ctx, obj)
-		if tenantcluster.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-
-			// A timeout error here means that the cluster-operator certificate for
-			// the current guest cluster was not found. We can't continue without a
-			// Helm client. We will retry during the next execution, when the
-			// certificate might be available.
+		if cc.Client.TenantCluster.Helm == nil {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
-
 			return nil, nil
-		} else if helmclient.IsTillerNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
+		}
 
-			// Tiller installation can fail during guest cluster setup. We will retry
-			// on next reconciliation loop.
+		// Tenant chart-operator is not deleted so cancel the resource. The operator
+		// will be deleted when the tenant cluster resources are deleted.
+		if key.IsDeleted(&cr) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting chart-operator %#q in tenant cluster %#q", namespace, key.ClusterID(&cr)))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
-
 			return nil, nil
-		} else if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
-
-			// We should not hammer guest API if it is not available, the guest
-			// cluster might be initializing. We will retry on next reconciliation
-			// loop.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-
-			return nil, nil
-		} else if err != nil {
-			return nil, microerror.Mask(err)
 		}
 	}
 
-	var chartState *ResourceState
+	var releaseContent *helmclient.ReleaseContent
+	var releaseHistory *helmclient.ReleaseHistory
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding the chart-operator chart in the guest cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 
-		releaseContent, err := tenantHelmClient.GetReleaseContent(ctx, chartOperatorRelease)
+		releaseContent, err = cc.Client.TenantCluster.Helm.GetReleaseContent(ctx, release)
 		if helmclient.IsReleaseNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the chart-operator chart in the guest cluster")
-
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 			return nil, nil
+
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		releaseHistory, err := tenantHelmClient.GetReleaseHistory(ctx, chartOperatorRelease)
+		releaseHistory, err = cc.Client.TenantCluster.Helm.GetReleaseHistory(ctx, release)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
+	}
+
+	var chartState *ResourceState
+	{
 		bytes, err := json.Marshal(releaseContent.Values)
 		if err != nil {
 			return nil, microerror.Mask(err)
@@ -100,14 +78,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 
 		chartState = &ResourceState{
-			ChartName:      chartOperatorChart,
+			ChartName:      chart,
 			ChartValues:    *chartValues,
-			ReleaseName:    chartOperatorRelease,
+			ReleaseName:    release,
 			ReleaseStatus:  releaseContent.Status,
 			ReleaseVersion: releaseHistory.Version,
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found the chart-operator chart in the guest cluster")
 	}
 
 	return chartState, nil
