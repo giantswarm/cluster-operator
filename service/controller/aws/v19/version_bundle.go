@@ -1,4 +1,4 @@
-package v18
+package v19
 
 import (
 	"github.com/giantswarm/versionbundle"
@@ -56,6 +56,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "aws",
-		Version:  "0.18.0",
+		Version:  "0.19.0",
 	}
 }
