@@ -13,7 +13,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "clusterconfigmapv18"
+	Name = "clusterconfigmapv19"
 )
 
 // Config represents the configuration used to create a new clusterConfigMap resource.
