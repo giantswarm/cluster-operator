@@ -16,7 +16,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	v18 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18"
+	v19 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -70,9 +70,9 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	var resourceSetV18 *controller.ResourceSet
+	var resourceSetV19 *controller.ResourceSet
 	{
-		c := v18.ClusterResourceSetConfig{
+		c := v19.ClusterResourceSetConfig{
 			BaseClusterConfig: config.BaseClusterConfig,
 			ClusterClient:     config.ClusterClient,
 			CMAClient:         config.CMAClient,
@@ -83,7 +83,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			DNSIP: config.DNSIP,
 		}
 
-		resourceSetV18, err = v18.NewClusterResourceSet(c)
+		resourceSetV19, err = v19.NewClusterResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -97,7 +97,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV18,
+				resourceSetV19,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
