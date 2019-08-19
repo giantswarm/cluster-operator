@@ -15,7 +15,8 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v18 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18"
+	"github.com/giantswarm/cluster-operator/pkg/project"
+	v19 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -29,7 +30,7 @@ type ClusterConfig struct {
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
-	ProjectName string
+	DNSIP string
 }
 
 type Cluster struct {
@@ -69,18 +70,20 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	var resourceSetV18 *controller.ResourceSet
+	var resourceSetV19 *controller.ResourceSet
 	{
-		c := v18.ClusterResourceSetConfig{
+		c := v19.ClusterResourceSetConfig{
 			BaseClusterConfig: config.BaseClusterConfig,
 			ClusterClient:     config.ClusterClient,
 			CMAClient:         config.CMAClient,
 			G8sClient:         config.G8sClient,
 			Logger:            config.Logger,
 			Tenant:            config.Tenant,
+
+			DNSIP: config.DNSIP,
 		}
 
-		resourceSetV18, err = v18.NewClusterResourceSet(c)
+		resourceSetV19, err = v19.NewClusterResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -94,13 +97,13 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV18,
+				resourceSetV19,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.
-			Name: config.ProjectName + "-cluster-controller",
+			Name: project.Name() + "-cluster-controller",
 		}
 
 		clusterController, err = controller.New(c)
