@@ -26,7 +26,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/v10/key"
+	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
