@@ -72,8 +72,13 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		versionBundles = res.VersionBundles
 	}
 
-	for _, b := range versionBundles {
-		cc.Status.Versions[fmt.Sprintf("%s.giantswarm.io/version", b.Name)] = b.Version
+	{
+		if cc.Status.Versions == nil {
+			cc.Status.Versions = map[string]string{}
+		}
+		for _, b := range versionBundles {
+			cc.Status.Versions[fmt.Sprintf("%s.giantswarm.io/version", b.Name)] = b.Version
+		}
 	}
 
 	return nil

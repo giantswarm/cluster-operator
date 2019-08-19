@@ -1,4 +1,4 @@
-package v18
+package v19
 
 import (
 	"github.com/giantswarm/versionbundle"
@@ -30,10 +30,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Components: []versionbundle.Component{
 			{
-				Name:    "coredns",
-				Version: "1.5.1",
-			},
-			{
 				Name:    "kube-state-metrics",
 				Version: "1.5.0",
 			},
@@ -46,12 +42,20 @@ func VersionBundle() versionbundle.Bundle {
 				Version: "0.18.0",
 			},
 			{
+				Name:    "coredns",
+				Version: "1.5.1",
+			},
+			{
+				Name:    "cluster-autoscaler",
+				Version: "1.14.0",
+			},
+			{
 				Name:    "metrics-server",
 				Version: "0.3.1",
 			},
 		},
 		Name:     "cluster-operator",
-		Provider: "kvm",
-		Version:  "0.18.0",
+		Provider: "aws",
+		Version:  "0.19.0",
 	}
 }
