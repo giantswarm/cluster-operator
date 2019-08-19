@@ -6,9 +6,10 @@ import (
 	"reflect"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
