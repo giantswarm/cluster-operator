@@ -6,28 +6,6 @@ import (
 
 func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
-		Changelogs: []versionbundle.Changelog{
-			{
-				Component:   "cert-exporter",
-				Description: "Add toleration for all taints",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "net-exporter",
-				Description: "Add toleration for all taints",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Add toleration for all taints",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Update to 0.25.1. https://github.com/giantswarm/kubernetes-nginx-ingress-controller/blob/master/CHANGELOG.md",
-				Kind:        versionbundle.KindChanged,
-			},
-		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "coredns",
@@ -52,6 +30,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "kvm",
-		Version:  "0.18.0",
+		Version:  "0.19.0",
 	}
 }
