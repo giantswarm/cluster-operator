@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-resty/resty"
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/resty.v1"
 
 	"github.com/giantswarm/microerror"
 )
