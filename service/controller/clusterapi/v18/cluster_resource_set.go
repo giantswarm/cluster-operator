@@ -128,6 +128,28 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//}
 
+	//var chartOperatorResource controller.Resource
+	//{
+	//	c := certconfig.Config{
+	//		ApprClient: config.ApprClient,
+	//		FileSystem: config.FileSystem,
+	//		Logger:     config.Logger,
+	//
+	//		DNSIP:          config.DNSIP,
+	//		RegistryDomain: config.RegistryDomain,
+	//	}
+	//
+	//	ops, err := certconfig.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	chartOperatorResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	var awsclusterconfigResource controller.Resource
 	{
 		c := awsclusterconfig.Config{

@@ -3,12 +3,10 @@ package chartoperator
 import (
 	"reflect"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -30,8 +28,6 @@ const (
 type Config struct {
 	ApprClient apprclient.Interface
 	FileSystem afero.Fs
-	G8sClient  versioned.Interface
-	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 
 	DNSIP          string
@@ -42,8 +38,6 @@ type Config struct {
 type Resource struct {
 	apprClient apprclient.Interface
 	fileSystem afero.Fs
-	g8sClient  versioned.Interface
-	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 
 	dnsIP          string
@@ -57,12 +51,6 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.FileSystem == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.FileSystem must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -78,8 +66,6 @@ func New(config Config) (*Resource, error) {
 	newResource := &Resource{
 		apprClient: config.ApprClient,
 		fileSystem: config.FileSystem,
-		g8sClient:  config.G8sClient,
-		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 
 		dnsIP:          config.DNSIP,

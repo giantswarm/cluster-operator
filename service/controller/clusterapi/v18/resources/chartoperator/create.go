@@ -46,7 +46,10 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		err = cc.Client.TenantCluster.Helm.InstallReleaseFromTarball(ctx, p, namespace,
+		err = cc.Client.TenantCluster.Helm.InstallReleaseFromTarball(
+			ctx,
+			p,
+			namespace,
 			helm.InstallWait(true),
 			helm.ReleaseName(createState.ReleaseName),
 			helm.ValueOverrides(b),
