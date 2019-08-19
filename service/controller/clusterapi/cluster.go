@@ -15,6 +15,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	v18 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18"
 )
 
@@ -29,7 +30,7 @@ type ClusterConfig struct {
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
-	ProjectName string
+	DNSIP string
 }
 
 type Cluster struct {
@@ -78,6 +79,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			G8sClient:         config.G8sClient,
 			Logger:            config.Logger,
 			Tenant:            config.Tenant,
+
+			DNSIP: config.DNSIP,
 		}
 
 		resourceSetV18, err = v18.NewClusterResourceSet(c)
@@ -100,7 +103,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.
-			Name: config.ProjectName + "-cluster-controller",
+			Name: project.Name() + "-cluster-controller",
 		}
 
 		clusterController, err = controller.New(c)

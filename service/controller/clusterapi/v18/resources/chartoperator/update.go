@@ -6,92 +6,59 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/errors/tenant"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
-	"github.com/giantswarm/tenantcluster"
 	"k8s.io/helm/pkg/helm"
+
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v18/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 	updateState, err := toResourceState(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	if !reflect.DeepEqual(updateState, ResourceState{}) {
-		var tenantHelmClient helmclient.Interface
-		{
-			tenantHelmClient, err = r.getTenantHelmClient(ctx, obj)
-			if tenantcluster.IsTimeout(err) {
-				r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 
-				// A timeout error here means that the cluster-operator certificate
-				// for the current guest cluster was not found. We can't continue
-				// without a Helm client. We will retry during the next execution, when
-				// the certificate might be available.
-				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-				resourcecanceledcontext.SetCanceled(ctx)
-
-				return nil
-			} else if helmclient.IsTillerNotFound(err) {
-				r.logger.LogCtx(ctx, "level", "debug", "message", "Tiller installation failed")
-
-				// Tiller installation can fail during guest cluster setup. We will
-				// retry on next reconciliation loop.
-				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-				resourcecanceledcontext.SetCanceled(ctx)
-
-				return nil
-			} else if tenant.IsAPINotAvailable(err) {
-				r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
-
-				// We should not hammer guest API if it is not available, the guest
-				// cluster might be initializing. We will retry on next reconciliation
-				// loop.
-				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-				resourcecanceledcontext.SetCanceled(ctx)
-
-				return nil
-			} else if err != nil {
-				return microerror.Mask(err)
+		p, err := r.apprClient.PullChartTarball(ctx, updateState.ChartName, channel)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		defer func() {
+			err := r.fileSystem.Remove(p)
+			if err != nil {
+				r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("removing %#q failed", p), "stack", microerror.Stack(err))
 			}
+		}()
+
+		b, err := json.Marshal(updateState.ChartValues)
+		if err != nil {
+			return microerror.Mask(err)
 		}
 
-		{
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart-operator chart"))
-
-			tarballPath, err := r.apprClient.PullChartTarball(ctx, updateState.ChartName, chartOperatorChannel)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-			defer func() {
-				err := r.fs.Remove(tarballPath)
-				if err != nil {
-					r.logger.LogCtx(ctx, "level", "error", "message", fmt.Sprintf("deletion of %q failed", tarballPath), "stack", fmt.Sprintf("%#v", err))
-				}
-			}()
-
-			b, err := json.Marshal(updateState.ChartValues)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			err = tenantHelmClient.UpdateReleaseFromTarball(
-				ctx,
-				updateState.ReleaseName,
-				tarballPath,
-				helm.UpdateValueOverrides(b),
-				helm.UpgradeForce(true),
-			)
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", "updated chart-operator chart")
+		err = cc.Client.TenantCluster.Helm.UpdateReleaseFromTarball(
+			ctx,
+			updateState.ReleaseName,
+			p,
+			helm.UpdateValueOverrides(b),
+			helm.UpgradeForce(true),
+		)
+		if err != nil {
+			return microerror.Mask(err)
 		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 	} else {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "not updating chart-operator chart")
 	}
@@ -121,21 +88,15 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
 	desiredResourceState, err := toResourceState(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out if chart-operator has to be updated")
+	var updateState *ResourceState
 
-	updateState := &ResourceState{}
 	if shouldUpdate(currentResourceState, desiredResourceState) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator has to be updated")
-
 		updateState = &desiredResourceState
-	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chart-operator does not have to be updated")
 	}
 
 	return updateState, nil

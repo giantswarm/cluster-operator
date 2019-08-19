@@ -26,6 +26,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
@@ -123,6 +124,14 @@ func New(config Config) (*Service, error) {
 	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	var dnsIP string
+	{
+		dnsIP, err = key.DNSIP(clusterIPRange)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	fs := afero.NewOsFs()
@@ -276,7 +285,7 @@ func New(config Config) (*Service, error) {
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			ProjectName: config.ProjectName,
+			DNSIP: dnsIP,
 		}
 
 		clusterController, err = clusterapi.NewCluster(c)
