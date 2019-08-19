@@ -1,5 +1,10 @@
 package chartoperator
 
+// Image holds the image settings for chart-operator chart.
+type Image struct {
+	Registry string `json:"registry"`
+}
+
 // ResourceState holds the state of the chart to be reconciled.
 type ResourceState struct {
 	// ChartName is the name of the Helm Chart.
@@ -19,20 +24,15 @@ type ResourceState struct {
 	ReleaseVersion string
 }
 
+// Tiller holds the Tiller settings for chart-operator chart.
+type Tiller struct {
+	Namespace string `json:"namespace"`
+}
+
 // Values represents the values to be passed to Helm commands related to
 // chart-operator chart.
 type Values struct {
 	ClusterDNSIP string `json:"clusterDNSIP"`
 	Image        Image  `json:"image"`
 	Tiller       Tiller `json:"tiller"`
-}
-
-// Image holds the image settings for chart-operator chart.
-type Image struct {
-	Registry string `json:"registry"`
-}
-
-// Tiller holds the Tiller settings for chart-operator chart.
-type Tiller struct {
-	Namespace string `json:"namespace"`
 }

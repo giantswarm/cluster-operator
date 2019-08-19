@@ -32,6 +32,8 @@ type ClusterResourceSetConfig struct {
 	G8sClient         versioned.Interface
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
+
+	DNSIP string
 }
 
 // NewClusterResourceSet returns a configured Cluster API's Cluster controller
@@ -121,6 +123,28 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//
 	//	certConfigResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
+	//var chartOperatorResource controller.Resource
+	//{
+	//	c := certconfig.Config{
+	//		ApprClient: config.ApprClient,
+	//		FileSystem: config.FileSystem,
+	//		Logger:     config.Logger,
+	//
+	//		DNSIP:          config.DNSIP,
+	//		RegistryDomain: config.RegistryDomain,
+	//	}
+	//
+	//	ops, err := certconfig.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	chartOperatorResource, err = toCRUDResource(config.Logger, ops)
 	//	if err != nil {
 	//		return nil, microerror.Mask(err)
 	//	}
