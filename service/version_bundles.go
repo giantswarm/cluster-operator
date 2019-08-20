@@ -21,6 +21,7 @@ import (
 	kvmv16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
 	kvmv17 "github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
 	kvmv18 "github.com/giantswarm/cluster-operator/service/controller/kvm/v18"
+	kvmv19 "github.com/giantswarm/cluster-operator/service/controller/kvm/v19"
 )
 
 func NewVersionBundles() []versionbundle.Bundle {
@@ -50,6 +51,7 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, kvmv18.VersionBundle())
 
 	versionBundles = append(versionBundles, awsv19.VersionBundle())
+	versionBundles = append(versionBundles, kvmv19.VersionBundle())
 
 	return versionBundles
 }
