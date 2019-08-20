@@ -26,7 +26,7 @@ func KubeConfigClusterName(getter LabelsGetter) string {
 }
 
 func KubeConfigSecretName(getter LabelsGetter) string {
-	return fmt.Sprintf("kubeconfig-%s", ClusterID(getter))
+	return fmt.Sprintf("%s-kubeconfig", ClusterID(getter))
 }
 
 func MachineDeployment(getter LabelsGetter) string {
