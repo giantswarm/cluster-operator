@@ -27,11 +27,6 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Update to 0.25.1. https://github.com/giantswarm/kubernetes-nginx-ingress-controller/blob/master/CHANGELOG.md",
 				Kind:        versionbundle.KindChanged,
 			},
-			{
-				Component:   "coredns",
-				Description: "Update to 1.6.2. https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md#v070",
-				Kind:        versionbundle.KindChanged,
-			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -52,7 +47,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "coredns",
-				Version: "1.6.2",
+				Version: "1.5.1",
 			},
 			{
 				Name:    "metrics-server",
