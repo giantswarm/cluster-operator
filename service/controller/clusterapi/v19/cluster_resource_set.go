@@ -209,6 +209,18 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	//var tillerResource controller.Resource
+	//{
+	//	c := tiller.Config{
+	//		Logger: config.Logger,
+	//	}
+	//
+	//	tillerResource, err = tiller.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	resources := []controller.Resource{
 		clusterIDResource,
 		operatorVersionsResource,
