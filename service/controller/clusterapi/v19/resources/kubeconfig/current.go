@@ -10,43 +10,39 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 )
 
-func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
-	objectMeta, err := r.getClusterObjectMetaFunc(obj)
+func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	// Cluster configMap is deleted by the provider operator when it deletes
-	// the tenant cluster namespace in the control plane cluster.
-	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
-		resourcecanceledcontext.SetCanceled(ctx)
+	// The kube config secret is deleted implicitely by the provider operator when
+	// it deletes the tenant cluster namespace in the control plane.
+	if key.IsDeleted(&cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
-	clusterConfig, err := r.getClusterConfigFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
+	var secret *corev1.Secret
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))
+
+		secret, err = r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).Get(key.KubeConfigSecretName(&cr), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))
+			return nil, nil
+
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))
 	}
-
-	secretName := key.KubeConfigSecretName(clusterConfig)
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret %#q", secretName))
-
-	secret, err := r.k8sClient.CoreV1().Secrets(clusterConfig.ID).Get(secretName, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find kubeconfig secret %#q", secretName))
-		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found kubeconfig secret %#q", secretName))
 
 	return []*corev1.Secret{secret}, nil
 }
