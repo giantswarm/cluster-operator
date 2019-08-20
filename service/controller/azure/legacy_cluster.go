@@ -23,6 +23,7 @@ import (
 	v16 "github.com/giantswarm/cluster-operator/service/controller/azure/v16"
 	v17 "github.com/giantswarm/cluster-operator/service/controller/azure/v17"
 	v18 "github.com/giantswarm/cluster-operator/service/controller/azure/v18"
+	v19 "github.com/giantswarm/cluster-operator/service/controller/azure/v19"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for
@@ -265,6 +266,32 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
+	var v19ResourceSet *controller.ResourceSet
+	{
+		c := v19.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			Tenant:            config.Tenant,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v19ResourceSet, err = v19.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -280,6 +307,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 				v16ResourceSet,
 				v17ResourceSet,
 				v18ResourceSet,
+				v19ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
