@@ -168,6 +168,7 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace s
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -205,6 +206,7 @@ func newCalicoEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Cert
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -239,9 +241,12 @@ func newOperatorAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, nam
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
-				label.Cluster:      clusterConfig.ClusterID,
-				label.ManagedBy:    project.Name(),
-				label.Organization: clusterConfig.Organization,
+				label.Certificate:     certName,
+				label.Cluster:         clusterConfig.ClusterID,
+				label.LegacyClusterID: clusterConfig.ClusterID,
+				label.LegacyComponent: certName,
+				label.ManagedBy:       project.Name(),
+				label.Organization:    clusterConfig.Organization,
 			},
 		},
 		Spec: v1alpha1.CertConfigSpec{
@@ -271,6 +276,7 @@ func newEtcdCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace 
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -306,6 +312,7 @@ func newFlanneldEtcdClientCertConfig(clusterConfig cluster.Config, cert certs.Ce
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -340,6 +347,7 @@ func newNodeOperatorCertConfig(clusterConfig cluster.Config, cert certs.Cert, na
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -376,6 +384,7 @@ func newPrometheusCertConfig(clusterConfig cluster.Config, cert certs.Cert, name
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -412,6 +421,7 @@ func newServiceAccountCertConfig(clusterConfig cluster.Config, cert certs.Cert, 
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
@@ -446,6 +456,7 @@ func newWorkerCertConfig(clusterConfig cluster.Config, cert certs.Cert, namespac
 			Name:      key.CertConfigName(clusterConfig.ClusterID, cert),
 			Namespace: namespace,
 			Labels: map[string]string{
+				label.Certificate:     certName,
 				label.Cluster:         clusterConfig.ClusterID,
 				label.LegacyClusterID: clusterConfig.ClusterID,
 				label.LegacyComponent: certName,
