@@ -8,9 +8,9 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
-				Kind:        versionbundle.KindAdded,
+				Component:   "kube-state-metrics",
+				Description: "Update to 1.7.2. https://github.com/giantswarm/kubernetes-kube-state-metrics/blob/master/CHANGELOG.md#v040",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -24,7 +24,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "kube-state-metrics",
-				Version: "1.5.0",
+				Version: "1.7.2",
 			},
 			{
 				Name:    "node-exporter",
