@@ -9,9 +9,11 @@ import (
 	"github.com/giantswarm/errors/guest"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/helm/cmd/helm/installer"
 )
 
@@ -120,6 +122,73 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 		}
 	}
 
+	// Create the network policy for tiller so it is allowed to do its job in case all traffic is blocked.
+	{
+		networkPolicyName := tillerPodName
+		networkPolicyNamespace := c.tillerNamespace
+		protocolTCP := corev1.ProtocolTCP
+		tillerPort := intstr.IntOrString{
+			IntVal: 44134,
+		}
+		tillerHTTPPort := intstr.IntOrString{
+			IntVal: 44135,
+		}
+
+		name := fmt.Sprintf("%s/%s", networkPolicyNamespace, networkPolicyName)
+
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating networkpolicy %#q", name))
+
+		np := &networkingv1.NetworkPolicy{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "networking.k8s.io/v1",
+				Kind:       "NetworkPolicy",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      networkPolicyName,
+				Namespace: networkPolicyNamespace,
+			},
+			Spec: networkingv1.NetworkPolicySpec{
+				PodSelector: metav1.LabelSelector{
+					MatchLabels: map[string]string{
+						"app":  "helm",
+						"name": "tiller",
+					},
+				},
+				Ingress: []networkingv1.NetworkPolicyIngressRule{
+					networkingv1.NetworkPolicyIngressRule{
+						Ports: []networkingv1.NetworkPolicyPort{
+							networkingv1.NetworkPolicyPort{
+								Protocol: &protocolTCP,
+								Port:     &tillerPort,
+							},
+							networkingv1.NetworkPolicyPort{
+								Protocol: &protocolTCP,
+								Port:     &tillerHTTPPort,
+							},
+						},
+					},
+				},
+				Egress: []networkingv1.NetworkPolicyEgressRule{
+					networkingv1.NetworkPolicyEgressRule{},
+				},
+				PolicyTypes: []networkingv1.PolicyType{
+					networkingv1.PolicyTypeIngress,
+					networkingv1.PolicyTypeEgress,
+				},
+			},
+		}
+
+		_, err := c.k8sClient.NetworkingV1().NetworkPolicies(networkPolicyNamespace).Create(np)
+		if errors.IsAlreadyExists(err) {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("networkpolicy %#q already exists", name))
+			// fall through
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created networkpolicy %#q", name))
+		}
+	}
+
 	var err error
 	var installTiller bool
 	var pod *corev1.Pod
@@ -127,7 +196,7 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 	{
 		o := func() error {
-			pod, err = getPod(c.k8sClient, tillerLabelSelector, c.tillerNamespace)
+			pod, err = getPod(c.k8sClient, c.tillerNamespace)
 			if IsNotFound(err) {
 				// Fall through as we need to install Tiller.
 				installTiller = true
@@ -138,10 +207,11 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 			return nil
 		}
-		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
+
+		b := backoff.NewConstant(c.ensureTillerInstalledMaxWait, 5*time.Second)
 		n := backoff.NewNotifier(c.logger, context.Background())
 
-		err := backoff.RetryNotify(o, b, n)
+		err = backoff.RetryNotify(o, b, n)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -206,12 +276,12 @@ func (c *Client) EnsureTillerInstalledWithValues(ctx context.Context, values []s
 
 			i++
 			if i < 3 {
-				return microerror.Maskf(executionFailedError, "failed to ping tiller 3 consecutive times")
+				return microerror.Maskf(tillerNotFoundError, "failed to ping tiller 3 consecutive times")
 			}
 
 			return nil
 		}
-		b := backoff.NewExponential(1*time.Minute, 5*time.Second)
+		b := backoff.NewExponential(c.ensureTillerInstalledMaxWait, 5*time.Second)
 		n := backoff.NewNotifier(c.logger, ctx)
 
 		err := backoff.RetryNotify(o, b, n)

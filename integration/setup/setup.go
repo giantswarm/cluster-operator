@@ -24,7 +24,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/integration/env"
 	"github.com/giantswarm/cluster-operator/integration/teardown"
-	"github.com/giantswarm/cluster-operator/integration/template"
 )
 
 const (
@@ -103,8 +102,6 @@ func WrapTestMain(ctx context.Context, g *framework.Guest, h *framework.Host, s 
 					log.Printf("%#v\n", err)
 					v = 1
 				}
-				// TODO there should be error handling for the framework teardown.
-				h.Teardown()
 			}
 		}
 		os.Exit(v)
@@ -178,18 +175,18 @@ func resources(ctx context.Context, h *framework.Host, g *framework.Guest, s *k8
 		}
 	}
 
-	err := h.InstallStableOperator("cert-operator", "certconfig", e2etemplates.CertOperatorChartValues)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	err = h.InstallStableOperator("node-operator", "drainerconfig", e2etemplates.NodeOperatorChartValues)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	err = h.InstallStableOperator("aws-operator", "awsconfig", e2etemplates.AWSOperatorChartValues)
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	//err := h.InstallStableOperator("cert-operator", "certconfig", e2etemplates.CertOperatorChartValues)
+	//if err != nil {
+	//	return microerror.Mask(err)
+	//}
+	//err = h.InstallStableOperator("node-operator", "drainerconfig", e2etemplates.NodeOperatorChartValues)
+	//if err != nil {
+	//	return microerror.Mask(err)
+	//}
+	//err = h.InstallStableOperator("aws-operator", "awsconfig", e2etemplates.AWSOperatorChartValues)
+	//if err != nil {
+	//	return microerror.Mask(err)
+	//}
 
 	// NOTE that the release package has to be configured to make this work. Right
 	// now it is unclear in which direction the e2e tests go but this here should
@@ -233,7 +230,7 @@ func resources(ctx context.Context, h *framework.Host, g *framework.Guest, s *k8
 	//		}
 	//	}
 
-	err = installCredential(h)
+	err := installCredential(h)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -247,15 +244,15 @@ func resources(ctx context.Context, h *framework.Host, g *framework.Guest, s *k8
 	//		return microerror.Mask(err)
 	//	}
 
-	err = h.InstallBranchOperator("cluster-operator", "awsclusterconfig", template.ClusterOperatorChartValues)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	err = h.InstallResource("apiextensions-aws-cluster-config-e2e", template.ClusterOperatorResourceChartValues, ":stable")
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	//err = h.InstallBranchOperator("cluster-operator", "awsclusterconfig", template.ClusterOperatorChartValues)
+	//if err != nil {
+	//	return microerror.Mask(err)
+	//}
+	//
+	//err = h.InstallResource("apiextensions-aws-cluster-config-e2e", template.ClusterOperatorResourceChartValues, ":stable")
+	//if err != nil {
+	//	return microerror.Mask(err)
+	//}
 
 	return nil
 }

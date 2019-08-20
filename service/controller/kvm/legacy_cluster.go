@@ -10,20 +10,17 @@ import (
 	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
+	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	v10 "github.com/giantswarm/cluster-operator/service/controller/kvm/v10"
-	v11 "github.com/giantswarm/cluster-operator/service/controller/kvm/v11"
-	v12 "github.com/giantswarm/cluster-operator/service/controller/kvm/v12"
-	v13 "github.com/giantswarm/cluster-operator/service/controller/kvm/v13"
-	v14 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
 	v15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
 	v16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
 	v17 "github.com/giantswarm/cluster-operator/service/controller/kvm/v17"
+	v18 "github.com/giantswarm/cluster-operator/service/controller/kvm/v18"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for
@@ -37,6 +34,7 @@ type LegacyClusterConfig struct {
 	K8sClient         kubernetes.Interface
 	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
+	Tenant            tenantcluster.Interface
 
 	CalicoAddress      string
 	CalicoPrefixLength string
@@ -84,127 +82,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
-	var v10ResourceSet *controller.ResourceSet
-	{
-		c := v10.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v10ResourceSet, err = v10.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v11ResourceSet *controller.ResourceSet
-	{
-		c := v11.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v11ResourceSet, err = v11.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v12ResourceSet *controller.ResourceSet
-	{
-		c := v12.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v12ResourceSet, err = v12.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v13ResourceSet *controller.ResourceSet
-	{
-		c := v13.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		v13ResourceSet, err = v13.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var v14ResourceSet *controller.ResourceSet
-	{
-		c := v14.ResourceSetConfig{
-			ApprClient:        config.ApprClient,
-			BaseClusterConfig: config.BaseClusterConfig,
-			CertSearcher:      config.CertSearcher,
-			Fs:                config.Fs,
-			G8sClient:         config.G8sClient,
-			K8sClient:         config.K8sClient,
-			Logger:            config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-			ResourceNamespace:  config.ResourceNamespace,
-		}
-
-		v14ResourceSet, err = v14.NewResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var v14patch1ResourceSet *controller.ResourceSet
 	{
 		c := v14patch1.ResourceSetConfig{
@@ -215,6 +92,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -240,6 +118,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -265,6 +144,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -290,6 +170,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			G8sClient:         config.G8sClient,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
+			Tenant:            config.Tenant,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -305,6 +186,32 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
+	var v18ResourceSet *controller.ResourceSet
+	{
+		c := v18.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			Tenant:            config.Tenant,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v18ResourceSet, err = v18.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -313,15 +220,11 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v10ResourceSet,
-				v11ResourceSet,
-				v12ResourceSet,
-				v13ResourceSet,
-				v14ResourceSet,
 				v14patch1ResourceSet,
 				v15ResourceSet,
 				v16ResourceSet,
 				v17ResourceSet,
+				v18ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 

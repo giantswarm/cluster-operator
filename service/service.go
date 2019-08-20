@@ -26,6 +26,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
@@ -51,6 +52,7 @@ type Config struct {
 	GitCommit   string
 	ProjectName string
 	Source      string
+	Version     string
 }
 
 // Service is a type providing implementation of microkit service interface.
@@ -124,6 +126,14 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
+	var dnsIP string
+	{
+		dnsIP, err = key.DNSIP(clusterIPRange)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	fs := afero.NewOsFs()
 	var apprClient *apprclient.Client
 	{
@@ -163,6 +173,12 @@ func New(config Config) (*Service, error) {
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
+			// TODO: Reduce the max wait to reduce delay when processing
+			// broken tenant clusters.
+			//
+			//     https://github.com/giantswarm/giantswarm/issues/6703
+			//
+			// EnsureTillerInstalledMaxWait: 2 * time.Minute,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
@@ -187,6 +203,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
+			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
@@ -218,6 +235,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
+			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
@@ -267,7 +285,7 @@ func New(config Config) (*Service, error) {
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			ProjectName: config.ProjectName,
+			DNSIP: dnsIP,
 		}
 
 		clusterController, err = clusterapi.NewCluster(c)
@@ -310,6 +328,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
+			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
@@ -329,6 +348,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := collector.SetConfig{
 			CertSearcher: certSearcher,
+			CMAClient:    cmaClient,
 			G8sClient:    g8sClient,
 			Logger:       config.Logger,
 		}
@@ -346,6 +366,7 @@ func New(config Config) (*Service, error) {
 			GitCommit:      config.GitCommit,
 			Name:           config.ProjectName,
 			Source:         config.Source,
+			Version:        config.Version,
 			VersionBundles: NewVersionBundles(),
 		}
 

@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
-	apiv1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -48,22 +48,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for the namespace in the tenant cluster")
 
 	// Lookup the current state of the namespace.
-	var namespace *apiv1.Namespace
+	var namespace *corev1.Namespace
 	{
 		manifest, err := tenantK8sClient.CoreV1().Namespaces().Get(namespaceName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
-		} else if apierrors.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster api timeout")
-
-			// We can't continue without a successful K8s connection. Cluster
-			// may not be up yet. We will retry during the next execution.
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-
-			return nil, nil
-
 		} else if tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 

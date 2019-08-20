@@ -6,11 +6,12 @@ import (
 	"github.com/giantswarm/exporterkit/collector"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster"
+	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
 type SetConfig struct {
 	CertSearcher certs.Interface
+	CMAClient    clientset.Interface
 	G8sClient    versioned.Interface
 	Logger       micrologger.Logger
 }
@@ -23,56 +24,16 @@ type Set struct {
 }
 
 func NewSet(config SetConfig) (*Set, error) {
-	if config.CertSearcher == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CertSearcher must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
-	}
-	if config.Logger == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
-	}
-
 	var err error
 
-	var helper *helper
+	var clusterCollector *Cluster
 	{
-		c := helperConfig{
-			G8sClient: config.G8sClient,
+		c := ClusterConfig{
+			CMAClient: config.CMAClient,
 			Logger:    config.Logger,
 		}
 
-		helper, err = newHelper(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var tenantCluster tenantcluster.Interface
-	{
-		c := tenantcluster.Config{
-			CertsSearcher: config.CertSearcher,
-			Logger:        config.Logger,
-
-			CertID: certs.ClusterOperatorAPICert,
-		}
-
-		tenantCluster, err = tenantcluster.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartOperatorCollector *ChartOperator
-	{
-		c := ChartOperatorConfig{
-			G8sClient:     config.G8sClient,
-			Helper:        helper,
-			Logger:        config.Logger,
-			TenantCluster: tenantCluster,
-		}
-
-		chartOperatorCollector, err = NewChartOperator(c)
+		clusterCollector, err = NewCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -82,7 +43,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
-				chartOperatorCollector,
+				clusterCollector,
 			},
 			Logger: config.Logger,
 		}

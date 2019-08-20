@@ -69,7 +69,7 @@ func CommonChartSpecs() []ChartSpec {
 	return []ChartSpec{
 		{
 			AppName:       "coredns",
-			ChannelName:   "0-5-stable",
+			ChannelName:   "0-6-stable",
 			ChartName:     "kubernetes-coredns-chart",
 			ConfigMapName: "coredns-values",
 			Namespace:     metav1.NamespaceSystem,
@@ -98,7 +98,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:         "metrics-server",
-			ChannelName:     "0-2-stable",
+			ChannelName:     "0-3-stable",
 			ChartName:       "kubernetes-metrics-server-chart",
 			ConfigMapName:   "metrics-server-values",
 			Namespace:       metav1.NamespaceSystem,
@@ -116,7 +116,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:       "nginx-ingress-controller",
-			ChannelName:   "0-7-stable",
+			ChannelName:   "0-8-stable",
 			ChartName:     "kubernetes-nginx-ingress-controller-chart",
 			ConfigMapName: "nginx-ingress-controller-values",
 			Namespace:     metav1.NamespaceSystem,
@@ -128,7 +128,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:         "node-exporter",
-			ChannelName:     "0-3-stable",
+			ChannelName:     "0-4-stable",
 			ChartName:       "kubernetes-node-exporter-chart",
 			ConfigMapName:   "node-exporter-values",
 			Namespace:       metav1.NamespaceSystem,

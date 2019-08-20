@@ -118,7 +118,7 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
-	clusterConfig.Domain.CalicoEtcdClient = fmt.Sprintf("calico.%s.%s", clusterConfig.ClusterID, key.DNSZone(clusterGuestConfig))
+	clusterConfig.Domain.CalicoEtcdClient = fmt.Sprintf("calico.%s", key.DNSZone(clusterGuestConfig))
 	clusterConfig.Domain.Etcd, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.EtcdCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)

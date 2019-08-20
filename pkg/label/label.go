@@ -3,75 +3,16 @@
 package label
 
 const (
-	// App is a standard label for guest resources.
-	App = "app"
-
+	// Certificate label identifies certificates in CertConfig CRs.
+	Certificate = "giantswarm.io/certificate"
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
-
-	// ConfigMapType is a type of configmap used for tenant clusters.
-	ConfigMapType = "cluster-operator.giantswarm.io/configmap-type"
-
-	// ConfigMapTypeApp is a label value for app configmaps managed by the
-	// operator.
-	ConfigMapTypeApp = "app"
-
-	// ConfigMapTypeUser is a label value for user configmaps created by the
-	// operator and edited by users to override chart values.
-	ConfigMapTypeUser = "user"
-
-	// LegacyClusterID is an old style label for ClusterID
-	LegacyClusterID = "clusterID"
-
-	// LegacyClusterKey is an old style label to specify type of a secret that
-	// is used for guest cluster. This is replaced by RandomKey.
-	LegacyClusterKey = "clusterKey"
-
-	// LegacyComponent is an old style label to identify which component a
-	// specific CertConfig belongs to.
-	LegacyComponent = "clusterComponent"
-
-	// Certificate is a label used to identify which component a specific
-	// CertConfig belongs to.
-	Certificate = "giantswarm.io/certificate"
-
-	// RandomKeyTypeEncryption is a type of randomkey secret used for guest
-	// cluster.
-	RandomKeyTypeEncryption = "encryption"
-
+	// MachineDeployment label denotes which node pool corresponding resources
+	// belongs.
+	MachineDeployment = "giantswarm.io/machine-deployment"
 	// ManagedBy label denotes which operator manages corresponding resource.
 	ManagedBy = "giantswarm.io/managed-by"
-
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.
 	Organization = "giantswarm.io/organization"
-
-	// OperatorVersion label transports the operator version requested to be used
-	// when reconciling the observed runtime object.
-	OperatorVersion = "cluster-operator.giantswarm.io/version"
-
-	// ProviderAWS label specifies format for AWS provider ID.
-	ProviderAWS = "aws"
-
-	// ProviderAzure label specifies format for Azure provider ID.
-	ProviderAzure = "azure"
-
-	// ProviderKVM label specifies format for KVM provider ID.
-	ProviderKVM = "kvm"
-
-	// RandomKey label specifies type of a secret that is used for guest
-	// cluster.
-	RandomKey = "giantswarm.io/randomkey"
-
-	// ReleaseKey is a label specifying a tenant cluster release version.
-	ReleaseKey = "release.giantswarm.io/version"
-
-	// ServiceType is a standard label for guest resources.
-	ServiceType = "giantswarm.io/service-type"
-
-	// ServiceTypeManaged is a label value for managed resources.
-	ServiceTypeManaged = "managed"
-
-	// ServiceTypeSystem is a label value for system resources.
-	ServiceTypeSystem = "system"
 )
