@@ -1,6 +1,8 @@
 package key
 
 import (
+	"fmt"
+
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
@@ -17,6 +19,14 @@ func ClusterID(getter LabelsGetter) string {
 
 func IsDeleted(getter DeletionTimestampGetter) bool {
 	return getter.GetDeletionTimestamp() != nil
+}
+
+func KubeConfigClusterName(getter LabelsGetter) string {
+	return fmt.Sprintf("giantswarm-%s", ClusterID(getter))
+}
+
+func KubeConfigSecretName(getter LabelsGetter) string {
+	return fmt.Sprintf("kubeconfig-%s", ClusterID(getter))
 }
 
 func MachineDeployment(getter LabelsGetter) string {
