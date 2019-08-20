@@ -27,11 +27,16 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Update to 0.25.1. https://github.com/giantswarm/kubernetes-nginx-ingress-controller/blob/master/CHANGELOG.md",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Update to 1.7.2. https://github.com/giantswarm/kubernetes-kube-state-metrics/blob/master/CHANGELOG.md#v040",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "kube-state-metrics",
-				Version: "1.5.0",
+				Version: "1.7.2",
 			},
 			{
 				Name:    "nginx-ingress-controller",
