@@ -8,26 +8,6 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cert-exporter",
-				Description: "Add toleration for all taints",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "net-exporter",
-				Description: "Add toleration for all taints",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Add toleration for all taints",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "nginx-ingress-controller",
-				Description: "Update to 0.25.0. https://github.com/giantswarm/kubernetes-nginx-ingress-controller/blob/master/CHANGELOG.md",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
 				Component:   "coredns",
 				Description: "Update to 1.6.2. https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md#v070",
 				Kind:        versionbundle.KindChanged,
