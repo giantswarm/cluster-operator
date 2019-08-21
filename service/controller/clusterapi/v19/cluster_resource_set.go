@@ -185,6 +185,42 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//}
 
+	//var clusterConfigMapGetter configmapresource.StateGetter
+	//{
+	//	c := clusterconfigmap.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//
+	//		DNSIP: config.DNSIP,
+	//	}
+	//
+	//	clusterConfigMapGetter, err = clusterconfigmap.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+	//
+	//var clusterConfigMapResource controller.Resource
+	//{
+	//	c := configmapresource.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//
+	//		Name:        clusterconfigmap.Name,
+	//		StateGetter: clusterConfigMapGetter,
+	//	}
+	//
+	//	ops, err := configmapresource.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	var awsclusterconfigResource controller.Resource
 	{
 		c := awsclusterconfig.Config{
