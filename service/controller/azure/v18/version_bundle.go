@@ -31,7 +31,7 @@ func VersionBundle() versionbundle.Bundle {
 		Components: []versionbundle.Component{
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.25.0",
+				Version: "0.25.1",
 			},
 			{
 				Name:    "external-dns",
