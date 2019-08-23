@@ -41,6 +41,25 @@ type ClusterResourceSetConfig struct {
 func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
+	//var chartConfigResource controller.Resource
+	//{
+	//	c := certconfig.Config{
+	//		Logger: config.Logger,
+	//
+	//		Provider: config.Provider,
+	//	}
+	//
+	//	ops, err := certconfig.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	chartConfigResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	var clusterIDResource controller.Resource
 	{
 		c := clusterid.Config{
