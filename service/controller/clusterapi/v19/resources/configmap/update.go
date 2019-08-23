@@ -2,7 +2,6 @@ package configmap
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
@@ -11,57 +10,64 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
-func (s *Service) ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToUpdate []*corev1.ConfigMap) error {
+func (r *Resource) ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToUpdate []*corev1.ConfigMap) error {
 	if len(configMapsToUpdate) > 0 {
-		s.logger.LogCtx(ctx, "level", "debug", "message", "updating configmaps")
-
-		tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updating configmaps")
 
 		for _, configMapToUpdate := range configMapsToUpdate {
-			_, err := tenantK8sClient.CoreV1().ConfigMaps(configMapToUpdate.Namespace).Update(configMapToUpdate)
+			_, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(configMapToUpdate.Namespace).Update(configMapToUpdate)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 		}
 
-		s.logger.LogCtx(ctx, "level", "debug", "message", "updated configmaps")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updated configmaps")
 	} else {
-		s.logger.LogCtx(ctx, "level", "debug", "message", "no need to update configmaps")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to update configmaps")
 	}
 
 	return nil
 }
 
-func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
-	create, err := s.newCreateChange(ctx, currentState, desiredState)
+func (r *Resource) NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
+	create, err := r.newCreateChange(ctx, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	update, err := s.newUpdateChange(ctx, currentState, desiredState)
+	delete, err := r.newDeleteChangeForUpdatePatch(ctx, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	delete, err := s.newDeleteChangeForUpdatePatch(ctx, currentState, desiredState)
+	update, err := r.newUpdateChange(ctx, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	patch := controller.NewPatch()
 	patch.SetCreateChange(create)
-	patch.SetUpdateChange(update)
 	patch.SetDeleteChange(delete)
+	patch.SetUpdateChange(update)
 
 	return patch, nil
 }
 
-func (s *Service) newUpdateChange(ctx context.Context, currentConfigMaps, desiredConfigMaps []*corev1.ConfigMap) ([]*corev1.ConfigMap, error) {
-	s.logger.LogCtx(ctx, "level", "debug", "message", "finding out which configmaps have to be updated")
+func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, currentConfigMaps, desiredConfigMaps []*corev1.ConfigMap) ([]*corev1.ConfigMap, error) {
+	configMapsToDelete := make([]*corev1.ConfigMap, 0)
 
+	for _, currentConfigMap := range currentConfigMaps {
+		_, err := getConfigMapByNameAndNamespace(desiredConfigMaps, currentConfigMap.Name, currentConfigMap.Namespace)
+		// Existing ConfigMap is not desired anymore so it should be deleted.
+		if IsNotFound(err) {
+			configMapsToDelete = append(configMapsToDelete, currentConfigMap)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	return configMapsToDelete, nil
+}
+
+func (r *Resource) newUpdateChange(ctx context.Context, currentConfigMaps, desiredConfigMaps []*corev1.ConfigMap) ([]*corev1.ConfigMap, error) {
 	configMapsToUpdate := make([]*corev1.ConfigMap, 0)
 
 	for _, currentConfigMap := range currentConfigMaps {
@@ -85,12 +91,9 @@ func (s *Service) newUpdateChange(ctx context.Context, currentConfigMaps, desire
 
 				configMapsToUpdate = append(configMapsToUpdate, configMapToUpdate)
 
-				s.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found configmap '%s' that has to be updated", desiredConfigMap.GetName()))
 			}
 		}
 	}
-
-	s.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configmaps which have to be updated", len(configMapsToUpdate)))
 
 	return configMapsToUpdate, nil
 }

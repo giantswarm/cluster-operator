@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 )
 
-func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {
+func (r *Resource) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {
 	var err error
 
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)

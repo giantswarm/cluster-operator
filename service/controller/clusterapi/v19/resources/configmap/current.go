@@ -15,11 +15,6 @@ import (
 func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*corev1.ConfigMap, error) {
 	var currentConfigMaps []*corev1.ConfigMap
 
-	tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	// Namespaces used by all providers. Uses a map for deduping.
 	namespaces := map[string]bool{
 		metav1.NamespaceSystem: true,
@@ -35,7 +30,7 @@ func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConf
 	}
 
 	for namespace := range namespaces {
-		configMapList, err := tenantK8sClient.CoreV1().ConfigMaps(namespace).List(listOptions)
+		configMapList, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(namespace).List(listOptions)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

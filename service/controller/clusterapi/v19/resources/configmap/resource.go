@@ -1,52 +1,35 @@
 package configmap
 
 import (
-	"context"
 	"reflect"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
-// Config represents the configuration used to create a new configmap service.
+const (
+	Name = "configmapv19"
+)
+
 type Config struct {
 	Logger micrologger.Logger
-	Tenant tenantcluster.Interface
 }
 
-// Service provides shared functionality for managing configmaps.
-type Service struct {
+type Resource struct {
 	logger micrologger.Logger
-	tenant tenantcluster.Interface
 }
 
-// New creates a new configmap service.
-func New(config Config) (*Service, error) {
+func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.Tenant == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
-	}
 
-	s := &Service{
+	r := &Resource{
 		logger: config.Logger,
-		tenant: config.Tenant,
 	}
 
-	return s, nil
-}
-
-func (s *Service) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
-	tenantK8sClient, err := s.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return tenantK8sClient, nil
+	return r, nil
 }
 
 // containsConfigMap checks if item is present within list

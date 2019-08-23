@@ -1,24 +1,5 @@
 package configmap
 
-import (
-	"context"
-
-	"github.com/giantswarm/operatorkit/controller"
-	corev1 "k8s.io/api/core/v1"
-
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
-)
-
-type Interface interface {
-	ApplyCreateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToCreate []*corev1.ConfigMap) error
-	ApplyDeleteChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToDelete []*corev1.ConfigMap) error
-	ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToUpdate []*corev1.ConfigMap) error
-	GetCurrentState(ctx context.Context, configMapConfig ClusterConfig) ([]*corev1.ConfigMap, error)
-	GetDesiredState(ctx context.Context, configMapConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error)
-	NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
-	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
-}
-
 // ClusterConfig is used by the configmap resources to provide config to
 // calculate the current state.
 type ClusterConfig struct {
