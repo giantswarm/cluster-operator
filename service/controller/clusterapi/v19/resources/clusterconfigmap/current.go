@@ -10,43 +10,38 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 )
 
-func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
-	objectMeta, err := r.getClusterObjectMetaFunc(obj)
+func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	// Cluster configMap is deleted by the provider operator when it deletes
-	// the tenant cluster namespace in the control plane cluster.
-	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting cluster configMap deletion to provider operators")
-		resourcecanceledcontext.SetCanceled(ctx)
+	// The cluster config map is deleted implicitly by the provider operator when
+	// it deletes the tenant cluster namespace in the control plane.
+	if key.IsDeleted(&cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
-	clusterConfig, err := r.getClusterConfigFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
+	var configMap *corev1.ConfigMap
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
+
+		configMap, err = r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get(key.ClusterConfigMapName(&cr), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
+			return nil, nil
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
 	}
 
-	name := key.ClusterConfigMapName(clusterConfig)
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-
-	cm, err := r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).Get(name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-
-	return []*corev1.ConfigMap{cm}, nil
+	return []*corev1.ConfigMap{configMap}, nil
 }

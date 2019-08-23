@@ -105,6 +105,41 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//}
 
+	//var kubeConfigGetter secretresource.StateGetter
+	//{
+	//	c := kubeconfig.Config{
+	//		CertsSearcher: config.CertsSearcher,
+	//		K8sClient:     config.K8sClient,
+	//		Logger:        config.Logger,
+	//	}
+	//
+	//	kubeConfigGetter, err = kubeconfig.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+	//
+	//var kubeConfigResource controller.Resource
+	//{
+	//	c := secretresource.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//
+	//		Name:        kubeconfig.Name,
+	//		StateGetter: kubeConfigGetter,
+	//	}
+	//
+	//	ops, err := secretresource.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	kubeConfigResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
 	//var certConfigResource controller.Resource
 	//{
 	//  c := certconfig.Config{
@@ -145,6 +180,42 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//
 	//	chartOperatorResource, err = toCRUDResource(config.Logger, ops)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+
+	//var clusterConfigMapGetter configmapresource.StateGetter
+	//{
+	//	c := clusterconfigmap.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//
+	//		DNSIP: config.DNSIP,
+	//	}
+	//
+	//	clusterConfigMapGetter, err = clusterconfigmap.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
+	//
+	//var clusterConfigMapResource controller.Resource
+	//{
+	//	c := configmapresource.Config{
+	//		K8sClient: config.K8sClient,
+	//		Logger:    config.Logger,
+	//
+	//		Name:        clusterconfigmap.Name,
+	//		StateGetter: clusterConfigMapGetter,
+	//	}
+	//
+	//	ops, err := configmapresource.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//
+	//	clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
 	//	if err != nil {
 	//		return nil, microerror.Mask(err)
 	//	}
@@ -208,6 +279,18 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 			return nil, microerror.Mask(err)
 		}
 	}
+
+	//var tillerResource controller.Resource
+	//{
+	//	c := tiller.Config{
+	//		Logger: config.Logger,
+	//	}
+	//
+	//	tillerResource, err = tiller.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
 
 	resources := []controller.Resource{
 		clusterIDResource,
