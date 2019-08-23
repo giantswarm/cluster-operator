@@ -2,6 +2,7 @@ package configmap
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
@@ -21,11 +22,11 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterC
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
-		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleted configmaps")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted configmap %#q in namespace %#q", chartConfig.Name, chartConfig.Namespace))
+		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to delete configmaps")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete configmaps")
 	}
 
 	return nil

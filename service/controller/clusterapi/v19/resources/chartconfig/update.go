@@ -33,7 +33,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chartconfig %#q in namespace %#q", chartConfig.Name, chartConfig.Namespace))
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to update chartconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not update chartconfigs")
 	}
 
 	return nil
