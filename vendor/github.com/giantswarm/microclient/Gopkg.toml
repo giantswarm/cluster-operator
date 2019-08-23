@@ -25,7 +25,7 @@
   name = "github.com/giantswarm/microerror"
 
 [[constraint]]
-  name = "github.com/go-resty/resty"
+  name = "gopkg.in/resty.v1"
   version = "1.0.0"
 
 [[constraint]]

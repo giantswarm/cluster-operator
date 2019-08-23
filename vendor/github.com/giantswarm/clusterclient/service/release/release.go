@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/go-resty/resty"
+	"gopkg.in/resty.v1"
 
 	"github.com/giantswarm/clusterclient/service/release/lister"
 	"github.com/giantswarm/clusterclient/service/release/searcher"

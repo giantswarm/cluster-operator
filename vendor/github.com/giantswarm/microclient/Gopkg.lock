@@ -18,14 +18,6 @@
   revision = "325932fa68e70dd4464598f11e2f710ac1aaec46"
 
 [[projects]]
-  digest = "1:3a000b3680bc855754c9e9a10158315aff3a0c2a463a8987bc5ae221bc7c6318"
-  name = "github.com/go-resty/resty"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9ac9c42358f7c3c69ac9f8610e8790d7c338e85d"
-  version = "v1.0"
-
-[[projects]]
   branch = "master"
   digest = "1:9b0e71863f18fc5de645a263184c8a6409ae731e847b35b25da4be818f1975fa"
   name = "github.com/golang/protobuf"
@@ -125,13 +117,21 @@
   pruneopts = "UT"
   revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
 
+[[projects]]
+  digest = "1:41206f4d0410803e64cfb203f665330c3183988408cb532b56305a816a87bd99"
+  name = "gopkg.in/resty.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "fa5875c0caa5c260ab78acec5a244215a730247f"
+  version = "v1.12.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/giantswarm/microerror",
-    "github.com/go-resty/resty",
     "github.com/prometheus/client_golang/prometheus",
+    "gopkg.in/resty.v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
