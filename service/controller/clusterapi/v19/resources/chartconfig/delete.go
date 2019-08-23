@@ -6,7 +6,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 )
@@ -28,7 +28,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		for _, chartConfig := range chartConfigs {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chartconfig %#q in namespace %#q", chartConfig.Name, chartConfig.Namespace))
 
-			err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(chartConfig.Namespace).Delete(chartConfig.Name, &v1.DeleteOptions{})
+			err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(chartConfig.Namespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -36,7 +36,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chartconfig %#q in namespace %#q", chartConfig.Name, chartConfig.Namespace))
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to delete chartconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete chartconfigs")
 	}
 
 	return nil
