@@ -44,7 +44,7 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	delete, err := r.newDeleteChange(ctx, obj, currentState, desiredState)
+	delete, err := r.newDeleteChangeForUpdatePatch(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -61,10 +61,11 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 	return patch, nil
 }
 
-// newDeleteChange is specific to the update behaviour because we might want to
-// remove certain chart configs when a tenant cluster is reconciled. So the
-// delete change computed here is gathered for the update patch above.
-func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) ([]*v1alpha1.ChartConfig, error) {
+// newDeleteChangeForUpdatePatch is specific to the update behaviour because we
+// might want to remove certain chart configs when a tenant cluster is
+// reconciled. So the delete change computed here is gathered for the update
+// patch above.
+func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) ([]*v1alpha1.ChartConfig, error) {
 	currentChartConfigs, err := toChartConfigs(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -74,7 +75,7 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	chartConfigsToDelete := make([]*v1alpha1.ChartConfig, 0)
+	var chartConfigsToDelete []*v1alpha1.ChartConfig
 
 	for _, currentChartConfig := range currentChartConfigs {
 		_, err := getChartConfigByName(desiredChartConfigs, currentChartConfig.Name)

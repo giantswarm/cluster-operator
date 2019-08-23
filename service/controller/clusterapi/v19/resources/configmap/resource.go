@@ -66,3 +66,16 @@ func isConfigMapModified(a, b *corev1.ConfigMap) bool {
 
 	return false
 }
+
+func toConfigMaps(v interface{}) ([]*corev1.ConfigMap, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	t, ok := v.([]*corev1.ConfigMap)
+	if !ok {
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", t, v)
+	}
+
+	return t, nil
+}

@@ -48,10 +48,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 
 		for _, item := range list.Items {
-			// Make a copy of an Item in order to not refer to loop iterator
-			// variable. This is because we want to track a list of pointers.
-			item := item
-			chartConfigs = append(chartConfigs, &item)
+			chartConfigs = append(chartConfigs, item.DeepCopy())
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d chart configs in tenant cluster %#q", len(chartConfigs), key.ClusterID(&cr)))

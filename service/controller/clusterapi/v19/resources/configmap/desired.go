@@ -5,17 +5,47 @@ import (
 	"encoding/json"
 	"math"
 
+	"github.com/giantswarm/azure-operator/service/controller/v6/controllercontext"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/pkg/v10/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 )
 
-func (r *Resource) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {
-	var err error
+func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	configMapValues := configmap.ConfigMapValues{
+		ClusterID: key.ClusterID(clusterGuestConfig),
+		CoreDNS: configmap.CoreDNSValues{
+			CalicoAddress:      r.calicoAddress,
+			CalicoPrefixLength: r.calicoPrefixLength,
+			ClusterIPRange:     r.clusterIPRange,
+		},
+		IngressController: configmap.IngressControllerValues{
+			// Controller service is disabled because manifest is created by
+			// Ignition.
+			ControllerServiceEnabled: false,
+			// Migration is disabled because AWS is already migrated.
+			MigrationEnabled: false,
+			// Proxy protocol is enabled for AWS clusters.
+			UseProxyProtocol: true,
+		},
+		Organization:   key.ClusterOrganization(clusterGuestConfig),
+		RegistryDomain: r.registryDomain,
+		WorkerCount:    awskey.WorkerCount(customObject),
+	}
 
 	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
 	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
