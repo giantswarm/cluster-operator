@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
@@ -29,7 +30,9 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chartconfig %#q in namespace %#q", chartConfig.Name, chartConfig.Namespace))
 
 			err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(chartConfig.Namespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
-			if err != nil {
+			if apierrors.IsNotFound(err) {
+				// fall through
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 
