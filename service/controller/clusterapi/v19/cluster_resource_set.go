@@ -4,37 +4,60 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
+	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
+	"github.com/spf13/afero"
+	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/awsclusterconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/certconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/chartoperator"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/kubeconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/workercount"
 )
 
 // ClusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
 type ClusterResourceSetConfig struct {
-	BaseClusterConfig *cluster.Config
-	ClusterClient     *clusterclient.Client
-	CMAClient         clientset.Interface
-	G8sClient         versioned.Interface
-	Logger            micrologger.Logger
-	Tenant            tenantcluster.Interface
+	ApprClient    *apprclient.Client
+	CertsSearcher certs.Interface
+	ClusterClient *clusterclient.Client
+	CMAClient     clientset.Interface
+	FileSystem    afero.Fs
+	G8sClient     versioned.Interface
+	K8sClient     kubernetes.Interface
+	Logger        micrologger.Logger
+	Tenant        tenantcluster.Interface
 
-	DNSIP string
+	APIIP              string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	CertTTL            string
+	ClusterIPRange     string
+	DNSIP              string
+	Provider           string
+	RegistryDomain     string
 }
 
 // NewClusterResourceSet returns a configured Cluster API's Cluster controller
@@ -42,24 +65,104 @@ type ClusterResourceSetConfig struct {
 func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
-	//var chartConfigResource controller.Resource
-	//{
-	//	c := certconfig.Config{
-	//		Logger: config.Logger,
-	//
-	//		Provider: config.Provider,
-	//	}
-	//
-	//	ops, err := certconfig.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	chartConfigResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
+	var certConfigResource controller.Resource
+	{
+		c := certconfig.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+
+			APIIP:    config.APIIP,
+			CertTTL:  config.CertTTL,
+			Provider: config.Provider,
+		}
+
+		ops, err := certconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		certConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartConfigResource controller.Resource
+	{
+		c := chartconfig.Config{
+			Logger: config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		ops, err := chartconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartOperatorResource controller.Resource
+	{
+		c := chartoperator.Config{
+			ApprClient: config.ApprClient,
+			FileSystem: config.FileSystem,
+			Logger:     config.Logger,
+
+			DNSIP:          config.DNSIP,
+			RegistryDomain: config.RegistryDomain,
+		}
+
+		ops, err := chartoperator.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartOperatorResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapGetter configmapresource.StateGetter
+	{
+		c := clusterconfigmap.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			DNSIP: config.DNSIP,
+		}
+
+		clusterConfigMapGetter, err = clusterconfigmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapResource controller.Resource
+	{
+		c := configmapresource.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        clusterconfigmap.Name,
+			StateGetter: clusterConfigMapGetter,
+		}
+
+		ops, err := configmapresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var clusterIDResource controller.Resource
 	{
@@ -91,186 +194,115 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	//var encryptionKeyGetter secretresource.StateGetter
-	//{
-	//	c := encryptionkey.Config{
-	//		K8sClient: config.K8sClient,
-	//		Logger:    config.Logger,
-	//	}
-	//
-	//	encryptionKeyGetter, err = encryptionkey.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-	//
-	//var encryptionKeyResource controller.Resource
-	//{
-	//	c := secretresource.Config{
-	//		K8sClient: config.K8sClient,
-	//		Logger:    config.Logger,
-	//
-	//		Name:        encryptionkey.Name,
-	//		StateGetter: encryptionKeyGetter,
-	//	}
-	//
-	//	ops, err := secretresource.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-
-	//var kubeConfigGetter secretresource.StateGetter
-	//{
-	//	c := kubeconfig.Config{
-	//		CertsSearcher: config.CertsSearcher,
-	//		K8sClient:     config.K8sClient,
-	//		Logger:        config.Logger,
-	//	}
-	//
-	//	kubeConfigGetter, err = kubeconfig.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-	//
-	//var kubeConfigResource controller.Resource
-	//{
-	//	c := secretresource.Config{
-	//		K8sClient: config.K8sClient,
-	//		Logger:    config.Logger,
-	//
-	//		Name:        kubeconfig.Name,
-	//		StateGetter: kubeConfigGetter,
-	//	}
-	//
-	//	ops, err := secretresource.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	kubeConfigResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-
-	//var certConfigResource controller.Resource
-	//{
-	//  c := certconfig.Config{
-	//  	G8sClient: config.K8sClient,
-	//  	K8sClient: config.K8sClient,
-	//  	Logger:    config.Logger,
-	//
-	//  	APIIP:    config.APIIP,
-	//  	CertTTL:  config.CertTTL,
-	//  	Provider: config.Provider,
-	//  }
-	//
-	//	ops, err := certconfig.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	certConfigResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-
-	//var chartOperatorResource controller.Resource
-	//{
-	//	c := certconfig.Config{
-	//		ApprClient: config.ApprClient,
-	//		FileSystem: config.FileSystem,
-	//		Logger:     config.Logger,
-	//
-	//		DNSIP:          config.DNSIP,
-	//		RegistryDomain: config.RegistryDomain,
-	//	}
-	//
-	//	ops, err := certconfig.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	chartOperatorResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-
-	//var clusterConfigMapGetter configmapresource.StateGetter
-	//{
-	//	c := clusterconfigmap.Config{
-	//		K8sClient: config.K8sClient,
-	//		Logger:    config.Logger,
-	//
-	//		DNSIP: config.DNSIP,
-	//	}
-	//
-	//	clusterConfigMapGetter, err = clusterconfigmap.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-	//
-	//var clusterConfigMapResource controller.Resource
-	//{
-	//	c := configmapresource.Config{
-	//		K8sClient: config.K8sClient,
-	//		Logger:    config.Logger,
-	//
-	//		Name:        clusterconfigmap.Name,
-	//		StateGetter: clusterConfigMapGetter,
-	//	}
-	//
-	//	ops, err := configmapresource.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
-
-	var awsclusterconfigResource controller.Resource
+	var configMapResource controller.Resource
 	{
-		c := awsclusterconfig.Config{
-			ClusterClient: config.ClusterClient,
-			G8sClient:     config.G8sClient,
-			Logger:        config.Logger,
+		c := configmap.Config{
+			Logger: config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			DNSIP:              config.DNSIP,
+			Provider:           config.Provider,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
-		awsclusterconfigResource, err = awsclusterconfig.New(c)
+		ops, err := configmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configMapResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	//var namespaceResource controller.Resource
-	//{
-	//	c := namespace.Config{
-	//		Logger: config.Logger,
-	//	}
-	//
-	//	ops, err := namespace.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//
-	//	namespaceResource, err = toCRUDResource(config.Logger, ops)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
+	var encryptionKeyGetter secretresource.StateGetter
+	{
+		c := encryptionkey.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		encryptionKeyGetter, err = encryptionkey.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var encryptionKeyResource controller.Resource
+	{
+		c := secretresource.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        encryptionkey.Name,
+			StateGetter: encryptionKeyGetter,
+		}
+
+		ops, err := secretresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var kubeConfigGetter secretresource.StateGetter
+	{
+		c := kubeconfig.Config{
+			CertsSearcher: config.CertsSearcher,
+			K8sClient:     config.K8sClient,
+			Logger:        config.Logger,
+		}
+
+		kubeConfigGetter, err = kubeconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var kubeConfigResource controller.Resource
+	{
+		c := secretresource.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        kubeconfig.Name,
+			StateGetter: kubeConfigGetter,
+		}
+
+		ops, err := secretresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		kubeConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var namespaceResource controller.Resource
+	{
+		c := namespace.Config{
+			Logger: config.Logger,
+		}
+
+		ops, err := namespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		namespaceResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var operatorVersionsResource controller.Resource
 	{
@@ -288,7 +320,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
-			CMAClient:     config.CMAClient,
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 			ToClusterFunc: key.ToCluster,
@@ -300,17 +331,17 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	//var tillerResource controller.Resource
-	//{
-	//	c := tiller.Config{
-	//		Logger: config.Logger,
-	//	}
-	//
-	//	tillerResource, err = tiller.New(c)
-	//	if err != nil {
-	//		return nil, microerror.Mask(err)
-	//	}
-	//}
+	var tillerResource controller.Resource
+	{
+		c := tiller.Config{
+			Logger: config.Logger,
+		}
+
+		tillerResource, err = tiller.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var workerCountResource controller.Resource
 	{
@@ -331,24 +362,21 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		workerCountResource,
 		clusterStatusResource,
 
-		// TODO drop this once the resources below are all actiavted.
-		awsclusterconfigResource,
-
 		// Put encryptionKeyResource first because it executes faster than
 		// certConfigResource and could introduce dependency during cluster
 		// creation.
-		//encryptionKeyResource,
-		//certConfigResource,
-		//clusterConfigMapResource,
-		//kubeConfigResource,
+		encryptionKeyResource,
+		certConfigResource,
+		clusterConfigMapResource,
+		kubeConfigResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
-		//namespaceResource,
-		//tillerResource,
-		//chartOperatorResource,
-		//configMapResource,
-		//chartConfigResource,
+		namespaceResource,
+		tillerResource,
+		chartOperatorResource,
+		configMapResource,
+		chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.

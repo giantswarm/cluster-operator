@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -134,11 +133,19 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	fs := afero.NewOsFs()
+	var apiIP string
+	{
+		_, ip, err := parseClusterIPRange(config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		apiIP = ip.String()
+	}
+
 	var apprClient *apprclient.Client
 	{
 		c := apprclient.Config{
-			Fs:     fs,
+			Fs:     afero.NewOsFs(),
 			Logger: config.Logger,
 
 			Address:      defaultCNRAddress,
@@ -151,7 +158,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var certSearcher certs.Interface
+	var clusterClient *clusterclient.Client
+	{
+		c := clusterclient.Config{
+			Address: config.Viper.GetString(config.Flag.Service.ClusterService.Address),
+			Logger:  config.Logger,
+
+			// Timeout & RetryCount are straight from `api/service/service.go`.
+			RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
+		}
+
+		clusterClient, err = clusterclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
 			K8sClient: k8sClient,
@@ -160,7 +183,7 @@ func New(config Config) (*Service, error) {
 			WatchTimeout: 5 * time.Second,
 		}
 
-		certSearcher, err = certs.NewSearcher(c)
+		certsSearcher, err = certs.NewSearcher(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -169,7 +192,7 @@ func New(config Config) (*Service, error) {
 	var tenantCluster tenantcluster.Interface
 	{
 		c := tenantcluster.Config{
-			CertsSearcher: certSearcher,
+			CertsSearcher: certsSearcher,
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
@@ -197,8 +220,8 @@ func New(config Config) (*Service, error) {
 		c := aws.LegacyClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certSearcher,
-			Fs:                fs,
+			CertSearcher:      certsSearcher,
+			Fs:                afero.NewOsFs(),
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -229,8 +252,8 @@ func New(config Config) (*Service, error) {
 		c := azure.LegacyClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certSearcher,
-			Fs:                fs,
+			CertSearcher:      certsSearcher,
+			Fs:                afero.NewOsFs(),
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -253,39 +276,26 @@ func New(config Config) (*Service, error) {
 
 	var clusterController *clusterapi.Cluster
 	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		var clusterClient *clusterclient.Client
-		{
-			config.Logger.Log("level", "debug", "message", fmt.Sprintf("address for cluster-service: %q", config.Viper.GetString(config.Flag.Service.ClusterService.Address)))
-
-			c := clusterclient.Config{
-				Address: config.Viper.GetString(config.Flag.Service.ClusterService.Address),
-				Logger:  config.Logger,
-
-				// Timeout & RetryCount are straight from `api/service/service.go`.
-				RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
-			}
-
-			clusterClient, err = clusterclient.New(c)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
-		}
-
 		c := clusterapi.ClusterConfig{
-			BaseClusterConfig: baseClusterConfig,
-			ClusterClient:     clusterClient,
-			CMAClient:         cmaClient,
-			G8sClient:         g8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
+			ApprClient:    apprClient,
+			CertsSearcher: certsSearcher,
+			ClusterClient: clusterClient,
+			CMAClient:     cmaClient,
+			FileSystem:    afero.NewOsFs(),
+			G8sClient:     g8sClient,
+			K8sClient:     k8sClient,
+			K8sExtClient:  k8sExtClient,
+			Logger:        config.Logger,
+			Tenant:        tenantCluster,
 
-			DNSIP: dnsIP,
+			APIIP:              apiIP,
+			CalicoAddress:      calicoAddress,
+			CalicoPrefixLength: calicoPrefixLength,
+			CertTTL:            config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
+			ClusterIPRange:     clusterIPRange,
+			DNSIP:              dnsIP,
+			Provider:           config.Viper.GetString(config.Flag.Service.Provider.Kind),
+			RegistryDomain:     registryDomain,
 		}
 
 		clusterController, err = clusterapi.NewCluster(c)
@@ -322,8 +332,8 @@ func New(config Config) (*Service, error) {
 		c := kvm.LegacyClusterConfig{
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certSearcher,
-			Fs:                fs,
+			CertSearcher:      certsSearcher,
+			Fs:                afero.NewOsFs(),
 			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
 			K8sExtClient:      k8sExtClient,
@@ -347,7 +357,7 @@ func New(config Config) (*Service, error) {
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
-			CertSearcher: certSearcher,
+			CertSearcher: certsSearcher,
 			CMAClient:    cmaClient,
 			G8sClient:    g8sClient,
 			Logger:       config.Logger,
