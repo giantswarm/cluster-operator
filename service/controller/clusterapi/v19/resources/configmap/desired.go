@@ -15,12 +15,17 @@ import (
 	pkgkey "github.com/giantswarm/cluster-operator/pkg/v19/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v19/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v19/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
 	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -44,9 +49,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		},
 		Organization:   key.OrganizationID(&cr),
 		RegistryDomain: r.registryDomain,
-		// TODO how to go about this here? The cluster may not have workers and the
-		// Cluster CR has no worker information at all anyway.
-		WorkerCount: 0,
+		WorkerCount:    cc.Status.Worker.Nodes,
 	}
 
 	var configMaps []*corev1.ConfigMap
