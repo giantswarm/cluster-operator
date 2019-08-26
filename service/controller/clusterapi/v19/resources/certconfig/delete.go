@@ -39,9 +39,9 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 // NewDeletePatch is called upon observed custom object deletion. It receives
 // the deleted custom object, the current state as provided by GetCurrentState
-// and the desired state as provided by GetDesiredState. NewDeletePatch
-// analyses the current and desired state and returns the patch to be applied by
-// Create, Update and Delete functions.
+// and the desired state as provided by GetDesiredState. NewDeletePatch analyses
+// the current and desired state and returns the patch to be applied by Create,
+// Update and Delete functions.
 func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	delete, err := r.newDeleteChangeForDeletePatch(ctx, obj, currentState, desiredState)
 	if err != nil {
