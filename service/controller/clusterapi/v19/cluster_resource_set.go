@@ -22,6 +22,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/certconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/chartoperator"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterid"
@@ -64,11 +65,14 @@ type ClusterResourceSetConfig struct {
 func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
-	var chartConfigResource controller.Resource
+	var certConfigResource controller.Resource
 	{
 		c := certconfig.Config{
-			Logger: config.Logger,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
 
+			APIIP:    config.APIIP,
+			CertTTL:  config.CertTTL,
 			Provider: config.Provider,
 		}
 
@@ -77,7 +81,84 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 			return nil, microerror.Mask(err)
 		}
 
+		certConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartConfigResource controller.Resource
+	{
+		c := chartconfig.Config{
+			Logger: config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		ops, err := chartconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var chartOperatorResource controller.Resource
+	{
+		c := chartoperator.Config{
+			ApprClient: config.ApprClient,
+			FileSystem: config.FileSystem,
+			Logger:     config.Logger,
+
+			DNSIP:          config.DNSIP,
+			RegistryDomain: config.RegistryDomain,
+		}
+
+		ops, err := chartoperator.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		chartOperatorResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapGetter configmapresource.StateGetter
+	{
+		c := clusterconfigmap.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			DNSIP: config.DNSIP,
+		}
+
+		clusterConfigMapGetter, err = clusterconfigmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapResource controller.Resource
+	{
+		c := configmapresource.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			Name:        clusterconfigmap.Name,
+			StateGetter: clusterConfigMapGetter,
+		}
+
+		ops, err := configmapresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -108,6 +189,28 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var configMapResource controller.Resource
+	{
+		c := configmap.Config{
+			Logger: config.Logger,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			RegistryDomain:     config.RegistryDomain,
+		}
+
+		ops, err := configmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		configMapResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -177,108 +280,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		kubeConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var certConfigResource controller.Resource
-	{
-		c := certconfig.Config{
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
-
-			APIIP:    config.APIIP,
-			CertTTL:  config.CertTTL,
-			Provider: config.Provider,
-		}
-
-		ops, err := certconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		certConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartOperatorResource controller.Resource
-	{
-		c := chartoperator.Config{
-			ApprClient: config.ApprClient,
-			FileSystem: config.FileSystem,
-			Logger:     config.Logger,
-
-			DNSIP:          config.DNSIP,
-			RegistryDomain: config.RegistryDomain,
-		}
-
-		ops, err := chartoperator.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartOperatorResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterConfigMapGetter configmapresource.StateGetter
-	{
-		c := clusterconfigmap.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			DNSIP: config.DNSIP,
-		}
-
-		clusterConfigMapGetter, err = clusterconfigmap.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterConfigMapResource controller.Resource
-	{
-		c := configmapresource.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			Name:        clusterconfigmap.Name,
-			StateGetter: clusterConfigMapGetter,
-		}
-
-		ops, err := configmapresource.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var configMapResource controller.Resource
-	{
-		c := configmap.Config{
-			Logger: config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		ops, err := configmap.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		configMapResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
