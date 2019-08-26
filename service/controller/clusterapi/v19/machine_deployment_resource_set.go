@@ -48,7 +48,6 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	var tenantClientsResource controller.Resource
 	{
 		c := tenantclients.Config{
-			CMAClient:     config.CMAClient,
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 			ToClusterFunc: newMachineDeploymentToClusterFunc(config.CMAClient),

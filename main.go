@@ -21,13 +21,13 @@ var (
 )
 
 func main() {
-	err := mainWithError()
+	err := mainE()
 	if err != nil {
 		panic(fmt.Sprintf("%#v\n", err))
 	}
 }
 
-func mainWithError() error {
+func mainE() error {
 	var err error
 
 	ctx := context.Background()
@@ -103,7 +103,7 @@ func mainWithError() error {
 
 		newCommand, err = command.New(c)
 		if err != nil {
-			return microerror.Maskf(err, "command.New")
+			return microerror.Mask(err)
 		}
 	}
 
@@ -113,14 +113,19 @@ func mainWithError() error {
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Calico.Subnet, "", "Network address for the CIDR block used by Calico.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Kubernetes.API.ClusterIPRange, "", "CIDR Range for Pods in cluster.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Vault.Certificate.TTL, "", "Vault certificate TTL.")
+
 	daemonCommand.PersistentFlags().String(f.Service.ClusterService.Address, "http://localhost:8089", "http://<host>:<port> of the cluster service.")
+
 	daemonCommand.PersistentFlags().String(f.Service.Image.Registry.Domain, "quay.io", "Image registry.")
+
 	daemonCommand.PersistentFlags().String(f.Service.KubeConfig.Secret.Namespace, "giantswarm", "The namespace where kubeconfig secrets are located.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.Address, "", "Address used to connect to Kubernetes. When empty in-cluster config is created.")
 	daemonCommand.PersistentFlags().Bool(f.Service.Kubernetes.InCluster, true, "Whether to use the in-cluster config to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.CAFile, "", "Certificate authority file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.CrtFile, "", "Certificate file path to use to authenticate with Kubernetes.")
 	daemonCommand.PersistentFlags().String(f.Service.Kubernetes.TLS.KeyFile, "", "Key file path to use to authenticate with Kubernetes.")
+
+	daemonCommand.PersistentFlags().String(f.Service.Provider.Kind, "", "Provider of the installation. One of aws, azure, kvm.")
 
 	newCommand.CobraCommand().Execute()
 

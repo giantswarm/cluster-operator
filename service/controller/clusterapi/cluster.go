@@ -3,6 +3,8 @@ package clusterapi
 import (
 	clusterv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -10,11 +12,12 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/informer"
 	"github.com/giantswarm/tenantcluster"
+	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	v19 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19"
 )
@@ -22,15 +25,25 @@ import (
 // ClusterConfig contains necessary dependencies and settings for
 // Cluster API's Cluster CRD controller implementation.
 type ClusterConfig struct {
-	BaseClusterConfig *cluster.Config
-	ClusterClient     *clusterclient.Client
-	CMAClient         clientset.Interface
-	G8sClient         versioned.Interface
-	K8sExtClient      apiextensionsclient.Interface
-	Logger            micrologger.Logger
-	Tenant            tenantcluster.Interface
+	ApprClient    *apprclient.Client
+	CertsSearcher certs.Interface
+	ClusterClient *clusterclient.Client
+	CMAClient     clientset.Interface
+	FileSystem    afero.Fs
+	G8sClient     versioned.Interface
+	K8sClient     kubernetes.Interface
+	K8sExtClient  apiextensionsclient.Interface
+	Logger        micrologger.Logger
+	Tenant        tenantcluster.Interface
 
-	DNSIP string
+	APIIP              string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	CertTTL            string
+	ClusterIPRange     string
+	DNSIP              string
+	Provider           string
+	RegistryDomain     string
 }
 
 type Cluster struct {
@@ -73,14 +86,24 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var resourceSetV19 *controller.ResourceSet
 	{
 		c := v19.ClusterResourceSetConfig{
-			BaseClusterConfig: config.BaseClusterConfig,
-			ClusterClient:     config.ClusterClient,
-			CMAClient:         config.CMAClient,
-			G8sClient:         config.G8sClient,
-			Logger:            config.Logger,
-			Tenant:            config.Tenant,
+			ApprClient:    config.ApprClient,
+			CertsSearcher: config.CertsSearcher,
+			ClusterClient: config.ClusterClient,
+			CMAClient:     config.CMAClient,
+			FileSystem:    config.FileSystem,
+			G8sClient:     config.G8sClient,
+			K8sClient:     config.K8sClient,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
 
-			DNSIP: config.DNSIP,
+			APIIP:              config.APIIP,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			CertTTL:            config.CertTTL,
+			ClusterIPRange:     config.ClusterIPRange,
+			DNSIP:              config.DNSIP,
+			Provider:           config.Provider,
+			RegistryDomain:     config.RegistryDomain,
 		}
 
 		resourceSetV19, err = v19.NewClusterResourceSet(c)

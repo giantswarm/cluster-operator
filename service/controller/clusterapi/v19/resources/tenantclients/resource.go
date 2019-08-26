@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
@@ -21,23 +20,18 @@ const (
 )
 
 type Config struct {
-	CMAClient     clientset.Interface
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
 	ToClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
 }
 
 type Resource struct {
-	cmaClient     clientset.Interface
 	logger        micrologger.Logger
 	tenant        tenantcluster.Interface
 	toClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -49,7 +43,6 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		cmaClient:     config.CMAClient,
 		logger:        config.Logger,
 		tenant:        config.Tenant,
 		toClusterFunc: config.ToClusterFunc,

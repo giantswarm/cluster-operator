@@ -72,6 +72,10 @@ func New(config Config) (*Resource, error) {
 	return r, nil
 }
 
+func (r *Resource) Name() string {
+	return Name
+}
+
 // containsConfigMap checks if item is present within list
 // by comparing ObjectMeta Name and Namespace property between item and list objects.
 func containsConfigMap(list []*corev1.ConfigMap, item *corev1.ConfigMap) bool {
