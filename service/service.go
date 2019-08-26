@@ -283,6 +283,7 @@ func New(config Config) (*Service, error) {
 			CMAClient:     cmaClient,
 			FileSystem:    afero.NewOsFs(),
 			G8sClient:     g8sClient,
+			K8sClient:     k8sClient,
 			K8sExtClient:  k8sExtClient,
 			Logger:        config.Logger,
 			Tenant:        tenantCluster,
