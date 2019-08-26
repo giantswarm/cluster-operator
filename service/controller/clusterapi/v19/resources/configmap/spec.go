@@ -35,6 +35,7 @@ type CoreDNSValues struct {
 	CalicoAddress      string
 	CalicoPrefixLength string
 	ClusterIPRange     string
+	DNSIP              string
 }
 
 // IngressControllerValues provides values for generating the Ingress

@@ -14,10 +14,24 @@ const (
 
 type Config struct {
 	Logger micrologger.Logger
+
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	DNSIP              string
+	Provider           string
+	RegistryDomain     string
 }
 
 type Resource struct {
 	logger micrologger.Logger
+
+	calicoAddress      string
+	calicoPrefixLength string
+	clusterIPRange     string
+	dnsIP              string
+	provider           string
+	registryDomain     string
 }
 
 func New(config Config) (*Resource, error) {
@@ -25,8 +39,34 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.CalicoAddress == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
+	}
+	if config.CalicoPrefixLength == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
+	}
+	if config.ClusterIPRange == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
+	}
+	if config.DNSIP == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.DNSIP must not be empty", config)
+	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+	if config.RegistryDomain == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.RegistryDomain must not be empty", config)
+	}
+
 	r := &Resource{
 		logger: config.Logger,
+
+		calicoAddress:      config.CalicoAddress,
+		calicoPrefixLength: config.CalicoPrefixLength,
+		clusterIPRange:     config.ClusterIPRange,
+		dnsIP:              config.DNSIP,
+		provider:           config.Provider,
+		registryDomain:     config.RegistryDomain,
 	}
 
 	return r, nil

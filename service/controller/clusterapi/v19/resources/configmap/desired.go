@@ -3,17 +3,20 @@ package configmap
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 
-	"github.com/giantswarm/azure-operator/service/controller/v6/controllercontext"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v10/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	pkgkey "github.com/giantswarm/cluster-operator/pkg/v19/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v19/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v19/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
@@ -21,19 +24,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 
-	configMapValues := configmap.ConfigMapValues{
-		ClusterID: key.ClusterID(clusterGuestConfig),
-		CoreDNS: configmap.CoreDNSValues{
+	configMapValues := ConfigMapValues{
+		ClusterID: key.ClusterID(&cr),
+		CoreDNS: CoreDNSValues{
 			CalicoAddress:      r.calicoAddress,
 			CalicoPrefixLength: r.calicoPrefixLength,
 			ClusterIPRange:     r.clusterIPRange,
+			DNSIP:              r.dnsIP,
 		},
-		IngressController: configmap.IngressControllerValues{
+		IngressController: IngressControllerValues{
 			// Controller service is disabled because manifest is created by
 			// Ignition.
 			ControllerServiceEnabled: false,
@@ -42,15 +42,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			// Proxy protocol is enabled for AWS clusters.
 			UseProxyProtocol: true,
 		},
-		Organization:   key.ClusterOrganization(clusterGuestConfig),
+		Organization:   key.OrganizationID(&cr),
 		RegistryDomain: r.registryDomain,
-		WorkerCount:    awskey.WorkerCount(customObject),
+		// TODO how to go about this here? The cluster may not have workers and the
+		// Cluster CR has no worker information at all anyway.
+		WorkerCount: 0,
 	}
 
-	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
-	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
+	var configMaps []*corev1.ConfigMap
 
-	for _, spec := range configMapSpecs {
+	for _, spec := range newConfigMapSpecs(r.newChartSpecs()) {
 		spec.Labels = newConfigMapLabels(spec, configMapValues, project.Name())
 
 		// Values are only set for app configmaps.
@@ -93,10 +94,30 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			spec.ValuesJSON = string(values)
 		}
 
-		desiredConfigMaps = append(desiredConfigMaps, newConfigMap(spec))
+		configMaps = append(configMaps, newConfigMap(spec))
 	}
 
-	return desiredConfigMaps, nil
+	return configMaps, nil
+}
+
+func (r *Resource) newChartSpecs() []pkgkey.ChartSpec {
+	switch r.provider {
+	case "aws":
+		return append(pkgkey.CommonChartSpecs(), awskey.ChartSpecs()...)
+	case "azure":
+		return append(pkgkey.CommonChartSpecs(), azurekey.ChartSpecs()...)
+	case "kvm":
+		return append(pkgkey.CommonChartSpecs(), kvmkey.ChartSpecs()...)
+	default:
+		return pkgkey.CommonChartSpecs()
+	}
+}
+
+func cidrBlock(address, prefix string) string {
+	if address == "" && prefix == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/%s", address, prefix)
 }
 
 func clusterAutoscalerValues(configMapValues ConfigMapValues) ([]byte, error) {
@@ -117,11 +138,7 @@ func clusterAutoscalerValues(configMapValues ConfigMapValues) ([]byte, error) {
 }
 
 func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
-	calicoCIDRBlock := key.CIDRBlock(configMapValues.CoreDNS.CalicoAddress, configMapValues.CoreDNS.CalicoPrefixLength)
-	DNSIP, err := key.DNSIP(configMapValues.CoreDNS.ClusterIPRange)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	calicoCIDRBlock := cidrBlock(configMapValues.CoreDNS.CalicoAddress, configMapValues.CoreDNS.CalicoPrefixLength)
 
 	values := CoreDNS{
 		Cluster: CoreDNSCluster{
@@ -133,7 +150,7 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 					ClusterIPRange: configMapValues.CoreDNS.ClusterIPRange,
 				},
 				DNS: CoreDNSClusterKubernetesDNS{
-					IP: DNSIP,
+					IP: configMapValues.CoreDNS.DNSIP,
 				},
 			},
 		},
@@ -242,12 +259,8 @@ func newConfigMapLabels(configMapSpec ConfigMapSpec, configMapValues ConfigMapVa
 	}
 }
 
-func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
+func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 	configMapSpecs := make([]ConfigMapSpec, 0)
-
-	// Add common and provider specific chart specs.
-	chartSpecs := key.CommonChartSpecs()
-	chartSpecs = append(chartSpecs, providerChartSpecs...)
 
 	for _, chartSpec := range chartSpecs {
 		if chartSpec.ConfigMapName != "" {
