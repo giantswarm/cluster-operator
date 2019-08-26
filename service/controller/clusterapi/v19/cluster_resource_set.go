@@ -202,6 +202,8 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
 			ClusterIPRange:     config.ClusterIPRange,
+			DNSIP:              config.DNSIP,
+			Provider:           config.Provider,
 			RegistryDomain:     config.RegistryDomain,
 		}
 
