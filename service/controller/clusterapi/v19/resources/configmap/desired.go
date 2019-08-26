@@ -193,13 +193,6 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 }
 
 func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
-	// tempReplicas is set to 50% of the worker count to ensure all pods can be
-	// scheduled.
-	tempReplicas, err := setIngressControllerTempReplicas(configMapValues.WorkerCount)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
@@ -209,7 +202,7 @@ func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				TempReplicas:     tempReplicas,
+				TempReplicas:     setIngressControllerTempReplicas(configMapValues.WorkerCount),
 				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
@@ -293,12 +286,10 @@ func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 
 // setIngressControllerTempReplicas sets the temp replicas to 50% of the worker
 // count to ensure all pods can be scheduled.
-func setIngressControllerTempReplicas(workerCount int) (int, error) {
+func setIngressControllerTempReplicas(workerCount int) int {
 	if workerCount == 0 {
-		return 0, microerror.Maskf(invalidExecutionError, "worker count must not be 0")
+		return 0
 	}
 
-	tempReplicas := float64(workerCount) * float64(0.5)
-
-	return int(math.Round(tempReplicas)), nil
+	return int(math.Round(float64(workerCount) * float64(0.5)))
 }
