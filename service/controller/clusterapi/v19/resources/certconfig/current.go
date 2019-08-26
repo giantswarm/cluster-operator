@@ -38,10 +38,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			}
 
 			for _, item := range list.Items {
-				// Make a copy of an Item in order to not refer to loop iterator
-				// variable. This is because we want to track a list of pointers.
-				item := item
-				certConfigs = append(certConfigs, &item)
+				certConfigs = append(certConfigs, item.DeepCopy())
 			}
 
 			o.Continue = list.Continue

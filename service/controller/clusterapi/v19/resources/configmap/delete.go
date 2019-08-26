@@ -6,59 +6,47 @@ import (
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
-	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 )
 
-func (s *Service) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToDelete []*corev1.ConfigMap) error {
-	if len(configMapsToDelete) > 0 {
-		s.logger.LogCtx(ctx, "level", "debug", "message", "deleting configmaps")
+// ApplyDeleteChange is executed upon update events in case
+// newDeleteChangeForUpdatePatch figured out there are ConfigMap types to be
+// deleted.
+func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	configMaps, err := toConfigMaps(deleteChange)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
-		tenantK8sClient, err := s.newTenantK8sClient(ctx, clusterConfig)
-		if err != nil {
-			return microerror.Mask(err)
-		}
+	if len(configMaps) > 0 {
+		for _, configMap := range configMaps {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
 
-		for _, configMap := range configMapsToDelete {
-			err := tenantK8sClient.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
+			err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(configMap.Namespace).Delete(configMap.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
-		}
 
-		s.logger.LogCtx(ctx, "level", "debug", "message", "deleted configmaps")
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted configmap %#q in namespace %#q", configMap.Name, configMap.Namespace))
+		}
 	} else {
-		s.logger.LogCtx(ctx, "level", "debug", "message", "no need to delete configmaps")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete configmaps")
 	}
 
 	return nil
 }
 
-// NewDeletePatch is a no-op because configmaps in the tenant cluster are
-// deleted with the tenant cluster resources.
-func (s *Service) NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
+// NewDeletePatch is a no-op because ConfigMap types in the tenant cluster are
+// deleted with the tenant cluster itself upon a delete event.
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	return nil, nil
-}
-
-func (s *Service) newDeleteChangeForUpdatePatch(ctx context.Context, currentConfigMaps, desiredConfigMaps []*corev1.ConfigMap) ([]*corev1.ConfigMap, error) {
-	s.logger.LogCtx(ctx, "level", "debug", "message", "finding out which configmaps have to be deleted")
-
-	configMapsToDelete := make([]*corev1.ConfigMap, 0)
-
-	for _, currentConfigMap := range currentConfigMaps {
-		_, err := getConfigMapByNameAndNamespace(desiredConfigMaps, currentConfigMap.Name, currentConfigMap.Namespace)
-		// Existing ConfigMap is not desired anymore so it should be deleted.
-		if IsNotFound(err) {
-			configMapsToDelete = append(configMapsToDelete, currentConfigMap)
-		} else if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	s.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configmaps that have to be deleted", len(configMapsToDelete)))
-
-	return configMapsToDelete, nil
 }

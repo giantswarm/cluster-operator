@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 
 	"github.com/giantswarm/microerror"
@@ -11,16 +12,49 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	pkgkey "github.com/giantswarm/cluster-operator/pkg/v19/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v19/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v19/key"
 )
 
-func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {
-	var err error
+func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	desiredConfigMaps := make([]*corev1.ConfigMap, 0)
-	configMapSpecs := newConfigMapSpecs(providerChartSpecs)
+	configMapValues := ConfigMapValues{
+		ClusterID: key.ClusterID(&cr),
+		CoreDNS: CoreDNSValues{
+			CalicoAddress:      r.calicoAddress,
+			CalicoPrefixLength: r.calicoPrefixLength,
+			ClusterIPRange:     r.clusterIPRange,
+			DNSIP:              r.dnsIP,
+		},
+		IngressController: IngressControllerValues{
+			// Controller service is disabled because manifest is created by
+			// Ignition.
+			ControllerServiceEnabled: false,
+			// Migration is disabled because AWS is already migrated.
+			MigrationEnabled: false,
+			// Proxy protocol is enabled for AWS clusters.
+			UseProxyProtocol: true,
+		},
+		Organization:   key.OrganizationID(&cr),
+		RegistryDomain: r.registryDomain,
+		WorkerCount:    cc.Status.Worker.Nodes,
+	}
 
-	for _, spec := range configMapSpecs {
+	var configMaps []*corev1.ConfigMap
+
+	for _, spec := range newConfigMapSpecs(r.newChartSpecs()) {
 		spec.Labels = newConfigMapLabels(spec, configMapValues, project.Name())
 
 		// Values are only set for app configmaps.
@@ -63,10 +97,30 @@ func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConf
 			spec.ValuesJSON = string(values)
 		}
 
-		desiredConfigMaps = append(desiredConfigMaps, newConfigMap(spec))
+		configMaps = append(configMaps, newConfigMap(spec))
 	}
 
-	return desiredConfigMaps, nil
+	return configMaps, nil
+}
+
+func (r *Resource) newChartSpecs() []pkgkey.ChartSpec {
+	switch r.provider {
+	case "aws":
+		return append(pkgkey.CommonChartSpecs(), awskey.ChartSpecs()...)
+	case "azure":
+		return append(pkgkey.CommonChartSpecs(), azurekey.ChartSpecs()...)
+	case "kvm":
+		return append(pkgkey.CommonChartSpecs(), kvmkey.ChartSpecs()...)
+	default:
+		return pkgkey.CommonChartSpecs()
+	}
+}
+
+func cidrBlock(address, prefix string) string {
+	if address == "" && prefix == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/%s", address, prefix)
 }
 
 func clusterAutoscalerValues(configMapValues ConfigMapValues) ([]byte, error) {
@@ -87,11 +141,7 @@ func clusterAutoscalerValues(configMapValues ConfigMapValues) ([]byte, error) {
 }
 
 func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
-	calicoCIDRBlock := key.CIDRBlock(configMapValues.CoreDNS.CalicoAddress, configMapValues.CoreDNS.CalicoPrefixLength)
-	DNSIP, err := key.DNSIP(configMapValues.CoreDNS.ClusterIPRange)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	calicoCIDRBlock := cidrBlock(configMapValues.CoreDNS.CalicoAddress, configMapValues.CoreDNS.CalicoPrefixLength)
 
 	values := CoreDNS{
 		Cluster: CoreDNSCluster{
@@ -103,7 +153,7 @@ func coreDNSValues(configMapValues ConfigMapValues) ([]byte, error) {
 					ClusterIPRange: configMapValues.CoreDNS.ClusterIPRange,
 				},
 				DNS: CoreDNSClusterKubernetesDNS{
-					IP: DNSIP,
+					IP: configMapValues.CoreDNS.DNSIP,
 				},
 			},
 		},
@@ -146,13 +196,6 @@ func exporterValues(configMapValues ConfigMapValues) ([]byte, error) {
 }
 
 func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
-	// tempReplicas is set to 50% of the worker count to ensure all pods can be
-	// scheduled.
-	tempReplicas, err := setIngressControllerTempReplicas(configMapValues.WorkerCount)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	values := IngressController{
 		Controller: IngressControllerController{
 			Replicas: configMapValues.WorkerCount,
@@ -162,7 +205,7 @@ func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				TempReplicas:     tempReplicas,
+				TempReplicas:     setIngressControllerTempReplicas(configMapValues.WorkerCount),
 				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
@@ -212,12 +255,8 @@ func newConfigMapLabels(configMapSpec ConfigMapSpec, configMapValues ConfigMapVa
 	}
 }
 
-func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
+func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 	configMapSpecs := make([]ConfigMapSpec, 0)
-
-	// Add common and provider specific chart specs.
-	chartSpecs := key.CommonChartSpecs()
-	chartSpecs = append(chartSpecs, providerChartSpecs...)
 
 	for _, chartSpec := range chartSpecs {
 		if chartSpec.ConfigMapName != "" {
@@ -250,12 +289,10 @@ func newConfigMapSpecs(providerChartSpecs []key.ChartSpec) []ConfigMapSpec {
 
 // setIngressControllerTempReplicas sets the temp replicas to 50% of the worker
 // count to ensure all pods can be scheduled.
-func setIngressControllerTempReplicas(workerCount int) (int, error) {
+func setIngressControllerTempReplicas(workerCount int) int {
 	if workerCount == 0 {
-		return 0, microerror.Maskf(invalidExecutionError, "worker count must not be 0")
+		return 0
 	}
 
-	tempReplicas := float64(workerCount) * float64(0.5)
-
-	return int(math.Round(tempReplicas)), nil
+	return int(math.Round(float64(workerCount) * float64(0.5)))
 }
