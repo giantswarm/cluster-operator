@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
@@ -21,19 +22,24 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	updatedClusterStatus := r.computeDeleteClusterConditions(ctx, r.accessor.GetCommonClusterStatus(cr))
 
 	if !reflect.DeepEqual(r.accessor.GetCommonClusterStatus(cr), updatedClusterStatus) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
+		{
+			r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-		cr = r.accessor.SetCommonClusterStatus(cr, updatedClusterStatus)
+			cr = r.accessor.SetCommonClusterStatus(cr, updatedClusterStatus)
+			_, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&cr)
+			if err != nil {
+				return microerror.Mask(err)
+			}
 
-		_, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&cr)
-		if err != nil {
-			return microerror.Mask(err)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-		reconciliationcanceledcontext.SetCanceled(ctx)
+		{
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			reconciliationcanceledcontext.SetCanceled(ctx)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+			finalizerskeptcontext.SetKept(ctx)
+		}
 
 		return nil
 	}
