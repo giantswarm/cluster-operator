@@ -63,6 +63,8 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 	{
 		c := workercount.Config{
 			Logger: config.Logger,
+
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.CMAClient),
 		}
 
 		workerCountResource, err = workercount.New(c)

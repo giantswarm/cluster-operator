@@ -347,6 +347,8 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	{
 		c := workercount.Config{
 			Logger: config.Logger,
+
+			ToClusterFunc: key.ToCluster,
 		}
 
 		workerCountResource, err = workercount.New(c)
