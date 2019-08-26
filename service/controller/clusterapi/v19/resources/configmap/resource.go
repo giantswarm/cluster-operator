@@ -15,7 +15,9 @@ const (
 type Config struct {
 	Logger micrologger.Logger
 
-	CalicoAddress      string
+	// CalicoAddress may be empty on certain installations.
+	CalicoAddress string
+	// CalicoPrefixLength may be empty on certain installations.
 	CalicoPrefixLength string
 	ClusterIPRange     string
 	DNSIP              string
@@ -39,12 +41,6 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.CalicoAddress == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
-	}
-	if config.CalicoPrefixLength == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
-	}
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
