@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/workercount"
 )
 
 // ClusterResourceSetConfig contains necessary dependencies and settings for
@@ -311,10 +312,23 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	//	}
 	//}
 
+	var workerCountResource controller.Resource
+	{
+		c := workercount.Config{
+			Logger: config.Logger,
+		}
+
+		workerCountResource, err = workercount.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		clusterIDResource,
 		operatorVersionsResource,
 		tenantClientsResource,
+		workerCountResource,
 		clusterStatusResource,
 
 		// TODO drop this once the resources below are all actiavted.

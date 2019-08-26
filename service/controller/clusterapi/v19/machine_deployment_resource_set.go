@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/workercount"
 )
 
 type MachineDeploymentResourceSetConfig struct {
@@ -59,8 +60,21 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 		}
 	}
 
+	var workerCountResource controller.Resource
+	{
+		c := workercount.Config{
+			Logger: config.Logger,
+		}
+
+		workerCountResource, err = workercount.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []controller.Resource{
 		tenantClientsResource,
+		workerCountResource,
 		machineDeploymentStatusResource,
 	}
 
