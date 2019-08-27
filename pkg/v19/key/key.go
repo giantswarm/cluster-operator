@@ -62,6 +62,22 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 	return clusterGuestConfig.Owner
 }
 
+// CommonAppSpecs returns apps installed for all providers.
+// Note: When adding app specs you also need to add the chart name to the
+// desired state tests in the chartconfig and configmap services.
+func CommonAppSpecs() []AppSpec {
+	return []AppSpec{
+		{
+			App:             "kube-state-metrics",
+			Catalog:         "giantswarm-catalog",
+			Chart:           "kube-state-metrics-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.4.0",
+		},
+	}
+}
+
 // CommonChartSpecs returns charts installed for all providers.
 // Note: When adding chart specs you also need to add the chart name to the
 // desired state tests in the chartconfig and configmap services.
@@ -72,6 +88,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:   "0-7-stable",
 			ChartName:     "kubernetes-coredns-chart",
 			ConfigMapName: "coredns-values",
+			HasAppCR:      false,
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "coredns",
 			// Upgrade force is disabled to avoid affecting customer workloads.
@@ -83,6 +100,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "stable",
 			ChartName:       "cert-exporter-chart",
 			ConfigMapName:   "cert-exporter-values",
+			HasAppCR:        false,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "cert-exporter",
 			UseUpgradeForce: true,
@@ -92,6 +110,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-4-stable",
 			ChartName:       "kubernetes-kube-state-metrics-chart",
 			ConfigMapName:   "kube-state-metrics-values",
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "kube-state-metrics",
 			UseUpgradeForce: true,
@@ -101,6 +120,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-3-stable",
 			ChartName:       "kubernetes-metrics-server-chart",
 			ConfigMapName:   "metrics-server-values",
+			HasAppCR:        false,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "metrics-server",
 			UseUpgradeForce: true,
@@ -110,6 +130,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "stable",
 			ChartName:       "net-exporter-chart",
 			ConfigMapName:   "net-exporter-values",
+			HasAppCR:        false,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "net-exporter",
 			UseUpgradeForce: true,
@@ -119,6 +140,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:   "0-10-stable",
 			ChartName:     "kubernetes-nginx-ingress-controller-chart",
 			ConfigMapName: "nginx-ingress-controller-values",
+			HasAppCR:      false,
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "nginx-ingress-controller",
 			// Upgrade force is disabled to avoid dropping customer traffic
@@ -131,6 +153,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-5-stable",
 			ChartName:       "kubernetes-node-exporter-chart",
 			ConfigMapName:   "node-exporter-values",
+			HasAppCR:        false,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "node-exporter",
 			UseUpgradeForce: true,
