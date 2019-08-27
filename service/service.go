@@ -83,6 +83,7 @@ func New(config Config) (*Service, error) {
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
+	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
 
 	var restConfig *rest.Config
 	{
@@ -233,6 +234,7 @@ func New(config Config) (*Service, error) {
 			CalicoPrefixLength: calicoPrefixLength,
 			ProjectName:        config.ProjectName,
 			RegistryDomain:     registryDomain,
+			Provider:           provider,
 			ResourceNamespace:  resourceNamespace,
 		}
 
@@ -264,6 +266,7 @@ func New(config Config) (*Service, error) {
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
 			ProjectName:        config.ProjectName,
+			Provider:           provider,
 			RegistryDomain:     registryDomain,
 			ResourceNamespace:  resourceNamespace,
 		}
@@ -294,7 +297,7 @@ func New(config Config) (*Service, error) {
 			CertTTL:            config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
 			ClusterIPRange:     clusterIPRange,
 			DNSIP:              dnsIP,
-			Provider:           config.Viper.GetString(config.Flag.Service.Provider.Kind),
+			Provider:           provider,
 			RegistryDomain:     registryDomain,
 		}
 
@@ -344,6 +347,7 @@ func New(config Config) (*Service, error) {
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
 			ProjectName:        config.ProjectName,
+			Provider:           provider,
 			RegistryDomain:     registryDomain,
 			ResourceNamespace:  resourceNamespace,
 		}

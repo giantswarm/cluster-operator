@@ -45,6 +45,7 @@ type LegacyClusterConfig struct {
 	CalicoPrefixLength string
 	ClusterIPRange     string
 	ProjectName        string
+	Provider           string
 	RegistryDomain     string
 	ResourceNamespace  string
 }
@@ -288,6 +289,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			CalicoPrefixLength: config.CalicoPrefixLength,
 			ClusterIPRange:     config.ClusterIPRange,
 			ProjectName:        config.ProjectName,
+			Provider:           config.Provider,
 			RegistryDomain:     config.RegistryDomain,
 			ResourceNamespace:  config.ResourceNamespace,
 		}
