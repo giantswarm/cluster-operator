@@ -17,6 +17,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Update to 1.7.2. https://github.com/giantswarm/kubernetes-kube-state-metrics/blob/master/CHANGELOG.md#v040",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Migrate from chartconfig CR to app CR.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
