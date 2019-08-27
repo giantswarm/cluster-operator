@@ -5,22 +5,21 @@ import (
 	"strconv"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	pkgkey "github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v19/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v19/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v19/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
-	cr, err := key.ToCluster(obj)
+	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -28,13 +27,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	var apps []*g8sv1alpha1.App
 
 	for _, appSpec := range r.newAppSpecs() {
-		apps = append(apps, r.newApp(cr, appSpec))
+		apps = append(apps, r.newApp(clusterConfig, appSpec))
 	}
 
 	return apps, nil
 }
 
-func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1alpha1.App {
+func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec) *g8sv1alpha1.App {
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ChartConfig",
@@ -47,13 +46,13 @@ func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1
 			Labels: map[string]string{
 				label.App:                appSpec.App,
 				label.AppOperatorVersion: "1.0.0",
-				label.Cluster:            key.ClusterID(&cr),
+				label.Cluster:            clusterConfig.ID,
 				label.ManagedBy:          project.Name(),
-				label.Organization:       key.OrganizationID(&cr),
+				label.Organization:       clusterConfig.Owner,
 				label.ServiceType:        label.ServiceTypeManaged,
 			},
 			Name:      appSpec.App,
-			Namespace: key.ClusterID(&cr),
+			Namespace: clusterConfig.ID,
 		},
 		Spec: g8sv1alpha1.AppSpec{
 			Catalog:   appSpec.Catalog,
@@ -63,34 +62,34 @@ func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1
 
 			Config: g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
-					Name:      key.ClusterConfigMapName(&cr),
-					Namespace: key.ClusterID(&cr),
+					Name:      key.ClusterConfigMapName(clusterConfig),
+					Namespace: clusterConfig.ID,
 				},
 			},
 
 			KubeConfig: g8sv1alpha1.AppSpecKubeConfig{
 				Context: g8sv1alpha1.AppSpecKubeConfigContext{
-					Name: key.KubeConfigSecretName(&cr),
+					Name: key.KubeConfigSecretName(clusterConfig),
 				},
 				InCluster: false,
 				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
-					Name:      key.KubeConfigSecretName(&cr),
-					Namespace: key.ClusterID(&cr),
+					Name:      key.KubeConfigSecretName(clusterConfig),
+					Namespace: clusterConfig.ID,
 				},
 			},
 		},
 	}
 }
 
-func (r *Resource) newAppSpecs() []pkgkey.AppSpec {
+func (r *Resource) newAppSpecs() []key.AppSpec {
 	switch r.provider {
 	case "aws":
-		return append(pkgkey.CommonAppSpecs(), awskey.AppSpecs()...)
+		return append(key.CommonAppSpecs(), awskey.AppSpecs()...)
 	case "azure":
-		return append(pkgkey.CommonAppSpecs(), azurekey.AppSpecs()...)
+		return append(key.CommonAppSpecs(), azurekey.AppSpecs()...)
 	case "kvm":
-		return append(pkgkey.CommonAppSpecs(), kvmkey.AppSpecs()...)
+		return append(key.CommonAppSpecs(), kvmkey.AppSpecs()...)
 	default:
-		return pkgkey.CommonAppSpecs()
+		return key.CommonAppSpecs()
 	}
 }

@@ -11,33 +11,39 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
+	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1alpha1.App, error) {
-	cr, err := key.ToCluster(obj)
+	objectMeta, err := r.getClusterObjectMetaFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	// The app custom resource is deleted implicitly by the provider operator
-	// when it deletes the tenant cluster namespace in the control plane.
-	if key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting apps for tenant cluster %#q", key.ClusterID(&cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+	// Cluster configMap is deleted by the provider operator when it deletes
+	// the tenant cluster namespace in the control plane cluster.
+	if key.IsDeleted(objectMeta) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
 		resourcecanceledcontext.SetCanceled(ctx)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
 		return nil, nil
+	}
+
+	clusterConfig, err := r.getClusterConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	var apps []*v1alpha1.App
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps in tenant cluster %#q", key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps in tenant cluster %#q", clusterConfig.ID))
 
 		o := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 		}
 
-		list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(o)
+		list, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).List(o)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -46,7 +52,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 			apps = append(apps, item.DeepCopy())
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps in tenant cluster %#q", len(apps), key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps in tenant cluster %#q", len(apps), clusterConfig.ID))
 	}
 
 	return apps, nil

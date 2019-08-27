@@ -77,8 +77,10 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
+			G8sClient:                config.G8sClient,
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			Logger:                   config.Logger,
 
 			Provider: config.Provider,
 		}
