@@ -29,12 +29,14 @@ func (c *ChartConfig) GetDesiredState(ctx context.Context, clusterConfig Cluster
 	chartSpecs := append(key.CommonChartSpecs(), providerChartSpecs...)
 
 	for _, chartSpec := range chartSpecs {
-		chartConfigCR, err := c.newChartConfig(ctx, clusterConfig, chartSpec)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+		if !chartSpec.HasAppCR {
+			chartConfigCR, err := c.newChartConfig(ctx, clusterConfig, chartSpec)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 
-		desiredChartConfigs = append(desiredChartConfigs, chartConfigCR)
+			desiredChartConfigs = append(desiredChartConfigs, chartConfigCR)
+		}
 	}
 
 	return desiredChartConfigs, nil
