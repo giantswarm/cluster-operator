@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apiextensions/pkg/resource/app"
+	appresource "github.com/giantswarm/apiextensions/pkg/resource/app"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
@@ -70,7 +70,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.K8sClient,
+			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 
 			Provider: config.Provider,
