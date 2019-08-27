@@ -20,7 +20,7 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 	commonChartConfigNames := []string{
 		"cert-exporter-chart",
 		"kubernetes-coredns-chart",
-		"kubernetes-kube-state-metrics-chart",
+		// "kubernetes-kube-state-metrics-chart",
 		"kubernetes-metrics-server-chart",
 		"kubernetes-nginx-ingress-controller-chart",
 		"kubernetes-node-exporter-chart",
