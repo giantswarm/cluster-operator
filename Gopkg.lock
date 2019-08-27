@@ -171,11 +171,7 @@
 
 [[projects]]
   branch = "master"
-<<<<<<< HEAD
   digest = "1:66ac76517bdf8c628f369814ef248b445dfe7cc1de7d3e751baaa479ffbef438"
-=======
-  digest = "1:fbd5d105de57b9648145bf6cfe73078fc332d702194b153a30335c05275554f5"
->>>>>>> master
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
