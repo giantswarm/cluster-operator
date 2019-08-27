@@ -8,7 +8,8 @@ import (
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
-	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -27,6 +28,31 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, microerror.Mask(err)
 	}
 
+	// The encryptionkey resource implements a state getter which is used by a
+	// generated secrets resource. This is to have a common approach of creating,
+	// deleting and updating secrets. The speciality of the encryption key managed
+	// in this resource here is that it must not get updated ever. So we have a
+	// little hack here to return the current secret as desired secret in case it
+	// already exists in Kubernetes. This prevents updates on the secret as the
+	// comparison of the generic secrets resource does not find any difference
+	// between current and desired state. If there is no secret in Kubernetes yet,
+	// we fall through and compute the desired encryption key secret so it gets
+	// created.
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+
+		secret, err := r.k8sClient.Core().Secrets(cr.Namespace).Get(secretName(cr), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// fall through
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			return []*corev1.Secret{secret}, nil
+		}
+	}
+
 	var secret *corev1.Secret
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computing secret %#q", secretName(cr)))
@@ -37,7 +63,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 
 		secret = &corev1.Secret{
-			ObjectMeta: apismetav1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName(cr),
 				Namespace: cr.Namespace,
 				Labels: map[string]string{

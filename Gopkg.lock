@@ -171,7 +171,11 @@
 
 [[projects]]
   branch = "master"
+<<<<<<< HEAD
   digest = "1:66ac76517bdf8c628f369814ef248b445dfe7cc1de7d3e751baaa479ffbef438"
+=======
+  digest = "1:fbd5d105de57b9648145bf6cfe73078fc332d702194b153a30335c05275554f5"
+>>>>>>> master
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -303,7 +307,7 @@
     "k8s",
   ]
   pruneopts = "UT"
-  revision = "1675d59b4910bf10fd25b550112ba0a1c798b4d5"
+  revision = "a7944f007d0ed219e788966522e213b2bac1a897"
 
 [[projects]]
   branch = "master"
@@ -314,7 +318,7 @@
     "pkg/e2etemplates",
   ]
   pruneopts = "UT"
-  revision = "13ad1a49e228386657890b5f4175ec427ee0cb21"
+  revision = "3c13cb10233d192e095a85700b7f66605fa37e70"
 
 [[projects]]
   branch = "master"
@@ -348,11 +352,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:60dc19718c86cd62db01e17d5f77cb8f8bb9e2c3d7b6840c0257a99e97fbe83a"
+  digest = "1:98c9ad635693241a4a3276f0ed2f99a08420aaf20afce0732318b4574289f010"
   name = "github.com/giantswarm/k8sclient"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0a72530d66189725d01f3e8aca5af0acfbb531c8"
+  revision = "cb19a71151dd4a9b440cd8846630a9fb948d2515"
 
 [[projects]]
   branch = "master"
@@ -436,7 +440,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:be834df2bbc2e0e4b02773d04330c466028ee57701b5e40402b8b0cb6b1351db"
+  digest = "1:b15c64d3434d4ee564e1fe9f52c0a950e0d0ab00aa627f3a44d40d04c15b2c08"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -458,7 +462,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "1761824480ee80b795ae32f43881abf22c62fedf"
+  revision = "8de7a75649d103e17c21b577f79ea5fc32cf1084"
 
 [[projects]]
   branch = "master"
@@ -852,15 +856,16 @@
   version = "v0.6.0"
 
 [[projects]]
-  digest = "1:366f5aa02ff6c1e2eccce9ca03a22a6d983da89eecff8a89965401764534eb7c"
+  digest = "1:8232537905152d6a0b116b9af5a0868fcac0e84eb02ec5a150624c077bdedb0b"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
     "internal/fs",
+    "internal/util",
   ]
   pruneopts = "UT"
-  revision = "3f98efb27840a48a7a2898ec80be07674d19f9c8"
-  version = "v0.0.3"
+  revision = "00ec24a6a2d86e7074629c8384715dbb05adccd8"
+  version = "v0.0.4"
 
 [[projects]]
   digest = "1:bb495ec276ab82d3dd08504bbc0594a65de8c3b22c6f2aaa92d05b73fbf3a82e"
@@ -923,7 +928,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
+  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
 
 [[projects]]
   branch = "master"
@@ -964,14 +969,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d52ccbb025caf0a2166e0204ed934567b8d0dfdd23a09d947f1f040708888a0a"
+  digest = "1:c5b5d55096b762e29d0b887ce73932d06ddcf9def4285f1abd09f801176878ec"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
+  revision = "c7b8b68b14567162c6602a7c5659ee0f26417c18"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1028,7 +1033,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "55e96fffbd486c27fc0d5b4468c497d0de3f2727"
+  revision = "24fa4b261c55da65468f2abfdae2b024eef27dfb"
 
 [[projects]]
   digest = "1:48eafc052e46b4ebbc7882553873cf6198203e528627cefc94dcaf8553addd19"
