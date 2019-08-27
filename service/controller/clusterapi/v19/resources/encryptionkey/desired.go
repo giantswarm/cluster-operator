@@ -70,6 +70,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					label.Cluster:   key.ClusterID(&cr),
 					label.ManagedBy: project.Name(),
 					label.RandomKey: label.RandomKeyTypeEncryption,
+
+					// TODO drop deprecated labels.
+					//
+					//     https://github.com/giantswarm/randomkeys/pull/15
+					//
+					"clusterID":  key.ClusterID(&cr),
+					"clusterKey": label.RandomKeyTypeEncryption,
 				},
 			},
 			StringData: map[string]string{
