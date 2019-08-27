@@ -162,16 +162,16 @@
   version = "v1.4.7"
 
 [[projects]]
-  digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
+  branch = "master"
+  digest = "1:08188cf7ce7027b22e88cc23da27f17349a0ba7746271a60cbe0a70266c2346f"
   name = "github.com/ghodss/yaml"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
-  version = "v1.0.0"
+  revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
   branch = "master"
-  digest = "1:2423eeb737fbdc0cc310b0946574c8d9355a90be5fdfe5eb5fe8025e7f17aaff"
+  digest = "1:66ac76517bdf8c628f369814ef248b445dfe7cc1de7d3e751baaa479ffbef438"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -193,9 +193,10 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake",
     "pkg/clientset/versioned/typed/release/v1alpha1",
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
+    "pkg/resource/app",
   ]
   pruneopts = "UT"
-  revision = "6d6990ab19fc21766e67aec28d8ab62aede51a6a"
+  revision = "18f9e0ee801dac7aec99a521a569aa69dd8ed84d"
 
 [[projects]]
   branch = "master"
@@ -510,14 +511,6 @@
   pruneopts = "UT"
   revision = "07c9b44f60d7ffdfb7d8efe1ad539965737836dc"
   version = "v0.4.0"
-
-[[projects]]
-  digest = "1:d64cb03adcca1c9a4e1137281bd53162e2647a807cc5d0ed14deab8af2b18c1e"
-  name = "github.com/go-resty/resty"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d467d573085e42a848cb49c1c28ba163b7aa5872"
-  version = "v2.0.0"
 
 [[projects]]
   digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
@@ -1428,10 +1421,12 @@
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/service/cloudformation",
     "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
+    "github.com/giantswarm/apiextensions/pkg/resource/app",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
     "github.com/giantswarm/backoff",
@@ -1462,6 +1457,7 @@
     "github.com/giantswarm/operatorkit/client/k8scrdclient",
     "github.com/giantswarm/operatorkit/client/k8srestconfig",
     "github.com/giantswarm/operatorkit/controller",
+    "github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext",
     "github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext",
     "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
@@ -1472,11 +1468,11 @@
     "github.com/giantswarm/operatorkit/resource/wrapper/retryresource",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
-    "github.com/go-resty/resty",
     "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/afero",
     "github.com/spf13/viper",
+    "gopkg.in/resty.v1",
     "gopkg.in/yaml.v2",
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
