@@ -85,7 +85,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	var appResource controller.Resource
 	{
 		c := appresource.Config{
-			G8sClient: config.K8sClient,
+			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 
 			Name:        app.Name,
