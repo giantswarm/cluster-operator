@@ -12,6 +12,7 @@ rules:
       - update
       - delete
       - get
+      - list
       - watch
   - apiGroups:
       - ""
