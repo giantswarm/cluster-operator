@@ -52,6 +52,7 @@ type ResourceSetConfig struct {
 	ClusterIPRange        string
 	HandledVersionBundles []string
 	ProjectName           string
+	Provider              string
 	RegistryDomain        string
 	ResourceNamespace     string
 }
