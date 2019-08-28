@@ -1,4 +1,4 @@
-package namespace
+package tcnamespace
 
 import "github.com/giantswarm/microerror"
 

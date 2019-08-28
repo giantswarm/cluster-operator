@@ -1,4 +1,4 @@
-package namespace
+package tcnamespace
 
 import (
 	"github.com/giantswarm/microerror"
@@ -8,7 +8,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "namespacev19"
+	Name = "tcnamespacev19"
 )
 
 const (
