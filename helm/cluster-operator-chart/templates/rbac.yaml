@@ -29,11 +29,11 @@ rules:
     verbs:
       - create
   - apiGroups:
-    - application.giantswarm.io
-  resources:
-    - apps
-  verbs:
-    - "*"
+      - "application.giantswarm.io"
+    resources:
+      - apps
+    verbs:
+      - "*"
   - apiGroups:
       - "networking.k8s.io"
     resources:
