@@ -30,10 +30,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	var certConfigs []*g8sv1alpha1.CertConfig
 	{
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAppOperator(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForNodeOperator(cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForPrometheus(cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForServiceAccount(cr)))
@@ -85,6 +85,21 @@ func (r *Resource) newSpecForAPI(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigS
 	}
 }
 
+func (r *Resource) newSpecForAppOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.AppOperatorAPICert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
+		//
+		//     https://github.com/giantswarm/giantswarm/issues/6822
+		//
+		Organizations: []string{"system:masters"},
+		TTL:           r.certTTL,
+	}
+}
+
 func (r *Resource) newSpecForCalico(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
 	return g8sv1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
@@ -92,6 +107,21 @@ func (r *Resource) newSpecForCalico(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConf
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("calico.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
 		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForClusterOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
+	return g8sv1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.ClusterOperatorAPICert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
+		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
+		//
+		//     https://github.com/giantswarm/giantswarm/issues/6822
+		//
+		Organizations: []string{"system:masters"},
+		TTL:           r.certTTL,
 	}
 }
 
@@ -116,33 +146,18 @@ func (r *Resource) newSpecForFlanneldEtcdClient(cr cmav1alpha1.Cluster) g8sv1alp
 	}
 }
 
-func (r *Resource) newSpecForAppOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
-	return g8sv1alpha1.CertConfigSpecCert{
-		AllowBareDomains: true,
-		ClusterComponent: certs.AppOperatorAPICert.String(),
-		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
-		TTL:              r.certTTL,
-	}
-}
-
-func (r *Resource) newSpecForClusterOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
-	return g8sv1alpha1.CertConfigSpecCert{
-		AllowBareDomains: true,
-		ClusterComponent: certs.ClusterOperatorAPICert.String(),
-		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
-		TTL:              r.certTTL,
-	}
-}
-
 func (r *Resource) newSpecForNodeOperator(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
 	return g8sv1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.NodeOperatorCert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("node-operator.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
-		TTL:              r.certTTL,
+		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
+		//
+		//     https://github.com/giantswarm/giantswarm/issues/6822
+		//
+		Organizations: []string{"system:masters"},
+		TTL:           r.certTTL,
 	}
 }
 
@@ -152,7 +167,12 @@ func (r *Resource) newSpecForPrometheus(cr cmav1alpha1.Cluster) g8sv1alpha1.Cert
 		ClusterComponent: certs.PrometheusCert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("prometheus.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
-		TTL:              r.certTTL,
+		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
+		//
+		//     https://github.com/giantswarm/giantswarm/issues/6822
+		//
+		Organizations: []string{"system:masters"},
+		TTL:           r.certTTL,
 	}
 }
 
