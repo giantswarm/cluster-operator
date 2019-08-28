@@ -475,7 +475,11 @@ func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 func migrateSecretLabels(logger micrologger.Logger, k8sClient kubernetes.Interface) error {
 	var secrets []*corev1.Secret
 	{
-		l, err := k8sClient.CoreV1().Secrets(corev1.NamespaceAll).List(metav1.ListOptions{})
+		o := metav1.ListOptions{
+			LabelSelector: "clusterKey=encryption",
+		}
+
+		l, err := k8sClient.CoreV1().Secrets(corev1.NamespaceAll).List(o)
 		if err != nil {
 			return microerror.Mask(err)
 		}
