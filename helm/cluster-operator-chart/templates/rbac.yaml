@@ -68,6 +68,12 @@ rules:
       - kvmclusterconfigs
     verbs:
       - "*"
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - list
   - nonResourceURLs:
       - "/"
       - "/healthz"
