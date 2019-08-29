@@ -18,6 +18,7 @@ rules:
       - ""
     resources:
       - configmaps
+      - namespaces
     verbs:
       - create
       - update
