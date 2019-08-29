@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -121,7 +121,7 @@ func (r *Resource) newConfigMapSpec(cc controllercontext.Context, cr cmav1alpha1
 	}
 
 	cm, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) || guest.IsAPINotAvailable(err) {
+	if apierrors.IsNotFound(err) || tenant.IsAPINotAvailable(err) {
 		// Cannot get configmap resource version so leave it unset. We will check
 		// again after the next resync period.
 		return configMapSpec, nil

@@ -3,7 +3,7 @@ package namespace
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -54,7 +54,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find the namespace in the tenant cluster")
 			// fall through
-		} else if apierrors.IsTimeout(err) || guest.IsAPINotAvailable(err) {
+		} else if apierrors.IsTimeout(err) || tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
 			// We can't continue without a successful K8s connection. Cluster

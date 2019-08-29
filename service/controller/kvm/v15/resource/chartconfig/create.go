@@ -3,7 +3,7 @@ package chartconfig
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
@@ -36,7 +36,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	err = r.chartConfig.ApplyCreateChange(ctx, clusterConfig, chartConfigsToCreate)
-	if guest.IsAPINotAvailable(err) {
+	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
 		// We can't continue without a successful K8s connection. Cluster
