@@ -27,7 +27,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		return microerror.Mask(err)
 	}
 
-	if !reflect.DeepEqual(createState, ResourceState{}) {
+	if createState != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 
 		p, err := r.apprClient.PullChartTarball(ctx, createState.ChartName, channel)
@@ -79,7 +79,7 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 	var createState *ResourceState
 
 	if reflect.DeepEqual(currentResourceState, ResourceState{}) {
-		createState = &desiredResourceState
+		createState = desiredResourceState
 	}
 
 	return createState, nil

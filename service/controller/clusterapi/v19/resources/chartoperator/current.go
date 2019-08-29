@@ -64,7 +64,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 	}
 
-	var chartState *ResourceState
+	var resourceState *ResourceState
 	{
 		bytes, err := json.Marshal(releaseContent.Values)
 		if err != nil {
@@ -77,7 +77,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 			return nil, microerror.Mask(err)
 		}
 
-		chartState = &ResourceState{
+		resourceState = &ResourceState{
 			ChartName:      chart,
 			ChartValues:    *chartValues,
 			ReleaseName:    release,
@@ -86,5 +86,5 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 	}
 
-	return chartState, nil
+	return resourceState, nil
 }
