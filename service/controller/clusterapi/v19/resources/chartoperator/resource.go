@@ -80,20 +80,20 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-func toResourceState(v interface{}) (ResourceState, error) {
+func toResourceState(v interface{}) (*ResourceState, error) {
 	if v == nil {
-		return ResourceState{}, nil
+		return nil, nil
 	}
 
-	resourceState, ok := v.(*ResourceState)
+	t, ok := v.(*ResourceState)
 	if !ok {
-		return ResourceState{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", resourceState, v)
+		return nil, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", t, v)
 	}
 
-	return *resourceState, nil
+	return t, nil
 }
 
-func shouldUpdate(currentState, desiredState ResourceState) bool {
+func shouldUpdate(currentState *ResourceState, desiredState *ResourceState) bool {
 	if currentState.ReleaseVersion != "" && currentState.ReleaseVersion != desiredState.ReleaseVersion {
 		// ReleaseVersion has changed for the channel so we need to update the Helm
 		// Release.

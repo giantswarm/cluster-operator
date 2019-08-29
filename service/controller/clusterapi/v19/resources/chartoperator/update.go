@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
@@ -28,7 +27,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		return microerror.Mask(err)
 	}
 
-	if !reflect.DeepEqual(updateState, ResourceState{}) {
+	if updateState != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 
 		p, err := r.apprClient.PullChartTarball(ctx, updateState.ChartName, channel)
@@ -60,7 +59,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "not updating chart-operator chart")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not update chart-operator release %#q in tenant cluster %#q", release, key.ClusterID(&cr)))
 	}
 
 	return nil
@@ -96,7 +95,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 	var updateState *ResourceState
 
 	if shouldUpdate(currentResourceState, desiredResourceState) {
-		updateState = &desiredResourceState
+		updateState = desiredResourceState
 	}
 
 	return updateState, nil
