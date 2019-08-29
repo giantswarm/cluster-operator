@@ -69,11 +69,11 @@ func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
 			App:             "kube-state-metrics",
-			Catalog:         "giantswarm-test",
+			Catalog:         "giantswarm",
 			Chart:           "kube-state-metrics-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.5.0-5e6d034a76e158b267750dbc026475cb7d975775",
+			Version:         "0.5.0",
 		},
 	}
 }
