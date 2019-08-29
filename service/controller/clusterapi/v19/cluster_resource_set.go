@@ -30,10 +30,11 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/namespace"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/operatorversions"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tcnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/workercount"
@@ -256,6 +257,24 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	var cpNamespaceResource controller.Resource
+	{
+		c := cpnamespace.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		ops, err := cpnamespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		cpNamespaceResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var encryptionKeyGetter secretresource.StateGetter
 	{
 		c := encryptionkey.Config{
@@ -325,18 +344,18 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var namespaceResource controller.Resource
+	var tcNamespaceResource controller.Resource
 	{
-		c := namespace.Config{
+		c := tcnamespace.Config{
 			Logger: config.Logger,
 		}
 
-		ops, err := namespace.New(c)
+		ops, err := tcnamespace.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		namespaceResource, err = toCRUDResource(config.Logger, ops)
+		tcNamespaceResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -396,24 +415,23 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	}
 
 	resources := []controller.Resource{
+		// Following resources manage resources controller context information.
 		clusterIDResource,
 		operatorVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 		clusterStatusResource,
 
-		// Put encryptionKeyResource first because it executes faster than
-		// certConfigResource and could introduce dependency during cluster
-		// creation.
+		// Following resources manage resources in the control plane.
+		cpNamespaceResource,
 		encryptionKeyResource,
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
 
-		// Following resources manage resources in tenant clusters so they
-		// should be executed last.
-		namespaceResource,
+		// Following resources manage resources in the tenant cluster.
+		tcNamespaceResource,
 		tillerResource,
 		chartOperatorResource,
 		configMapResource,

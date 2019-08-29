@@ -1,4 +1,4 @@
-package namespace
+package cpnamespace
 
 import (
 	"context"
@@ -7,8 +7,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 )
 
-// ApplyUpdateChange is a no-op because the namespace in the tenant cluster is
-// not updated.
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	return nil
 }

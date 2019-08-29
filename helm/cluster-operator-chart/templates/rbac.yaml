@@ -12,11 +12,13 @@ rules:
       - update
       - delete
       - get
+      - list
       - watch
   - apiGroups:
       - ""
     resources:
       - configmaps
+      - namespaces
     verbs:
       - create
       - update

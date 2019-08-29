@@ -318,14 +318,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:08119f5e0765ddd55378346afcc64c074200e3c267aa460f8f4ae81c5bae877c"
+  digest = "1:109f5bac6ea240c7be934080356ccc4c7f0f455a2ab4b417282971503451b13e"
   name = "github.com/giantswarm/errors"
-  packages = [
-    "guest",
-    "tenant",
-  ]
+  packages = ["tenant"]
   pruneopts = "UT"
-  revision = "f6706eb80f388ce182dcee855eab59c5eb872119"
+  revision = "2f0151a3dfe0a682dbb3ce710068941c4b24e2b8"
 
 [[projects]]
   branch = "master"
@@ -337,14 +334,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:41848844ed1ceecee858421f14fcea2eb915342caa81bd89ae0f7c51aa253c49"
+  digest = "1:842878364c6396ab1054d0bd2d1295d8212a859ea6b806aa37a74f80f319a261"
   name = "github.com/giantswarm/helmclient"
   packages = [
     ".",
     "helmclienttest",
   ]
   pruneopts = "UT"
-  revision = "c17ff0598a86814a5d103c84b8efafd1a5339a1d"
+  revision = "c5b83c8aa6ed3a034718191dfc11938913a73ffe"
 
 [[projects]]
   branch = "master"
@@ -924,11 +921,11 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
+  revision = "9756ffdc24725223350eb3266ffb92590d28f278"
 
 [[projects]]
   branch = "master"
-  digest = "1:aaf0e2dff97843ef27b50e31434302b65e50897495f0725f8f2c19b2e428d3f2"
+  digest = "1:beca290d7dac065c10bcb8e3ded01946624554404a15fa5ac3a5a598848813c9"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -942,7 +939,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "74dc4d7220e7acc4e100824340f3e66577424772"
+  revision = "ba9fcec4b297b415637633c5a6e8fa592e4a16c3"
 
 [[projects]]
   branch = "master"
@@ -1020,8 +1017,8 @@
     "urlfetch",
   ]
   pruneopts = "UT"
-  revision = "b2f4a3cf3c67576a2ee09e1fe62656a5086ce880"
-  version = "v1.6.1"
+  revision = "5f2a59506353b8d5ba8cbbcd9f3c1f41f1eaf079"
+  version = "v1.6.2"
 
 [[projects]]
   branch = "master"
@@ -1440,7 +1437,6 @@
     "github.com/giantswarm/e2eclients/aws",
     "github.com/giantswarm/e2esetup/k8s",
     "github.com/giantswarm/e2etemplates/pkg/e2etemplates",
-    "github.com/giantswarm/errors/guest",
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/exporterkit/collector",
     "github.com/giantswarm/helmclient",

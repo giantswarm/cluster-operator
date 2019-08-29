@@ -1,4 +1,4 @@
-package namespace
+package cpnamespace
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 )
 
@@ -18,20 +17,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	ns := &corev1.Namespace{
+	namespace := &corev1.Namespace{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Namespace",
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
+			Name: key.ClusterID(&cr),
 			Labels: map[string]string{
 				label.Cluster:      key.ClusterID(&cr),
-				label.ManagedBy:    project.Name(),
 				label.Organization: key.OrganizationID(&cr),
 			},
 		},
 	}
 
-	return ns, nil
+	return namespace, nil
 }

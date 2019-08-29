@@ -1,45 +1,46 @@
-package namespace
+package cpnamespace
 
 import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "namespacev19"
-)
-
-const (
-	namespace = "giantswarm"
+	Name = "cpnamespacev19"
 )
 
 // Config represents the configuration used to create a new namespace resource.
 type Config struct {
-	Logger micrologger.Logger
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
 }
 
 // Resource implements the namespace resource.
 type Resource struct {
-	logger micrologger.Logger
+	k8sClient kubernetes.Interface
+	logger    micrologger.Logger
 }
 
-// New creates a new configured namespace resource which manages the Kubernetes
-// namespace within tenant clusters.
+// New creates a new configured namespace resource.
 func New(config Config) (*Resource, error) {
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
 	r := &Resource{
-		logger: config.Logger,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
 	}
 
 	return r, nil
 }
 
-// Name returns name of the Resource.
 func (r *Resource) Name() string {
 	return Name
 }

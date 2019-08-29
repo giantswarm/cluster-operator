@@ -3,7 +3,7 @@ package namespace
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1 "k8s.io/api/core/v1"
@@ -27,7 +27,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		_, err = tenantK8sClient.CoreV1().Namespaces().Create(namespaceToCreate)
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
-		} else if apierrors.IsTimeout(err) || guest.IsAPINotAvailable(err) {
+		} else if apierrors.IsTimeout(err) || tenant.IsAPINotAvailable(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "guest cluster is not available.")
 
 			// We should not hammer guest API if it is not available, the guest cluster

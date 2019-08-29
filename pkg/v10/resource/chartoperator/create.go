@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -46,7 +46,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				resourcecanceledcontext.SetCanceled(ctx)
 
 				return nil
-			} else if guest.IsAPINotAvailable(err) {
+			} else if tenant.IsAPINotAvailable(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
 
 				// We should not hammer guest API if it is not available, the guest
