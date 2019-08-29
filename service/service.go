@@ -517,7 +517,7 @@ func hasLabels(s *corev1.Secret, labels ...string) bool {
 }
 
 func hasLabel(s *corev1.Secret, l string) bool {
-	for k, _ := range s.Labels {
+	for k := range s.Labels {
 		if k == l {
 			return true
 		}

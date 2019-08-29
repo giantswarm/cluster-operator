@@ -3,7 +3,7 @@ package configmap
 import (
 	"context"
 
-	"github.com/giantswarm/errors/guest"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -35,7 +35,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
 	err = r.configMap.ApplyDeleteChange(ctx, clusterConfig, configMapsToDelete)
-	if guest.IsAPINotAvailable(err) {
+	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
 		// We can't continue without a successful K8s connection. Cluster
