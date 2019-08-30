@@ -38,7 +38,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing tiller in tenant cluster %#q", key.ClusterID(&cr)))
 
 		if cc.Client.TenantCluster.Helm == nil {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available yet")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil
