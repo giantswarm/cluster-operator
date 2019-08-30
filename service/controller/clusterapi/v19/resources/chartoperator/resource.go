@@ -94,6 +94,10 @@ func toResourceState(v interface{}) (*ResourceState, error) {
 }
 
 func shouldUpdate(currentState *ResourceState, desiredState *ResourceState) bool {
+	if currentState == nil || desiredState == nil {
+		return false
+	}
+
 	if currentState.ReleaseVersion != "" && currentState.ReleaseVersion != desiredState.ReleaseVersion {
 		// ReleaseVersion has changed for the channel so we need to update the Helm
 		// Release.
