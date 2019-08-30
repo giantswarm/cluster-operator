@@ -15,6 +15,7 @@ import (
 	pkgkey "github.com/giantswarm/cluster-operator/pkg/v19/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v19/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v19/key"
 )
@@ -24,17 +25,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
 	var apps []*g8sv1alpha1.App
 
 	for _, appSpec := range r.newAppSpecs() {
-		apps = append(apps, r.newApp(cr, appSpec))
+		apps = append(apps, r.newApp(*cc, cr, appSpec))
 	}
 
 	return apps, nil
 }
 
-func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1alpha1.App {
+func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1alpha1.App {
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -46,7 +51,7 @@ func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1
 			},
 			Labels: map[string]string{
 				label.App:                appSpec.App,
-				label.AppOperatorVersion: "1.0.0",
+				label.AppOperatorVersion: cc.Status.Versions[label.AppOperatorVersion],
 				label.Cluster:            key.ClusterID(&cr),
 				label.ManagedBy:          project.Name(),
 				label.Organization:       key.OrganizationID(&cr),
