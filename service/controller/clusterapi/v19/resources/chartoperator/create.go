@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 
 	"github.com/giantswarm/microerror"
 	"k8s.io/helm/pkg/helm"
@@ -78,7 +77,7 @@ func (r *Resource) newCreateChange(ctx context.Context, obj, currentState, desir
 
 	var createState *ResourceState
 
-	if reflect.DeepEqual(currentResourceState, ResourceState{}) {
+	if currentResourceState == nil {
 		createState = desiredResourceState
 	}
 
