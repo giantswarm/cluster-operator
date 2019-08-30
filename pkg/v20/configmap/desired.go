@@ -11,7 +11,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/pkg/v20/key"
 )
 
 func (s *Service) GetDesiredState(ctx context.Context, clusterConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error) {

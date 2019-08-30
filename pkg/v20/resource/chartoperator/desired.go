@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/pkg/v20/key"
 )
 
 // GetDesiredState returns the chart that should be installed including the
