@@ -99,8 +99,8 @@ required = [
   branch = "master"
   name = "github.com/giantswarm/micrologger"
 
-[[constraint]]
-  branch = "master"
+[[override]]
+  branch = "error-handlers"
   name = "github.com/giantswarm/operatorkit"
 
 [[constraint]]
