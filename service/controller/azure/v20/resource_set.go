@@ -1,4 +1,4 @@
-package v19
+package v20
 
 import (
 	"context"
@@ -21,18 +21,18 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v19/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v19/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/chartoperator"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/namespace"
-	"github.com/giantswarm/cluster-operator/pkg/v19/resource/tiller"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v19/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v19/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/v19/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v20/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/chartoperator"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/namespace"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/tiller"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v20/key"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v20/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/azure/v20/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
