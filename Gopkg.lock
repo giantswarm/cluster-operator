@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:66ac76517bdf8c628f369814ef248b445dfe7cc1de7d3e751baaa479ffbef438"
+  digest = "1:fbd5d105de57b9648145bf6cfe73078fc332d702194b153a30335c05275554f5"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -193,7 +193,6 @@
     "pkg/clientset/versioned/typed/provider/v1alpha1/fake",
     "pkg/clientset/versioned/typed/release/v1alpha1",
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
-    "pkg/resource/app",
   ]
   pruneopts = "UT"
   revision = "18f9e0ee801dac7aec99a521a569aa69dd8ed84d"
@@ -208,6 +207,14 @@
   ]
   pruneopts = "UT"
   revision = "4615b197120e48c20818898c04df0845b0bf15c9"
+
+[[projects]]
+  branch = "master"
+  digest = "1:70a6a8f2e01cdf9c8fbf710d389b5471a0ea2cfaf42cb4d99427eaaccb95c608"
+  name = "github.com/giantswarm/appresource"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "77c16c80762a80e226cce6ba37effe1f2ed554a5"
 
 [[projects]]
   branch = "master"
@@ -1424,9 +1431,9 @@
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
-    "github.com/giantswarm/apiextensions/pkg/resource/app",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
+    "github.com/giantswarm/appresource",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
