@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	"github.com/giantswarm/tenantcluster"
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
@@ -35,6 +36,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("installing tiller in tenant cluster %#q", key.ClusterID(&cr)))
+
+		if cc.Client.TenantCluster.Helm == nil {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil
+		}
 
 		err = cc.Client.TenantCluster.Helm.EnsureTillerInstalledWithValues(ctx, values)
 		if tenantcluster.IsTimeout(err) {
