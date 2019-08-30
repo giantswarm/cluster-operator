@@ -5,12 +5,12 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/cluster-operator/pkg/v19/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartconfigv19"
+	Name = "chartconfigv20"
 )
 
 // Config represents the configuration used to create a new chartconfig resource.
