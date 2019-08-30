@@ -431,7 +431,7 @@
   revision = "0926d9b7c5419173936b4556411a103bdf8d5966"
 
 [[projects]]
-  branch = "error-handlers"
+  branch = "master"
   digest = "1:70fef793bf32da2908977caa56d863c584fe14f019539c31d9600d29775e7b94"
   name = "github.com/giantswarm/operatorkit"
   packages = [
@@ -454,7 +454,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "8e972b9a654c7e6b1bfbe37db1ed67201fa45e75"
+  revision = "c633fa6c3e2f1e145a3bbe0b0a9a7229c613c58b"
 
 [[projects]]
   branch = "master"
@@ -961,14 +961,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:005cb6d0f0f06d9778ec1ab5855cb9aedfdf27d7e007647c3189991c229c3418"
+  digest = "1:34a9196becf546ed768bab8a85841f73ba175e525865f1f2fcee28dc23ab28d8"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "19e00faab6ad547203cd66b19e1281807329cf65"
+  revision = "08d80c9d36de4cf3f0843a021c300dd67a5e47dc"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
