@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	appresource "github.com/giantswarm/apiextensions/pkg/resource/app"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/appresource"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
