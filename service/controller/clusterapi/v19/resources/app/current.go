@@ -31,7 +31,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 
 	var apps []*v1alpha1.App
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps in tenant cluster %#q", key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps for tenant cluster %#q", key.ClusterID(&cr)))
 
 		o := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
@@ -46,7 +46,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 			apps = append(apps, item.DeepCopy())
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps in tenant cluster %#q", len(apps), key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps for tenant cluster %#q", len(apps), key.ClusterID(&cr)))
 	}
 
 	return apps, nil

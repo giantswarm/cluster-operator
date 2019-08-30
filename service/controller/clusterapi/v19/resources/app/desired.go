@@ -37,7 +37,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1alpha1.App {
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "ChartConfig",
+			Kind:       "App",
 			APIVersion: "application.giantswarm.io",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -72,7 +72,6 @@ func (r *Resource) newApp(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1
 				Context: g8sv1alpha1.AppSpecKubeConfigContext{
 					Name: key.KubeConfigSecretName(&cr),
 				},
-				InCluster: false,
 				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
 					Name:      key.KubeConfigSecretName(&cr),
 					Namespace: key.ClusterID(&cr),
