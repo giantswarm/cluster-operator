@@ -35,6 +35,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	var chartConfigs []*g8sv1alpha1.ChartConfig
 
 	for _, chartSpec := range r.newChartSpecs() {
+		// No ChartConfig CR is added because it has been migrated to use an
+		// App CR.
+		if chartSpec.HasAppCR {
+			continue
+		}
+
 		// App config maps are statically defined by cluster-operator. We put app
 		// config maps with user config maps together into the ChartConfig CRs below
 		// so they can be merged and take effect accordingly.

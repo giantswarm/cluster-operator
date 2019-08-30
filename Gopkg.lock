@@ -210,6 +210,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:70a6a8f2e01cdf9c8fbf710d389b5471a0ea2cfaf42cb4d99427eaaccb95c608"
+  name = "github.com/giantswarm/appresource"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "77c16c80762a80e226cce6ba37effe1f2ed554a5"
+
+[[projects]]
+  branch = "master"
   digest = "1:ab67fdefbc890c7880ffc2904048d7b9d14e29ebc716f8d637a17b16bb91d9e6"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
@@ -1418,12 +1426,14 @@
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/service/cloudformation",
     "github.com/docker/distribution/reference",
+    "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
+    "github.com/giantswarm/appresource",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",

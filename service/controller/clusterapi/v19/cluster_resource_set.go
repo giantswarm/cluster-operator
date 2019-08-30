@@ -5,6 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/appresource"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microerror"
@@ -21,6 +22,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/app"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/resources/chartoperator"
@@ -65,6 +67,42 @@ type ClusterResourceSetConfig struct {
 // ResourceSet.
 func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
+
+	var appGetter appresource.StateGetter
+	{
+		c := app.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		appGetter, err = app.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appResource controller.Resource
+	{
+		c := appresource.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+
+			Name:        app.Name,
+			StateGetter: appGetter,
+		}
+
+		ops, err := appresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var certConfigResource controller.Resource
 	{
@@ -390,6 +428,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
+		appResource,
 
 		// Following resources manage resources in the tenant cluster.
 		tcNamespaceResource,

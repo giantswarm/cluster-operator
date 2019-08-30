@@ -8,6 +8,12 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v19/key"
 )
 
+// AppSpecs returns apps installed only for Azure.
+func AppSpecs() []key.AppSpec {
+	// Add any provider specific charts here.
+	return []key.AppSpec{}
+}
+
 // ChartSpecs returns charts installed only for Azure.
 func ChartSpecs() []key.ChartSpec {
 	return []key.ChartSpec{
