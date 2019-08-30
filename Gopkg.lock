@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:fbd5d105de57b9648145bf6cfe73078fc332d702194b153a30335c05275554f5"
+  digest = "1:8b8177ef1f6ae88dbffc0e3e8058040de5440c74b2fb3de0cf90a9f5e734567c"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "18f9e0ee801dac7aec99a521a569aa69dd8ed84d"
+  revision = "8c3ef80abe83a1b10557b8c2891c85eb4b4eb061"
 
 [[projects]]
   branch = "master"
@@ -440,7 +440,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b15c64d3434d4ee564e1fe9f52c0a950e0d0ab00aa627f3a44d40d04c15b2c08"
+  digest = "1:70fef793bf32da2908977caa56d863c584fe14f019539c31d9600d29775e7b94"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -462,7 +462,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "8de7a75649d103e17c21b577f79ea5fc32cf1084"
+  revision = "c633fa6c3e2f1e145a3bbe0b0a9a7229c613c58b"
 
 [[projects]]
   branch = "master"
@@ -969,14 +969,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c5b5d55096b762e29d0b887ce73932d06ddcf9def4285f1abd09f801176878ec"
+  digest = "1:34a9196becf546ed768bab8a85841f73ba175e525865f1f2fcee28dc23ab28d8"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "c7b8b68b14567162c6602a7c5659ee0f26417c18"
+  revision = "08d80c9d36de4cf3f0843a021c300dd67a5e47dc"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
