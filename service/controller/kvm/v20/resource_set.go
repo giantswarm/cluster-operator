@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
+	"github.com/giantswarm/appresource"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -23,6 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v20/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/app"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/chartoperator"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/clusterconfigmap"
@@ -69,6 +71,44 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 	if config.ProjectName == "" {
 		return nil, microerror.Maskf(invalidConfigError, "config.ProjectName must not be empty")
+	}
+
+	var appGetter appresource.StateGetter
+	{
+		c := app.Config{
+			G8sClient:                config.G8sClient,
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			Logger:                   config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		appGetter, err = app.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appResource controller.Resource
+	{
+		c := appresource.Config{
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+
+			Name:        app.Name,
+			StateGetter: appGetter,
+		}
+
+		ops, err := appresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var certConfigResource controller.Resource
@@ -326,6 +366,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
+		appResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
