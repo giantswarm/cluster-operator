@@ -29,8 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/namespace"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v20/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v20/resource/configmap"
@@ -152,27 +150,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var namespaceResource controller.Resource
-	{
-		c := namespace.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			Tenant:                   config.Tenant,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
-			ToClusterObjectMetaFunc:  toClusterObjectMeta,
-		}
-
-		ops, err := namespace.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		namespaceResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -317,22 +294,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var tillerResource controller.Resource
-	{
-		c := tiller.Config{
-			BaseClusterConfig:        *config.BaseClusterConfig,
-			Logger:                   config.Logger,
-			Tenant:                   config.Tenant,
-			ToClusterGuestConfigFunc: toClusterGuestConfig,
-			ToClusterObjectMetaFunc:  toClusterObjectMeta,
-		}
-
-		tillerResource, err = tiller.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []controller.Resource{
 		// Put encryptionKeyResource first because it executes faster than
 		// certConfigResource and could introduce dependency during cluster
@@ -345,8 +306,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
-		namespaceResource,
-		tillerResource,
 		configMapResource,
 		chartConfigResource,
 	}
