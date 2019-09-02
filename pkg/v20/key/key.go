@@ -107,7 +107,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-4-stable",
 			ChartName:       "kubernetes-kube-state-metrics-chart",
 			ConfigMapName:   "kube-state-metrics-values",
-			HasAppCR:        true,
+			HasAppCR:        false,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "kube-state-metrics",
 			UseUpgradeForce: true,
