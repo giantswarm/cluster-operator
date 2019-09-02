@@ -9,8 +9,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"k8s.io/helm/pkg/helm"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
