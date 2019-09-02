@@ -75,6 +75,46 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ResourceNamespace must not be empty", config)
 	}
 
+	/*
+		var appGetter appresource.StateGetter
+		{
+			c := app.Config{
+				GetClusterConfigFunc:     getClusterConfig,
+				GetClusterObjectMetaFunc: getClusterObjectMeta,
+				G8sClient:                config.G8sClient,
+				Logger:                   config.Logger,
+
+				Provider: config.Provider,
+			}
+
+			appGetter, err = app.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
+		var appResource controller.Resource
+		{
+			c := appresource.Config{
+				G8sClient: config.G8sClient,
+				Logger:    config.Logger,
+
+				Name:        app.Name,
+				StateGetter: appGetter,
+			}
+
+			ops, err := appresource.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			appResource, err = toCRUDResource(config.Logger, ops)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+	*/
+
 	var certConfigResource controller.Resource
 	{
 		c := certconfig.Config{
@@ -330,6 +370,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
+		// appResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
