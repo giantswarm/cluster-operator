@@ -30,6 +30,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	// Set provider specific Ingress Controller settings.
+	providerValues, err := r.newIngressControllerValues()
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	configMapValues := ConfigMapValues{
 		ClusterID: key.ClusterID(&cr),
 		CoreDNS: CoreDNSValues{
@@ -38,18 +44,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			ClusterIPRange:     r.clusterIPRange,
 			DNSIP:              r.dnsIP,
 		},
-		IngressController: IngressControllerValues{
-			// Controller service is disabled because manifest is created by
-			// Ignition.
-			ControllerServiceEnabled: false,
-			// Migration is disabled because AWS is already migrated.
-			MigrationEnabled: false,
-			// Proxy protocol is enabled for AWS clusters.
-			UseProxyProtocol: true,
-		},
-		Organization:   key.OrganizationID(&cr),
-		RegistryDomain: r.registryDomain,
-		WorkerCount:    cc.Status.Worker.Nodes,
+		IngressController: providerValues,
+		Organization:      key.OrganizationID(&cr),
+		RegistryDomain:    r.registryDomain,
+		WorkerCount:       cc.Status.Worker.Nodes,
 	}
 
 	var configMaps []*corev1.ConfigMap
@@ -113,6 +111,37 @@ func (r *Resource) newChartSpecs() []pkgkey.ChartSpec {
 		return append(pkgkey.CommonChartSpecs(), kvmkey.ChartSpecs()...)
 	default:
 		return pkgkey.CommonChartSpecs()
+	}
+}
+
+func (r *Resource) newIngressControllerValues() (IngressControllerValues, error) {
+	switch r.provider {
+	case "aws":
+		return IngressControllerValues{
+			// Controller service is disabled because manifest is created by
+			// Ignition.
+			ControllerServiceEnabled: false,
+			// Proxy protocol is enabled for AWS clusters.
+			UseProxyProtocol: true,
+		}, nil
+	case "azure":
+		return IngressControllerValues{
+			// Controller service is disabled because manifest is not created by
+			// Ignition.
+			ControllerServiceEnabled: true,
+			// Proxy protocol is disabled for Azure clusters.
+			UseProxyProtocol: false,
+		}, nil
+	case "kvm":
+		return IngressControllerValues{
+			// Controller service is disabled because manifest is created by
+			// Ignition.
+			ControllerServiceEnabled: false,
+			// Proxy protocol is disabled for KVM clusters.
+			UseProxyProtocol: false,
+		}, nil
+	default:
+		return IngressControllerValues{}, microerror.Maskf(executionFailedError, "provider %#q not supported")
 	}
 }
 
@@ -209,7 +238,8 @@ func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
 				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
 			},
 			Migration: IngressControllerGlobalMigration{
-				Enabled: configMapValues.IngressController.MigrationEnabled,
+				// Enabled is false because all providers have been migrated.
+				Enabled: false,
 			},
 		},
 		Image: Image{
