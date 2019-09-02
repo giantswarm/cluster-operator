@@ -12,8 +12,8 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
