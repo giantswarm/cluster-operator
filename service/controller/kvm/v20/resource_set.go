@@ -25,6 +25,7 @@ import (
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v20/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/app"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/encryptionkey"
@@ -103,6 +104,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appMigrationResource controller.Resource
+	{
+		c := appmigration.Config{
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			G8sClient:                config.G8sClient,
+			Logger:                   config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		appMigrationResource, err = appmigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -298,6 +316,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
+		appMigrationResource,
 		appResource,
 
 		// Following resources manage resources in tenant clusters so they
