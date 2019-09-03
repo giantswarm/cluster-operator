@@ -8,13 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "coredns",
-				Description: "Update to 1.6.2. https://github.com/giantswarm/kubernetes-coredns/blob/master/CHANGELOG.md#v070",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "kube-state-metrics",
-				Description: "Update to 1.7.2. https://github.com/giantswarm/kubernetes-kube-state-metrics/blob/master/CHANGELOG.md#v040",
+				Component:   "TODO",
+				Description: "TODO",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -29,7 +24,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "nginx-ingress-controller",
-				Version: "0.25.0",
+				Version: "0.25.1",
 			},
 			{
 				Name:    "node-exporter",
@@ -41,6 +36,6 @@ func VersionBundle() versionbundle.Bundle {
 			},
 		},
 		Name:    "cluster-operator",
-		Version: "0.19.0",
+		Version: "0.20.0",
 	}
 }
