@@ -12,7 +12,6 @@ const (
 	Name = "appv20"
 )
 
-// Config represents the configuration used to create a new chartconfig service.
 type Config struct {
 	G8sClient                versioned.Interface
 	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
@@ -22,7 +21,6 @@ type Config struct {
 	Provider string
 }
 
-// Resource provides shared functionality for managing chartconfigs.
 type Resource struct {
 	g8sClient                versioned.Interface
 	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
@@ -32,7 +30,6 @@ type Resource struct {
 	provider string
 }
 
-// New creates a new chartconfig service.
 func New(config Config) (*Resource, error) {
 	if config.GetClusterConfigFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.GetClusterConfigFunc must not be empty", config)
