@@ -25,7 +25,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/app"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/chartoperator"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/clusterstatus"
@@ -34,9 +33,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/operatorversions"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/tcnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/tiller"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/workercount"
 )
 
@@ -140,28 +137,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		chartConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartOperatorResource controller.Resource
-	{
-		c := chartoperator.Config{
-			ApprClient: config.ApprClient,
-			FileSystem: config.FileSystem,
-			Logger:     config.Logger,
-
-			DNSIP:          config.DNSIP,
-			RegistryDomain: config.RegistryDomain,
-		}
-
-		ops, err := chartoperator.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartOperatorResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -344,23 +319,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var tcNamespaceResource controller.Resource
-	{
-		c := tcnamespace.Config{
-			Logger: config.Logger,
-		}
-
-		ops, err := tcnamespace.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		tcNamespaceResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var operatorVersionsResource controller.Resource
 	{
 		c := operatorversions.Config{
@@ -383,18 +341,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var tillerResource controller.Resource
-	{
-		c := tiller.Config{
-			Logger: config.Logger,
-		}
-
-		tillerResource, err = tiller.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -431,9 +377,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		appResource,
 
 		// Following resources manage resources in the tenant cluster.
-		tcNamespaceResource,
-		tillerResource,
-		chartOperatorResource,
 		configMapResource,
 		chartConfigResource,
 	}
