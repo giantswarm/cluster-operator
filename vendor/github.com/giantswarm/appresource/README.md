@@ -53,8 +53,8 @@ spec:
 appresource is under the Apache 2.0 license. See the [LICENSE](LICENSE) file
 for details.
 
-[app]: https: github.com/giantswarm/apiextensions/blob/master/pkg/apis/application/v1alpha1/app_types.go
-[app-operator]: https: github.com/giantswarm/app-operator
-[cluster-operator]: https: github.com/giantswarm/app-operator
-[operatorkit]: https: github.com/giantswarm/operatorkit
-[release-operator]: https: github.com/giantswarm/release-operator
+[app]: https://github.com/giantswarm/apiextensions/blob/master/pkg/apis/application/v1alpha1/app_types.go
+[app-operator]: https://github.com/giantswarm/app-operator
+[cluster-operator]: https://github.com/giantswarm/cluster-operator
+[operatorkit]: https://github.com/giantswarm/operatorkit
+[release-operator]: https://github.com/giantswarm/release-operator

@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8b8177ef1f6ae88dbffc0e3e8058040de5440c74b2fb3de0cf90a9f5e734567c"
+  digest = "1:1f77bf829883c7fa358184bebe21f5799c52c0f96ff3dc1838f3fc2c6743c5dd"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "8c3ef80abe83a1b10557b8c2891c85eb4b4eb061"
+  revision = "0099011f42a51f4446f20ab8c663a9329f3e3414"
 
 [[projects]]
   branch = "master"
@@ -210,11 +210,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:70a6a8f2e01cdf9c8fbf710d389b5471a0ea2cfaf42cb4d99427eaaccb95c608"
+  digest = "1:6d1556aed9106a75c4e99f68c205edfcc86929b96808d5b673e0ddcd18c33520"
   name = "github.com/giantswarm/appresource"
   packages = ["."]
   pruneopts = "UT"
-  revision = "77c16c80762a80e226cce6ba37effe1f2ed554a5"
+  revision = "e5795daccd32827941ecc5ba2514d4b72d353ccc"
 
 [[projects]]
   branch = "master"
@@ -440,7 +440,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:70fef793bf32da2908977caa56d863c584fe14f019539c31d9600d29775e7b94"
+  digest = "1:860a5c059205c36e98ddf44dba033dbb12f795a6f7361d3a13ce959423e6c4d7"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -462,7 +462,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "c633fa6c3e2f1e145a3bbe0b0a9a7229c613c58b"
+  revision = "c3ca8a9a0846274644b700bd93e805485ddcadee"
 
 [[projects]]
   branch = "master"
@@ -542,15 +542,15 @@
   version = "v0.2.3"
 
 [[projects]]
-  digest = "1:4d02824a56d268f74a6b6fdd944b20b58a77c3d70e81008b3ee0c4f1a6777340"
+  digest = "1:8a85f428bc6ebfa87f53216b6e43b52b30eccbcffcbd6b057a69ee16718a2248"
   name = "github.com/gogo/protobuf"
   packages = [
     "proto",
     "sortkeys",
   ]
   pruneopts = "UT"
-  revision = "ba06b47c162d49f2af050fb4c75bcbc86a159d5c"
-  version = "v1.2.1"
+  revision = "0ca988a254f991240804bf9821f3450d87ccbb1b"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:f5ce1529abc1204444ec73779f44f94e2fa8fcdb7aca3c355b0c95947e4005c6"
@@ -969,14 +969,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:34a9196becf546ed768bab8a85841f73ba175e525865f1f2fcee28dc23ab28d8"
+  digest = "1:d94059c196c160bd1c4030d49ffaa39a456be516501e5916bea663f5d79a75ec"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "08d80c9d36de4cf3f0843a021c300dd67a5e47dc"
+  revision = "9109b7679e13aa34a54834cfb4949cac4b96e576"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
