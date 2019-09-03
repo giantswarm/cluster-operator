@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -234,12 +233,7 @@ func ingressControllerValues(configMapValues ConfigMapValues) ([]byte, error) {
 		},
 		Global: IngressControllerGlobal{
 			Controller: IngressControllerGlobalController{
-				TempReplicas:     setIngressControllerTempReplicas(configMapValues.WorkerCount),
 				UseProxyProtocol: configMapValues.IngressController.UseProxyProtocol,
-			},
-			Migration: IngressControllerGlobalMigration{
-				// Enabled is false because all providers have been migrated.
-				Enabled: false,
 			},
 		},
 		Image: Image{
@@ -315,14 +309,4 @@ func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 	}
 
 	return configMapSpecs
-}
-
-// setIngressControllerTempReplicas sets the temp replicas to 50% of the worker
-// count to ensure all pods can be scheduled.
-func setIngressControllerTempReplicas(workerCount int) int {
-	if workerCount == 0 {
-		return 0
-	}
-
-	return int(math.Round(float64(workerCount) * float64(0.5)))
 }
