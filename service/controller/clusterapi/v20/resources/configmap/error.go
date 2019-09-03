@@ -4,6 +4,10 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+var executionFailedError = &microerror.Error{
+	Kind: "executionFailedError",
+}
+
 var invalidConfigError = &microerror.Error{
 	Kind: "invalidConfigError",
 }
@@ -11,15 +15,6 @@ var invalidConfigError = &microerror.Error{
 // IsInvalidConfig asserts invalidConfigError.
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
-}
-
-var invalidExecutionError = &microerror.Error{
-	Kind: "invalidExecutionError",
-}
-
-// IsInvalidExecution asserts invalidExecutionError.
-func IsInvalidExecution(err error) bool {
-	return microerror.Cause(err) == invalidExecutionError
 }
 
 var notFoundError = &microerror.Error{

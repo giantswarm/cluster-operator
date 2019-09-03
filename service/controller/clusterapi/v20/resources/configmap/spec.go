@@ -42,7 +42,6 @@ type CoreDNSValues struct {
 // Controller configmap.
 type IngressControllerValues struct {
 	ControllerServiceEnabled bool
-	MigrationEnabled         bool
 	UseProxyProtocol         bool
 }
 
@@ -69,16 +68,10 @@ type IngressControllerControllerService struct {
 
 type IngressControllerGlobal struct {
 	Controller IngressControllerGlobalController `json:"controller"`
-	Migration  IngressControllerGlobalMigration  `json:"migration"`
 }
 
 type IngressControllerGlobalController struct {
-	TempReplicas     int  `json:"tempReplicas"`
 	UseProxyProtocol bool `json:"useProxyProtocol"`
-}
-
-type IngressControllerGlobalMigration struct {
-	Enabled bool `json:"enabled"`
 }
 
 type Image struct {
