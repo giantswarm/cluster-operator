@@ -5,6 +5,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/tenantcluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -17,6 +18,7 @@ type Config struct {
 	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	Logger                   micrologger.Logger
+	Tenant                   tenantcluster.Interface
 
 	Provider string
 }
@@ -26,6 +28,7 @@ type Resource struct {
 	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	logger                   micrologger.Logger
+	tenant                   tenantcluster.Interface
 
 	provider string
 }
@@ -43,6 +46,9 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.Tenant == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
+	}
 
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -53,6 +59,7 @@ func New(config Config) (*Resource, error) {
 		getClusterConfigFunc:     config.GetClusterConfigFunc,
 		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
 		logger:                   config.Logger,
+		tenant:                   config.Tenant,
 
 		provider: config.Provider,
 	}
