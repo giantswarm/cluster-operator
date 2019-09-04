@@ -41,6 +41,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
+
+		return nil, nil
 	}
 
 	secretName := key.KubeConfigSecretName(clusterConfig)
