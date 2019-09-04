@@ -51,10 +51,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is not cordoned", chartSpec.ChartName))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning chartconfig CR %#q for migration", chartSpec.ChartName))
 
-				err = patchChartConfig(tenantG8sClient, chartCR, map[string]string{
-					annotation.CordonReason:    "cordoning chartconfig CR for migration to app CR",
-					annotation.CordonUntilDate: fmt.Sprintf("%v", time.Now().Add(1+time.Hour)),
-				})
+				err = patchChartConfig(tenantG8sClient, chartCR, addCordonAnnotations())
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -78,9 +75,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q", chartSpec.AppName, appCR.Status.Release.Status))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding annotation for deleting chartconfig CR %#q", chartSpec.ChartName))
 
-				err = patchChartConfig(tenantG8sClient, chartCR, map[string]string{
-					annotation.DeleteCustomResourceOnly: "true",
-				})
+				err = patchChartConfig(tenantG8sClient, chartCR, addDeleteAnnotation())
 				if err != nil {
 					return microerror.Mask(err)
 				}
@@ -106,6 +101,19 @@ func (r *Resource) newChartSpecs() []key.ChartSpec {
 		return append(key.CommonChartSpecs(), kvmkey.ChartSpecs()...)
 	default:
 		return key.CommonChartSpecs()
+	}
+}
+
+func addCordonAnnotations() map[string]string {
+	return map[string]string{
+		annotation.CordonReason:    "cordoning chartconfig CR for migration to app CR",
+		annotation.CordonUntilDate: time.Now().Add(1 * time.Hour).Format("2006-01-02T15:04:05"),
+	}
+}
+
+func addDeleteAnnotation() map[string]string {
+	return map[string]string{
+		annotation.DeleteCustomResourceOnly: "true",
 	}
 }
 
