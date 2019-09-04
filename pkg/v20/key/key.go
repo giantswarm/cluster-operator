@@ -72,6 +72,14 @@ func CommonAppSpecs() []AppSpec {
 			Namespace: "giantswarm",
 			Version:   "0.9.0",
 		},
+		{
+			App:             "kube-state-metrics",
+			Catalog:         "giantswarm",
+			Chart:           "kube-state-metrics-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.5.0",
+		},
 	}
 }
 
@@ -107,7 +115,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-4-stable",
 			ChartName:       "kubernetes-kube-state-metrics-chart",
 			ConfigMapName:   "kube-state-metrics-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "kube-state-metrics",
 			UseUpgradeForce: true,
