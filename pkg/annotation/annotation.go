@@ -14,6 +14,8 @@ const (
 	// the expiration date of rule of this cordon.
 	CordonUntilDate = "chart-operator.giantswarm.io/cordon-until"
 
+	DeleteCustomResourceOnly = "chart-operator.giantswarm.io/delete-custom-resource-only"
+
 	// ForceHelmUpgrade is the name of the annotation that controls whether force
 	// is used when upgrading the Helm release.
 	ForceHelmUpgrade = "chart-operator.giantswarm.io/force-helm-upgrade"
