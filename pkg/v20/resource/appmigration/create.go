@@ -52,8 +52,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// Cordon chartconfig CR so no changes are applied.
 			_, ok := chartCR.Annotations[annotation.CordonReason]
 			if !ok {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is not cordoned", chartSpec.ChartName))
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning chartconfig CR %#q for migration", chartSpec.ChartName))
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning chartconfig CR %#q", chartSpec.ChartName))
 
 				err = patchChartConfig(tenantG8sClient, chartCR, addCordonAnnotations())
 				if err != nil {
