@@ -38,14 +38,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	for _, chartSpec := range r.newChartSpecs() {
+		// Only migrate chartconfigs that have app CRs.
 		if chartSpec.HasAppCR == true {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig CR %#q is cordoned", chartSpec.ChartName))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig CR %#q has been migrated", chartSpec.ChartName))
 
 			chartCR, err := tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Get(chartSpec.ChartName, metav1.GetOptions{})
-			if err != nil {
+			if apierrors.IsNotFound(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q has been migrated, continuing", chartSpec.ChartName))
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 
+			// Cordon chartconfig CR so no changes are applied.
 			_, ok := chartCR.Annotations[annotation.CordonReason]
 			if !ok {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is not cordoned", chartSpec.ChartName))
@@ -63,6 +67,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out app CR %#q is deployed", chartSpec.AppName))
 
+			// Check if there is a deployed app CR.
 			appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).Get(chartSpec.AppName, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q does not exist yet, continuing", chartSpec.AppName))
@@ -75,6 +80,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q", chartSpec.AppName, appCR.Status.Release.Status))
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding annotation for deleting chartconfig CR %#q", chartSpec.ChartName))
 
+				// Add deletion annotation which will trigger chart-operator to
+				// delete the chartconfig CR but not the Helm release.
 				err = patchChartConfig(tenantG8sClient, chartCR, addDeleteAnnotation())
 				if err != nil {
 					return microerror.Mask(err)
