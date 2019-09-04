@@ -23,8 +23,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
-		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
 	}
