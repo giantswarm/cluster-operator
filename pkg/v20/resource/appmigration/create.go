@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -22,6 +23,20 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	objectMeta, err := r.getClusterObjectMetaFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	// Cluster is being deleted. No migration is necessary.
+	if key.IsDeleted(objectMeta) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "cluster is being deleted")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+
+		return nil
+	}
+
 	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return microerror.Mask(err)
