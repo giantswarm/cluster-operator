@@ -23,8 +23,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
-		resourcecanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
 	}
@@ -32,6 +32,17 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	// Cluster namespace is created by the provider operator. If it doesn't
+	// exist yet we should retry in the next reconciliation loop.
+	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+
+		return nil, nil
 	}
 
 	secretName := key.KubeConfigSecretName(clusterConfig)
