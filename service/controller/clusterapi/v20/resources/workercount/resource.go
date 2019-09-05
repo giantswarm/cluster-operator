@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Name = "workercountv19"
+	Name = "workercountv20"
 )
 
 type Config struct {
