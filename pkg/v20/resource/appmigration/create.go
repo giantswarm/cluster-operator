@@ -9,6 +9,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -58,7 +59,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig CR %#q has been migrated", chartSpec.ChartName))
 
 			chartCR, err := tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Get(chartSpec.ChartName, metav1.GetOptions{})
-			if apierrors.IsNotFound(err) {
+			if tenant.IsAPINotAvailable(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+				r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+				resourcecanceledcontext.SetCanceled(ctx)
+				return nil
+			} else if apierrors.IsNotFound(err) {
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q has been migrated, continuing", chartSpec.ChartName))
 			} else if err != nil {
 				return microerror.Mask(err)
