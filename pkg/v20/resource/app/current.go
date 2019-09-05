@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -33,6 +34,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	// Cluster namespace is created by the provider operator. If it doesn't
+	// exist yet we should retry in the next reconciliation loop.
+	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+
+		return nil, nil
 	}
 
 	var apps []*v1alpha1.App

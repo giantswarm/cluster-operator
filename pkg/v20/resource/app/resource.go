@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -16,6 +17,7 @@ type Config struct {
 	G8sClient                versioned.Interface
 	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
+	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 
 	Provider string
@@ -25,6 +27,7 @@ type Resource struct {
 	g8sClient                versioned.Interface
 	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
+	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 
 	provider string
@@ -40,6 +43,9 @@ func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -52,6 +58,7 @@ func New(config Config) (*Resource, error) {
 		g8sClient:                config.G8sClient,
 		getClusterConfigFunc:     config.GetClusterConfigFunc,
 		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
+		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 
 		provider: config.Provider,

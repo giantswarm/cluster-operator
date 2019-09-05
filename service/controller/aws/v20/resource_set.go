@@ -81,6 +81,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			G8sClient:                config.G8sClient,
+			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 
 			Provider: config.Provider,
