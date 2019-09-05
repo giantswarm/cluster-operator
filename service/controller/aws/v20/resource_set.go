@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
 	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
@@ -92,7 +93,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var appResource controller.Resource
+	var appResource resource.Interface
 	{
 		c := appresource.Config{
 			G8sClient: config.G8sClient,
@@ -113,7 +114,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var certConfigResource controller.Resource
+	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
@@ -136,7 +137,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var encryptionKeyResource controller.Resource
+	var encryptionKeyResource resource.Interface
 	{
 		c := encryptionkey.Config{
 			K8sClient:                config.K8sClient,
@@ -169,7 +170,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var configMapResource controller.Resource
+	var configMapResource resource.Interface
 	{
 		c := configmap.Config{
 			ConfigMap: configMapService,
@@ -206,7 +207,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var chartConfigResource controller.Resource
+	var chartConfigResource resource.Interface
 	{
 		c := chartconfig.Config{
 			ChartConfig: chartConfigService,
@@ -226,7 +227,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var clusterConfigMapResource controller.Resource
+	var clusterConfigMapResource resource.Interface
 	{
 		c := clusterconfigmap.Config{
 			GetClusterConfigFunc:     getClusterConfig,
@@ -261,7 +262,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var kubeConfigResource controller.Resource
+	var kubeConfigResource resource.Interface
 	{
 		c := kubeconfig.Config{
 			CertSearcher:             config.CertSearcher,
@@ -295,7 +296,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	resources := []controller.Resource{
+	resources := []resource.Interface{
 		// Put encryptionKeyResource first because it executes faster than
 		// certConfigResource and could introduce dependency during cluster
 		// creation.
