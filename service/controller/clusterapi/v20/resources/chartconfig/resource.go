@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Name = "chartconfigv19"
+	Name = "chartconfigv20"
 )
 
 // Config represents the configuration used to create a new chartconfig service.
