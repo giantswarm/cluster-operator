@@ -19,7 +19,7 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	// Cluster configMap is deleted by the provider operator when it deletes
+	// Cluster kubeconfig is deleted by the provider operator when it deletes
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")

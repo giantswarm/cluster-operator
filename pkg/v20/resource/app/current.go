@@ -21,10 +21,10 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 		return nil, microerror.Mask(err)
 	}
 
-	// Cluster configMap is deleted by the provider operator when it deletes
+	// Apps are deleted by the provider operator when it deletes
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting app deletion to provider operators")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
