@@ -252,6 +252,8 @@ func Test_ChartConfig_newUpdateChange(t *testing.T) {
 	c := Config{
 		Logger: microloggertest.New(),
 		Tenant: &tenantMock{},
+
+		Provider: "aws",
 	}
 	cc, err := New(c)
 	if err != nil {
