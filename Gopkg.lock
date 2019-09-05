@@ -132,7 +132,7 @@
     "reference",
   ]
   pruneopts = "UT"
-  revision = "aeaeb844071362767ad497eb0911fcf60e47fa11"
+  revision = "14b96e55d84c367ebab6caf9f0086de0876eec72"
 
 [[projects]]
   branch = "master"
@@ -440,7 +440,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b10569a1224aa90a198d6c6eb1cc34b50042212bad7c0583f6df3adca278aa50"
+  digest = "1:f52db50e5b0e943cc3024c96f3911b837264f438849cef3ca959358298d7844e"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -463,7 +463,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "9f440793304aab7f33e7182931481b57877b8c74"
+  revision = "8a0fbd0dde5a82821baa1dbbea5d925bfbe7f37d"
 
 [[projects]]
   branch = "master"
@@ -1467,6 +1467,7 @@
     "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
     "github.com/giantswarm/operatorkit/informer",
+    "github.com/giantswarm/operatorkit/resource",
     "github.com/giantswarm/operatorkit/resource/k8s/configmapresource",
     "github.com/giantswarm/operatorkit/resource/k8s/secretresource",
     "github.com/giantswarm/operatorkit/resource/wrapper/metricsresource",
