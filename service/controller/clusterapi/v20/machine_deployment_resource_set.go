@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
@@ -31,7 +32,7 @@ type MachineDeploymentResourceSetConfig struct {
 func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
-	var machineDeploymentStatusResource controller.Resource
+	var machineDeploymentStatusResource resource.Interface
 	{
 		c := machinedeploymentstatus.Config{
 			CMAClient: config.CMAClient,
@@ -45,7 +46,7 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 		}
 	}
 
-	var tenantClientsResource controller.Resource
+	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
 			Logger:        config.Logger,
@@ -59,7 +60,7 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 		}
 	}
 
-	var workerCountResource controller.Resource
+	var workerCountResource resource.Interface
 	{
 		c := workercount.Config{
 			Logger: config.Logger,
@@ -73,7 +74,7 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 		}
 	}
 
-	resources := []controller.Resource{
+	resources := []resource.Interface{
 		tenantClientsResource,
 		workerCountResource,
 		machineDeploymentStatusResource,

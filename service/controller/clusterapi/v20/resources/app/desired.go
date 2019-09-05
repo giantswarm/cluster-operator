@@ -66,7 +66,7 @@ func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, 
 			Namespace: appSpec.Namespace,
 			Version:   appSpec.Version,
 
-			Config: g8sv1alpha1.AppSpecConfig{
+			Config: &g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
 					Name:      key.ClusterConfigMapName(&cr),
 					Namespace: key.ClusterID(&cr),
@@ -74,10 +74,10 @@ func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, 
 			},
 
 			KubeConfig: g8sv1alpha1.AppSpecKubeConfig{
-				Context: g8sv1alpha1.AppSpecKubeConfigContext{
+				Context: &g8sv1alpha1.AppSpecKubeConfigContext{
 					Name: key.KubeConfigSecretName(&cr),
 				},
-				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
+				Secret: &g8sv1alpha1.AppSpecKubeConfigSecret{
 					Name:      key.KubeConfigSecretName(&cr),
 					Namespace: key.ClusterID(&cr),
 				},

@@ -60,7 +60,6 @@ spec:
                   required: ["name", "namespace"]
             logoURL:
               type: string
-              format: uri
             storage:
               type: object 
               properties:
@@ -104,7 +103,7 @@ func NewAppCatalogCRD() *apiextensionsv1beta1.CustomResourceDefinition {
 
 func NewAppCatalogTypeMeta() metav1.TypeMeta {
 	return metav1.TypeMeta{
-		APIVersion: version,
+		APIVersion: SchemeGroupVersion.String(),
 		Kind:       kindAppCatalog,
 	}
 }
@@ -132,7 +131,7 @@ func NewAppCatalogTypeMeta() metav1.TypeMeta {
 //        secret:
 //          name: "app-catalog-secrets"
 //          namespace: "giantswarm"
-//      logoURL: "https://s.giantswarm.io/..."
+//      logoURL: "/images/repo_icons/incubator.png"
 //      storage:
 //        type: "helm"
 //        URL: "https://giantswarm.github.com/app-catalog/"

@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
 	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
@@ -83,7 +84,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var appResource controller.Resource
+	var appResource resource.Interface
 	{
 		c := appresource.Config{
 			G8sClient: config.G8sClient,
@@ -104,7 +105,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var certConfigResource controller.Resource
+	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
 			G8sClient: config.G8sClient,
@@ -126,7 +127,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var chartConfigResource controller.Resource
+	var chartConfigResource resource.Interface
 	{
 		c := chartconfig.Config{
 			Logger: config.Logger,
@@ -145,7 +146,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var chartOperatorResource controller.Resource
+	var chartOperatorResource resource.Interface
 	{
 		c := chartoperator.Config{
 			ApprClient: config.ApprClient,
@@ -182,7 +183,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var clusterConfigMapResource controller.Resource
+	var clusterConfigMapResource resource.Interface
 	{
 		c := configmapresource.Config{
 			K8sClient: config.K8sClient,
@@ -203,7 +204,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var clusterIDResource controller.Resource
+	var clusterIDResource resource.Interface
 	{
 		c := clusterid.Config{
 			CMAClient:                   config.CMAClient,
@@ -218,7 +219,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var clusterStatusResource controller.Resource
+	var clusterStatusResource resource.Interface
 	{
 		c := clusterstatus.Config{
 			Accessor:  &key.AWSClusterStatusAccessor{},
@@ -233,7 +234,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var configMapResource controller.Resource
+	var configMapResource resource.Interface
 	{
 		c := configmap.Config{
 			Logger: config.Logger,
@@ -257,7 +258,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var cpNamespaceResource controller.Resource
+	var cpNamespaceResource resource.Interface
 	{
 		c := cpnamespace.Config{
 			K8sClient: config.K8sClient,
@@ -288,7 +289,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var encryptionKeyResource controller.Resource
+	var encryptionKeyResource resource.Interface
 	{
 		c := secretresource.Config{
 			K8sClient: config.K8sClient,
@@ -323,7 +324,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var kubeConfigResource controller.Resource
+	var kubeConfigResource resource.Interface
 	{
 		c := secretresource.Config{
 			K8sClient: config.K8sClient,
@@ -344,7 +345,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var tcNamespaceResource controller.Resource
+	var tcNamespaceResource resource.Interface
 	{
 		c := tcnamespace.Config{
 			Logger: config.Logger,
@@ -361,7 +362,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var operatorVersionsResource controller.Resource
+	var operatorVersionsResource resource.Interface
 	{
 		c := operatorversions.Config{
 			ClusterClient: config.ClusterClient,
@@ -374,7 +375,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var tenantClientsResource controller.Resource
+	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
 			Logger:        config.Logger,
@@ -388,7 +389,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var tillerResource controller.Resource
+	var tillerResource resource.Interface
 	{
 		c := tiller.Config{
 			Logger: config.Logger,
@@ -400,7 +401,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var workerCountResource controller.Resource
+	var workerCountResource resource.Interface
 	{
 		c := workercount.Config{
 			Logger: config.Logger,
@@ -414,7 +415,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	resources := []controller.Resource{
+	resources := []resource.Interface{
 		// Following resources manage resources controller context information.
 		clusterIDResource,
 		operatorVersionsResource,
