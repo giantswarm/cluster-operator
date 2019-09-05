@@ -46,6 +46,12 @@ func (c *ChartConfig) newCreateChange(ctx context.Context, currentChartConfigs, 
 	chartConfigsToCreate := make([]*v1alpha1.ChartConfig, 0)
 
 	for _, desiredChartConfig := range desiredChartConfigs {
+		chartSpec := c.getChartSpecByName(desiredChartConfig.Name)
+		if chartSpec.HasAppCR {
+			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating %#q it is migrated to app CR", desiredChartConfig.Name))
+			continue
+		}
+
 		if !containsChartConfig(currentChartConfigs, desiredChartConfig) {
 			chartConfigsToCreate = append(chartConfigsToCreate, desiredChartConfig)
 		}
