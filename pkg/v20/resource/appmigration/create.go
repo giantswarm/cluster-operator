@@ -39,15 +39,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	chartsToMigrate := []key.ChartSpec{}
+	chartSpecsToMigrate := r.newChartSpecsToMigrate()
 
-	for _, chartSpec := range r.newChartSpecs() {
-		if chartSpec.HasAppCR {
-			chartsToMigrate = append(chartsToMigrate, chartSpec)
-		}
-	}
-
-	if len(chartsToMigrate) == 0 {
+	if len(chartSpecsToMigrate) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no charts to migrate")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -83,7 +77,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	for _, chartSpec := range chartsToMigrate {
+	for _, chartSpec := range chartSpecsToMigrate {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig CR %#q has been migrated", chartSpec.ChartName))
 
 		chartCR, err := getChartConfigByName(chartConfigs.Items, chartSpec.ChartName)
@@ -146,17 +140,29 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) newChartSpecs() []key.ChartSpec {
+func (r *Resource) newChartSpecsToMigrate() []key.ChartSpec {
+	chartSpecs := []key.ChartSpec{}
+
 	switch r.provider {
 	case "aws":
-		return append(key.CommonChartSpecs(), awskey.ChartSpecs()...)
+		chartSpecs = append(key.CommonChartSpecs(), awskey.ChartSpecs()...)
 	case "azure":
-		return append(key.CommonChartSpecs(), azurekey.ChartSpecs()...)
+		chartSpecs = append(key.CommonChartSpecs(), azurekey.ChartSpecs()...)
 	case "kvm":
-		return append(key.CommonChartSpecs(), kvmkey.ChartSpecs()...)
+		chartSpecs = append(key.CommonChartSpecs(), kvmkey.ChartSpecs()...)
 	default:
-		return key.CommonChartSpecs()
+		chartSpecs = key.CommonChartSpecs()
 	}
+
+	chartSpecsToMigrate := []key.ChartSpec{}
+
+	for _, spec := range chartSpecs {
+		if spec.HasAppCR {
+			chartSpecsToMigrate = append(chartSpecsToMigrate, spec)
+		}
+	}
+
+	return chartSpecsToMigrate
 }
 
 func addCordonAnnotations() map[string]string {
