@@ -13,6 +13,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
+	"github.com/giantswarm/cluster-operator/pkg/v20/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v20/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v20/key"
 )
 
 const (
@@ -24,12 +28,16 @@ const (
 type Config struct {
 	Logger micrologger.Logger
 	Tenant tenantcluster.Interface
+
+	Provider string
 }
 
 // ChartConfig provides shared functionality for managing chartconfigs.
 type ChartConfig struct {
 	logger micrologger.Logger
 	tenant tenantcluster.Interface
+
+	provider string
 }
 
 // New creates a new chartconfig service.
@@ -38,15 +46,44 @@ func New(config Config) (*ChartConfig, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	if config.Tenant == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Guest must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
+	}
+
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
 
 	s := &ChartConfig{
 		logger: config.Logger,
 		tenant: config.Tenant,
+
+		provider: config.Provider,
 	}
 
 	return s, nil
+}
+
+func (c *ChartConfig) newChartSpecs() []key.ChartSpec {
+	switch c.provider {
+	case "aws":
+		return append(key.CommonChartSpecs(), awskey.ChartSpecs()...)
+	case "azure":
+		return append(key.CommonChartSpecs(), azurekey.ChartSpecs()...)
+	case "kvm":
+		return append(key.CommonChartSpecs(), kvmkey.ChartSpecs()...)
+	default:
+		return key.CommonChartSpecs()
+	}
+}
+
+func (c *ChartConfig) getChartSpecByName(name string) key.ChartSpec {
+	for _, spec := range c.newChartSpecs() {
+		if spec.ChartName == name {
+			return spec
+		}
+	}
+
+	return key.ChartSpec{}
 }
 
 func (c *ChartConfig) newTenantG8sClient(ctx context.Context, clusterConfig ClusterConfig) (versioned.Interface, error) {
