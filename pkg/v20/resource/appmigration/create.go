@@ -109,7 +109,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("added annotation to chartconfig CR %#q", chartSpec.ChartName))
 			} else {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q, continuing", chartSpec.AppName, appCR.Status.Release.Status))
+				status := ""
+				if appCR.Status.Release != nil {
+					status = appCR.Status.Release.Status
+				}
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q, continuing", chartSpec.AppName, status))
 				continue
 			}
 		}
