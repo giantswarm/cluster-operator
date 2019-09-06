@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -36,7 +38,13 @@ func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConf
 
 	for namespace := range namespaces {
 		configMapList, err := tenantK8sClient.CoreV1().ConfigMaps(namespace).List(listOptions)
-		if err != nil {
+		if tenant.IsAPINotAvailable(err) {
+			s.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+			s.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
+
+		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
