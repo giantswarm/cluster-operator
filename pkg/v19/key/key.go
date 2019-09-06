@@ -66,16 +66,7 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 // Note: When adding app specs you also need to add the chart name to the
 // desired state tests in the chartconfig and configmap services.
 func CommonAppSpecs() []AppSpec {
-	return []AppSpec{
-		{
-			App:             "kube-state-metrics",
-			Catalog:         "giantswarm",
-			Chart:           "kube-state-metrics-app",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "0.5.0",
-		},
-	}
+	return []AppSpec{}
 }
 
 // CommonChartSpecs returns charts installed for all providers.
