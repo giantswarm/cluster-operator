@@ -67,10 +67,10 @@ func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
 			App:       "chart-operator",
-			Catalog:   "giantswarm",
+			Catalog:   "giantswarm-test",
 			Chart:     "chart-operator",
-			Namespace: "giantswarm",
-			Version:   "0.9.1",
+			Namespace: "giantswarm-test",
+			Version:   "0.9.1-3ad9ba9c816f7bf4a47ee00a42082a3b3cc4ba0a",
 		},
 		{
 			App:             "kube-state-metrics",
