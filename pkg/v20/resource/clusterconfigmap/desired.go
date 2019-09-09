@@ -27,14 +27,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	values := map[string]interface{}{
+	values := map[string]string{
 		"baseDomain":   key.DNSZone(clusterConfig),
 		"clusterDNSIP": clusterDNSIP,
-		"resource": map[string]interface{}{
-			"tiller": map[string]interface{}{
-				"namespace": "giantswarm",
-			},
-		},
 	}
 
 	yamlValues, err := yaml.Marshal(values)
