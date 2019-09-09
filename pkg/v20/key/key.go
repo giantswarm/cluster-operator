@@ -70,7 +70,7 @@ func CommonAppSpecs() []AppSpec {
 			Catalog:   "giantswarm-test",
 			Chart:     "chart-operator",
 			Namespace: "giantswarm-test",
-			Version:   "0.9.1-3ad9ba9c816f7bf4a47ee00a42082a3b3cc4ba0a",
+			Version:   "0.9.1-74cf79084fe7dc47db5159406126c99104ffd5f0",
 		},
 		{
 			App:             "kube-state-metrics",
