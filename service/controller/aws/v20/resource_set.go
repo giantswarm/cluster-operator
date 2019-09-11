@@ -327,6 +327,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		kubeConfigResource,
 		appMigrationResource,
 		appResource,
+		appMigrationResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
