@@ -62,3 +62,52 @@ func (r *Resource) newChartSpecsToMigrate() []key.ChartSpec {
 
 	return chartSpecsToMigrate
 }
+
+func addCordonAnnotations() map[string]string {
+	return map[string]string{
+		annotation.CordonReason:    "cordoning chartconfig CR for migration to app CR",
+		annotation.CordonUntilDate: time.Now().Add(1 * time.Hour).Format("2006-01-02T15:04:05"),
+	}
+}
+
+func addDeleteAnnotation() map[string]string {
+	return map[string]string{
+		annotation.DeleteCustomResourceOnly: "true",
+	}
+}
+
+func patchChartConfig(tenantG8sClient versioned.Interface, chartCR v1alpha1.ChartConfig, annotations map[string]string) error {
+	patches := []Patch{}
+
+	if len(chartCR.Annotations) == 0 {
+		patches = append(patches, Patch{
+			Op:    "add",
+			Path:  "/metadata/annotations",
+			Value: map[string]string{},
+		})
+	}
+
+	for k, v := range annotations {
+		patches = append(patches, Patch{
+			Op:    "add",
+			Path:  fmt.Sprintf("/metadata/annotations/%s", replaceToEscape(k)),
+			Value: v,
+		})
+	}
+
+	bytes, err := json.Marshal(patches)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	_, err = tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Patch(chartCR.Name, types.JSONPatchType, bytes)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func replaceToEscape(from string) string {
+	return strings.Replace(from, "/", "~1", -1)
+}
