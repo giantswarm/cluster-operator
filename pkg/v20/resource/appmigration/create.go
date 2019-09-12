@@ -2,10 +2,18 @@ package appmigration
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
+	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/v20/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v20/key"
