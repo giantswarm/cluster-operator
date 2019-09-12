@@ -66,11 +66,12 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
-			App:       "chart-operator",
-			Catalog:   "giantswarm-test",
-			Chart:     "chart-operator",
-			Namespace: "giantswarm-test",
-			Version:   "0.9.1-cc9632f86cb1bd53dfc7dd042bf7c512fc838ad6",
+			App:             "chart-operator",
+			Catalog:         "giantswarm-test",
+			Chart:           "chart-operator",
+			Namespace:       "giantswarm",
+			UseUpgradeForce: true,
+			Version:         "0.9.2",
 		},
 		{
 			App:             "kube-state-metrics",
