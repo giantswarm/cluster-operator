@@ -70,3 +70,13 @@ func New(config Config) (*Resource, error) {
 func (r *Resource) Name() string {
 	return Name
 }
+
+func getChartConfigByName(list []v1alpha1.ChartConfig, name string) (v1alpha1.ChartConfig, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return v1alpha1.ChartConfig{}, microerror.Mask(notFoundError)
+}
