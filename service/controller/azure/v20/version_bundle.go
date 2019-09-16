@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
+				Component:   "app-operator",
+				Description: "Migrated chart-operator and kube-state-metrics to use app CRs.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
