@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
@@ -70,7 +71,7 @@ func CommonAppSpecs() []AppSpec {
 			Catalog:   "giantswarm",
 			Chart:     "chart-operator",
 			Namespace: "giantswarm",
-			Version:   "0.9.1",
+			Version:   "0.9.2",
 		},
 	}
 }
@@ -156,6 +157,12 @@ func CommonChartSpecs() []ChartSpec {
 			UseUpgradeForce: true,
 		},
 	}
+}
+
+// CordonUntilDate sets the date that chartconfig CRs should be cordoned until
+// when they are migrated to app CRs.
+func CordonUntilDate() string {
+	return time.Now().Add(1 * time.Hour).Format("2006-01-02T15:04:05")
 }
 
 // DNSIP returns the IP of the DNS service given a cluster IP range.

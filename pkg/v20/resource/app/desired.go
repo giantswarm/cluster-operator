@@ -60,7 +60,7 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 			Namespace: appSpec.Namespace,
 			Version:   appSpec.Version,
 
-			Config: &g8sv1alpha1.AppSpecConfig{
+			Config: g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
 					Name:      key.ClusterConfigMapName(clusterConfig),
 					Namespace: clusterConfig.ID,
@@ -68,11 +68,11 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 			},
 
 			KubeConfig: g8sv1alpha1.AppSpecKubeConfig{
-				Context: &g8sv1alpha1.AppSpecKubeConfigContext{
+				Context: g8sv1alpha1.AppSpecKubeConfigContext{
 					Name: key.KubeConfigSecretName(clusterConfig),
 				},
 				InCluster: false,
-				Secret: &g8sv1alpha1.AppSpecKubeConfigSecret{
+				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
 					Name:      key.KubeConfigSecretName(clusterConfig),
 					Namespace: clusterConfig.ID,
 				},

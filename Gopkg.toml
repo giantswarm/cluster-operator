@@ -53,10 +53,6 @@ required = [
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/appresource"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/backoff"
 
 [[constraint]]
@@ -106,6 +102,10 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/operatorkit"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/resource"
 
 [[constraint]]
   branch = "master"

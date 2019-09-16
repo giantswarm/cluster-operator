@@ -6,7 +6,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
-	"github.com/giantswarm/appresource"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -16,6 +15,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,6 +26,7 @@ import (
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v20/configmap"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/app"
+	"github.com/giantswarm/cluster-operator/pkg/v20/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v20/resource/encryptionkey"
@@ -109,6 +110,24 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appMigrationResource resource.Interface
+	{
+		c := appmigration.Config{
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			G8sClient:                config.G8sClient,
+			Logger:                   config.Logger,
+			Tenant:                   config.Tenant,
+
+			Provider: config.Provider,
+		}
+
+		appMigrationResource, err = appmigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -307,6 +326,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
+		appMigrationResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last.
