@@ -113,7 +113,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		if appCR.Status.Release != nil && appCR.Status.Release.Status == "DEPLOYED" {
+		if appCR.Status.Release.Status == "DEPLOYED" {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q", chartSpec.AppName, appCR.Status.Release.Status))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding annotation for deleting chartconfig CR %#q", chartSpec.ChartName))
 
@@ -135,12 +135,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chartconfig CR %#q", chartSpec.ChartName))
 		} else {
-			status := ""
-			if appCR.Status.Release != nil {
-				status = appCR.Status.Release.Status
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q, continuing", chartSpec.AppName, status))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q, continuing", chartSpec.AppName, appCR.Status.Release.Status))
 			continue
 		}
 	}
