@@ -25,6 +25,9 @@ data:
     service:
       clusterService:
         address: 'http://cluster-service:8000'
+      image:
+        registry:
+          domain: '{{ .Values.Installation.V1.Registry.Domain }}'
       kubeconfig:
         resource:
           namespace: 'giantswarm'
@@ -37,4 +40,3 @@ data:
           keyFile: ''
       provider:
         kind: '{{ .Values.Installation.V1.Provider.Kind }}'
-      registryDomain: '{{ .Values.Installation.V1.Registry.Domain }}'
