@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
@@ -177,7 +176,7 @@ func (r *Resource) newChartSpecsToMigrate() []key.ChartSpec {
 func addCordonAnnotations() map[string]string {
 	return map[string]string{
 		annotation.CordonReason:    "cordoning chartconfig CR for migration to app CR",
-		annotation.CordonUntilDate: time.Now().Add(1 * time.Hour).Format("2006-01-02T15:04:05"),
+		annotation.CordonUntilDate: key.CordonUntilDate(),
 	}
 }
 
