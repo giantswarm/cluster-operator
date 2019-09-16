@@ -8,11 +8,16 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v20/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v20/key"
@@ -40,6 +45,99 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
+	}
+
+	clusterConfig, err := r.getClusterConfigFunc(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	tenantAPIDomain, err := key.APIDomain(clusterConfig)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	tenantG8sClient, err := r.tenant.NewG8sClient(ctx, clusterConfig.ID, tenantAPIDomain)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	listOptions := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+	}
+
+	chartConfigs, err := tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+	if tenant.IsAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	for _, chartSpec := range chartSpecsToMigrate {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig CR %#q has been migrated", chartSpec.ChartName))
+
+		chartCR, err := getChartConfigByName(chartConfigs.Items, chartSpec.ChartName)
+		if IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q has been migrated, continuing", chartSpec.ChartName))
+			continue
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		// Cordon chartconfig CR so no changes are applied.
+		_, ok := chartCR.Annotations[annotation.CordonReason]
+		if !ok {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning chartconfig CR %#q", chartSpec.ChartName))
+
+			err = patchChartConfig(tenantG8sClient, chartCR, addCordonAnnotations())
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoned chartconfig CR %#q", chartSpec.ChartName))
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is already cordoned", chartSpec.ChartName))
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out app CR %#q is deployed", chartSpec.AppName))
+
+		// Check if there is a deployed app CR.
+		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).Get(chartSpec.AppName, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q does not exist yet, continuing", chartSpec.AppName))
+			continue
+		} else if err != nil {
+			return microerror.Mask(err)
+		}
+
+		if appCR.Status.Release.Status == "DEPLOYED" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q", chartSpec.AppName, appCR.Status.Release.Status))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding annotation for deleting chartconfig CR %#q", chartSpec.ChartName))
+
+			// Add deletion annotation which will trigger chart-operator to
+			// delete the chartconfig CR but not the Helm release.
+			err = patchChartConfig(tenantG8sClient, chartCR, addDeleteAnnotation())
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("added annotation to chartconfig CR %#q", chartSpec.ChartName))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chartconfig CR %#q", chartSpec.ChartName))
+
+			// Lastly delete the chartconfig CR.
+			err = tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Delete(chartCR.Name, &metav1.DeleteOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chartconfig CR %#q", chartSpec.ChartName))
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q, continuing", chartSpec.AppName, appCR.Status.Release.Status))
+			continue
+		}
 	}
 
 	return nil
