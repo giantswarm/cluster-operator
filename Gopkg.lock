@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8884c9299b060a0a07bea7843de1834186e73e45e489715c1b5d439e6b055c0a"
+  digest = "1:915f6f410672952ed3f4fc033fc49c70f899e37d4b6afbc61cc030404536c059"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "a1822dc1393b7e6a7ece14d3bf2c6a410dc419c9"
+  revision = "effe4fdce5d4bcb7b7bc35ac94135579d97574fa"
 
 [[projects]]
   branch = "master"
@@ -210,19 +210,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6d1556aed9106a75c4e99f68c205edfcc86929b96808d5b673e0ddcd18c33520"
-  name = "github.com/giantswarm/appresource"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "e5795daccd32827941ecc5ba2514d4b72d353ccc"
-
-[[projects]]
-  branch = "master"
-  digest = "1:ab67fdefbc890c7880ffc2904048d7b9d14e29ebc716f8d637a17b16bb91d9e6"
+  digest = "1:0dc70d5c96ccd9ef24d12f7c222447425447f7a2ec72556f2479137fe72f5476"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4763148864dc4815b691a69b4f60b4f4a8f88dad"
+  revision = "4dd4911251929a0ac4c4f3d8c4bda482a9e09f30"
 
 [[projects]]
   branch = "master"
@@ -283,7 +275,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d43b8031bb7b0635285c401765890f3c8d218555d3a03129de0b676e324ec465"
+  digest = "1:9c94a9509b279c5d406688d39bcd86f59e66c91e6c54081501dce4ce664383c8"
   name = "github.com/giantswarm/e2e-harness"
   packages = [
     "internal/filelogger",
@@ -291,7 +283,7 @@
     "pkg/harness",
   ]
   pruneopts = "UT"
-  revision = "094ac65a5e97510adafec48e7bb35944b9e346e8"
+  revision = "3af6217b34041f7829e4e4b4c03fdffee47fd1d0"
 
 [[projects]]
   branch = "master"
@@ -440,7 +432,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f52db50e5b0e943cc3024c96f3911b837264f438849cef3ca959358298d7844e"
+  digest = "1:9bc83b54894d58413b235daf520777a390b50fe7adaf220eb5cd108a94d3b3dc"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -463,7 +455,15 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "8a0fbd0dde5a82821baa1dbbea5d925bfbe7f37d"
+  revision = "20e2622b298a4d271a8e828201061d2cfbc84203"
+
+[[projects]]
+  branch = "master"
+  digest = "1:b7d7b8b660e3db38b3a50e5aa560b83fc281e06a4115312b3f88edaa3bbbe4ac"
+  name = "github.com/giantswarm/resource"
+  packages = ["appresource"]
+  pruneopts = "UT"
+  revision = "8e5f7b695482666b526cf6e740214ad3be250ca0"
 
 [[projects]]
   branch = "master"
@@ -845,7 +845,7 @@
   revision = "14fe0d1b01d4d5fc031dd4bec1823bd3ebbe8016"
 
 [[projects]]
-  digest = "1:8dcedf2e8f06c7f94e48267dea0bc0be261fa97b377f3ae3e87843a92a549481"
+  digest = "1:f119e3205d3a1f0f19dbd7038eb37528e2c6f0933269dc344e305951fb87d632"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -853,8 +853,8 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "31bed53e4047fd6c510e43a941f90cb31be0972a"
-  version = "v0.6.0"
+  revision = "287d3e634a1e550c9e463dd7e5a75a422c614505"
+  version = "v0.7.0"
 
 [[projects]]
   digest = "1:8232537905152d6a0b116b9af5a0868fcac0e84eb02ec5a150624c077bdedb0b"
@@ -929,11 +929,11 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "9756ffdc24725223350eb3266ffb92590d28f278"
+  revision = "227b76d455e791cb042b03e633e2f7fbcfdf74a5"
 
 [[projects]]
   branch = "master"
-  digest = "1:beca290d7dac065c10bcb8e3ded01946624554404a15fa5ac3a5a598848813c9"
+  digest = "1:26bfbd2a378c35a7a291f031811d8d2c4a8f843e1b402c28c27e4ded719832e9"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -947,7 +947,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "ba9fcec4b297b415637633c5a6e8fa592e4a16c3"
+  revision = "24e19bdeb0f2d062d8e2640d50a7aaf2a7f80e7a"
 
 [[projects]]
   branch = "master"
@@ -966,18 +966,18 @@
   name = "golang.org/x/sync"
   packages = ["errgroup"]
   pruneopts = "UT"
-  revision = "112230192c580c3556b8cee6403af37a4fc5f28c"
+  revision = "cd5d95a43a6e21273425c7ae415d3df9ea832eeb"
 
 [[projects]]
   branch = "master"
-  digest = "1:4f9cc50343843f7c58c1a1aecf17c226ea0e855f4d3293e796701ae985111e0d"
+  digest = "1:02da7af449b0c807a00c4533c72ba85b6105783efc243ced4057eb04843c1a83"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "749cb33beabd9aa6d3178e3de05bcc914f70b2bf"
+  revision = "bc967efca4b87fb45e946a3ea4cb891883404fd0"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1034,10 +1034,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "92dd089d5514cecde7a465f807541f83dfd486d5"
+  revision = "1774047e7e5133fa3573a4e51b37a586b6b0360c"
 
 [[projects]]
-  digest = "1:48eafc052e46b4ebbc7882553873cf6198203e528627cefc94dcaf8553addd19"
+  digest = "1:472a63591492a241f66e0740382d3b30b246d7e0692ec00bed0f36c92b9f34c0"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -1076,8 +1076,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
-  version = "v1.23.0"
+  revision = "39e8a7b072a67ca2a75f57fa2e0d50995f5b22f6"
+  version = "v1.23.1"
 
 [[projects]]
   digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
@@ -1434,7 +1434,6 @@
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/apprclient/apprclienttest",
-    "github.com/giantswarm/appresource",
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
@@ -1472,6 +1471,7 @@
     "github.com/giantswarm/operatorkit/resource/k8s/secretresource",
     "github.com/giantswarm/operatorkit/resource/wrapper/metricsresource",
     "github.com/giantswarm/operatorkit/resource/wrapper/retryresource",
+    "github.com/giantswarm/resource/appresource",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
@@ -1488,6 +1488,7 @@
     "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/types",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",

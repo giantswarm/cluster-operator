@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -25,7 +27,13 @@ func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig Cluster
 	}
 
 	chartConfigList, err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).List(listOptions)
-	if err != nil {
+	if tenant.IsAPINotAvailable(err) {
+		c.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+
+	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
