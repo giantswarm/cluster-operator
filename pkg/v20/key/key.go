@@ -68,7 +68,7 @@ func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
 			App:             "chart-operator",
-			Catalog:         "giantswarm-test",
+			Catalog:         "giantswarm",
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
