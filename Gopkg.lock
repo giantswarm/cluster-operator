@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8884c9299b060a0a07bea7843de1834186e73e45e489715c1b5d439e6b055c0a"
+  digest = "1:915f6f410672952ed3f4fc033fc49c70f899e37d4b6afbc61cc030404536c059"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -195,7 +195,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "a1822dc1393b7e6a7ece14d3bf2c6a410dc419c9"
+  revision = "effe4fdce5d4bcb7b7bc35ac94135579d97574fa"
 
 [[projects]]
   branch = "master"
@@ -463,7 +463,7 @@
   name = "github.com/giantswarm/resource"
   packages = ["appresource"]
   pruneopts = "UT"
-  revision = "d6df700d6863e6d7948548f41b8e42d41e2f8b30"
+  revision = "8e5f7b695482666b526cf6e740214ad3be250ca0"
 
 [[projects]]
   branch = "master"
@@ -1488,6 +1488,7 @@
     "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/types",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
