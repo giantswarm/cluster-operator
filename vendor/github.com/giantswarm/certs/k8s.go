@@ -41,7 +41,7 @@ const (
 	ClusterOperatorAPICert Cert = "cluster-operator-api"
 	EtcdCert               Cert = "etcd"
 	FlanneldEtcdClientCert Cert = "flanneld-etcd-client"
-	InternalAPICert        Cert = "internal-api"
+	InternalAPICert        Cert = "interal-api"
 	NodeOperatorCert       Cert = "node-operator"
 	PrometheusCert         Cert = "prometheus"
 	ServiceAccountCert     Cert = "service-account"
