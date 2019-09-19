@@ -26,7 +26,7 @@ func APIAltNames(clusterID, internalAPI string, kubeAltNames []string) []string 
 		internalAPI,
 	}
 
-	return append(kubeAltNames, additionalAltNames)
+	return append(kubeAltNames, additionalAltNames...)
 }
 
 // APIDomain returns the API server domain for the guest cluster.
