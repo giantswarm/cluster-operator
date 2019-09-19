@@ -128,6 +128,10 @@ func prepareClusterConfig(baseClusterConfig cluster.Config, clusterGuestConfig v
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
 	}
+	clusterConfig.Domain.InternalAPI, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.InternalAPICert)
+	if err != nil {
+		return cluster.Config{}, microerror.Mask(err)
+	}
 	clusterConfig.Domain.NodeOperator, err = newServerDomain(key.DNSZone(clusterGuestConfig), certs.NodeOperatorCert)
 	if err != nil {
 		return cluster.Config{}, microerror.Mask(err)
@@ -179,7 +183,7 @@ func newAPICertConfig(clusterConfig cluster.Config, cert certs.Cert, namespace s
 		Spec: v1alpha1.CertConfigSpec{
 			Cert: v1alpha1.CertConfigSpecCert{
 				AllowBareDomains:    true,
-				AltNames:            key.APIAltNames(clusterConfig.ClusterID, kubeAltNames),
+				AltNames:            key.APIAltNames(clusterConfig.ClusterID, clusterConfig.Domain.InternalAPI, kubeAltNames),
 				ClusterComponent:    certName,
 				ClusterID:           clusterConfig.ClusterID,
 				CommonName:          clusterConfig.Domain.API,

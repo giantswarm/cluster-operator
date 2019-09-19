@@ -19,6 +19,7 @@ type Domain struct {
 	CalicoEtcdClient   string
 	Etcd               string
 	FlanneldEtcdClient string
+	InternalAPI        string
 	NodeOperator       string
 	Prometheus         string
 	ServiceAccount     string

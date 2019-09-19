@@ -20,8 +20,13 @@ const (
 )
 
 // APIAltNames returns the alt names for API certs.
-func APIAltNames(clusterID string, kubeAltNames []string) []string {
-	return append(kubeAltNames, fmt.Sprintf("master.%s", clusterID))
+func APIAltNames(clusterID, internalAPI string, kubeAltNames []string) []string {
+	additionalAltNames := []string{
+		fmt.Sprintf("master.%s", clusterID),
+		internalAPI,
+	}
+
+	return append(kubeAltNames, additionalAltNames)
 }
 
 // APIDomain returns the API server domain for the guest cluster.
