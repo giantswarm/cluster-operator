@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "TODO",
+				Component:   "cluster-operator",
+				Description: "Add internal Kubernetes API domain into API certificate alternative names.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},

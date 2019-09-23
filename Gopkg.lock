@@ -218,14 +218,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:74c6d660f315b1b825aa719e8aa9668705713d13f82a3e63fa4ddaae1e2b2e45"
+  digest = "1:fbb165ae5a7a7a152ce12f38ead750b714579446486d79450a61397ebde1a9ab"
   name = "github.com/giantswarm/certs"
   packages = [
     ".",
     "certstest",
   ]
   pruneopts = "UT"
-  revision = "645efb99af631627de84ed3a5e6ed4572d3004fa"
+  revision = "b4a99ff7b014b7912d970d4f0672c51251d93297"
 
 [[projects]]
   branch = "master"

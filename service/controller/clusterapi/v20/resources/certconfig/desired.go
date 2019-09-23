@@ -75,7 +75,7 @@ func newCertConfig(cc controllercontext.Context, cr cmav1alpha1.Cluster, cert g8
 func (r *Resource) newSpecForAPI(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigSpecCert {
 	return g8sv1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
-		AltNames:         key.CertAltNames(fmt.Sprintf("master.%s", key.ClusterID(&cr))),
+		AltNames:         key.CertAltNames(fmt.Sprintf("master.%s", key.ClusterID(&cr)), fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr))),
 		ClusterComponent: certs.APICert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
