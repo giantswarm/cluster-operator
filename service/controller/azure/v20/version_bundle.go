@@ -12,6 +12,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Add internal Kubernetes API domain into API certificate alternative names.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "chart-operator",
+				Description: "Install chart-operator from default catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
