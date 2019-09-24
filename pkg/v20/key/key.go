@@ -76,7 +76,7 @@ func CommonAppSpecs() []AppSpec {
 			Catalog:   "default-test",
 			Chart:     "chart-operator",
 			Namespace: "giantswarm",
-			Version:   "0.10.2-0bbcb5e7760165bf6efe190d1e8c1604d18ef3fa",
+			Version:   "0.10.2-bcca9328ee1789c8fd30ce93e9aa246b5050817a",
 		},
 	}
 }
