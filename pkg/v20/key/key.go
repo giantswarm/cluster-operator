@@ -73,10 +73,10 @@ func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
 			App:       "chart-operator",
-			Catalog:   "default-test",
+			Catalog:   "default",
 			Chart:     "chart-operator",
 			Namespace: "giantswarm",
-			Version:   "0.10.3-f2091465fe961a1435912ea35bb69a3b8bf0daed",
+			Version:   "0.10.4",
 		},
 	}
 }
