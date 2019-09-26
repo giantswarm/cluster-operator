@@ -23,17 +23,17 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/pkg/v20/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/app"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/appmigration"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/pkg/v20/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v20/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v20/resource/configmap"
+	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v21/chartconfig"
+	configmapservice "github.com/giantswarm/cluster-operator/pkg/v21/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/app"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/appmigration"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v21/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v21/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
