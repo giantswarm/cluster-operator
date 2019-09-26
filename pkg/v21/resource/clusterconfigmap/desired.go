@@ -10,7 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v20/key"
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {

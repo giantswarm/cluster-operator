@@ -13,10 +13,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
-	"github.com/giantswarm/cluster-operator/pkg/v20/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v20/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v20/key"
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
 )
 
 const (
