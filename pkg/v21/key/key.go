@@ -86,6 +86,14 @@ func CommonAppSpecs() []AppSpec {
 			UseUpgradeForce: true,
 			Version:         "0.5.0",
 		},
+		{
+			App:             "metrics-server",
+			Catalog:         "default",
+			Chart:           "metrics-server-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.4.0",
+		},
 	}
 }
 
@@ -131,7 +139,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-3-stable",
 			ChartName:       "kubernetes-metrics-server-chart",
 			ConfigMapName:   "metrics-server-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "metrics-server",
 			UseUpgradeForce: true,
