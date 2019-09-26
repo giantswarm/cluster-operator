@@ -11,6 +11,7 @@ import (
 	awsv18 "github.com/giantswarm/cluster-operator/service/controller/aws/v18"
 	awsv19 "github.com/giantswarm/cluster-operator/service/controller/aws/v19"
 	awsv20 "github.com/giantswarm/cluster-operator/service/controller/aws/v20"
+	awsv21 "github.com/giantswarm/cluster-operator/service/controller/aws/v21"
 	azurev14 "github.com/giantswarm/cluster-operator/service/controller/azure/v14"
 	azurev14patch1 "github.com/giantswarm/cluster-operator/service/controller/azure/v14patch1"
 	azurev15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
@@ -19,6 +20,7 @@ import (
 	azurev18 "github.com/giantswarm/cluster-operator/service/controller/azure/v18"
 	azurev19 "github.com/giantswarm/cluster-operator/service/controller/azure/v19"
 	azurev20 "github.com/giantswarm/cluster-operator/service/controller/azure/v20"
+	azurev21 "github.com/giantswarm/cluster-operator/service/controller/azure/v21"
 	kvmv14patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
 	kvmv15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
 	kvmv16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
@@ -26,6 +28,7 @@ import (
 	kvmv18 "github.com/giantswarm/cluster-operator/service/controller/kvm/v18"
 	kvmv19 "github.com/giantswarm/cluster-operator/service/controller/kvm/v19"
 	kvmv20 "github.com/giantswarm/cluster-operator/service/controller/kvm/v20"
+	kvmv21 "github.com/giantswarm/cluster-operator/service/controller/kvm/v21"
 )
 
 func NewVersionBundles() []versionbundle.Bundle {
@@ -61,6 +64,10 @@ func NewVersionBundles() []versionbundle.Bundle {
 	versionBundles = append(versionBundles, awsv20.VersionBundle())
 	versionBundles = append(versionBundles, azurev20.VersionBundle())
 	versionBundles = append(versionBundles, kvmv20.VersionBundle())
+
+	versionBundles = append(versionBundles, awsv21.VersionBundle())
+	versionBundles = append(versionBundles, azurev21.VersionBundle())
+	versionBundles = append(versionBundles, kvmv21.VersionBundle())
 
 	return versionBundles
 }
