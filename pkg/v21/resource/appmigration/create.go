@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -109,34 +107,38 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is already cordoned", chartSpec.ChartName))
 		}
 
-		// Check if there is a deployed app CR.
-		err = r.waitForDeployedApp(ctx, clusterConfig.ID, chartSpec.AppName)
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out app CR %#q is deployed", chartSpec.AppName))
+
+		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).Get(chartSpec.AppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q is not deployed, continuing", chartSpec.AppName))
+			return microerror.Maskf(notFoundError, "app CR %#q", chartSpec.AppName)
+		}
+
+		if appCR.Status.Release.Status == "DEPLOYED" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q", chartSpec.AppName, appCR.Status.Release.Status))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding annotation for deleting chartconfig CR %#q", chartSpec.ChartName))
+
+			// Add deletion annotation which will trigger chart-operator to
+			// delete the chartconfig CR but not the Helm release.
+			err = patchChartConfig(tenantG8sClient, chartCR, addDeleteAnnotation())
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("added annotation to chartconfig CR %#q", chartSpec.ChartName))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chartconfig CR %#q", chartSpec.ChartName))
+
+			// Lastly delete the chartconfig CR.
+			err = tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Delete(chartCR.Name, &metav1.DeleteOptions{})
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chartconfig CR %#q", chartSpec.ChartName))
+		} else {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has status %#q, continuing", chartSpec.AppName, appCR.Status.Release.Status))
 			continue
-		} else if err != nil {
-			return microerror.Mask(err)
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("adding annotation for deleting chartconfig CR %#q", chartSpec.ChartName))
-
-		// Add deletion annotation which will trigger chart-operator to
-		// delete the chartconfig CR but not the Helm release.
-		err = patchChartConfig(tenantG8sClient, chartCR, addDeleteAnnotation())
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("added annotation to chartconfig CR %#q", chartSpec.ChartName))
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chartconfig CR %#q", chartSpec.ChartName))
-
-		// Lastly delete the chartconfig CR.
-		err = tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Delete(chartCR.Name, &metav1.DeleteOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted chartconfig CR %#q", chartSpec.ChartName))
 	}
 
 	return nil
@@ -165,39 +167,6 @@ func (r *Resource) newChartSpecsToMigrate() []key.ChartSpec {
 	}
 
 	return chartSpecsToMigrate
-}
-
-// waitForDeployedApp waits until the newly created app CR has a deployed helm
-// release and the chartconfig CR can be safely deleted.
-func (r *Resource) waitForDeployedApp(ctx context.Context, namespace, appName string) error {
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("waiting for deployed app CR %#q", appName))
-
-	o := func() error {
-		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(namespace).Get(appName, metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			return microerror.Maskf(notFoundError, "app CR %#q", appName)
-		}
-
-		if appCR.Status.Release.Status != "DEPLOYED" {
-			return microerror.Maskf(notDeployedError, "app CR %#q has status %#q", appName, appCR.Status.Release.Status)
-		}
-
-		return nil
-	}
-
-	b := backoff.NewConstant(10*time.Second, 2*time.Second)
-	n := func(err error, delay time.Duration) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q is not deployed retrying in %s", appName, delay), "stack", fmt.Sprintf("%#v", err))
-	}
-
-	err := backoff.RetryNotify(o, b, n)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q is deployed", appName))
-
-	return nil
 }
 
 func addCordonAnnotations() map[string]string {

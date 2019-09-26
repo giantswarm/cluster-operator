@@ -13,15 +13,6 @@ func IsInvalidConfigError(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
 
-var notDeployedError = &microerror.Error{
-	Kind: "notDeployedError",
-}
-
-// IsNotDeployed asserts notDeployedError.
-func IsNotDeployed(err error) bool {
-	return microerror.Cause(err) == notDeployedError
-}
-
 var notFoundError = &microerror.Error{
 	Kind: "notFoundError",
 }
