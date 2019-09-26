@@ -11,12 +11,12 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
 )
 
 const (
-	Name = "machinedeploymentstatusv20"
+	Name = "machinedeploymentstatusv21"
 )
 
 type Config struct {

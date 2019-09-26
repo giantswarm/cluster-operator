@@ -13,7 +13,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v20/key"
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 )
 
 const (

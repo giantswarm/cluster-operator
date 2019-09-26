@@ -10,12 +10,12 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/versionbundle"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
 )
 
 const (
-	Name = "operatorversionsv20"
+	Name = "operatorversionsv21"
 )
 
 type Config struct {

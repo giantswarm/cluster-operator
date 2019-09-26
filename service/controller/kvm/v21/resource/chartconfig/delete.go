@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v20/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v20/key"
+	"github.com/giantswarm/cluster-operator/pkg/v21/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {

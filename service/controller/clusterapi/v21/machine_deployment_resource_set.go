@@ -1,4 +1,4 @@
-package v20
+package v21
 
 import (
 	"context"
@@ -15,11 +15,11 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/machinedeploymentstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/workercount"
 )
 
 type MachineDeploymentResourceSetConfig struct {

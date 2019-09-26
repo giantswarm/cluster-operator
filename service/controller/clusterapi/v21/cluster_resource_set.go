@@ -1,4 +1,4 @@
-package v20
+package v21
 
 import (
 	"context"
@@ -21,21 +21,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/app"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/clusterid"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/clusterstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/cpnamespace"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/operatorversions"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20/resources/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/app"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/certconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterid"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/cpnamespace"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/kubeconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/operatorversions"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/workercount"
 )
 
 // ClusterResourceSetConfig contains necessary dependencies and settings for
