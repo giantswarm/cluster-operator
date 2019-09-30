@@ -72,11 +72,12 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
-			App:       "chart-operator",
-			Catalog:   "default",
-			Chart:     "chart-operator",
-			Namespace: "giantswarm",
-			Version:   "0.10.3",
+			App:             "chart-operator",
+			Catalog:         "default",
+			Chart:           "chart-operator",
+			Namespace:       "giantswarm",
+			UseUpgradeForce: true,
+			Version:         "0.10.3",
 		},
 	}
 }
