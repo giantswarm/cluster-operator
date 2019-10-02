@@ -5,9 +5,9 @@ import (
 
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/pkg/v20/chartconfig"
-	"github.com/giantswarm/cluster-operator/pkg/v20/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v20/key"
+	"github.com/giantswarm/cluster-operator/pkg/v21/chartconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {

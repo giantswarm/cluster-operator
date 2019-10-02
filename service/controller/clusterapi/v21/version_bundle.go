@@ -1,4 +1,4 @@
-package v20
+package v21
 
 import (
 	"github.com/giantswarm/versionbundle"
@@ -8,13 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cluster-operator",
-				Description: "Add internal Kubernetes API domain into API certificate alternative names.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "chart-operator",
-				Description: "Install chart-operator from default catalog.",
+				Component:   "TODO",
+				Description: "Add your changes here.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
@@ -41,6 +36,6 @@ func VersionBundle() versionbundle.Bundle {
 			},
 		},
 		Name:    "cluster-operator",
-		Version: "0.20.0",
+		Version: "0.21.0",
 	}
 }

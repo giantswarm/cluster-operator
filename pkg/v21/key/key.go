@@ -72,11 +72,28 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
-			App:       "chart-operator",
-			Catalog:   "default",
-			Chart:     "chart-operator",
-			Namespace: "giantswarm",
-			Version:   "0.10.3",
+			App:             "chart-operator",
+			Catalog:         "default",
+			Chart:           "chart-operator",
+			Namespace:       "giantswarm",
+			UseUpgradeForce: true,
+			Version:         "0.10.4",
+		},
+		{
+			App:             "kube-state-metrics",
+			Catalog:         "default",
+			Chart:           "kube-state-metrics-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.5.0",
+		},
+		{
+			App:             "metrics-server",
+			Catalog:         "default",
+			Chart:           "metrics-server-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.4.0",
 		},
 	}
 }
@@ -113,7 +130,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-4-stable",
 			ChartName:       "kubernetes-kube-state-metrics-chart",
 			ConfigMapName:   "kube-state-metrics-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "kube-state-metrics",
 			UseUpgradeForce: true,
@@ -123,7 +140,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-3-stable",
 			ChartName:       "kubernetes-metrics-server-chart",
 			ConfigMapName:   "metrics-server-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "metrics-server",
 			UseUpgradeForce: true,
