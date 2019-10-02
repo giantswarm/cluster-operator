@@ -77,7 +77,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.10.4-ac115b5cf8483850130b5916272296e29ec0ffab",
+			Version:         "0.10.3-ac115b5cf8483850130b5916272296e29ec0ffab",
 		},
 		{
 			App:             "kube-state-metrics",
