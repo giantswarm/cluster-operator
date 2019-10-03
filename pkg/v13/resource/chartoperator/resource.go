@@ -24,7 +24,7 @@ const (
 	Name = "chartoperatorv13"
 
 	chartOperatorChart         = "chart-operator-chart"
-	chartOperatorChannel       = "0-4-stable"
+	chartOperatorChannel       = "0-10-stable"
 	chartOperatorDeployment    = "chart-operator"
 	chartOperatorRelease       = "chart-operator"
 	chartOperatorNamespace     = "giantswarm"
