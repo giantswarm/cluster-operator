@@ -83,7 +83,7 @@ func (s *Service) hasLegacyIngressController(ctx context.Context, releaseName st
 		return false, microerror.Mask(err)
 	}
 
-	ingressControllerDeploy, err := tenantK8sClient.Extensions().Deployments(metav1.NamespaceSystem).Get("nginx-ingress-controller", metav1.GetOptions{})
+	ingressControllerDeploy, err := tenantK8sClient.AppsV1().Deployments(metav1.NamespaceSystem).Get("nginx-ingress-controller", metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// No deployment. So nothing to migrate.
 		return false, nil

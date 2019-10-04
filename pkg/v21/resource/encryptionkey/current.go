@@ -28,7 +28,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for encryptionkey secret in the Kubernetes API", "secretName", secretName)
 
-	secret, err := r.k8sClient.Core().Secrets(objectMeta.Namespace).Get(secretName, apismetav1.GetOptions{})
+	secret, err := r.k8sClient.CoreV1().Secrets(objectMeta.Namespace).Get(secretName, apismetav1.GetOptions{})
 
 	if apierrors.IsNotFound(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
