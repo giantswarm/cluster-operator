@@ -95,6 +95,14 @@ func CommonAppSpecs() []AppSpec {
 			UseUpgradeForce: true,
 			Version:         "0.4.0",
 		},
+		{
+			App:             "node-exporter",
+			Catalog:         "default",
+			Chart:           "node-exporter-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.6.0",
+		},
 	}
 }
 
@@ -173,7 +181,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-5-stable",
 			ChartName:       "kubernetes-node-exporter-chart",
 			ConfigMapName:   "node-exporter-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "node-exporter",
 			UseUpgradeForce: true,
