@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	errorSentence = "the server could not find the requested resource (get chartconfigs.core.giantswarm.io)"
+	errorText = "the server could not find the requested resource (get chartconfigs.core.giantswarm.io)"
 )
 
 func IsChartConfigNotInstalled(err error) bool {
