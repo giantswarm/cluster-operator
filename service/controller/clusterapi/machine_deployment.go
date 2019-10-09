@@ -13,8 +13,8 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	v19 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v19"
 	v20 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20"
+	v21 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21"
 )
 
 type MachineDeploymentConfig struct {
@@ -63,21 +63,6 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 		}
 	}
 
-	var resourceSetV19 *controller.ResourceSet
-	{
-		c := v19.MachineDeploymentResourceSetConfig{
-			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
-			Tenant:    config.Tenant,
-		}
-
-		resourceSetV19, err = v19.NewMachineDeploymentResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var resourceSetV20 *controller.ResourceSet
 	{
 		c := v20.MachineDeploymentResourceSetConfig{
@@ -93,6 +78,21 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 		}
 	}
 
+	var resourceSetV21 *controller.ResourceSet
+	{
+		c := v21.MachineDeploymentResourceSetConfig{
+			CMAClient: config.CMAClient,
+			G8sClient: config.G8sClient,
+			Logger:    config.Logger,
+			Tenant:    config.Tenant,
+		}
+
+		resourceSetV21, err = v21.NewMachineDeploymentResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -101,8 +101,8 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV19,
 				resourceSetV20,
+				resourceSetV21,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
