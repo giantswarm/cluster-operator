@@ -58,7 +58,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil, nil
-	} else if key.IsChartConfigNotInstalled(err) {
+	} else if chartconfig.IsChartConfigNotInstalled(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD is not installed yet")
 
 		reconciliationcanceledcontext.SetCanceled(ctx)

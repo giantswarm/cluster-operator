@@ -1,4 +1,4 @@
-package key
+package chartconfig
 
 import (
 	"strings"
@@ -17,5 +17,5 @@ func IsChartConfigNotInstalled(err error) bool {
 
 	c := microerror.Cause(err)
 
-	return strings.Contains(c.Error(), errorSentence)
+	return strings.Contains(c.Error(), errorText)
 }
