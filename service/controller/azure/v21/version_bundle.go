@@ -17,6 +17,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "node-exporter",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
