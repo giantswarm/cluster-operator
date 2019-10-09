@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
+	g8sv1alpha "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -21,7 +21,7 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCluster(obj)
+	old, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -35,6 +35,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
+	}
+
+	var cr cmav1alpha1.Cluster
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
+
+		cl, err := r.cmaClient.ClusterV1alpha1().Clusters(old.Namespace).Get(old.Name, metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		cr = *cl
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
 
 	var nodes []corev1.Node
@@ -102,7 +116,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, clusterStatus v1alpha1.CommonClusterStatus, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) v1alpha1.CommonClusterStatus {
+func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, clusterStatus g8sv1alpha.CommonClusterStatus, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) g8sv1alpha.CommonClusterStatus {
 	var currentVersion string
 	var desiredVersion string
 	{
@@ -135,7 +149,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 
 		if notCreating && conditionsEmpty && versionsEmpty {
 			clusterStatus.Conditions = clusterStatus.WithCreatingCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionCreating))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionCreating))
 		}
 	}
 
@@ -149,7 +163,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 
 		if isCreating && notCreated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithCreatedCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionCreated))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionCreated))
 		}
 	}
 
@@ -163,7 +177,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 
 		if isCreated && notUpdating && versionDiffers {
 			clusterStatus.Conditions = clusterStatus.WithUpdatingCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionUpdating))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionUpdating))
 		}
 	}
 
@@ -178,7 +192,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 
 		if isUpdating && notUpdated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithUpdatedCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionUpdated))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionUpdated))
 		}
 	}
 
