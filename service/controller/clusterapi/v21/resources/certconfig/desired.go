@@ -79,7 +79,7 @@ func (r *Resource) newSpecForAPI(cr cmav1alpha1.Cluster) g8sv1alpha1.CertConfigS
 		ClusterComponent: certs.APICert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), key.ClusterBaseDomain(cr)),
-		IPSANs:           []string{r.apiIP},
+		IPSANs:           []string{r.apiIP, key.LocalhostIP},
 		Organizations:    []string{"system:masters"},
 		TTL:              r.certTTL,
 	}
