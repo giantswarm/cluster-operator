@@ -78,6 +78,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		node = list.Items[0]
 	}
 
+	// versionLabel contains computed provider operator version label which
+	// contains the operator's version bundle version. Here we need to dynamically
+	// compute it based on the provider we are running in. This approach is based
+	// on the provider label tracked within the Tenant Cluster nodes.
 	var versionLabel string
 	{
 		p, ok := node.Labels[label.Provider]
