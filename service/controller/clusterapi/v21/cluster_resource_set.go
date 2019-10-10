@@ -26,6 +26,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/app"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterstatus"
@@ -138,6 +139,19 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var cleanupMachineDeployments resource.Interface
+	{
+		c := cleanupmachinedeployments.Config{
+			CMAClient: config.CMAClient,
+			Logger:    config.Logger,
+		}
+
+		cleanupMachineDeployments, err = cleanupmachinedeployments.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -380,6 +394,9 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		// Following resources manage resources in the tenant cluster.
 		configMapResource,
 		chartConfigResource,
+
+		// Following resources only manage tenant cluster deletion events.
+		cleanupMachineDeployments,
 	}
 
 	// Wrap resources with retry and metrics.
