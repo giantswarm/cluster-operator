@@ -23,19 +23,20 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/app"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterid"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/clusterstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/cpnamespace"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/operatorversions"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/app"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/cleanupmachinedeployments"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/clusterid"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/cpnamespace"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/operatorversions"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/workercount"
 )
 
 // ClusterResourceSetConfig contains necessary dependencies and settings for
@@ -70,6 +71,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	{
 		c := app.Config{
 			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			Provider: config.Provider,
@@ -138,6 +140,19 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		chartConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var cleanupMachineDeployments resource.Interface
+	{
+		c := cleanupmachinedeployments.Config{
+			CMAClient: config.CMAClient,
+			Logger:    config.Logger,
+		}
+
+		cleanupMachineDeployments, err = cleanupmachinedeployments.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -380,6 +395,9 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		// Following resources manage resources in the tenant cluster.
 		configMapResource,
 		chartConfigResource,
+
+		// Following resources only manage tenant cluster deletion events.
+		cleanupMachineDeployments,
 	}
 
 	// Wrap resources with retry and metrics.

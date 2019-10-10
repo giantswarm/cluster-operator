@@ -17,9 +17,9 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/machinedeploymentstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/workercount"
 )
 
 type MachineDeploymentResourceSetConfig struct {
