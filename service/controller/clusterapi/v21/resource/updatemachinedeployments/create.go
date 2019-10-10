@@ -101,30 +101,39 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// kvm-operator or the like.
 		{
 			l := versionLabel
-			v, ok := cr.Labels[l]
-			if ok && v != "" && v != md.Labels[l] {
-				md.Labels[l] = v
+			d, ok := cr.Labels[l]
+			c := md.Labels[l]
+			if ok && d != "" && d != md.Labels[l] {
+				md.Labels[l] = d
 				updated = true
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
 			}
 		}
 
 		// Syncing the cluster-operator version.
 		{
 			l := label.OperatorVersion
-			v, ok := cr.Labels[l]
-			if ok && v != "" && v != md.Labels[l] {
-				md.Labels[l] = v
+			d, ok := cr.Labels[l]
+			c := md.Labels[l]
+			if ok && d != "" && d != md.Labels[l] {
+				md.Labels[l] = d
 				updated = true
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
 			}
 		}
 
 		// Syncing the Giant Swarm Release version.
 		{
 			l := label.ReleaseVersion
-			v, ok := cr.Labels[l]
-			if ok && v != "" && v != md.Labels[l] {
-				md.Labels[l] = v
+			d, ok := cr.Labels[l]
+			c := md.Labels[l]
+			if ok && d != "" && d != md.Labels[l] {
+				md.Labels[l] = d
 				updated = true
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
 			}
 		}
 
