@@ -36,6 +36,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resources/workercount"
 )
 
@@ -362,6 +363,19 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	var updateMachineDeployments resource.Interface
+	{
+		c := updatemachinedeployments.Config{
+			CMAClient: config.CMAClient,
+			Logger:    config.Logger,
+		}
+
+		updateMachineDeployments, err = updatemachinedeployments.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var workerCountResource resource.Interface
 	{
 		c := workercount.Config{
@@ -377,7 +391,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 	}
 
 	resources := []resource.Interface{
-		// Following resources manage resources controller context information.
+		// Following resources manage controller context information.
 		clusterIDResource,
 		operatorVersionsResource,
 		tenantClientsResource,
@@ -391,12 +405,13 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
+		updateMachineDeployments,
 
 		// Following resources manage resources in the tenant cluster.
 		configMapResource,
 		chartConfigResource,
 
-		// Following resources only manage tenant cluster deletion events.
+		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,
 	}
 
