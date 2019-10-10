@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -47,6 +49,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Get all configmaps in the cluster namespace.
+	clusterConfigMaps, err := r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).List(metav1.ListOptions{})
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
 	tenantAPIDomain, err := key.APIDomain(clusterConfig)
 	if err != nil {
 		return microerror.Mask(err)
@@ -61,6 +69,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
+	// Get all chartconfig CRs in the tenant cluster.
 	chartConfigs, err := tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
@@ -81,12 +90,32 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Get all configmaps in kube-system in the tenant cluster.
 	tenantConfigMaps, err := tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	for _, chartSpec := range chartSpecsToMigrate {
+		if chartSpec.UserConfigMapName != "" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if user configmap %#q has been migrated", chartSpec.UserConfigMapName))
+
+			_, err := getConfigMapByName(clusterConfigMaps.Items, chartSpec.UserConfigMapName)
+			if IsNotFound(err) {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has been migrated", chartSpec.UserConfigMapName))
+			} else if err != nil {
+				return microerror.Mask(err)
+			} else {
+				// Copy user configmap from the tenant cluster to the cluster namespace.
+				err = r.copyUserConfigMap(ctx, tenantK8sClient, clusterConfig, chartSpec)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has been migrated", chartSpec.UserConfigMapName))
+			}
+		}
+
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig %#q has been deleted", chartSpec.ChartName))
 
 		_, err = getChartConfigByName(chartConfigs.Items, chartSpec.ChartName)
@@ -94,6 +123,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig %#q has been deleted", chartSpec.ChartName))
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring tenant configmaps are deleted for app %#q", chartSpec.AppName))
 
+			// Once chartconfig CR is deleted also delete old configmaps in the tenant cluster.
 			err = r.ensureTenantConfigMapsDeleted(ctx, tenantK8sClient, chartSpec, tenantConfigMaps.Items)
 			if err != nil {
 				return microerror.Mask(err)
@@ -109,14 +139,42 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubernetes.Interface, chartSpec key.ChartSpec) error {
-	tenantConfigMap, err := tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Get(chartSpec.ConfigMapName, metav1.GetOptions{})
-	if IsNotFound(err) || len(tenantConfigMap.Data) == 0 {
-		// Nothing to do.
+func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubernetes.Interface, clusterConfig v1alpha1.ClusterGuestConfig, chartSpec key.ChartSpec) error {
+	currentCM, err := tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Get(chartSpec.ConfigMapName, metav1.GetOptions{})
+	if IsNotFound(err) || len(currentCM.Data) == 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has no data to migrate", chartSpec.UserConfigMapName))
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating user configmap %#q in namespace %#q", chartSpec.UserConfigMapName, clusterConfig.ID))
+
+	values := map[string]interface{}{
+		"configmap": currentCM.Data,
+	}
+
+	yamlValues, err := yaml.Marshal(values)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	cm := corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      chartSpec.UserConfigMapName,
+			Namespace: clusterConfig.ID,
+		},
+		Data: map[string]string{
+			"values": string(yamlValues),
+		},
+	}
+
+	_, err = r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).Create(&cm)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created user configmap %#q in namespace %#q", chartSpec.UserConfigMapName, clusterConfig.ID))
 
 	return nil
 }
