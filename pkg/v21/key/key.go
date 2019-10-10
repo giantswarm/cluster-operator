@@ -34,6 +34,18 @@ func APIDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) (string, error) {
 	return serverDomain(clusterGuestConfig, certs.APICert)
 }
 
+// AppUserConfigMapName returns the name of the user values configmap for the
+// given app spec.
+func AppUserConfigMapName(appSpec AppSpec) string {
+	return fmt.Sprintf("%s-user-values", appSpec.App)
+}
+
+// AppUserSecretName returns the name of the user values secret for the
+// given app spec.
+func AppUserSecretName(appSpec AppSpec) string {
+	return fmt.Sprintf("%s-user-secrets", appSpec.App)
+}
+
 // CertConfigName constructs a name for CertConfig CR using ClusterID and Cert.
 func CertConfigName(clusterID string, cert certs.Cert) string {
 	return fmt.Sprintf("%s-%s", clusterID, cert)
@@ -94,6 +106,14 @@ func CommonAppSpecs() []AppSpec {
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
 			Version:         "0.4.0",
+		},
+		{
+			App:             "node-exporter",
+			Catalog:         "default",
+			Chart:           "node-exporter-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "0.6.0",
 		},
 	}
 }
@@ -173,7 +193,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "0-5-stable",
 			ChartName:       "kubernetes-node-exporter-chart",
 			ConfigMapName:   "node-exporter-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "node-exporter",
 			UseUpgradeForce: true,
