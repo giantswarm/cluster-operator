@@ -12,3 +12,12 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfig(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
+
+var missingLabelError = &microerror.Error{
+	Kind: "missingLabelError",
+}
+
+// IsMissingLabel asserts missingLabelError.
+func IsMissingLabel(err error) bool {
+	return microerror.Cause(err) == missingLabelError
+}

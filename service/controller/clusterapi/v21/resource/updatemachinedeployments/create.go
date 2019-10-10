@@ -6,12 +6,13 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/kubernetes/pkg/apis/core"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
 )
 
@@ -19,6 +20,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if cc.Client.TenantCluster.K8s == nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available in controller context")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+
+		return nil
 	}
 
 	var machineDeployments []v1alpha1.MachineDeployment
@@ -44,17 +56,23 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d machine deployments for tenant cluster", len(machineDeployments)))
 	}
 
-	var node core.Node
+	var node corev1.Node
 	{
 		o := metav1.ListOptions{}
-		list, err := k8sClient.CoreV1().Nodes().List(o)
+		list, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(o)
 		if tenant.IsAPINotAvailable(err) {
-			// fall through
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+
 		} else if err != nil {
-			return nil, microerror.Mask(err)
+			return microerror.Mask(err)
 		}
+
 		if len(list.Items) == 0 {
-			// TODO return error handling
+			r.logger.LogCtx(ctx, "level", "debug", "message", "no tenant cluster nodes available yet")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
 		}
 
 		node = list.Items[0]
@@ -62,32 +80,55 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	var versionLabel string
 	{
-		l := node.GetLabels()
-		n := node.GetName()
-
-		labelProvider := "giantswarm.io/provider"
-		p, ok := l[labelProvider]
+		p, ok := node.Labels[label.Provider]
 		if !ok {
-			return nil, microerror.Maskf(missingLabelError, labelProvider)
+			return microerror.Maskf(missingLabelError, label.Provider)
 		}
 
-		labelVersion = p + "-operator.giantswarm.io/version"
-		v, ok := l[labelVersion]
-		if !ok {
-			return nil, microerror.Maskf(missingLabelError, labelVersion)
-		}
+		versionLabel = p + "-operator.giantswarm.io/version"
 	}
 
 	for _, md := range machineDeployments {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
 
-		md.Labels[versionLabel] = cr.Labels[versionLabel]
-		md.Labels[label.OperatorVersion] = cr.Labels[label.OperatorVersion]
-		md.Labels[label.ReleaseVersion] = cr.Labels[label.ReleaseVersion]
+		var updated bool
 
-		_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).Update(&md)
-		if err != nil {
-			return microerror.Mask(err)
+		// Syncing the Provider Operator version. For instance aws-operator,
+		// kvm-operator or the like.
+		{
+			l := versionLabel
+			v, ok := cr.Labels[l]
+			if ok && v != "" && v != md.Labels[l] {
+				md.Labels[l] = v
+				updated = true
+			}
+		}
+
+		// Syncing the cluster-operator version.
+		{
+			l := label.OperatorVersion
+			v, ok := cr.Labels[l]
+			if ok && v != "" && v != md.Labels[l] {
+				md.Labels[l] = v
+				updated = true
+			}
+		}
+
+		// Syncing the Giant Swarm Release version.
+		{
+			l := label.ReleaseVersion
+			v, ok := cr.Labels[l]
+			if ok && v != "" && v != md.Labels[l] {
+				md.Labels[l] = v
+				updated = true
+			}
+		}
+
+		if updated {
+			_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).Update(&md)
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
