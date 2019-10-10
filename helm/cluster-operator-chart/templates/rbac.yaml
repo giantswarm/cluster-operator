@@ -8,12 +8,7 @@ rules:
     resources:
       - secrets
     verbs:
-      - create
-      - update
-      - delete
-      - get
-      - list
-      - watch
+      - "*"
   - apiGroups:
       - ""
     resources:
@@ -62,11 +57,7 @@ rules:
       - machinedeployments
       - machinedeployments/status
     verbs:
-      - get
-      - list
-      - patch
-      - update
-      - watch
+      - "*"
   - apiGroups:
       - core.giantswarm.io
     resources:
