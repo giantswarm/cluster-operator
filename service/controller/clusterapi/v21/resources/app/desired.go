@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
@@ -30,16 +32,65 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	configMaps, err := r.getConfigMaps(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	secrets, err := r.getSecrets(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	var apps []*g8sv1alpha1.App
 
 	for _, appSpec := range r.newAppSpecs() {
-		apps = append(apps, r.newApp(*cc, cr, appSpec))
+		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
+		apps = append(apps, r.newApp(*cc, cr, appSpec, userConfig))
 	}
 
 	return apps, nil
 }
 
-func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec) *g8sv1alpha1.App {
+func (r *Resource) getConfigMaps(ctx context.Context, cr cmav1alpha1.Cluster) (map[string]corev1.ConfigMap, error) {
+	configMaps := map[string]corev1.ConfigMap{}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", key.ClusterID(&cr)))
+
+	list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(metav1.ListOptions{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	for _, cm := range list.Items {
+		configMaps[cm.Name] = cm
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(&cr)))
+
+	return configMaps, nil
+}
+
+func (r *Resource) getSecrets(ctx context.Context, cr cmav1alpha1.Cluster) (map[string]corev1.Secret, error) {
+	secrets := map[string]corev1.Secret{}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secrets in namespace %#q", key.ClusterID(&cr)))
+
+	list, err := r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).List(metav1.ListOptions{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	for _, s := range list.Items {
+		secrets[s.Name] = s
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d secrets in namespace %#q", len(secrets), key.ClusterID(&cr)))
+
+	return secrets, nil
+}
+
+func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -82,6 +133,8 @@ func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, 
 					Namespace: key.ClusterID(&cr),
 				},
 			},
+
+			UserConfig: userConfig,
 		},
 	}
 }
@@ -97,4 +150,30 @@ func (r *Resource) newAppSpecs() []pkgkey.AppSpec {
 	default:
 		return pkgkey.CommonAppSpecs()
 	}
+}
+
+func newUserConfig(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
+	userConfig := g8sv1alpha1.AppSpecUserConfig{}
+
+	_, ok := configMaps[pkgkey.AppUserConfigMapName(appSpec)]
+	if ok {
+		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
+			Name:      pkgkey.AppUserConfigMapName(appSpec),
+			Namespace: key.ClusterID(&cr),
+		}
+
+		userConfig.ConfigMap = configMapSpec
+	}
+
+	_, ok = secrets[pkgkey.AppUserSecretName(appSpec)]
+	if ok {
+		secretSpec := g8sv1alpha1.AppSpecUserConfigSecret{
+			Name:      pkgkey.AppUserSecretName(appSpec),
+			Namespace: key.ClusterID(&cr),
+		}
+
+		userConfig.Secret = secretSpec
+	}
+
+	return userConfig
 }
