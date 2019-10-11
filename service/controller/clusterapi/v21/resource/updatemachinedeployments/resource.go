@@ -18,7 +18,7 @@ type Config struct {
 // Resource implements the operatorkit resource interface to keep Cluster and
 // MachineDeployment CR versions in sync. CR versions are defined in the object
 // meta data labels, so syncing is as simple as writing the Cluster CR version
-// label value to the MachineDeployment CR version label value.
+// label values to the MachineDeployment CR version labels.
 type Resource struct {
 	cmaClient clientset.Interface
 	logger    micrologger.Logger
