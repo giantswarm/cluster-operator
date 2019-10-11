@@ -27,7 +27,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if cc.Client.TenantCluster.K8s == nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available in controller context")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 		return nil
@@ -61,7 +61,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		o := metav1.ListOptions{}
 		list, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(o)
 		if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster not available yet")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 
@@ -70,7 +70,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if len(list.Items) == 0 {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "no tenant cluster nodes available yet")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster nodes not available yet")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		}
