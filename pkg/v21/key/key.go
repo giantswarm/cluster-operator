@@ -177,7 +177,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:       "nginx-ingress-controller",
-			ChannelName:   "0-10-stable",
+			ChannelName:   "0.11.0-a82841d6565bdc20d5012c90502fa4523a1320cb",
 			ChartName:     "kubernetes-nginx-ingress-controller-chart",
 			ConfigMapName: "nginx-ingress-controller-values",
 			HasAppCR:      false,
