@@ -89,7 +89,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.10.6",
+			Version:         "0.10.7",
 		},
 		{
 			App:             "kube-state-metrics",
@@ -105,7 +105,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "metrics-server-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.4.0",
+			Version:         "0.4.1",
 		},
 		{
 			App:             "node-exporter",
