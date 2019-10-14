@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+const (
+	LocalhostIP = "127.0.0.1"
+)
+
 // CertAltNames returns the alt names for the Kubernetes API certs.
 func CertAltNames(altNames ...string) []string {
 	list := []string{
