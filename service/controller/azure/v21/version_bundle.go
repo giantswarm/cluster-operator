@@ -18,6 +18,11 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "node-exporter",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
 				Component:   "chart-operator",
 				Description: "Extended to support multiple DNS servers when bootstrapping coredns.",
 				Kind:        versionbundle.KindAdded,
