@@ -136,7 +136,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:   "0-7-stable",
 			ChartName:     "kubernetes-coredns-chart",
 			ConfigMapName: "coredns-values",
-			HasAppCR:      false,
+			HasAppCR:      true,
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "coredns",
 			// Upgrade force is disabled to avoid affecting customer workloads.
