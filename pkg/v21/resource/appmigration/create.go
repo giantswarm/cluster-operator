@@ -111,7 +111,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).Get(chartSpec.AppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			return microerror.Maskf(notFoundError, "app CR %#q", chartSpec.AppName)
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q has not been created yet, continuing", chartSpec.ChartName))
+			continue
 		}
 
 		if appCR.Status.Release.Status == "DEPLOYED" {
