@@ -92,6 +92,14 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "0.10.6",
 		},
 		{
+			App:             "coredns",
+			Catalog:         "default-test",
+			Chart:           "coredns-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: false,
+			Version:         "coredns-app-0.0.0-997be9162dd8c8be4f84e40ceb9b730157851aa7",
+		},
+		{
 			App:             "kube-state-metrics",
 			Catalog:         "default",
 			Chart:           "kube-state-metrics-app",
