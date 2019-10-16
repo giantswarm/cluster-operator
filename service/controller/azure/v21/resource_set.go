@@ -179,6 +179,8 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := configmapservice.Config{
 			Logger: config.Logger,
 			Tenant: config.Tenant,
+
+			Provider: config.Provider,
 		}
 
 		configMapService, err = configmapservice.New(c)
