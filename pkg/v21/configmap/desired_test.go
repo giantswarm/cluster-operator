@@ -258,6 +258,8 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 				Tenant: &tenantMock{
 					fakeTenantK8sClient: fakeTenantK8sClient,
 				},
+
+				Provider: "aws",
 			}
 			newService, err := New(c)
 			if err != nil {
