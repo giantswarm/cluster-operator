@@ -52,6 +52,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	var configMaps []*corev1.ConfigMap
 
 	for _, spec := range newConfigMapSpecs(r.newChartSpecs()) {
+		// No configmap is added because the app has been migrated to use an
+		// App CR.
+		if spec.HasAppCR {
+			continue
+		}
+
 		spec.Labels = newConfigMapLabels(spec, configMapValues, project.Name())
 
 		// Values are only set for app configmaps.
@@ -286,6 +292,7 @@ func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 		if chartSpec.ConfigMapName != "" {
 			configMapSpec := ConfigMapSpec{
 				App:         chartSpec.AppName,
+				HasAppCR:    chartSpec.HasAppCR,
 				Name:        chartSpec.ConfigMapName,
 				Namespace:   chartSpec.Namespace,
 				ReleaseName: chartSpec.ReleaseName,

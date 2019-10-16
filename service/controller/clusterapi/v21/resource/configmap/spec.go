@@ -11,6 +11,7 @@ type ClusterConfig struct {
 // ConfigMapSpec is used to generate the desired state.
 type ConfigMapSpec struct {
 	App         string
+	HasAppCR    bool
 	Labels      map[string]string
 	Name        string
 	Namespace   string
