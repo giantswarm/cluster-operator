@@ -526,7 +526,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9bc83b54894d58413b235daf520777a390b50fe7adaf220eb5cd108a94d3b3dc"
+  digest = "1:39982a993d5ec9f6539198bca3e3660f3b060663aab906567117675896313237"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "client/k8scrdclient",
@@ -549,7 +549,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "c193ea196181c42e5c54f30ba2f2d6055b3742b2"
+  revision = "20c6c74138f3aff0d753dbc2d88578b4a5eecab4"
 
 [[projects]]
   branch = "master"
