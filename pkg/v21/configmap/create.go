@@ -7,6 +7,8 @@ import (
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 func (s *Service) ApplyCreateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToCreate []*corev1.ConfigMap) error {
@@ -41,6 +43,12 @@ func (s *Service) newCreateChange(ctx context.Context, currentConfigMaps, desire
 	configMapsToCreate := make([]*corev1.ConfigMap, 0)
 
 	for _, desiredConfigMap := range desiredConfigMaps {
+		appName := desiredConfigMap.Labels[label.App]
+		chartSpec := s.getChartSpecByName(appName)
+		if chartSpec.HasAppCR {
+			continue
+		}
+
 		if !containsConfigMap(currentConfigMaps, desiredConfigMap) {
 			configMapsToCreate = append(configMapsToCreate, desiredConfigMap)
 		}
