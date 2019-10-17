@@ -3,6 +3,7 @@ package configmapmigration
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -10,7 +11,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
@@ -66,6 +66,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	listOptions := metav1.ListOptions{}
 
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
 	// Get all chartconfig CRs in the tenant cluster.
 	chartConfigs, err := tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
@@ -73,8 +76,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if apierrors.IsNotFound(err) {
+	} else if isChartConfigNotInstalled(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil
+	} else if ctx.Err() == context.DeadlineExceeded {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
