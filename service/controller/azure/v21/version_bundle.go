@@ -43,11 +43,6 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
-				Component:   "cluster-autoscaler",
-				Description: "Updated to v1.15.2. ",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
 				Component:   "metrics-server",
 				Description: "Updated to v0.4.1. https://github.com/giantswarm/metrics-server-app/blob/db61c5c13c4ba55c357ab098253b3f3fe8f4e2cd/CHANGELOG.md#v041",
 				Kind:        versionbundle.KindChanged,
@@ -69,10 +64,6 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "coredns",
 				Version: "1.6.4",
-			},
-			{
-				Name:    "cluster-autoscaler",
-				Version: "1.15.2",
 			},
 			{
 				Name:    "metrics-server",
