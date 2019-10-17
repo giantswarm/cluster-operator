@@ -97,7 +97,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "kube-state-metrics-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.5.0",
+			Version:         "0.6.0",
 		},
 		{
 			App:             "metrics-server",
@@ -125,7 +125,7 @@ func CommonChartSpecs() []ChartSpec {
 	return []ChartSpec{
 		{
 			AppName:       "coredns",
-			ChannelName:   "0-7-stable",
+			ChannelName:   "0-8-stable",
 			ChartName:     "kubernetes-coredns-chart",
 			ConfigMapName: "coredns-values",
 			HasAppCR:      false,
@@ -177,7 +177,7 @@ func CommonChartSpecs() []ChartSpec {
 		},
 		{
 			AppName:       "nginx-ingress-controller",
-			ChannelName:   "0-10-stable",
+			ChannelName:   "1-0-stable",
 			ChartName:     "kubernetes-nginx-ingress-controller-chart",
 			ConfigMapName: "nginx-ingress-controller-values",
 			HasAppCR:      false,
