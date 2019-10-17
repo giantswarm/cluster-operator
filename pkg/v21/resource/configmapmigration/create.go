@@ -136,7 +136,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured tenant configmaps are deleted for app %#q", chartSpec.AppName))
 
 		} else if err == nil {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig %#q has not been deleted, continuing", chartSpec.UserConfigMapName))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig %#q has not been deleted, continuing", chartSpec.ChartName))
 		}
 	}
 
