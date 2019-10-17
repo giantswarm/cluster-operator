@@ -144,7 +144,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubernetes.Interface, clusterConfig v1alpha1.ClusterGuestConfig, chartSpec key.ChartSpec) error {
-	currentCM, err := tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Get(chartSpec.ConfigMapName, metav1.GetOptions{})
+	currentCM, err := tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Get(chartSpec.UserConfigMapName, metav1.GetOptions{})
 	if IsNotFound(err) || len(currentCM.Data) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has no data to migrate", chartSpec.UserConfigMapName))
 		return nil
