@@ -105,19 +105,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if chartSpec.UserConfigMapName != "" {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if user configmap %#q has been migrated", chartSpec.UserConfigMapName))
 
-			_, err := getConfigMapByName(clusterConfigMaps.Items, chartSpec.UserConfigMapName)
+			cm, err := getConfigMapByName(clusterConfigMaps.Items, chartSpec.UserConfigMapName)
 			if IsNotFound(err) {
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has been migrated", chartSpec.UserConfigMapName))
-			} else if err != nil {
-				return microerror.Mask(err)
-			} else {
 				// Copy user configmap from the tenant cluster to the cluster namespace.
 				err = r.copyUserConfigMap(ctx, tenantK8sClient, clusterConfig, chartSpec)
 				if err != nil {
 					return microerror.Mask(err)
 				}
-
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has been migrated", chartSpec.UserConfigMapName))
+			} else if cm.Name == chartSpec.UserConfigMapName {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has already been migrated", chartSpec.UserConfigMapName))
+			} else if err != nil {
+				return microerror.Mask(err)
 			}
 		}
 
