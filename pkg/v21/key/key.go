@@ -92,12 +92,13 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "0.10.7",
 		},
 		{
-			App:             "cluster-autoscaler",
-			Catalog:         "default-test",
-			Chart:           "cluster-autoscaler-app",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "0.9.0-ec2948e648dbd03a198b1542dc7d4bb2db3d50e2",
+			App:       "coredns",
+			Catalog:   "default-test",
+			Chart:     "coredns-app",
+			Namespace: metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "0.0.0-e1c52ef3ae51a6e8ade7a17fdcbafe1e7acd3106",
 		},
 		{
 			App:             "kube-state-metrics",
