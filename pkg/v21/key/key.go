@@ -97,7 +97,8 @@ func CommonAppSpecs() []AppSpec {
 			Chart:     "coredns-app",
 			Namespace: metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
-			UseUpgradeForce: false,
+			// WIP: Set to true for testing.
+			UseUpgradeForce: true,
 			Version:         "0.0.0-e1c52ef3ae51a6e8ade7a17fdcbafe1e7acd3106",
 		},
 		{
