@@ -11,7 +11,17 @@ import (
 // AppSpecs returns apps installed only for AWS.
 func AppSpecs() []key.AppSpec {
 	// Add any provider specific charts here.
-	return []key.AppSpec{}
+	return []key.AppSpec{
+		{
+			App:       "cluster-autoscaler",
+			Catalog:   "default",
+			Chart:     "cluster-autoscaler-app",
+			Namespace: metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "0.9.0",
+		},
+	}
 }
 
 // ChartSpecs returns charts installed only for AWS.
@@ -23,6 +33,7 @@ func ChartSpecs() []key.ChartSpec {
 			ChannelName:       "0-9-stable",
 			ChartName:         "kubernetes-cluster-autoscaler-chart",
 			ConfigMapName:     "cluster-autoscaler-values",
+			HasAppCR:          true,
 			Namespace:         metav1.NamespaceSystem,
 			ReleaseName:       "cluster-autoscaler",
 			UseUpgradeForce:   true,
