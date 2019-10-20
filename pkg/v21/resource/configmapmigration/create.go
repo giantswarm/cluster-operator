@@ -14,6 +14,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
@@ -64,7 +66,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	listOptions := metav1.ListOptions{}
+	listOptions := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+	}
 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
