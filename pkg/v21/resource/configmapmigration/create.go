@@ -185,31 +185,37 @@ func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubern
 
 func (r *Resource) ensureTenantConfigMapsDeleted(ctx context.Context, tenantK8sClient kubernetes.Interface, chartSpec key.ChartSpec, tenantConfigMaps []corev1.ConfigMap) error {
 	if chartSpec.ConfigMapName != "" {
-		_, err := getConfigMapByName(tenantConfigMaps, chartSpec.ConfigMapName)
-		if IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting tenant configmap %#q", chartSpec.ConfigMapName))
-
-			err = tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Delete(chartSpec.ConfigMapName, &metav1.DeleteOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted tenant configmap %#q", chartSpec.ConfigMapName))
+		err := r.ensureTenantConfigMapDeleted(ctx, tenantK8sClient, chartSpec.ConfigMapName, tenantConfigMaps)
+		if err != nil {
+			return microerror.Mask(err)
 		}
 	}
 
 	if chartSpec.UserConfigMapName != "" {
-		_, err := getConfigMapByName(tenantConfigMaps, chartSpec.UserConfigMapName)
-		if IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting tenant configmap %#q", chartSpec.UserConfigMapName))
-
-			err = tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Delete(chartSpec.UserConfigMapName, &metav1.DeleteOptions{})
-			if err != nil {
-				return microerror.Mask(err)
-			}
-
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted tenant configmap %#q", chartSpec.UserConfigMapName))
+		err := r.ensureTenantConfigMapDeleted(ctx, tenantK8sClient, chartSpec.UserConfigMapName, tenantConfigMaps)
+		if err != nil {
+			return microerror.Mask(err)
 		}
+	}
+
+	return nil
+}
+
+func (r *Resource) ensureTenantConfigMapDeleted(ctx context.Context, tenantK8sClient kubernetes.Interface, configMapName string, tenantConfigMaps []corev1.ConfigMap) error {
+	cm, err := getConfigMapByName(tenantConfigMaps, configMapName)
+	if cm.Name == configMapName {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting tenant configmap %#q", configMapName))
+
+		err = tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Delete(configMapName, &metav1.DeleteOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted tenant configmap %#q", configMapName))
+	} else if IsNotFound(err) {
+		// fall through
+	} else if err != nil {
+		return microerror.Mask(err)
 	}
 
 	return nil
