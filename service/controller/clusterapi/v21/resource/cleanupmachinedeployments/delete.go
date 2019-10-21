@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
@@ -40,6 +41,14 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		machineDeployments = list.Items
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d machine deployments for tenant cluster", len(machineDeployments)))
+	}
+
+	// We do not want to delete the Cluster CR as long as there are any
+	// MachineDeployment CRs. This is because there cannot be any Node Pool
+	// without a Cluster.
+	if len(machineDeployments) != 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+		finalizerskeptcontext.SetKept(ctx)
 	}
 
 	for _, md := range machineDeployments {
