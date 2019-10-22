@@ -31,6 +31,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v21/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/v21/resource/configmap"
@@ -319,10 +320,25 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var tenantClientsResource resource.Interface
+	{
+		c := tenantclients.Config{
+			Logger:              config.Logger,
+			Tenant:              config.Tenant,
+			ToClusterConfigFunc: getClusterConfig,
+		}
+
+		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
-		// Put encryptionKeyResource first because it executes faster than
-		// certConfigResource and could introduce dependency during cluster
-		// creation.
+		// Following resources manage resources controller context information.
+		tenantClientsResource,
+
+		// Following resources manage resources in the control plane.
 		encryptionKeyResource,
 		certConfigResource,
 		clusterConfigMapResource,
