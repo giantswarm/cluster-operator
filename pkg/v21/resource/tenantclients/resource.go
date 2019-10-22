@@ -10,8 +10,8 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
 )
 
 const (
