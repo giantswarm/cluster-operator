@@ -9,18 +9,27 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
 )
 
 // Config represents the configuration used to create a new configmap service.
 type Config struct {
 	Logger micrologger.Logger
 	Tenant tenantcluster.Interface
+
+	Provider string
 }
 
 // Service provides shared functionality for managing configmaps.
 type Service struct {
 	logger micrologger.Logger
 	tenant tenantcluster.Interface
+
+	provider string
 }
 
 // New creates a new configmap service.
@@ -32,12 +41,41 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
 
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+
 	s := &Service{
 		logger: config.Logger,
 		tenant: config.Tenant,
+
+		provider: config.Provider,
 	}
 
 	return s, nil
+}
+
+func (s *Service) newChartSpecs() []key.ChartSpec {
+	switch s.provider {
+	case "aws":
+		return append(key.CommonChartSpecs(), awskey.ChartSpecs()...)
+	case "azure":
+		return append(key.CommonChartSpecs(), azurekey.ChartSpecs()...)
+	case "kvm":
+		return append(key.CommonChartSpecs(), kvmkey.ChartSpecs()...)
+	default:
+		return key.CommonChartSpecs()
+	}
+}
+
+func (s *Service) getChartSpecByName(name string) key.ChartSpec {
+	for _, spec := range s.newChartSpecs() {
+		if spec.ChartName == name {
+			return spec
+		}
+	}
+
+	return key.ChartSpec{}
 }
 
 func (s *Service) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {

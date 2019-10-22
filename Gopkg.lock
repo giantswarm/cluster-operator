@@ -89,44 +89,6 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:7b110591ce8ca4f6de189129c5dcd9bcd7525fa4ccc51be617fcdd77a83312c3"
-  name = "github.com/aws/aws-sdk-go"
-  packages = [
-    "aws",
-    "aws/awserr",
-    "aws/awsutil",
-    "aws/client",
-    "aws/client/metadata",
-    "aws/corehandlers",
-    "aws/credentials",
-    "aws/credentials/ec2rolecreds",
-    "aws/credentials/endpointcreds",
-    "aws/credentials/stscreds",
-    "aws/csm",
-    "aws/defaults",
-    "aws/ec2metadata",
-    "aws/endpoints",
-    "aws/request",
-    "aws/session",
-    "aws/signer/v4",
-    "internal/sdkio",
-    "internal/sdkrand",
-    "internal/shareddefaults",
-    "private/protocol",
-    "private/protocol/ec2query",
-    "private/protocol/query",
-    "private/protocol/query/queryutil",
-    "private/protocol/rest",
-    "private/protocol/xml/xmlutil",
-    "service/cloudformation",
-    "service/ec2",
-    "service/sts",
-  ]
-  pruneopts = "UT"
-  revision = "2fa5290a6a8f6a664f2dab5337d5f64d0cfd8f68"
-  version = "v1.14.7"
-
-[[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
@@ -369,48 +331,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9c94a9509b279c5d406688d39bcd86f59e66c91e6c54081501dce4ce664383c8"
-  name = "github.com/giantswarm/e2e-harness"
-  packages = [
-    "internal/filelogger",
-    "pkg/framework",
-    "pkg/harness",
-  ]
-  pruneopts = "UT"
-  revision = "7f9aa6e338a7995c848c65f7da097b0faa7ddc1c"
-
-[[projects]]
-  branch = "master"
-  digest = "1:08c7c55cf4dde5b8052d687a4eeff0d5796309f3e49b5f00e3c19dc62f033584"
-  name = "github.com/giantswarm/e2eclients"
-  packages = ["aws"]
-  pruneopts = "UT"
-  revision = "889c9ae897f8c0fa1d857f98dca22fa124305237"
-
-[[projects]]
-  branch = "master"
-  digest = "1:8dbcac6df572fbc92832c8257a9f0b52730f60bfe2dffa9970f5863a0deaf821"
-  name = "github.com/giantswarm/e2esetup"
-  packages = [
-    "chart/env",
-    "k8s",
-  ]
-  pruneopts = "UT"
-  revision = "e4ef9f8134385917ff6e507e4e90e70b0dd710c6"
-
-[[projects]]
-  branch = "master"
-  digest = "1:ed6ad80c973798fb4d4e28618da24e6dec439c798a62e8980b5a3133520cfd42"
-  name = "github.com/giantswarm/e2etemplates"
-  packages = [
-    "internal/render",
-    "pkg/e2etemplates",
-  ]
-  pruneopts = "UT"
-  revision = "11c30c63f167e8b027926eea81ad4ca513becf20"
-
-[[projects]]
-  branch = "master"
   digest = "1:109f5bac6ea240c7be934080356ccc4c7f0f455a2ab4b417282971503451b13e"
   name = "github.com/giantswarm/errors"
   packages = ["tenant"]
@@ -435,14 +355,6 @@
   ]
   pruneopts = "UT"
   revision = "a5e3404ad0fc68dafb8ecb6e83c19b8e5ba69d5f"
-
-[[projects]]
-  branch = "master"
-  digest = "1:9d898164107df6f791e41efbe2f4d43ab196fcf62705d2a05190e2f8fc7a80fa"
-  name = "github.com/giantswarm/k8sclient"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "96c9e76e2c5bd8d6d0d12c547149348c0393f9a8"
 
 [[projects]]
   branch = "master"
@@ -576,14 +488,6 @@
   revision = "c91a5899eae8867e7966df734f4cccbba450c841"
 
 [[projects]]
-  digest = "1:2d8307a7345570ece92d85e80f17c9de719fa44a11f5ccd828ab2bb4a328314c"
-  name = "github.com/go-ini/ini"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "700781759788472518f4ea52321519b066061a7b"
-  version = "v1.48.0"
-
-[[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
   name = "github.com/go-kit/kit"
   packages = [
@@ -715,22 +619,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  digest = "1:664e1bc8d2f651e1e5234a7bd52d6bbc1704a90e7787d29c56aa212a46d860f0"
-  name = "github.com/google/go-github"
-  packages = ["github"]
-  pruneopts = "UT"
-  revision = "361256aa6e01256279b0805586b6c491ff2045d9"
-  version = "v25.1.3"
-
-[[projects]]
-  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
-  name = "github.com/google/go-querystring"
-  packages = ["query"]
-  pruneopts = "UT"
-  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
-  version = "v1.0.0"
-
-[[projects]]
   digest = "1:a6181aca1fd5e27103f9a920876f29ac72854df7345a39f3b01e61c8c94cc8af"
   name = "github.com/google/gofuzz"
   packages = ["."]
@@ -830,13 +718,6 @@
   pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
-
-[[projects]]
-  digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"
-  name = "github.com/jmespath/go-jmespath"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0b12d6b5"
 
 [[projects]]
   digest = "1:6c41d4f998a03b6604227ccad36edaed6126c397e5d78709ef4814a1145a6757"
@@ -1791,22 +1672,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:0e555835526bba435306c1ff447b144032c0f9fbe179b084646f8520ae2d08cc"
-  name = "k8s.io/kube-aggregator"
-  packages = [
-    "pkg/apis/apiregistration",
-    "pkg/apis/apiregistration/v1",
-    "pkg/apis/apiregistration/v1beta1",
-    "pkg/client/clientset_generated/clientset",
-    "pkg/client/clientset_generated/clientset/scheme",
-    "pkg/client/clientset_generated/clientset/typed/apiregistration/v1",
-    "pkg/client/clientset_generated/clientset/typed/apiregistration/v1beta1",
-  ]
-  pruneopts = "UT"
-  revision = "c3a845f1fbb2d2013df91cdf0687fe14b9cb5319"
-  version = "kubernetes-1.15.4"
-
-[[projects]]
   branch = "master"
   digest = "1:3188bdb4e63be10aca224beb643f586a2348af69e19163346294b3892fbccb13"
   name = "k8s.io/kube-openapi"
@@ -2016,8 +1881,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Azure/go-autorest/autorest",
-    "github.com/aws/aws-sdk-go/aws",
-    "github.com/aws/aws-sdk-go/service/cloudformation",
     "github.com/docker/distribution/reference",
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
@@ -2031,11 +1894,6 @@
     "github.com/giantswarm/certs/certstest",
     "github.com/giantswarm/clusterclient",
     "github.com/giantswarm/clusterclient/service/release/searcher",
-    "github.com/giantswarm/e2e-harness/pkg/framework",
-    "github.com/giantswarm/e2e-harness/pkg/harness",
-    "github.com/giantswarm/e2eclients/aws",
-    "github.com/giantswarm/e2esetup/k8s",
-    "github.com/giantswarm/e2etemplates/pkg/e2etemplates",
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/exporterkit/collector",
     "github.com/giantswarm/helmclient",

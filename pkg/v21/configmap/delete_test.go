@@ -104,6 +104,8 @@ func Test_ConfigMap_newDeleteChangeForUpdatePatch(t *testing.T) {
 	c := Config{
 		Logger: microloggertest.New(),
 		Tenant: &tenantMock{},
+
+		Provider: "aws",
 	}
 	newService, err := New(c)
 	if err != nil {

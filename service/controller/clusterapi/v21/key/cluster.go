@@ -15,20 +15,6 @@ func ClusterAPIEndpoint(cluster v1alpha1.Cluster) string {
 	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
 }
 
-func ClusterAvailabilityZones(cluster v1alpha1.Cluster) []string {
-	azMap := make(map[string]struct{})
-
-	azMap[ClusterMasterAZ(cluster)] = struct{}{}
-
-	// TODO: Extract AZs from MachineDeployments
-
-	azs := make([]string, 0, len(azMap))
-	for az := range azMap {
-		azs = append(azs, az)
-	}
-	return azs
-}
-
 func ClusterBaseDomain(cluster v1alpha1.Cluster) string {
 	return clusterProviderSpec(cluster).Cluster.DNS.Domain
 }
