@@ -25,6 +25,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v21/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v21/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/app"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/certconfig"
@@ -373,6 +374,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
 		return ctx, nil
 	}
 
