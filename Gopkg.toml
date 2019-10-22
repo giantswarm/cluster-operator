@@ -32,10 +32,6 @@ required = [
 
 
 [[constraint]]
-  name = "github.com/aws/aws-sdk-go"
-  version = "=1.14.7"
-
-[[constraint]]
   name = "github.com/Azure/go-autorest"
   version = "9.1.0"
 
@@ -62,18 +58,6 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/clusterclient"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/e2e-harness"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/e2eclients"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/e2etemplates"
 
 [[constraint]]
   branch = "master"
