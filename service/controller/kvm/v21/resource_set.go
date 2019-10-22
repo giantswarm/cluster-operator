@@ -334,9 +334,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// Following resources manage resources controller context information.
 		tenantClientsResource,
 
-		// Put encryptionKeyResource first because it executes faster than
-		// certConfigResource and could introduce dependency during cluster
-		// creation.
+		// Following resources manage resources in the control plane.
 		encryptionKeyResource,
 		certConfigResource,
 		clusterConfigMapResource,
