@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	yaml "gopkg.in/yaml.v2"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -111,6 +115,68 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
+	for _, chartSpec := range chartSpecsToMigrate {
+		if chartSpec.UserConfigMapName != "" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if user configmap %#q has been migrated", chartSpec.UserConfigMapName))
+
+			cm, err := getConfigMapByName(clusterConfigMaps.Items, chartSpec.UserConfigMapName)
+			if IsNotFound(err) {
+				// Copy user configmap from the tenant cluster to the cluster namespace.
+				err = r.copyUserConfigMap(ctx, cc.Client.TenantCluster.K8s, cr, chartSpec)
+				if err != nil {
+					return microerror.Mask(err)
+				}
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has been migrated", chartSpec.UserConfigMapName))
+			} else if cm.Name == chartSpec.UserConfigMapName {
+				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has already been migrated", chartSpec.UserConfigMapName))
+			} else if err != nil {
+				return microerror.Mask(err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubernetes.Interface, cr v1alpha1.ClusterGuestConfig, chartSpec key.ChartSpec) error {
+	currentCM, err := tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Get(chartSpec.UserConfigMapName, metav1.GetOptions{})
+	if IsNotFound(err) || len(currentCM.Data) == 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has no data to migrate", chartSpec.UserConfigMapName))
+		return nil
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating user configmap %#q in namespace %#q", chartSpec.UserConfigMapName, key.ClusterID(cr)))
+
+	// User configmaps for chartconfig CRs only have keys and values under the
+	// configmap block. This needs to be converted to YAML for app CRs.
+	values := map[string]interface{}{
+		"configmap": currentCM.Data,
+	}
+
+	yamlValues, err := yaml.Marshal(values)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	cm := corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      chartSpec.UserConfigMapName,
+			Namespace: key.ClusterID(cr),
+		},
+		Data: map[string]string{
+			"values": string(yamlValues),
+		},
+	}
+
+	_, err = r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(cr)).Create(&cm)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created user configmap %#q in namespace %#q", chartSpec.UserConfigMapName, key.ClusterID(cr)))
 
 	return nil
 }
