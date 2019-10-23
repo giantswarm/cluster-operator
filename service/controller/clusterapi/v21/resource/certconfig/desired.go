@@ -29,7 +29,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 
 	// When the CertConfig CR is deleted we do not need to compute the desired
 	// state, because we only use the current state to delete the CR. Also note
-	// that teh desired state relies on the operatorversions resource, because we
+	// that the desired state relies on the operatorversions resource, because we
 	// put the cert-operator version into the CR. The operatorversions resource
 	// does not fill the controller context with versions on delete events, which
 	// is also why we cannot compute the correct desired state. We do not want to
