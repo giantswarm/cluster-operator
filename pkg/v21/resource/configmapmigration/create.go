@@ -59,6 +59,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	if cc.Client.TenantCluster.G8s == nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+		return nil
+	}
+
 	listOptions := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
