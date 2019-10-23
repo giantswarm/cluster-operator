@@ -7,19 +7,21 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
+
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 )
 
 func (c *ChartConfig) ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, chartConfigsToUpdate []*v1alpha1.ChartConfig) error {
 	if len(chartConfigsToUpdate) > 0 {
-		c.logger.LogCtx(ctx, "level", "debug", "message", "updating chartconfigs")
-
-		tenantG8sClient, err := c.newTenantG8sClient(ctx, clusterConfig)
+		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
+		c.logger.LogCtx(ctx, "level", "debug", "message", "updating chartconfigs")
+
 		for _, chartConfigToUpdate := range chartConfigsToUpdate {
-			_, err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
+			_, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(resourceNamespace).Update(chartConfigToUpdate)
 			if err != nil {
 				return microerror.Mask(err)
 			}

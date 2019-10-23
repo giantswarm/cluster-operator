@@ -1,16 +1,12 @@
 package chartconfig
 
 import (
-	"context"
 	"reflect"
 	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
@@ -27,7 +23,6 @@ const (
 // Config represents the configuration used to create a new chartconfig service.
 type Config struct {
 	Logger micrologger.Logger
-	Tenant tenantcluster.Interface
 
 	Provider string
 }
@@ -35,7 +30,6 @@ type Config struct {
 // ChartConfig provides shared functionality for managing chartconfigs.
 type ChartConfig struct {
 	logger micrologger.Logger
-	tenant tenantcluster.Interface
 
 	provider string
 }
@@ -45,9 +39,6 @@ func New(config Config) (*ChartConfig, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.Tenant == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
-	}
 
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -55,7 +46,6 @@ func New(config Config) (*ChartConfig, error) {
 
 	s := &ChartConfig{
 		logger: config.Logger,
-		tenant: config.Tenant,
 
 		provider: config.Provider,
 	}
@@ -84,24 +74,6 @@ func (c *ChartConfig) getChartSpecByName(name string) key.ChartSpec {
 	}
 
 	return key.ChartSpec{}
-}
-
-func (c *ChartConfig) newTenantG8sClient(ctx context.Context, clusterConfig ClusterConfig) (versioned.Interface, error) {
-	tenantG8sClient, err := c.tenant.NewG8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return tenantG8sClient, nil
-}
-
-func (c *ChartConfig) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
-	tenantK8sClient, err := c.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return tenantK8sClient, nil
 }
 
 // containsChartConfig checks if item is present within list

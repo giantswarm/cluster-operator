@@ -4,7 +4,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -18,7 +18,6 @@ type Config struct {
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
-	Tenant                   tenantcluster.Interface
 
 	Provider string
 }
@@ -28,7 +27,6 @@ type Resource struct {
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
-	tenant                   tenantcluster.Interface
 
 	provider string
 }
@@ -46,9 +44,6 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.Tenant == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
-	}
 
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -59,7 +54,6 @@ func New(config Config) (*Resource, error) {
 		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
-		tenant:                   config.Tenant,
 
 		provider: config.Provider,
 	}
@@ -69,4 +63,24 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func getChartConfigByName(list []v1alpha1.ChartConfig, name string) (v1alpha1.ChartConfig, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return v1alpha1.ChartConfig{}, microerror.Mask(notFoundError)
+}
+
+func getConfigMapByName(list []corev1.ConfigMap, name string) (corev1.ConfigMap, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return corev1.ConfigMap{}, microerror.Mask(notFoundError)
 }

@@ -12,21 +12,31 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 )
 
 func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*v1alpha1.ChartConfig, error) {
-	c.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the tenant cluster")
-
-	tenantG8sClient, err := c.newTenantG8sClient(ctx, clusterConfig)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	{
+		if cc.Client.TenantCluster.G8s == nil {
+			c.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available")
+			c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
+		}
+	}
+
+	c.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the tenant cluster")
 
 	listOptions := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
-	chartConfigList, err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).List(listOptions)
+	chartConfigList, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(resourceNamespace).List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		c.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")

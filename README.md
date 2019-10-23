@@ -28,6 +28,8 @@ go build github.com/giantswarm/cluster-operator
 See [CONTRIBUTING](CONTRIBUTING.md) for details on submitting patches, the
 contribution workflow as well as reporting bugs.
 
+
+
 ## License
 
 cluster-operator is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for

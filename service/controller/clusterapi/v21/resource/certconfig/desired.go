@@ -27,6 +27,20 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
+	// When the CertConfig CR is deleted we do not need to compute the desired
+	// state, because we only use the current state to delete the CR. Also note
+	// that the desired state relies on the operatorversions resource, because we
+	// put the cert-operator version into the CR. The operatorversions resource
+	// does not fill the controller context with versions on delete events, which
+	// is also why we cannot compute the correct desired state. We do not want to
+	// fetch the version information on delete events to reduce eventual friction.
+	// Cluster deletion should not be affected only because some releases are
+	// missing or broken when fetching them from cluster-service.
+	if key.IsDeleted(&cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state of cert config crs due to delete event")
+		return nil, nil
+	}
+
 	var certConfigs []*g8sv1alpha1.CertConfig
 	{
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(cr)))
@@ -57,16 +71,17 @@ func newCertConfig(cc controllercontext.Context, cr cmav1alpha1.Cluster, cert g8
 			Name:      key.CertConfigName(&cr, cert.ClusterComponent),
 			Namespace: cr.Namespace,
 			Labels: map[string]string{
-				label.Certificate:  cert.ClusterComponent,
-				label.Cluster:      key.ClusterID(&cr),
-				label.ManagedBy:    project.Name(),
-				label.Organization: key.OrganizationID(&cr),
+				label.Certificate:         cert.ClusterComponent,
+				label.CertOperatorVersion: cc.Status.Versions[label.CertOperatorVersion],
+				label.Cluster:             key.ClusterID(&cr),
+				label.ManagedBy:           project.Name(),
+				label.Organization:        key.OrganizationID(&cr),
 			},
 		},
 		Spec: g8sv1alpha1.CertConfigSpec{
 			Cert: cert,
 			VersionBundle: g8sv1alpha1.CertConfigSpecVersionBundle{
-				Version: cc.Status.Versions["cert-operator.giantswarm.io/version"],
+				Version: cc.Status.Versions[label.CertOperatorVersion],
 			},
 		},
 	}
