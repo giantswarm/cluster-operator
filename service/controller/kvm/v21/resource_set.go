@@ -213,6 +213,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var configMapMigrationResource resource.Interface
+	{
+		c := configmapmigration.Config{
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		configMapMigrationResource, err = configmapmigration.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartConfigService chartconfigservice.Interface
 	{
 		c := chartconfigservice.Config{
@@ -339,8 +356,13 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
-		appResource,
+
+		// Migration resources are for migrating from chartconfig to app CRs.
+		configMapMigrationResource,
 		appMigrationResource,
+
+		// appResource is executed after migration resources.
+		appResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
