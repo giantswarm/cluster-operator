@@ -8,6 +8,11 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
+				Component:   "coredns",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
 				Component:   "kube-state-metrics",
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
