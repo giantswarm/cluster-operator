@@ -9,19 +9,21 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 )
 
 func (c *ChartConfig) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterConfig, chartConfigsToDelete []*v1alpha1.ChartConfig) error {
 	if len(chartConfigsToDelete) > 0 {
-		c.logger.LogCtx(ctx, "level", "debug", "message", "deleting chartconfigs")
-
-		tenantG8sClient, err := c.newTenantG8sClient(ctx, clusterConfig)
+		cc, err := controllercontext.FromContext(ctx)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
+		c.logger.LogCtx(ctx, "level", "debug", "message", "deleting chartconfigs")
+
 		for _, chartConfig := range chartConfigsToDelete {
-			err := tenantG8sClient.CoreV1alpha1().ChartConfigs(resourceNamespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
+			err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(resourceNamespace).Delete(chartConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {

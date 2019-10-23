@@ -13,6 +13,7 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 )
 
@@ -96,13 +97,8 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
-
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: &tenantMock{
-					fakeTenantK8sClient: fakeTenantK8sClient,
-				},
 
 				Provider: "aws",
 			}
@@ -111,7 +107,19 @@ func Test_ChartConfig_GetDesiredState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			chartConfigs, err := cc.GetDesiredState(context.TODO(), tc.clusterConfig, tc.providerChartSpecs)
+			var ctx context.Context
+			{
+				c := controllercontext.Context{
+					Client: controllercontext.ContextClient{
+						TenantCluster: controllercontext.ContextClientTenantCluster{
+							K8s: clientgofake.NewSimpleClientset(),
+						},
+					},
+				}
+				ctx = controllercontext.NewContext(context.Background(), c)
+			}
+
+			chartConfigs, err := cc.GetDesiredState(ctx, tc.clusterConfig, tc.providerChartSpecs)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
@@ -253,13 +261,8 @@ func Test_ChartConfig_newChartConfig(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
-
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: &tenantMock{
-					fakeTenantK8sClient: fakeTenantK8sClient,
-				},
 
 				Provider: "aws",
 			}
@@ -268,7 +271,19 @@ func Test_ChartConfig_newChartConfig(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			result, err := cc.newChartConfig(context.TODO(), tc.clusterConfig, tc.chartSpec)
+			var ctx context.Context
+			{
+				c := controllercontext.Context{
+					Client: controllercontext.ContextClient{
+						TenantCluster: controllercontext.ContextClientTenantCluster{
+							K8s: clientgofake.NewSimpleClientset(),
+						},
+					},
+				}
+				ctx = controllercontext.NewContext(context.Background(), c)
+			}
+
+			result, err := cc.newChartConfig(ctx, tc.clusterConfig, tc.chartSpec)
 			if err != nil {
 				t.Fatalf("expected nil, got %#v", err)
 			}
@@ -426,13 +441,8 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 				objs = append(objs, cm)
 			}
 
-			fakeTenantK8sClient := clientgofake.NewSimpleClientset(objs...)
-
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: &tenantMock{
-					fakeTenantK8sClient: fakeTenantK8sClient,
-				},
 
 				Provider: "aws",
 			}
@@ -441,7 +451,19 @@ func Test_ChartConfig_newConfigMapSpec(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			result, err := cc.newConfigMapSpec(context.TODO(), tc.clusterConfig, tc.configMapName, tc.namespace)
+			var ctx context.Context
+			{
+				c := controllercontext.Context{
+					Client: controllercontext.ContextClient{
+						TenantCluster: controllercontext.ContextClientTenantCluster{
+							K8s: clientgofake.NewSimpleClientset(objs...),
+						},
+					},
+				}
+				ctx = controllercontext.NewContext(context.Background(), c)
+			}
+
+			result, err := cc.newConfigMapSpec(ctx, tc.clusterConfig, tc.configMapName, tc.namespace)
 			if err != nil {
 				t.Fatalf("expected nil, got %#v", err)
 			}

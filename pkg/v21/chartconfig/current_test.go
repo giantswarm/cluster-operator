@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/micrologger/microloggertest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -182,13 +183,20 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				objs = append(objs, cc)
 			}
 
-			fakeTenantG8sClient := fake.NewSimpleClientset(objs...)
+			var ctx context.Context
+			{
+				c := controllercontext.Context{
+					Client: controllercontext.ContextClient{
+						TenantCluster: controllercontext.ContextClientTenantCluster{
+							G8s: fake.NewSimpleClientset(objs...),
+						},
+					},
+				}
+				ctx = controllercontext.NewContext(context.Background(), c)
+			}
 
 			c := Config{
 				Logger: microloggertest.New(),
-				Tenant: &tenantMock{
-					fakeTenantG8sClient: fakeTenantG8sClient,
-				},
 
 				Provider: "aws",
 			}
@@ -197,7 +205,7 @@ func Test_ChartConfig_GetCurrentState(t *testing.T) {
 				t.Fatal("expected", nil, "got", err)
 			}
 
-			chartConfigs, err := cc.GetCurrentState(context.TODO(), tc.clusterConfig)
+			chartConfigs, err := cc.GetCurrentState(ctx, tc.clusterConfig)
 			if err != nil {
 				t.Fatal("expected", nil, "got", err)
 			}
