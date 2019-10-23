@@ -71,16 +71,17 @@ func newCertConfig(cc controllercontext.Context, cr cmav1alpha1.Cluster, cert g8
 			Name:      key.CertConfigName(&cr, cert.ClusterComponent),
 			Namespace: cr.Namespace,
 			Labels: map[string]string{
-				label.Certificate:  cert.ClusterComponent,
-				label.Cluster:      key.ClusterID(&cr),
-				label.ManagedBy:    project.Name(),
-				label.Organization: key.OrganizationID(&cr),
+				label.Certificate:         cert.ClusterComponent,
+				label.CertOperatorVersion: cc.Status.Versions[label.CertOperatorVersion],
+				label.Cluster:             key.ClusterID(&cr),
+				label.ManagedBy:           project.Name(),
+				label.Organization:        key.OrganizationID(&cr),
 			},
 		},
 		Spec: g8sv1alpha1.CertConfigSpec{
 			Cert: cert,
 			VersionBundle: g8sv1alpha1.CertConfigSpecVersionBundle{
-				Version: cc.Status.Versions["cert-operator.giantswarm.io/version"],
+				Version: cc.Status.Versions[label.CertOperatorVersion],
 			},
 		},
 	}
