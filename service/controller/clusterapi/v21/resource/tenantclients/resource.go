@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/helmclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
@@ -66,7 +65,6 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	var g8sClient versioned.Interface
-	var helmClient helmclient.Interface
 	var k8sClient kubernetes.Interface
 	{
 		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
@@ -76,11 +74,6 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return nil
 
 		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		helmClient, err = r.tenant.NewHelmClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
-		if err != nil {
 			return microerror.Mask(err)
 		}
 
@@ -97,7 +90,6 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 
 	{
 		cc.Client.TenantCluster.G8s = g8sClient
-		cc.Client.TenantCluster.Helm = helmClient
 		cc.Client.TenantCluster.K8s = k8sClient
 	}
 
