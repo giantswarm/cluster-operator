@@ -43,13 +43,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	clusterConfig, err := r.getClusterConfigFunc(obj)
+	cr, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	// Get all configmaps in the cluster namespace.
-	_, err = r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).List(metav1.ListOptions{})
+	clusterConfigMaps, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(cr)).List(metav1.ListOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
