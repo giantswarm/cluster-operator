@@ -21,6 +21,15 @@ func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig Cluster
 		return nil, microerror.Mask(err)
 	}
 
+	{
+		if cc.Client.TenantCluster.G8s == nil {
+			c.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available")
+			c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
+		}
+	}
+
 	c.logger.LogCtx(ctx, "level", "debug", "message", "looking for chartconfigs in the tenant cluster")
 
 	listOptions := metav1.ListOptions{
