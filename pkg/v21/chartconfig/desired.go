@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 )
 
@@ -95,12 +96,12 @@ func (c *ChartConfig) newConfigMapSpec(ctx context.Context, clusterConfig Cluste
 		return &v1alpha1.ChartConfigSpecConfigMap{}, nil
 	}
 
-	tenantK8sClient, err := c.newTenantK8sClient(ctx, clusterConfig)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	configMap, err := tenantK8sClient.CoreV1().ConfigMaps(configMapNamespace).Get(configMapName, metav1.GetOptions{})
+	configMap, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(configMapNamespace).Get(configMapName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) || tenant.IsAPINotAvailable(err) {
 		// Cannot get configmap resource version so leave it unset. We will
 		// check again after the next resync period.

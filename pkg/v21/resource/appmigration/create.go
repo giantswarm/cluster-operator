@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
@@ -48,19 +49,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	clusterConfig, err := r.getClusterConfigFunc(obj)
+	cr, err := r.getClusterConfigFunc(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	tenantAPIDomain, err := key.APIDomain(clusterConfig)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	tenantG8sClient, err := r.tenant.NewG8sClient(ctx, clusterConfig.ID, tenantAPIDomain)
-	if err != nil {
-		return microerror.Mask(err)
+	if cc.Client.TenantCluster.G8s == nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil
 	}
 
 	listOptions := metav1.ListOptions{
@@ -70,7 +73,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	chartConfigs, err := tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+	chartConfigs, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -106,7 +109,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if !ok {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cordoning chartconfig CR %#q", chartSpec.ChartName))
 
-			err = patchChartConfig(tenantG8sClient, chartCR, addCordonAnnotations())
+			err = patchChartConfig(cc.Client.TenantCluster.G8s, chartCR, addCordonAnnotations())
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -118,7 +121,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out app CR %#q is deployed", chartSpec.AppName))
 
-		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).Get(chartSpec.AppName, metav1.GetOptions{})
+		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(cr)).Get(chartSpec.AppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			return microerror.Maskf(notFoundError, "app CR %#q", chartSpec.AppName)
 		}
@@ -129,7 +132,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 			// Add deletion annotation which will trigger chart-operator to
 			// delete the chartconfig CR but not the Helm release.
-			err = patchChartConfig(tenantG8sClient, chartCR, addDeleteAnnotation())
+			err = patchChartConfig(cc.Client.TenantCluster.G8s, chartCR, addDeleteAnnotation())
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -138,7 +141,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting chartconfig CR %#q", chartSpec.ChartName))
 
 			// Lastly delete the chartconfig CR.
-			err = tenantG8sClient.CoreV1alpha1().ChartConfigs("giantswarm").Delete(chartCR.Name, &metav1.DeleteOptions{})
+			err = cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").Delete(chartCR.Name, &metav1.DeleteOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}

@@ -25,12 +25,14 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	chartconfigservice "github.com/giantswarm/cluster-operator/pkg/v21/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/pkg/v21/configmap"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/app"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v21/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v21/resource/configmap"
@@ -215,7 +217,6 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := chartconfigservice.Config{
 			Logger: config.Logger,
-			Tenant: config.Tenant,
 
 			Provider: config.Provider,
 		}
@@ -315,10 +316,25 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var tenantClientsResource resource.Interface
+	{
+		c := tenantclients.Config{
+			Logger:              config.Logger,
+			Tenant:              config.Tenant,
+			ToClusterConfigFunc: getClusterConfig,
+		}
+
+		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
-		// Put encryptionKeyResource first because it executes faster than
-		// certConfigResource and could introduce dependency during cluster
-		// creation.
+		// Following resources manage resources controller context information.
+		tenantClientsResource,
+
+		// Following resources manage resources in the control plane.
 		encryptionKeyResource,
 		certConfigResource,
 		clusterConfigMapResource,
@@ -353,6 +369,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
+		ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
 		return ctx, nil
 	}
 

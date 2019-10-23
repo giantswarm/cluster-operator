@@ -3,15 +3,15 @@ package tenantclients
 import (
 	"context"
 
+	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 )
 
 const (
@@ -19,15 +19,15 @@ const (
 )
 
 type Config struct {
-	Logger        micrologger.Logger
-	Tenant        tenantcluster.Interface
-	ToClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
+	Logger              micrologger.Logger
+	Tenant              tenantcluster.Interface
+	ToClusterConfigFunc func(v interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 type Resource struct {
-	logger        micrologger.Logger
-	tenant        tenantcluster.Interface
-	toClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
+	logger              micrologger.Logger
+	tenant              tenantcluster.Interface
+	toClusterConfigFunc func(v interface{}) (v1alpha1.ClusterGuestConfig, error)
 }
 
 func New(config Config) (*Resource, error) {
@@ -37,14 +37,14 @@ func New(config Config) (*Resource, error) {
 	if config.Tenant == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
-	if config.ToClusterFunc == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterFunc must not be empty", config)
+	if config.ToClusterConfigFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterConfigFunc must not be empty", config)
 	}
 
 	r := &Resource{
-		logger:        config.Logger,
-		tenant:        config.Tenant,
-		toClusterFunc: config.ToClusterFunc,
+		logger:              config.Logger,
+		tenant:              config.Tenant,
+		toClusterConfigFunc: config.ToClusterConfigFunc,
 	}
 
 	return r, nil
@@ -55,7 +55,7 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cr, err := r.toClusterFunc(obj)
+	cr, err := r.toClusterConfigFunc(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -64,10 +64,18 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	var tenantAPIDomain string
+	{
+		tenantAPIDomain, err = key.APIDomain(cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	var g8sClient versioned.Interface
 	var k8sClient kubernetes.Interface
 	{
-		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
+		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(cr), tenantAPIDomain)
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -77,7 +85,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		k8sClient, err = r.tenant.NewK8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
+		k8sClient, err = r.tenant.NewK8sClient(ctx, key.ClusterID(cr), tenantAPIDomain)
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
