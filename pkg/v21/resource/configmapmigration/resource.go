@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -62,4 +63,14 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func getConfigMapByName(list []corev1.ConfigMap, name string) (corev1.ConfigMap, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return corev1.ConfigMap{}, microerror.Mask(notFoundError)
 }
