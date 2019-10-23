@@ -65,6 +65,16 @@ func (r *Resource) Name() string {
 	return Name
 }
 
+func getChartConfigByName(list []v1alpha1.ChartConfig, name string) (v1alpha1.ChartConfig, error) {
+	for _, l := range list {
+		if l.Name == name {
+			return l, nil
+		}
+	}
+
+	return v1alpha1.ChartConfig{}, microerror.Mask(notFoundError)
+}
+
 func getConfigMapByName(list []corev1.ConfigMap, name string) (corev1.ConfigMap, error) {
 	for _, l := range list {
 		if l.Name == name {
