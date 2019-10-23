@@ -79,7 +79,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Get all chartconfig CRs in the tenant cluster. The migration needs to
 	// complete before we create app CRs. So we cancel the entire loop on error.
-	_, err = cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+	chartConfigs, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
@@ -101,7 +101,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Get all configmaps in kube-system in the tenant cluster. The migration needs to
 	// complete before we create app CRs. So we cancel the entire loop on error.
-	_, err = cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
+	tenantConfigMaps, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
@@ -133,6 +133,25 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig %#q has been deleted", chartSpec.ChartName))
+
+		_, err = getChartConfigByName(chartConfigs.Items, chartSpec.ChartName)
+		if IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig %#q has been deleted", chartSpec.ChartName))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensuring tenant configmaps are deleted for app %#q", chartSpec.AppName))
+
+			// Once chartconfig CR is deleted also delete old configmaps in the tenant cluster.
+			err = r.ensureTenantConfigMapsDeleted(ctx, cc.Client.TenantCluster.K8s, chartSpec, tenantConfigMaps.Items)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("ensured tenant configmaps are deleted for app %#q", chartSpec.AppName))
+
+		} else if err == nil {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig %#q has not been deleted, continuing", chartSpec.ChartName))
 		}
 	}
 
@@ -177,6 +196,44 @@ func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubern
 	}
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created user configmap %#q in namespace %#q", chartSpec.UserConfigMapName, key.ClusterID(cr)))
+
+	return nil
+}
+
+func (r *Resource) ensureTenantConfigMapsDeleted(ctx context.Context, tenantK8sClient kubernetes.Interface, chartSpec key.ChartSpec, tenantConfigMaps []corev1.ConfigMap) error {
+	if chartSpec.ConfigMapName != "" {
+		err := r.ensureTenantConfigMapDeleted(ctx, tenantK8sClient, chartSpec.ConfigMapName, tenantConfigMaps)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	if chartSpec.UserConfigMapName != "" {
+		err := r.ensureTenantConfigMapDeleted(ctx, tenantK8sClient, chartSpec.UserConfigMapName, tenantConfigMaps)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	return nil
+}
+
+func (r *Resource) ensureTenantConfigMapDeleted(ctx context.Context, tenantK8sClient kubernetes.Interface, configMapName string, tenantConfigMaps []corev1.ConfigMap) error {
+	cm, err := getConfigMapByName(tenantConfigMaps, configMapName)
+	if cm.Name == configMapName {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting tenant configmap %#q", configMapName))
+
+		err = tenantK8sClient.CoreV1().ConfigMaps(metav1.NamespaceSystem).Delete(configMapName, &metav1.DeleteOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted tenant configmap %#q", configMapName))
+	} else if IsNotFound(err) {
+		// fall through
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
 
 	return nil
 }
