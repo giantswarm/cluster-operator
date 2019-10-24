@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
@@ -37,13 +38,20 @@ func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConf
 	}
 
 	for namespace := range namespaces {
+		ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+		defer cancel()
+
 		configMapList, err := tenantK8sClient.CoreV1().ConfigMaps(namespace).List(listOptions)
 		if tenant.IsAPINotAvailable(err) {
 			s.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 			s.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil, nil
-
+		} else if ctx.Err() == context.DeadlineExceeded {
+			s.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
+			s.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}

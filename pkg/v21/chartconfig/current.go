@@ -3,6 +3,7 @@ package chartconfig
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -36,13 +37,20 @@ func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig Cluster
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
 	chartConfigList, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(resourceNamespace).List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		c.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-
+	} else if ctx.Err() == context.DeadlineExceeded {
+		c.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
+		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
