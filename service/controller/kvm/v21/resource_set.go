@@ -30,6 +30,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/pkg/v21/resource/configmapmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/tenantclients"
