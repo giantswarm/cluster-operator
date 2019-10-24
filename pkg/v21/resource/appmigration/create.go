@@ -123,7 +123,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(cr)).Get(chartSpec.AppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			return microerror.Maskf(notFoundError, "app CR %#q", chartSpec.AppName)
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q does not exist yet, continuing", chartSpec.AppName))
+			continue
 		}
 
 		if appCR.Status.Release.Status == "DEPLOYED" {
