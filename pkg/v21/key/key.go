@@ -98,7 +98,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace: metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "0.8.0",
+			Version:         "0.9.0",
 		},
 		{
 			App:             "kube-state-metrics",
