@@ -68,9 +68,9 @@ func (s *Service) newChartSpecs() []key.ChartSpec {
 	}
 }
 
-func (s *Service) getChartSpecByName(name string) key.ChartSpec {
+func (s *Service) getChartSpecByAppName(appName string) key.ChartSpec {
 	for _, spec := range s.newChartSpecs() {
-		if spec.ChartName == name {
+		if spec.AppName == appName {
 			return spec
 		}
 	}
