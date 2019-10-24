@@ -12,12 +12,3 @@ var invalidConfigError = &microerror.Error{
 func IsInvalidConfigError(err error) bool {
 	return microerror.Cause(err) == invalidConfigError
 }
-
-var notMigratedError = &microerror.Error{
-	Kind: "notMigratedError",
-}
-
-// IsNotMigratedError asserts notMigratedError.
-func IsNotMigratedError(err error) bool {
-	return microerror.Cause(err) == invalidConfigError
-}

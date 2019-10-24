@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -67,13 +68,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-	} else if ctx.Err() == context.DeadlineExceeded {
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	} else if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	tenantConfigMaps := map[string]corev1.ConfigMap{}
@@ -86,7 +87,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	for _, appSpec := range r.newAppSpecs() {
 		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, tenantConfigMaps, secrets)
-		if IsNotMigratedError(err) {
+		if isNotMigratedError(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not migrated yet, continuing", appSpec.App))
 			continue
 		} else if err != nil {
