@@ -119,7 +119,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is already cordoned", chartSpec.ChartName))
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out app CR %#q is deployed", chartSpec.AppName))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if app CR %#q is deployed", chartSpec.AppName))
 
 		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(cr)).Get(chartSpec.AppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
