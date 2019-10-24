@@ -24,6 +24,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		v := map[string]string{
 			"baseDomain":   key.ClusterBaseDomain(cr),
 			"clusterDNSIP": r.dnsIP,
+			"clusterID":    key.ClusterID(&cr),
 		}
 
 		b, err := yaml.Marshal(v)
