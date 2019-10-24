@@ -4,16 +4,20 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
@@ -36,10 +40,59 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if cc.Client.TenantCluster.G8s == nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
+	listOptions := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	// Get all configmaps in kube-system in the tenant cluster to ensure user
+	// configmaps have been migrated.
+	list, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
+	if tenant.IsAPINotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	} else if ctx.Err() == context.DeadlineExceeded {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	tenantConfigMaps := map[string]corev1.ConfigMap{}
+
+	for _, cm := range list.Items {
+		configMaps[cm.Name] = cm
+	}
+
 	var apps []*g8sv1alpha1.App
 
 	for _, appSpec := range r.newAppSpecs() {
-		userConfig := newUserConfig(clusterConfig, appSpec, configMaps, secrets)
+		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, tenantConfigMaps, secrets)
+		if IsNotMigratedError(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not migrated yet, continuing", appSpec.App))
+			continue
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		apps = append(apps, r.newApp(clusterConfig, appSpec, userConfig))
 	}
 
@@ -147,11 +200,20 @@ func (r *Resource) newAppSpecs() []key.AppSpec {
 	}
 }
 
-func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
+func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps, tenantConfigMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) (g8sv1alpha1.AppSpecUserConfig, error) {
 	userConfig := g8sv1alpha1.AppSpecUserConfig{}
 
-	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]
-	if ok {
+	tenantCM, tenantExists := tenantConfigMaps[key.AppUserConfigMapName(appSpec)]
+	_, cmExists := configMaps[key.AppUserConfigMapName(appSpec)]
+
+	// A tenant configmap exists with user settings but the user configmap for
+	// this app CR does not exist yet. We delay creating the app CR until it
+	// does so the app is installed with the correct values.
+	if tenantExists && len(tenantCM.Data) > 0 && !cmExists {
+		return g8sv1alpha1.AppSpecUserConfig{}, microerror.Maskf(notMigratedError, "%#q not migrated yet", appSpec.App)
+	}
+
+	if cmExists {
 		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
 			Name:      key.AppUserConfigMapName(appSpec),
 			Namespace: clusterConfig.ID,
@@ -160,8 +222,8 @@ func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpe
 		userConfig.ConfigMap = configMapSpec
 	}
 
-	_, ok = secrets[key.AppUserSecretName(appSpec)]
-	if ok {
+	_, secretExists := secrets[key.AppUserSecretName(appSpec)]
+	if secretExists {
 		secretSpec := g8sv1alpha1.AppSpecUserConfigSecret{
 			Name:      key.AppUserSecretName(appSpec),
 			Namespace: clusterConfig.ID,
@@ -170,5 +232,5 @@ func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpe
 		userConfig.Secret = secretSpec
 	}
 
-	return userConfig
+	return userConfig, nil
 }
