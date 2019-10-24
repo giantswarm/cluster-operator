@@ -3,6 +3,7 @@ package appmigration
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -84,13 +85,13 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if ctx.Err() == context.DeadlineExceeded {
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
 	}
 
 	for _, chartSpec := range chartSpecsToMigrate {

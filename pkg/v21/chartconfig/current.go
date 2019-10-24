@@ -2,6 +2,7 @@ package chartconfig
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -46,13 +47,13 @@ func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig Cluster
 		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-	} else if ctx.Err() == context.DeadlineExceeded {
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	} else if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		c.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	chartConfigs := make([]*v1alpha1.ChartConfig, 0, len(chartConfigList.Items))

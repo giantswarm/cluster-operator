@@ -2,6 +2,7 @@ package configmap
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -47,13 +48,13 @@ func (s *Service) GetCurrentState(ctx context.Context, clusterConfig ClusterConf
 			s.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil, nil
-		} else if ctx.Err() == context.DeadlineExceeded {
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		} else if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			s.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 			s.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			resourcecanceledcontext.SetCanceled(ctx)
 			return nil, nil
-		} else if err != nil {
-			return nil, microerror.Mask(err)
 		}
 
 		for _, item := range configMapList.Items {
