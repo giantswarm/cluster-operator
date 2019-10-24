@@ -47,7 +47,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Data: map[string]string{
-					"values": "baseDomain: giantswarm.io\nclusterDNSIP: 172.31.0.10\n",
+					"values": "baseDomain: giantswarm.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\n",
 				},
 			},
 		},
