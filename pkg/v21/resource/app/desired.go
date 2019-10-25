@@ -40,6 +40,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	// TODO: Remove connection to tenant cluster once all tenant clusters use
+	// app CRs instead of chartconfig CRs.
+	//
+	//	https://github.com/giantswarm/giantswarm/issues/7402
+	//
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
