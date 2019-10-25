@@ -15,11 +15,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	pkgkey "github.com/giantswarm/cluster-operator/pkg/v21/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
@@ -140,16 +137,21 @@ func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, 
 }
 
 func (r *Resource) newAppSpecs() []pkgkey.AppSpec {
-	switch r.provider {
-	case "aws":
-		return append(pkgkey.CommonAppSpecs(), awskey.AppSpecs()...)
-	case "azure":
-		return append(pkgkey.CommonAppSpecs(), azurekey.AppSpecs()...)
-	case "kvm":
-		return append(pkgkey.CommonAppSpecs(), kvmkey.AppSpecs()...)
-	default:
-		return pkgkey.CommonAppSpecs()
-	}
+	/*
+		// TODO: Re-enable once Node Pools testing is complete.
+		switch r.provider {
+		case "aws":
+			return append(pkgkey.CommonAppSpecs(), awskey.AppSpecs()...)
+		case "azure":
+			return append(pkgkey.CommonAppSpecs(), azurekey.AppSpecs()...)
+		case "kvm":
+			return append(pkgkey.CommonAppSpecs(), kvmkey.AppSpecs()...)
+		default:
+			return pkgkey.CommonAppSpecs()
+		}
+	*/
+
+	return key.AppSpecs()
 }
 
 func newUserConfig(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
