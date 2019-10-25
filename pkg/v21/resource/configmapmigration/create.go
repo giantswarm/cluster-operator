@@ -2,6 +2,7 @@ package configmapmigration
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -90,13 +91,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if ctx.Err() == context.DeadlineExceeded {
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
 	}
 
 	// Get all configmaps in kube-system in the tenant cluster. The migration needs to
@@ -107,13 +109,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if ctx.Err() == context.DeadlineExceeded {
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		return nil
-	} else if err != nil {
-		return microerror.Mask(err)
 	}
 
 	for _, chartSpec := range chartSpecsToMigrate {
