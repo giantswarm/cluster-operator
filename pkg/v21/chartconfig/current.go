@@ -49,7 +49,8 @@ func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig Cluster
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
-	} else if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		c.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)

@@ -87,7 +87,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
-	} else if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
