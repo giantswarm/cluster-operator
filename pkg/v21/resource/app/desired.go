@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -72,13 +73,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-	} else if ctx.Err() == context.DeadlineExceeded {
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	tenantConfigMaps := map[string]corev1.ConfigMap{}
