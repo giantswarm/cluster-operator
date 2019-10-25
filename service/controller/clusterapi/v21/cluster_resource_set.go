@@ -25,12 +25,10 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/clusterstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/configmap"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/resource/kubeconfig"
@@ -127,25 +125,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var chartConfigResource resource.Interface
-	{
-		c := chartconfig.Config{
-			Logger: config.Logger,
-
-			Provider: config.Provider,
-		}
-
-		ops, err := chartconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var cleanupMachineDeployments resource.Interface
 	{
 		c := cleanupmachinedeployments.Config{
@@ -220,30 +199,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var configMapResource resource.Interface
-	{
-		c := configmap.Config{
-			Logger: config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			DNSIP:              config.DNSIP,
-			Provider:           config.Provider,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		ops, err := configmap.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		configMapResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -406,10 +361,6 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		kubeConfigResource,
 		appResource,
 		updateMachineDeployments,
-
-		// Following resources manage resources in the tenant cluster.
-		configMapResource,
-		chartConfigResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,
