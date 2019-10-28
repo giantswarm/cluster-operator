@@ -48,6 +48,10 @@ func IsProviderSpecForAWS(cluster v1alpha1.Cluster) bool {
 	return err == nil
 }
 
+func TenantBaseDomain(cluster v1alpha1.Cluster) string {
+	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
+}
+
 func ToCluster(v interface{}) (v1alpha1.Cluster, error) {
 	if v == nil {
 		return v1alpha1.Cluster{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Cluster{}, v)
