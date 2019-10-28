@@ -12,8 +12,8 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 )
 
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {

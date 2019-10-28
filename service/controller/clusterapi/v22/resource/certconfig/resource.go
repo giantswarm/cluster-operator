@@ -6,12 +6,12 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 )
 
 const (
 	// Name is the identifier of the resource.
-	Name = "certconfigv21"
+	Name = "certconfigv22"
 )
 
 const (

@@ -10,12 +10,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 )
 
 const (
-	Name = "tenantclientsv21"
+	Name = "tenantclientsv22"
 )
 
 type Config struct {

@@ -14,12 +14,12 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	pkgkey "github.com/giantswarm/cluster-operator/pkg/v21/key"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v21/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v21/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
+	pkgkey "github.com/giantswarm/cluster-operator/pkg/v22/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
