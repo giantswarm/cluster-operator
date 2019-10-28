@@ -24,6 +24,7 @@ import (
 	v19 "github.com/giantswarm/cluster-operator/service/controller/kvm/v19"
 	v20 "github.com/giantswarm/cluster-operator/service/controller/kvm/v20"
 	v21 "github.com/giantswarm/cluster-operator/service/controller/kvm/v21"
+	v22 "github.com/giantswarm/cluster-operator/service/controller/kvm/v22"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for
@@ -297,6 +298,33 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
+	var v22ResourceSet *controller.ResourceSet
+	{
+		c := v22.ResourceSetConfig{
+			ApprClient:        config.ApprClient,
+			BaseClusterConfig: config.BaseClusterConfig,
+			CertSearcher:      config.CertSearcher,
+			Fs:                config.Fs,
+			G8sClient:         config.G8sClient,
+			K8sClient:         config.K8sClient,
+			Logger:            config.Logger,
+			Tenant:            config.Tenant,
+
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			ProjectName:        config.ProjectName,
+			Provider:           config.Provider,
+			RegistryDomain:     config.RegistryDomain,
+			ResourceNamespace:  config.ResourceNamespace,
+		}
+
+		v22ResourceSet, err = v22.NewResourceSet(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
@@ -313,6 +341,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 				v19ResourceSet,
 				v20ResourceSet,
 				v21ResourceSet,
+				v22ResourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
