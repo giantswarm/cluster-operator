@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller"
 
-	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
 )
 
 func (c *ChartConfig) ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, chartConfigsToUpdate []*v1alpha1.ChartConfig) error {

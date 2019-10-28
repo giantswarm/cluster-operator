@@ -34,3 +34,4 @@ contribution workflow as well as reporting bugs.
 
 cluster-operator is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for
 details.
+
