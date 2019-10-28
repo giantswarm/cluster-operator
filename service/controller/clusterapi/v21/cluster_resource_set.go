@@ -368,6 +368,8 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 		c := updatemachinedeployments.Config{
 			CMAClient: config.CMAClient,
 			Logger:    config.Logger,
+
+			Provider: config.Provider,
 		}
 
 		updateMachineDeployments, err = updatemachinedeployments.New(c)
