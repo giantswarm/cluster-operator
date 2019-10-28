@@ -1,4 +1,4 @@
-package v21
+package v22
 
 import (
 	"context"
@@ -33,9 +33,9 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v21/resource/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v21/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v21/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/resource/configmap"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for

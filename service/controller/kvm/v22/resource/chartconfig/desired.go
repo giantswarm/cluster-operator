@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/v21/chartconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v21/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
