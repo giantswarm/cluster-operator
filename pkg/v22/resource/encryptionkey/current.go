@@ -7,7 +7,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 )
 
 // GetCurrentState takes observed custom object as an input and based on that

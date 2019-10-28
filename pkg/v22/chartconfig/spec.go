@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/operatorkit/controller"
 
-	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 )
 
 type Interface interface {

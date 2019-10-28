@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	Name = "configmapmigrationv21"
+	Name = "configmapmigrationv22"
 )
 
 type Config struct {

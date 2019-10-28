@@ -13,8 +13,8 @@ import (
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
-	"github.com/giantswarm/cluster-operator/pkg/v21/key"
+	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
+	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 )
 
 func Test_ChartConfig_GetDesiredState(t *testing.T) {

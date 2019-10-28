@@ -14,7 +14,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/pkg/v21/controllercontext"
+	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
 )
 
 func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*v1alpha1.ChartConfig, error) {
