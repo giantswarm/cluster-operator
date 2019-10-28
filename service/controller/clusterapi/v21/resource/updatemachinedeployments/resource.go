@@ -13,6 +13,8 @@ const (
 type Config struct {
 	CMAClient clientset.Interface
 	Logger    micrologger.Logger
+
+	Provider string
 }
 
 // Resource implements the operatorkit resource interface to keep Cluster and
@@ -22,6 +24,8 @@ type Config struct {
 type Resource struct {
 	cmaClient clientset.Interface
 	logger    micrologger.Logger
+
+	provider string
 }
 
 func New(config Config) (*Resource, error) {
@@ -32,9 +36,15 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+
 	r := &Resource{
 		cmaClient: config.CMAClient,
 		logger:    config.Logger,
+
+		provider: config.Provider,
 	}
 
 	return r, nil
