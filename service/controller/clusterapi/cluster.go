@@ -19,7 +19,6 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	v20 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v20"
 	v21 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21"
 )
 
@@ -84,35 +83,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	var resourceSetV20 *controller.ResourceSet
-	{
-		c := v20.ClusterResourceSetConfig{
-			ApprClient:    config.ApprClient,
-			CertsSearcher: config.CertsSearcher,
-			ClusterClient: config.ClusterClient,
-			CMAClient:     config.CMAClient,
-			FileSystem:    config.FileSystem,
-			G8sClient:     config.G8sClient,
-			K8sClient:     config.K8sClient,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-
-			APIIP:              config.APIIP,
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			CertTTL:            config.CertTTL,
-			ClusterIPRange:     config.ClusterIPRange,
-			DNSIP:              config.DNSIP,
-			Provider:           config.Provider,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		resourceSetV20, err = v20.NewClusterResourceSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var resourceSetV21 *controller.ResourceSet
 	{
 		c := v21.ClusterResourceSetConfig{
@@ -150,7 +120,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV20,
 				resourceSetV21,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
