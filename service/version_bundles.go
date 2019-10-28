@@ -22,6 +22,7 @@ import (
 	azurev19 "github.com/giantswarm/cluster-operator/service/controller/azure/v19"
 	azurev20 "github.com/giantswarm/cluster-operator/service/controller/azure/v20"
 	azurev21 "github.com/giantswarm/cluster-operator/service/controller/azure/v21"
+	azurev22 "github.com/giantswarm/cluster-operator/service/controller/azure/v22"
 	clusterapiv21 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21"
 	clusterapiv22 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22"
 	kvmv14patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
