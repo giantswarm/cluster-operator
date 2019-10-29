@@ -46,7 +46,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		IngressController: providerValues,
 		Organization:      key.OrganizationID(&cr),
 		RegistryDomain:    r.registryDomain,
-		WorkerCount:       allWorkerNodes(cc.Status.Worker),
+		WorkerCount:       workerCount(cc.Status.Worker),
 	}
 
 	var configMaps []*corev1.ConfigMap
@@ -144,7 +144,7 @@ func (r *Resource) newIngressControllerValues() (IngressControllerValues, error)
 	}
 }
 
-func allWorkerNodes(m map[string]controllercontext.ContextStatusWorker) int {
+func workerCount(m map[string]controllercontext.ContextStatusWorker) int {
 	var n int
 
 	for _, w := range m {
