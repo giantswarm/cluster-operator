@@ -8,8 +8,13 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "Add your changes here.",
+				Component:   "cert-exporter",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "net-exporter",
+				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
