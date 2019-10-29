@@ -339,8 +339,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
-		appResource,
+
+		// Migration resources are for migrating from chartconfig to app CRs.
 		appMigrationResource,
+
+		// appResource is executed after migration resources.
+		appResource,
 
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
