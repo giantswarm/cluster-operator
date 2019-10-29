@@ -46,7 +46,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		IngressController: providerValues,
 		Organization:      key.OrganizationID(&cr),
 		RegistryDomain:    r.registryDomain,
-		WorkerCount:       cc.Status.Worker.Nodes,
+		WorkerCount:       allWorkerNodes(cc.Status.Worker),
 	}
 
 	var configMaps []*corev1.ConfigMap
@@ -142,6 +142,16 @@ func (r *Resource) newIngressControllerValues() (IngressControllerValues, error)
 	default:
 		return IngressControllerValues{}, microerror.Maskf(executionFailedError, "provider %#q not supported")
 	}
+}
+
+func allWorkerNodes(m map[string]controllercontext.ContextStatusWorker) int {
+	var n int
+
+	for _, w := range m {
+		n += w.Nodes
+	}
+
+	return n
 }
 
 func cidrBlock(address, prefix string) string {
