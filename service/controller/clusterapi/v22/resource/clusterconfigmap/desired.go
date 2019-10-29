@@ -22,7 +22,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	var configMap *corev1.ConfigMap
 	{
 		v := map[string]string{
-			"baseDomain":   key.ClusterBaseDomain(cr),
+			"baseDomain":   key.TenantBaseDomain(cr),
 			"clusterDNSIP": r.dnsIP,
 			"clusterID":    key.ClusterID(&cr),
 		}

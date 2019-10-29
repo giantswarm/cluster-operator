@@ -27,7 +27,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				Spec: v1alpha1.AWSClusterConfigSpec{
 					Guest: v1alpha1.AWSClusterConfigSpecGuest{
 						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
-							DNSZone: "giantswarm.io",
+							DNSZone: "gauss.eu-central-1.aws.gigantic.io",
 							ID:      "w7utg",
 							Name:    "My own snowflake cluster",
 							Owner:   "giantswarm",
@@ -47,7 +47,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Data: map[string]string{
-					"values": "baseDomain: giantswarm.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\n",
+					"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\n",
 				},
 			},
 		},

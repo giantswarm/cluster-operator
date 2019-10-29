@@ -28,7 +28,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	values := map[string]string{
-		"baseDomain":   key.DNSZone(clusterConfig),
+		"baseDomain":   key.TenantBaseDomain(clusterConfig),
 		"clusterDNSIP": clusterDNSIP,
 		"clusterID":    key.ClusterID(clusterConfig),
 	}
