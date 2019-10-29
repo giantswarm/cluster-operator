@@ -84,6 +84,14 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
+			App:             "cert-exporter",
+			Catalog:         "default",
+			Chart:           "cert-exporter",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.2.0",
+		},
+		{
 			App:             "chart-operator",
 			Catalog:         "default",
 			Chart:           "chart-operator",
@@ -106,6 +114,14 @@ func CommonAppSpecs() []AppSpec {
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
 			Version:         "0.4.1",
+		},
+		{
+			App:             "net-exporter",
+			Catalog:         "default",
+			Chart:           "net-exporter",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.3.0",
 		},
 		{
 			App:             "node-exporter",
@@ -140,7 +156,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "stable",
 			ChartName:       "cert-exporter-chart",
 			ConfigMapName:   "cert-exporter-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "cert-exporter",
 			UseUpgradeForce: true,
@@ -170,7 +186,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:     "stable",
 			ChartName:       "net-exporter-chart",
 			ConfigMapName:   "net-exporter-values",
-			HasAppCR:        false,
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "net-exporter",
 			UseUpgradeForce: true,
