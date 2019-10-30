@@ -22,6 +22,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "kiam",
+				Description: "Add managed kiam app into default app catalog(aws only).",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -47,6 +52,10 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "metrics-server",
 				Version: "0.4.1",
+			},
+			{
+				Name:    "kiam",
+				Version: "3.4.0",
 			},
 		},
 		Name:     "cluster-operator",

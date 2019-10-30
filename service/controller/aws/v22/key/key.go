@@ -11,7 +11,16 @@ import (
 // AppSpecs returns apps installed only for AWS.
 func AppSpecs() []key.AppSpec {
 	// Add any provider specific charts here.
-	return []key.AppSpec{}
+	return []key.AppSpec{
+		{
+			App:             "kiam",
+			Catalog:         "default",
+			Chart:           "kiam-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+	}
 }
 
 // ChartSpecs returns charts installed only for AWS.
