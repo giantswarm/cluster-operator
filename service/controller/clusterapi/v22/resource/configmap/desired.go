@@ -312,11 +312,11 @@ func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 }
 
 func workerCount(m map[string]controllercontext.ContextStatusWorker) int {
-	var n int
+	var n int32
 
 	for _, w := range m {
 		n += w.Nodes
 	}
 
-	return n
+	return int(n)
 }
