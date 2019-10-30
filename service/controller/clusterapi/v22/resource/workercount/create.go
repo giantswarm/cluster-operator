@@ -33,7 +33,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	var nodes []corev1.Node
-	var ready []corev1.Node
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding nodes of tenant cluster %#q", key.ClusterID(&cr)))
 
@@ -57,20 +56,32 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		nodes = l.Items
 
-		for _, n := range nodes {
-			for _, c := range n.Status.Conditions {
-				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
-					ready = append(ready, n)
-				}
-			}
-		}
-
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found nodes of tenant cluster %#q", key.ClusterID(&cr)))
 	}
 
 	{
-		cc.Status.Worker.Nodes = len(nodes)
-		cc.Status.Worker.Ready = len(ready)
+
+		for _, n := range nodes {
+			id := n.Labels[label.MachineDeployment]
+
+			if cc.Status.Worker == nil {
+				cc.Status.Worker = map[string]controllercontext.ContextStatusWorker{}
+			}
+
+			{
+				val := cc.Status.Worker[id]
+				val.Nodes++
+				cc.Status.Worker[id] = val
+			}
+
+			for _, c := range n.Status.Conditions {
+				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
+					val := cc.Status.Worker[id]
+					val.Ready++
+					cc.Status.Worker[id] = val
+				}
+			}
+		}
 	}
 
 	return nil
