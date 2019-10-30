@@ -62,7 +62,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	if cc.Client.TenantCluster.G8s == nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
@@ -78,18 +78,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	chartConfigs, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	} else if isChartConfigNotInstalled(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
@@ -98,14 +98,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	tenantConfigMaps, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
 
