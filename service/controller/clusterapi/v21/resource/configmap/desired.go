@@ -144,16 +144,6 @@ func (r *Resource) newIngressControllerValues() (IngressControllerValues, error)
 	}
 }
 
-func workerCount(m map[string]controllercontext.ContextStatusWorker) int {
-	var n int
-
-	for _, w := range m {
-		n += w.Nodes
-	}
-
-	return n
-}
-
 func cidrBlock(address, prefix string) string {
 	if address == "" && prefix == "" {
 		return ""
@@ -319,4 +309,14 @@ func newConfigMapSpecs(chartSpecs []pkgkey.ChartSpec) []ConfigMapSpec {
 	}
 
 	return configMapSpecs
+}
+
+func workerCount(m map[string]controllercontext.ContextStatusWorker) int {
+	var n int
+
+	for _, w := range m {
+		n += w.Nodes
+	}
+
+	return n
 }
