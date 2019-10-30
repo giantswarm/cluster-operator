@@ -11,6 +11,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 )
@@ -65,11 +66,19 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	var md *v1alpha1.MachineDeployment
+	{
+		md, err = r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
 
-		replicasChanged := cr.Status.Replicas != int32(cc.Status.Worker.Nodes)
-		readyReplicasChanged := cr.Status.ReadyReplicas != int32(cc.Status.Worker.Ready)
+		replicasChanged := cr.Status.Replicas != int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Nodes)
+		readyReplicasChanged := cr.Status.ReadyReplicas != int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Ready)
 
 		if !replicasChanged && !readyReplicasChanged {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment does not need to be updated")
@@ -79,15 +88,9 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment needs to be updated")
 	}
 
-	var md *v1alpha1.MachineDeployment
 	{
-		md, err = r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		md.Status.Replicas = int32(cc.Status.Worker.Nodes)
-		md.Status.ReadyReplicas = int32(cc.Status.Worker.Ready)
+		md.Status.Replicas = int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Nodes)
+		md.Status.ReadyReplicas = int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Ready)
 	}
 
 	{
