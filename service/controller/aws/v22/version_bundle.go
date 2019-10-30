@@ -27,6 +27,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Add managed kiam app into default app catalog(aws only).",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "external-dns",
+				Description: "Add managed external-dns app into default app catalog.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -56,6 +61,10 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "kiam",
 				Version: "3.4.0",
+			},
+			{
+				Name:    "external-dns",
+				Version: "0.5.11",
 			},
 		},
 		Name:     "cluster-operator",

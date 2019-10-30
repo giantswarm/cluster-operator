@@ -13,6 +13,14 @@ func AppSpecs() []key.AppSpec {
 	// Add any provider specific charts here.
 	return []key.AppSpec{
 		{
+			App:             "external-dns",
+			Catalog:         "default",
+			Chart:           "external-dns-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+		{
 			App:             "kiam",
 			Catalog:         "default",
 			Chart:           "kiam-app",
