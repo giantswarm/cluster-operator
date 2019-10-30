@@ -32,6 +32,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Add managed external-dns app into default app catalog.",
 				Kind:        versionbundle.KindAdded,
 			},
+			{
+				Component:   "cert-manager",
+				Description: "Add managed cert-manager app into default app catalog.",
+				Kind:        versionbundle.KindAdded,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -65,6 +70,10 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "external-dns",
 				Version: "0.5.11",
+			},
+			{
+				Name:    "cert-manager",
+				Version: "0.9.0",
 			},
 		},
 		Name:     "cluster-operator",

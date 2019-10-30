@@ -28,6 +28,14 @@ func AppSpecs() []key.AppSpec {
 			UseUpgradeForce: true,
 			Version:         "1.0.0",
 		},
+		{
+			App:             "cert-manager",
+			Catalog:         "default",
+			Chart:           "cert-manager-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
 	}
 }
 
