@@ -94,7 +94,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	for _, appSpec := range r.newAppSpecs() {
 		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, tenantConfigMaps, secrets)
 		if IsNotMigratedError(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q not migrated yet, continuing", appSpec.App))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q user values not migrated yet, continuing", appSpec.App))
 			continue
 		} else if err != nil {
 			return nil, microerror.Mask(err)

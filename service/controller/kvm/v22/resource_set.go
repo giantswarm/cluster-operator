@@ -365,6 +365,9 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		// appResource is executed after migration resources.
 		appResource,
 
+		// appResource is executed after migration resources.
+		appResource,
+
 		// Following resources manage resources in tenant clusters so they
 		// should be executed last
 		configMapResource,
