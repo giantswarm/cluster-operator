@@ -44,7 +44,7 @@ func (s *Service) newCreateChange(ctx context.Context, currentConfigMaps, desire
 
 	for _, desiredConfigMap := range desiredConfigMaps {
 		appName := desiredConfigMap.Labels[label.App]
-		chartSpec := s.getChartSpecByName(appName)
+		chartSpec := s.getChartSpecByAppName(appName)
 		if chartSpec.HasAppCR {
 			continue
 		}
