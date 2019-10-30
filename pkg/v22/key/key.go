@@ -92,6 +92,15 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "1.2.0",
 		},
 		{
+			App:       "coredns",
+			Catalog:   "default",
+			Chart:     "coredns-app",
+			Namespace: metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "1.0.0",
+		},
+		{
 			App:             "chart-operator",
 			Catalog:         "default",
 			Chart:           "chart-operator",
@@ -144,7 +153,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:   "0-8-stable",
 			ChartName:     "kubernetes-coredns-chart",
 			ConfigMapName: "coredns-values",
-			HasAppCR:      false,
+			HasAppCR:      true,
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "coredns",
 			// Upgrade force is disabled to avoid affecting customer workloads.
