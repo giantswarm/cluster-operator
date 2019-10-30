@@ -77,8 +77,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
 
-		replicasChanged := cr.Status.Replicas != int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Nodes)
-		readyReplicasChanged := cr.Status.ReadyReplicas != int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Ready)
+		replicasChanged := cr.Status.Replicas != cc.Status.Worker[md.Labels[label.MachineDeployment]].Nodes
+		readyReplicasChanged := cr.Status.ReadyReplicas != cc.Status.Worker[md.Labels[label.MachineDeployment]].Ready
 
 		if !replicasChanged && !readyReplicasChanged {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment does not need to be updated")
@@ -89,8 +89,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		md.Status.Replicas = int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Nodes)
-		md.Status.ReadyReplicas = int32(cc.Status.Worker[md.Labels[label.MachineDeployment]].Ready)
+		md.Status.Replicas = cc.Status.Worker[md.Labels[label.MachineDeployment]].Nodes
+		md.Status.ReadyReplicas = cc.Status.Worker[md.Labels[label.MachineDeployment]].Ready
 	}
 
 	{
