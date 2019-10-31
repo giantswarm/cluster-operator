@@ -100,7 +100,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 			return nil, microerror.Mask(err)
 		}
 
-		apps = append(apps, r.newApp(clusterConfig, appSpec, userConfig))
+		if !appSpec.ClusterAPI {
+			apps = append(apps, r.newApp(clusterConfig, appSpec, userConfig))
+		}
 	}
 
 	return apps, nil

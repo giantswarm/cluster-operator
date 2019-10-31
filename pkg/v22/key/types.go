@@ -5,6 +5,7 @@ type AppSpec struct {
 	App             string
 	Catalog         string
 	Chart           string
+	ClusterAPI      bool
 	Namespace       string
 	UseUpgradeForce bool
 	Version         string
