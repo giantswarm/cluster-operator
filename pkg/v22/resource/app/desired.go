@@ -92,7 +92,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	var apps []*g8sv1alpha1.App
 
 	for _, appSpec := range r.newAppSpecs() {
-		userConfig := newUserConfig(clusterConfig, appSpec, configMaps, secrets)
+		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, tenantConfigMaps, secrets)
+		if IsNotMigratedError(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q user values not migrated yet, continuing", appSpec.App))
+			continue
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		apps = append(apps, r.newApp(clusterConfig, appSpec, userConfig))
 	}
 
@@ -200,11 +207,20 @@ func (r *Resource) newAppSpecs() []key.AppSpec {
 	}
 }
 
-func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
+func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps, tenantConfigMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) (g8sv1alpha1.AppSpecUserConfig, error) {
 	userConfig := g8sv1alpha1.AppSpecUserConfig{}
 
-	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]
-	if ok {
+	_, cmExists := configMaps[key.AppUserConfigMapName(appSpec)]
+	tenantCM, tenantExists := tenantConfigMaps[key.AppUserConfigMapName(appSpec)]
+
+	// A tenant configmap exists with user settings but the user configmap for
+	// this app CR does not exist yet. We delay creating the app CR until it
+	// does so the app is installed with the correct settings.
+	if tenantExists && len(tenantCM.Data) > 0 && !cmExists {
+		return g8sv1alpha1.AppSpecUserConfig{}, microerror.Maskf(notMigratedError, "%#q not migrated yet", appSpec.App)
+	}
+
+	if cmExists {
 		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
 			Name:      key.AppUserConfigMapName(appSpec),
 			Namespace: clusterConfig.ID,
@@ -213,8 +229,8 @@ func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpe
 		userConfig.ConfigMap = configMapSpec
 	}
 
-	_, ok = secrets[key.AppUserSecretName(appSpec)]
-	if ok {
+	_, secretExists := secrets[key.AppUserSecretName(appSpec)]
+	if secretExists {
 		secretSpec := g8sv1alpha1.AppSpecUserConfigSecret{
 			Name:      key.AppUserSecretName(appSpec),
 			Namespace: clusterConfig.ID,
@@ -223,5 +239,5 @@ func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpe
 		userConfig.Secret = secretSpec
 	}
 
-	return userConfig
+	return userConfig, nil
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -37,7 +36,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if key.IsDeleted(objectMeta) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "cluster is being deleted")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	}
 
@@ -46,7 +44,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if len(chartSpecsToMigrate) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no charts to migrate")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	}
 
@@ -63,7 +60,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if cc.Client.TenantCluster.G8s == nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	}
 
@@ -78,12 +74,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if isChartConfigNotInstalled(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
@@ -91,7 +85,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	}
 
@@ -121,11 +114,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q is already cordoned", chartSpec.ChartName))
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out app CR %#q is deployed", chartSpec.AppName))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if app CR %#q is deployed", chartSpec.AppName))
 
 		appCR, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(cr)).Get(chartSpec.AppName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			return microerror.Maskf(notFoundError, "app CR %#q", chartSpec.AppName)
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app CR %#q does not exist yet, continuing", chartSpec.AppName))
+			continue
 		}
 
 		if appCR.Status.Release.Status == "DEPLOYED" {

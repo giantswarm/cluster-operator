@@ -13,6 +13,16 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "cluster-autoscaler",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "coredns",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
 				Component:   "net-exporter",
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
