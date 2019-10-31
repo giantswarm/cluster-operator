@@ -36,7 +36,7 @@ import (
 	kvmv22 "github.com/giantswarm/cluster-operator/service/controller/kvm/v22"
 )
 
-func NewVersionBundles() []versionbundle.Bundle {
+func NewVersionBundles(p string) []versionbundle.Bundle {
 	var versionBundles []versionbundle.Bundle
 
 	versionBundles = append(versionBundles, awsv14.VersionBundle())
@@ -77,7 +77,7 @@ func NewVersionBundles() []versionbundle.Bundle {
 
 	versionBundles = append(versionBundles, awsv22.VersionBundle())
 	versionBundles = append(versionBundles, azurev22.VersionBundle())
-	versionBundles = append(versionBundles, clusterapiv22.VersionBundle())
+	versionBundles = append(versionBundles, clusterapiv22.VersionBundle(p))
 	versionBundles = append(versionBundles, kvmv22.VersionBundle())
 
 	return versionBundles

@@ -4,7 +4,7 @@ import (
 	"github.com/giantswarm/versionbundle"
 )
 
-func VersionBundle() versionbundle.Bundle {
+func VersionBundle(p string) versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
@@ -39,7 +39,8 @@ func VersionBundle() versionbundle.Bundle {
 				Version: "0.4.1",
 			},
 		},
-		Name:    "cluster-operator",
-		Version: "0.22.0",
+		Name:     "cluster-operator",
+		Provider: p,
+		Version:  "1.0.0",
 	}
 }
