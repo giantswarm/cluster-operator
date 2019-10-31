@@ -8,8 +8,8 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "TODO",
-				Description: "Add your changes here.",
+				Component:   "nodepools",
+				Description: "Add Node Pools functionality. See https://docs.giantswarm.io/basics/nodepools/ for details.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
