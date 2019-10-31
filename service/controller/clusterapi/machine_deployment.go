@@ -25,6 +25,7 @@ type MachineDeploymentConfig struct {
 	Tenant       tenantcluster.Interface
 
 	ProjectName string
+	Provider    string
 }
 
 type MachineDeployment struct {
@@ -85,6 +86,8 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
 			Tenant:    config.Tenant,
+
+			Provider: config.Provider,
 		}
 
 		resourceSetV22, err = v22.NewMachineDeploymentResourceSet(c)

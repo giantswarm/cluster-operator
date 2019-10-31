@@ -448,7 +448,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 			return false
 		}
 
-		if key.OperatorVersion(&cr) == VersionBundle().Version {
+		if key.OperatorVersion(&cr) == VersionBundle(config.Provider).Version {
 			return true
 		}
 
