@@ -27,21 +27,6 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
-			{
-				Component:   "kiam",
-				Description: "Add managed kiam app into default app catalog(aws only).",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "external-dns",
-				Description: "Add managed external-dns app into default app catalog.",
-				Kind:        versionbundle.KindAdded,
-			},
-			{
-				Component:   "cert-manager",
-				Description: "Add managed cert-manager app into default app catalog.",
-				Kind:        versionbundle.KindAdded,
-			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -67,18 +52,6 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Name:    "metrics-server",
 				Version: "0.4.1",
-			},
-			{
-				Name:    "kiam",
-				Version: "3.4.0",
-			},
-			{
-				Name:    "external-dns",
-				Version: "0.5.11",
-			},
-			{
-				Name:    "cert-manager",
-				Version: "0.9.0",
 			},
 		},
 		Name:     "cluster-operator",
