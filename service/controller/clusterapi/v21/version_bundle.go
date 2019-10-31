@@ -39,7 +39,7 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Component:   "coredns",
-				Description: "Updated to v1.16.4. https://github.com/giantswarm/kubernetes-coredns/blob/eb9e6979e4bb35b03bd9b0c99e1c68b6a4f3b4c6/CHANGELOG.md#v080",
+				Description: "Updated to v1.6.4. https://github.com/giantswarm/kubernetes-coredns/blob/eb9e6979e4bb35b03bd9b0c99e1c68b6a4f3b4c6/CHANGELOG.md#v080",
 				Kind:        versionbundle.KindChanged,
 			},
 			{

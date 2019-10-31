@@ -328,6 +328,7 @@ func New(config Config) (*Service, error) {
 			Tenant:       tenantCluster,
 
 			ProjectName: config.ProjectName,
+			Provider:    provider,
 		}
 
 		machineDeploymentController, err = clusterapi.NewMachineDeployment(c)
@@ -392,7 +393,7 @@ func New(config Config) (*Service, error) {
 			Name:           config.ProjectName,
 			Source:         config.Source,
 			Version:        config.Version,
-			VersionBundles: NewVersionBundles(),
+			VersionBundles: NewVersionBundles(provider),
 		}
 
 		versionService, err = version.New(versionConfig)

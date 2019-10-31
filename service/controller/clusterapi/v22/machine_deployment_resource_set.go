@@ -27,6 +27,8 @@ type MachineDeploymentResourceSetConfig struct {
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 	Tenant    tenantcluster.Interface
+
+	Provider string
 }
 
 func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
@@ -110,7 +112,7 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 			return false
 		}
 
-		if key.OperatorVersion(&cr) == VersionBundle().Version {
+		if key.OperatorVersion(&cr) == VersionBundle(config.Provider).Version {
 			return true
 		}
 
