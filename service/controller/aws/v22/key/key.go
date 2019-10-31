@@ -13,6 +13,33 @@ func AppSpecs() []key.AppSpec {
 	// Add any provider specific charts here.
 	return []key.AppSpec{
 		{
+			App:             "external-dns",
+			Catalog:         "default",
+			Chart:           "external-dns-app",
+			ClusterAPI:      true,
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+		{
+			App:             "kiam",
+			Catalog:         "default",
+			Chart:           "kiam-app",
+			ClusterAPI:      true,
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+		{
+			App:             "cert-manager",
+			Catalog:         "default",
+			Chart:           "cert-manager-app",
+			ClusterAPI:      true,
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+		{
 			App:             "cluster-autoscaler",
 			Catalog:         "default",
 			Chart:           "cluster-autoscaler-app",
