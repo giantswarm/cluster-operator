@@ -9,7 +9,7 @@ func VersionBundle() versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "nodepools",
-				Description: "Add Node Pools functionality.",
+				Description: "Add Node Pools functionality. See https://docs.giantswarm.io/basics/nodepools/ for details.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},
