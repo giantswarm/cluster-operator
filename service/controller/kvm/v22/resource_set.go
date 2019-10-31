@@ -30,6 +30,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/pkg/v22/resource/configmapmigration"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/tenantclients"
@@ -213,6 +214,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var configMapMigrationResource resource.Interface
+	{
+		c := configmapmigration.Config{
+			GetClusterConfigFunc:     getClusterConfig,
+			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			K8sClient:                config.K8sClient,
+			Logger:                   config.Logger,
+
+			Provider: config.Provider,
+		}
+
+		configMapMigrationResource, err = configmapmigration.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var chartConfigService chartconfigservice.Interface
 	{
 		c := chartconfigservice.Config{
@@ -342,6 +360,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 
 		// Migration resources are for migrating from chartconfig to app CRs.
 		appMigrationResource,
+		configMapMigrationResource,
 
 		// appResource is executed after migration resources.
 		appResource,
