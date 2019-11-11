@@ -10,6 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 )
 
@@ -19,12 +20,26 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, microerror.Mask(err)
 	}
 
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	var workerCount int32
+
+	for _, nodePool := range cc.Status.Worker {
+		workerCount += nodePool.Nodes
+	}
+
 	var configMap *corev1.ConfigMap
 	{
-		v := map[string]string{
+		v := map[string]interface{}{
 			"baseDomain":   key.TenantBaseDomain(cr),
 			"clusterDNSIP": r.dnsIP,
 			"clusterID":    key.ClusterID(&cr),
+			"ingressController": map[string]interface{}{
+				"replicas": workerCount,
+			},
 		}
 
 		b, err := yaml.Marshal(v)
