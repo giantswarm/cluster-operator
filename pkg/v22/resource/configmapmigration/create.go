@@ -245,13 +245,5 @@ func (r *Resource) newChartSpecsToMigrate() []key.ChartSpec {
 		chartSpecs = key.CommonChartSpecs()
 	}
 
-	chartSpecsToMigrate := []key.ChartSpec{}
-
-	for _, spec := range chartSpecs {
-		if spec.HasAppCR {
-			chartSpecsToMigrate = append(chartSpecsToMigrate, spec)
-		}
-	}
-
-	return chartSpecsToMigrate
+	return chartSpecs
 }
