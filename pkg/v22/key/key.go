@@ -133,6 +133,15 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "1.3.0",
 		},
 		{
+			App:       "nginx-ingress-controller",
+			Catalog:   "default",
+			Chart:     "nginx-ingress-controller-app",
+			Namespace: metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "1.1.0",
+		},
+		{
 			App:             "node-exporter",
 			Catalog:         "default",
 			Chart:           "node-exporter-app",
