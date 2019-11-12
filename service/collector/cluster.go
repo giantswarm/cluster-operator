@@ -7,8 +7,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
 )
 
@@ -23,6 +25,15 @@ var (
 		[]string{
 			"cluster_id",
 			"status",
+		},
+		nil,
+	)
+
+	clusterNodePools *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystemCluster, "nodepools"),
+		"Number of Node Pools in a cluster as provided by the MachineDeployment CRs with given cluster ID.",
+		[]string{
+			"cluster_id",
 		},
 		nil,
 	)
@@ -100,6 +111,29 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				v1alpha1.ClusterStatusConditionDeleting,
 			)
 		}
+
+		{
+			clusterID := cluster.GetLabels()[label.Cluster]
+			l := metav1.AddLabelToSelector(
+				&metav1.LabelSelector{},
+				label.Cluster,
+				clusterID,
+			)
+			o := metav1.ListOptions{
+				LabelSelector: labels.Set(l.MatchLabels).String(),
+			}
+			machineDeployments, err := c.cmaClient.ClusterV1alpha1().MachineDeployments(cluster.Namespace).List(o)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+
+			ch <- prometheus.MustNewConstMetric(
+				clusterNodePools,
+				prometheus.GaugeValue,
+				float64(len(machineDeployments.Items)),
+				clusterID,
+			)
+		}
 	}
 
 	return nil
@@ -107,6 +141,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 
 func (c *Cluster) Describe(ch chan<- *prometheus.Desc) error {
 	ch <- clusterStatus
+	ch <- clusterNodePools
 	return nil
 }
 
