@@ -32,6 +32,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/pkg/v22/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/pkg/v22/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
 )
 
@@ -271,9 +272,23 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
+	var workerCountResource resource.Interface
+	{
+		c := workercount.Config{
+			Logger:              config.Logger,
+			ToClusterConfigFunc: getClusterConfig,
+		}
+
+		workerCountResource, err = workercount.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		// Following resources manage resources controller context information.
 		tenantClientsResource,
+		workerCountResource,
 
 		// Following resources manage resources in the control plane.
 		encryptionKeyResource,
