@@ -10,11 +10,16 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	clusterConfig, err := r.getClusterConfigFunc(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -27,10 +32,13 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	values := map[string]string{
+	values := map[string]interface{}{
 		"baseDomain":   key.TenantBaseDomain(clusterConfig),
 		"clusterDNSIP": clusterDNSIP,
 		"clusterID":    key.ClusterID(clusterConfig),
+		"ingressController": map[string]interface{}{
+			"replicas": cc.Status.Worker.Nodes,
+		},
 	}
 
 	yamlValues, err := yaml.Marshal(values)
