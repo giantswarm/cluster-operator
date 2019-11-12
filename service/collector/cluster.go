@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	clusterDescription *prometheus.Desc = prometheus.NewDesc(
+	clusterStatus *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemCluster, "status"),
 		"Latest cluster status conditions as provided by the Cluster CR status.",
 		[]string{
@@ -65,35 +65,35 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 			latest := key.ClusterCommonStatus(cluster).LatestCondition()
 
 			ch <- prometheus.MustNewConstMetric(
-				clusterDescription,
+				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == v1alpha1.ClusterStatusConditionCreating),
 				key.ClusterID(&cluster),
 				v1alpha1.ClusterStatusConditionCreating,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterDescription,
+				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == v1alpha1.ClusterStatusConditionCreated),
 				key.ClusterID(&cluster),
 				v1alpha1.ClusterStatusConditionCreated,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterDescription,
+				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == v1alpha1.ClusterStatusConditionUpdating),
 				key.ClusterID(&cluster),
 				v1alpha1.ClusterStatusConditionUpdating,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterDescription,
+				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == v1alpha1.ClusterStatusConditionUpdated),
 				key.ClusterID(&cluster),
 				v1alpha1.ClusterStatusConditionUpdated,
 			)
 			ch <- prometheus.MustNewConstMetric(
-				clusterDescription,
+				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == v1alpha1.ClusterStatusConditionDeleting),
 				key.ClusterID(&cluster),
@@ -106,7 +106,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 }
 
 func (c *Cluster) Describe(ch chan<- *prometheus.Desc) error {
-	ch <- clusterDescription
+	ch <- clusterStatus
 	return nil
 }
 
