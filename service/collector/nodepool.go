@@ -6,14 +6,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 var (
-	clusterNodePools *prometheus.Desc = prometheus.NewDesc(
+	nodePools *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemCluster, "nodepools"),
 		"Number of Node Pools in a cluster as provided by the MachineDeployment CRs with given cluster ID.",
 		[]string{
@@ -50,31 +49,25 @@ func NewNodePool(config NodePoolConfig) (*NodePool, error) {
 }
 
 func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
-	list, err := np.cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).List(metav1.ListOptions{})
+	list, err := np.cmaClient.ClusterV1alpha1().MachineDeployments(corev1.NamespaceAll).List(metav1.ListOptions{})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	for _, cluster := range list.Items {
-		{
-			clusterID := cluster.GetLabels()[label.Cluster]
-			l := metav1.AddLabelToSelector(
-				&metav1.LabelSelector{},
-				label.Cluster,
-				clusterID,
-			)
-			o := metav1.ListOptions{
-				LabelSelector: labels.Set(l.MatchLabels).String(),
-			}
-			machineDeployments, err := np.cmaClient.ClusterV1alpha1().MachineDeployments(cluster.Namespace).List(o)
-			if err != nil {
-				return microerror.Mask(err)
-			}
+	clusterNodePools := make(map[string]int)
 
+	for _, md := range list.Items {
+		clusterID := md.GetLabels()[label.Cluster]
+
+		clusterNodePools[clusterID] = clusterNodePools[clusterID] + 1
+	}
+
+	for clusterID, nodePoolCount := range clusterNodePools {
+		{
 			ch <- prometheus.MustNewConstMetric(
-				clusterNodePools,
+				nodePools,
 				prometheus.GaugeValue,
-				float64(len(machineDeployments.Items)),
+				float64(nodePoolCount),
 				clusterID,
 			)
 		}
@@ -84,6 +77,6 @@ func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 }
 
 func (np *NodePool) Describe(ch chan<- *prometheus.Desc) error {
-	ch <- clusterNodePools
+	ch <- nodePools
 	return nil
 }
