@@ -39,11 +39,25 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
+	var nodePoolCollector *NodePool
+	{
+		c := NodePoolConfig{
+			CMAClient: config.CMAClient,
+			Logger:    config.Logger,
+		}
+
+		nodePoolCollector, err = NewNodePool(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
 				clusterCollector,
+				nodePoolCollector,
 			},
 			Logger: config.Logger,
 		}
