@@ -14,7 +14,7 @@ import (
 var (
 	nodePools *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemCluster, "nodepools"),
-		"Number of Node Pools in a cluster as provided by the MachineDeployment CRs with given cluster ID.",
+		"Number of Node Pools in a cluster as provided by the MachineDeployment CRs associated with a given cluster ID.",
 		[]string{
 			"cluster_id",
 		},
