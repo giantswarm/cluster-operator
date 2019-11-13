@@ -12,6 +12,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
+
+	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
 )
 
 func Test_Resource_GetDesiredState(t *testing.T) {
@@ -36,6 +38,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 			},
+			workerNodes: 3,
 			expectedConfigMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "w7utg-cluster-values",
@@ -48,7 +51,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 					},
 				},
 				Data: map[string]string{
-					"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\n",
+					"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\ningressController:\n  replicas: 3\n",
 				},
 			},
 		},
@@ -94,6 +97,18 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			var ctx context.Context
+			{
+				c := controllercontext.Context{
+					Status: controllercontext.ContextStatus{
+						Worker: controllercontext.ContextStatusWorker{
+							Nodes: tc.workerNodes,
+						},
+					},
+				}
+				ctx = controllercontext.NewContext(context.Background(), c)
+			}
+
 			c := Config{
 				GetClusterConfigFunc:     getClusterConfigFunc,
 				GetClusterObjectMetaFunc: getClusterObjectMetaFunc,
@@ -108,7 +123,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				t.Fatalf("error == %#v, want nil", err)
 			}
 
-			result, err := r.GetDesiredState(context.Background(), tc.config)
+			result, err := r.GetDesiredState(ctx, tc.config)
 			switch {
 			case err != nil && tc.errorMatcher == nil:
 				t.Fatalf("error == %#v, want nil", err)
