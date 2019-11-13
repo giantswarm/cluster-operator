@@ -22,6 +22,11 @@ func VersionBundle() versionbundle.Bundle {
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
+			{
+				Component:   "nginx-ingress-controller",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
 		},
 		Components: []versionbundle.Component{
 			{
