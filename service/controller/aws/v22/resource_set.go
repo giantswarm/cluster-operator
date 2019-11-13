@@ -275,6 +275,7 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 		c := clusterconfigmap.Config{
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
+			GetWorkerCountFunc:       getWorkerCount,
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 
@@ -466,6 +467,15 @@ func getClusterObjectMeta(obj interface{}) (metav1.ObjectMeta, error) {
 	}
 
 	return cr.ObjectMeta, nil
+}
+
+func getWorkerCount(obj interface{}) (int, error) {
+	cr, err := key.ToCustomObject(obj)
+	if err != nil {
+		return 0, microerror.Mask(err)
+	}
+
+	return key.WorkerCount(cr), nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {
