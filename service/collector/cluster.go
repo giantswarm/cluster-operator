@@ -12,10 +12,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21/key"
 )
 
-const (
-	subsystemCluster = "cluster"
-)
-
 var (
 	clusterStatus *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemCluster, "status"),
