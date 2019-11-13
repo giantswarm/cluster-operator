@@ -13,6 +13,7 @@ import (
 	awsv20 "github.com/giantswarm/cluster-operator/service/controller/aws/v20"
 	awsv21 "github.com/giantswarm/cluster-operator/service/controller/aws/v21"
 	awsv22 "github.com/giantswarm/cluster-operator/service/controller/aws/v22"
+	awsv23 "github.com/giantswarm/cluster-operator/service/controller/aws/v23"
 	azurev14 "github.com/giantswarm/cluster-operator/service/controller/azure/v14"
 	azurev14patch1 "github.com/giantswarm/cluster-operator/service/controller/azure/v14patch1"
 	azurev15 "github.com/giantswarm/cluster-operator/service/controller/azure/v15"
@@ -23,8 +24,10 @@ import (
 	azurev20 "github.com/giantswarm/cluster-operator/service/controller/azure/v20"
 	azurev21 "github.com/giantswarm/cluster-operator/service/controller/azure/v21"
 	azurev22 "github.com/giantswarm/cluster-operator/service/controller/azure/v22"
+	azurev23 "github.com/giantswarm/cluster-operator/service/controller/azure/v23"
 	clusterapiv21 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v21"
 	clusterapiv22 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22"
+	clusterapiv23 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v23"
 	kvmv14patch1 "github.com/giantswarm/cluster-operator/service/controller/kvm/v14patch1"
 	kvmv15 "github.com/giantswarm/cluster-operator/service/controller/kvm/v15"
 	kvmv16 "github.com/giantswarm/cluster-operator/service/controller/kvm/v16"
@@ -34,6 +37,7 @@ import (
 	kvmv20 "github.com/giantswarm/cluster-operator/service/controller/kvm/v20"
 	kvmv21 "github.com/giantswarm/cluster-operator/service/controller/kvm/v21"
 	kvmv22 "github.com/giantswarm/cluster-operator/service/controller/kvm/v22"
+	kvmv23 "github.com/giantswarm/cluster-operator/service/controller/kvm/v23"
 )
 
 func NewVersionBundles(p string) []versionbundle.Bundle {
@@ -79,6 +83,11 @@ func NewVersionBundles(p string) []versionbundle.Bundle {
 	versionBundles = append(versionBundles, azurev22.VersionBundle())
 	versionBundles = append(versionBundles, clusterapiv22.VersionBundle(p))
 	versionBundles = append(versionBundles, kvmv22.VersionBundle())
+
+	versionBundles = append(versionBundles, awsv23.VersionBundle())
+	versionBundles = append(versionBundles, azurev23.VersionBundle())
+	versionBundles = append(versionBundles, clusterapiv23.VersionBundle(p))
+	versionBundles = append(versionBundles, kvmv23.VersionBundle())
 
 	return versionBundles
 }
