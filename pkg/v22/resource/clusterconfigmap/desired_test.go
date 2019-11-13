@@ -18,6 +18,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
 		name              string
 		config            *v1alpha1.AWSClusterConfig
+		workerNodes       int
 		expectedConfigMap *corev1.ConfigMap
 		errorMatcher      func(error) bool
 	}{
@@ -51,6 +52,44 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "case 1: fallback to desired worker count",
+			config: &v1alpha1.AWSClusterConfig{
+				Spec: v1alpha1.AWSClusterConfigSpec{
+					Guest: v1alpha1.AWSClusterConfigSpecGuest{
+						ClusterGuestConfig: v1alpha1.ClusterGuestConfig{
+							DNSZone: "gauss.eu-central-1.aws.gigantic.io",
+							ID:      "w7utg",
+							Name:    "My own snowflake cluster",
+							Owner:   "giantswarm",
+						},
+						Workers: []v1alpha1.AWSClusterConfigSpecGuestWorker{
+							{
+								AWSClusterConfigSpecGuestNode: v1alpha1.AWSClusterConfigSpecGuestNode{
+									ID: "worker-1",
+								},
+							},
+						},
+					},
+				},
+			},
+			workerNodes: 0,
+			expectedConfigMap: &corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "w7utg-cluster-values",
+					Namespace: "w7utg",
+					Labels: map[string]string{
+						"giantswarm.io/cluster":      "w7utg",
+						"giantswarm.io/organization": "giantswarm",
+						"giantswarm.io/service-type": "managed",
+						"giantswarm.io/managed-by":   "cluster-operator",
+					},
+				},
+				Data: map[string]string{
+					"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\ningressController:\n  replicas: 1\n",
+				},
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -58,6 +97,7 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			c := Config{
 				GetClusterConfigFunc:     getClusterConfigFunc,
 				GetClusterObjectMetaFunc: getClusterObjectMetaFunc,
+				GetWorkerCountFunc:       getWorkerCountFunc,
 				K8sClient:                k8sfake.NewSimpleClientset(),
 				Logger:                   microloggertest.New(),
 
@@ -112,4 +152,13 @@ func getClusterObjectMetaFunc(obj interface{}) (metav1.ObjectMeta, error) {
 		return metav1.ObjectMeta{}, microerror.Mask(wrongTypeError)
 	}
 	return cr.ObjectMeta, nil
+}
+
+func getWorkerCountFunc(obj interface{}) (int, error) {
+	cr, ok := obj.(*v1alpha1.AWSClusterConfig)
+	if !ok {
+		return 0, microerror.Mask(wrongTypeError)
+	}
+
+	return len(cr.Spec.Guest.Workers), nil
 }
