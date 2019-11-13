@@ -55,11 +55,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		workerCount = len(l.Items)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes of tenant cluster %#q", len(l.Items), key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes of tenant cluster %#q", workerCount, key.ClusterID(cr)))
 	}
 
 	{
-		cc.Status.Worker.Nodes = int32(workerCount)
+		cc.Status.Worker.Nodes = workerCount
 	}
 
 	return nil

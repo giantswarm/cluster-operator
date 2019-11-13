@@ -5,5 +5,5 @@ type ContextStatus struct {
 }
 
 type ContextStatusWorker struct {
-	Nodes int32
+	Nodes int
 }
