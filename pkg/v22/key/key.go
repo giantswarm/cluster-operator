@@ -14,6 +14,8 @@ import (
 )
 
 const (
+	IngressControllerConfigMapName = "ingress-controller-values"
+
 	// defaultDNSLastOctet is the last octect for the DNS service IP, the first
 	// 3 octets come from the cluster IP range.
 	defaultDNSLastOctet = 10
