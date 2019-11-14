@@ -7,6 +7,8 @@ type AppSpec struct {
 	Chart   string
 	// Whether app is installed for clusterapi clusters only
 	ClusterAPIOnly bool
+	// Whether app is installed for legacy clusters only
+	LegacyOnly      bool
 	Namespace       string
 	UseUpgradeForce bool
 	Version         string

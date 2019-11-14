@@ -46,7 +46,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	for _, appSpec := range r.newAppSpecs() {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
-		apps = append(apps, r.newApp(*cc, cr, appSpec, userConfig))
+
+		if !appSpec.LegacyOnly {
+			apps = append(apps, r.newApp(*cc, cr, appSpec, userConfig))
+		}
 	}
 
 	return apps, nil
