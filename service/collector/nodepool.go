@@ -13,10 +13,30 @@ import (
 
 var (
 	nodePools *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystemCluster, "nodepools"),
+		prometheus.BuildFQName(namespace, subsystemNodePool, "count"),
 		"Number of Node Pools in a cluster as provided by the MachineDeployment CRs associated with a given cluster ID.",
 		[]string{
 			"cluster_id",
+		},
+		nil,
+	)
+
+	nodePoolDesiredWorkers *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystemNodePool, "desired_workers"),
+		"Number of desired workers in all node pools for a specific cluster as provided by the MachineDeployment CRs associated with a given cluster ID.",
+		[]string{
+			"cluster_id",
+			"node_pool_id",
+		},
+		nil,
+	)
+
+	nodePoolReadyWorkers *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystemNodePool, "ready_workers"),
+		"Number of ready workers in all node pools for a specific cluster as provided by the MachineDeployment CRs associated with a given cluster ID.",
+		[]string{
+			"cluster_id",
+			"node_pool_id",
 		},
 		nil,
 	)
@@ -54,22 +74,54 @@ func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 		return microerror.Mask(err)
 	}
 
-	clusterNodePools := make(map[string]int)
+	type nodes struct {
+		nodePoolID string
+		desired    int
+		ready      int
+	}
+
+	clusterNodePools := make(map[string][]nodes)
 
 	for _, md := range list.Items {
 		clusterID := md.GetLabels()[label.Cluster]
 
-		clusterNodePools[clusterID] = clusterNodePools[clusterID] + 1
+		n := nodes{
+			nodePoolID: md.GetLabels()[label.MachineDeployment],
+			desired:    int(md.Status.Replicas),
+			ready:      int(md.Status.ReadyReplicas),
+		}
+
+		clusterNodePools[clusterID] = append(clusterNodePools[clusterID], n)
 	}
 
-	for clusterID, nodePoolCount := range clusterNodePools {
+	for clusterID, nps := range clusterNodePools {
 		{
 			ch <- prometheus.MustNewConstMetric(
 				nodePools,
 				prometheus.GaugeValue,
-				float64(nodePoolCount),
+				float64(len(nps)),
 				clusterID,
 			)
+		}
+
+		for _, n := range nps {
+			{
+				ch <- prometheus.MustNewConstMetric(
+					nodePoolDesiredWorkers,
+					prometheus.GaugeValue,
+					float64(n.desired),
+					clusterID,
+					n.nodePoolID,
+				)
+
+				ch <- prometheus.MustNewConstMetric(
+					nodePoolReadyWorkers,
+					prometheus.GaugeValue,
+					float64(n.ready),
+					clusterID,
+					n.nodePoolID,
+				)
+			}
 		}
 	}
 
@@ -78,5 +130,8 @@ func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 
 func (np *NodePool) Describe(ch chan<- *prometheus.Desc) error {
 	ch <- nodePools
+	ch <- nodePoolDesiredWorkers
+	ch <- nodePoolReadyWorkers
+
 	return nil
 }
