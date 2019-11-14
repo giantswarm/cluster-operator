@@ -6,7 +6,7 @@ type AppSpec struct {
 	Catalog string
 	Chart   string
 	// Whether app is installed for clusterapi clusters only
-	ClusterAPI      bool
+	ClusterAPIOnly bool
 	Namespace       string
 	UseUpgradeForce bool
 	Version         string
