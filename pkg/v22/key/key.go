@@ -14,6 +14,9 @@ import (
 )
 
 const (
+	ClusterConfigMapName           = "cluster-values"
+	IngressControllerConfigMapName = "ingress-controller-values"
+
 	// defaultDNSLastOctet is the last octect for the DNS service IP, the first
 	// 3 octets come from the cluster IP range.
 	defaultDNSLastOctet = 10
@@ -63,11 +66,6 @@ func CIDRBlock(address, prefix string) string {
 		return ""
 	}
 	return fmt.Sprintf("%s/%s", address, prefix)
-}
-
-// ClusterConfigMapName returns the cluster name used in the configMap generated for this tenant cluster.
-func ClusterConfigMapName(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
-	return fmt.Sprintf("%s-cluster-values", clusterGuestConfig.ID)
 }
 
 // ClusterID returns cluster ID for given guest cluster config.
@@ -133,9 +131,10 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "1.3.0",
 		},
 		{
-			App:     "nginx-ingress-controller",
-			Catalog: "default-test",
-			Chart:   "nginx-ingress-controller-app",
+			App:           "nginx-ingress-controller",
+			Catalog:       "default-test",
+			Chart:         "nginx-ingress-controller-app",
+			ConfigMapName: IngressControllerConfigMapName,
 			// For clusterapi clusters ingress controller is an optional app.
 			LegacyOnly: true,
 			Namespace:  metav1.NamespaceSystem,

@@ -18,11 +18,11 @@ import (
 
 func Test_Resource_GetDesiredState(t *testing.T) {
 	tests := []struct {
-		name              string
-		config            *v1alpha1.AWSClusterConfig
-		workerNodes       int
-		expectedConfigMap *corev1.ConfigMap
-		errorMatcher      func(error) bool
+		name               string
+		config             *v1alpha1.AWSClusterConfig
+		workerNodes        int
+		expectedConfigMaps []*corev1.ConfigMap
+		errorMatcher       func(error) bool
 	}{
 		{
 			name: "case 0: flawless flow",
@@ -39,19 +39,36 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 			workerNodes: 3,
-			expectedConfigMap: &corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "w7utg-cluster-values",
-					Namespace: "w7utg",
-					Labels: map[string]string{
-						"giantswarm.io/cluster":      "w7utg",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-						"giantswarm.io/managed-by":   "cluster-operator",
+			expectedConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cluster-values",
+						Namespace: "w7utg",
+						Labels: map[string]string{
+							"giantswarm.io/cluster":      "w7utg",
+							"giantswarm.io/organization": "giantswarm",
+							"giantswarm.io/service-type": "managed",
+							"giantswarm.io/managed-by":   "cluster-operator",
+						},
+					},
+					Data: map[string]string{
+						"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\n",
 					},
 				},
-				Data: map[string]string{
-					"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\ningressController:\n  replicas: 3\n",
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "ingress-controller-values",
+						Namespace: "w7utg",
+						Labels: map[string]string{
+							"giantswarm.io/cluster":      "w7utg",
+							"giantswarm.io/organization": "giantswarm",
+							"giantswarm.io/service-type": "managed",
+							"giantswarm.io/managed-by":   "cluster-operator",
+						},
+					},
+					Data: map[string]string{
+						"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterID: w7utg\ningressController:\n  replicas: 3\n",
+					},
 				},
 			},
 		},
@@ -77,19 +94,36 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 				},
 			},
 			workerNodes: 0,
-			expectedConfigMap: &corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "w7utg-cluster-values",
-					Namespace: "w7utg",
-					Labels: map[string]string{
-						"giantswarm.io/cluster":      "w7utg",
-						"giantswarm.io/organization": "giantswarm",
-						"giantswarm.io/service-type": "managed",
-						"giantswarm.io/managed-by":   "cluster-operator",
+			expectedConfigMaps: []*corev1.ConfigMap{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cluster-values",
+						Namespace: "w7utg",
+						Labels: map[string]string{
+							"giantswarm.io/cluster":      "w7utg",
+							"giantswarm.io/organization": "giantswarm",
+							"giantswarm.io/service-type": "managed",
+							"giantswarm.io/managed-by":   "cluster-operator",
+						},
+					},
+					Data: map[string]string{
+						"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\n",
 					},
 				},
-				Data: map[string]string{
-					"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterDNSIP: 172.31.0.10\nclusterID: w7utg\ningressController:\n  replicas: 1\n",
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "ingress-controller-values",
+						Namespace: "w7utg",
+						Labels: map[string]string{
+							"giantswarm.io/cluster":      "w7utg",
+							"giantswarm.io/organization": "giantswarm",
+							"giantswarm.io/service-type": "managed",
+							"giantswarm.io/managed-by":   "cluster-operator",
+						},
+					},
+					Data: map[string]string{
+						"values": "baseDomain: w7utg.k8s.gauss.eu-central-1.aws.gigantic.io\nclusterID: w7utg\ningressController:\n  replicas: 1\n",
+					},
 				},
 			},
 		},
@@ -134,19 +168,21 @@ func Test_Resource_GetDesiredState(t *testing.T) {
 			}
 
 			if err == nil && tc.errorMatcher == nil {
-				configMap, err := toConfigMap(result[0])
-				if err != nil {
-					t.Fatalf("error == %#v, want nil", err)
-				}
+				for i, expectedConfigMap := range tc.expectedConfigMaps {
+					configMap, err := toConfigMap(result[i])
+					if err != nil {
+						t.Fatalf("error == %#v, want nil", err)
+					}
 
-				if !reflect.DeepEqual(configMap.ObjectMeta, tc.expectedConfigMap.ObjectMeta) {
-					t.Fatalf("want matching objectmeta \n %s", cmp.Diff(configMap.ObjectMeta, tc.expectedConfigMap.ObjectMeta))
-				}
-				if !reflect.DeepEqual(configMap.Data, tc.expectedConfigMap.Data) {
-					t.Fatalf("want matching data \n %s", cmp.Diff(configMap.Data, tc.expectedConfigMap.Data))
-				}
-				if !reflect.DeepEqual(configMap.TypeMeta, tc.expectedConfigMap.TypeMeta) {
-					t.Fatalf("want matching typemeta \n %s", cmp.Diff(configMap.TypeMeta, tc.expectedConfigMap.TypeMeta))
+					if !reflect.DeepEqual(configMap.ObjectMeta, expectedConfigMap.ObjectMeta) {
+						t.Fatalf("want matching objectmeta \n %s", cmp.Diff(configMap.ObjectMeta, expectedConfigMap.ObjectMeta))
+					}
+					if !reflect.DeepEqual(configMap.Data, expectedConfigMap.Data) {
+						t.Fatalf("want matching data \n %s", cmp.Diff(configMap.Data, expectedConfigMap.Data))
+					}
+					if !reflect.DeepEqual(configMap.TypeMeta, expectedConfigMap.TypeMeta) {
+						t.Fatalf("want matching typemeta \n %s", cmp.Diff(configMap.TypeMeta, expectedConfigMap.TypeMeta))
+					}
 				}
 			}
 		})

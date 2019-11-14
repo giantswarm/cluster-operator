@@ -7,6 +7,9 @@ type AppSpec struct {
 	Chart   string
 	// Whether app is installed for clusterapi clusters only.
 	ClusterAPIOnly bool
+	// ConfigMapName overrides the name, otherwise the cluster values configmap
+	// is used.
+	ConfigMapName string
 	// Whether app is installed for legacy clusters only.
 	LegacyOnly      bool
 	Namespace       string
