@@ -10,6 +10,8 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 )
 
@@ -45,19 +47,25 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 		return nil, nil
 	}
 
-	name := key.ClusterConfigMapName(clusterConfig)
+	var configMaps []*corev1.ConfigMap
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", key.ClusterID(clusterConfig)))
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
+		o := metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+		}
 
-	cm, err := r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).Get(name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
+		list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(clusterConfig)).List(o)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		for _, item := range list.Items {
+			configMaps = append(configMaps, item.DeepCopy())
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(clusterConfig)))
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-
-	return []*corev1.ConfigMap{cm}, nil
+	return configMaps, nil
 }
