@@ -221,34 +221,6 @@ func Test_DNSIP(t *testing.T) {
 	}
 }
 
-func Test_ClusterConfigMapName(t *testing.T) {
-	testCases := []struct {
-		description    string
-		clusterConfig  v1alpha1.ClusterGuestConfig
-		expectedResult string
-	}{
-		{
-			description: "case 0: getting cluster configmap name",
-			clusterConfig: v1alpha1.ClusterGuestConfig{
-				DNSZone: "giantswarm.io",
-				ID:      "w7utg",
-				Name:    "My own snowflake cluster",
-				Owner:   "giantswarm",
-			},
-			expectedResult: "w7utg-cluster-values",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.description, func(t *testing.T) {
-			result := ClusterConfigMapName(tc.clusterConfig)
-			if result != tc.expectedResult {
-				t.Fatalf("expected ClusterConfigMapName %#q, got %#q", tc.expectedResult, result)
-			}
-		})
-	}
-}
-
 func Test_ClusterID(t *testing.T) {
 	testCases := []struct {
 		description   string
