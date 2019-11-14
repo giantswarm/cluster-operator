@@ -135,6 +135,18 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "1.3.0",
 		},
 		{
+			App:           "nginx-ingress-controller",
+			Catalog:       "default-test",
+			Chart:         "nginx-ingress-controller-app",
+			ConfigMapName: IngressControllerConfigMapName,
+			// For clusterapi clusters ingress controller is an optional app.
+			LegacyOnly: true,
+			Namespace:  metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "1.1.0-0264ae24f53f5530bd07511d94ec95531d732a35",
+		},
+		{
 			App:             "node-exporter",
 			Catalog:         "default",
 			Chart:           "node-exporter-app",
@@ -207,7 +219,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:   "1-0-stable",
 			ChartName:     "kubernetes-nginx-ingress-controller-chart",
 			ConfigMapName: "nginx-ingress-controller-values",
-			HasAppCR:      false,
+			HasAppCR:      true,
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "nginx-ingress-controller",
 			// Upgrade force is disabled to avoid dropping customer traffic
