@@ -50,7 +50,8 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			Name:      key.ClusterConfigMapName(clusterConfig),
 			Namespace: key.ClusterID(clusterConfig),
 			Values: map[string]interface{}{
-				"baseDomain":   key.TenantBaseDomain(clusterConfig),
+				"baseDomain": key.TenantBaseDomain(clusterConfig),
+				// clusterDNSIP is used by chart-operator to bootstrap CoreDNS.
 				"clusterDNSIP": clusterDNSIP,
 				"clusterID":    key.ClusterID(clusterConfig),
 			},
