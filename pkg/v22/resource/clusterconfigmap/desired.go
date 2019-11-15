@@ -63,6 +63,10 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"baseDomain": key.TenantBaseDomain(clusterConfig),
 				"clusterID":  key.ClusterID(clusterConfig),
 				"ingressController": map[string]interface{}{
+					// legacy flag is used by the app chart to ensure backwards
+					// compatabilibity with non Cluster API clusters.
+					// compatibility with non Cluster API clusters.
+					"legacy":   true,
 					"replicas": ingressControllerReplicas,
 				},
 			},
