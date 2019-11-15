@@ -50,7 +50,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			Name:      key.ClusterConfigMapName(clusterConfig),
 			Namespace: key.ClusterID(clusterConfig),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantBaseDomain(clusterConfig),
+				"baseDomain": key.DNSZone(clusterConfig),
 				// clusterDNSIP is used by chart-operator to bootstrap CoreDNS.
 				"clusterDNSIP": clusterDNSIP,
 				"clusterID":    key.ClusterID(clusterConfig),
@@ -60,11 +60,10 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			Name:      key.IngressControllerConfigMapName,
 			Namespace: key.ClusterID(clusterConfig),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantBaseDomain(clusterConfig),
+				"baseDomain": key.DNSZone(clusterConfig),
 				"clusterID":  key.ClusterID(clusterConfig),
 				"ingressController": map[string]interface{}{
 					// legacy flag is used by the app chart to ensure backwards
-					// compatabilibity with non Cluster API clusters.
 					// compatibility with non Cluster API clusters.
 					"legacy":   true,
 					"replicas": ingressControllerReplicas,
