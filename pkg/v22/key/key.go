@@ -144,7 +144,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace:  metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "1.1.0-0264ae24f53f5530bd07511d94ec95531d732a35",
+			Version:         "1.1.0-963189b8e0981e65810e41a65d027c65f64e948b",
 		},
 		{
 			App:             "node-exporter",
