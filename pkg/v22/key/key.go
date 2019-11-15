@@ -136,7 +136,7 @@ func CommonAppSpecs() []AppSpec {
 		},
 		{
 			App:           "nginx-ingress-controller",
-			Catalog:       "default-test",
+			Catalog:       "default",
 			Chart:         "nginx-ingress-controller-app",
 			ConfigMapName: IngressControllerConfigMapName,
 			// For clusterapi clusters ingress controller is an optional app.
@@ -144,7 +144,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace:  metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "1.1.0-963189b8e0981e65810e41a65d027c65f64e948b",
+			Version:         "1.1.0",
 		},
 		{
 			App:             "node-exporter",
