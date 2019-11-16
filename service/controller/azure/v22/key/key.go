@@ -11,7 +11,17 @@ import (
 // AppSpecs returns apps installed only for Azure.
 func AppSpecs() []key.AppSpec {
 	// Add any provider specific charts here.
-	return []key.AppSpec{}
+	return []key.AppSpec{
+		{
+			App:             "external-dns",
+			Catalog:         "default",
+			Chart:           "external-dns-app",
+			ClusterAPIOnly:  true,
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+	}
 }
 
 // ChartSpecs returns charts installed only for Azure.
@@ -21,6 +31,7 @@ func ChartSpecs() []key.ChartSpec {
 			AppName:         "external-dns",
 			ChannelName:     "0-3-stable",
 			ChartName:       "kubernetes-external-dns-chart",
+			HasAppCR:        true,
 			Namespace:       metav1.NamespaceSystem,
 			ReleaseName:     "external-dns",
 			UseUpgradeForce: true,
