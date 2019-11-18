@@ -20,6 +20,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
+	pkgerrors "github.com/giantswarm/cluster-operator/pkg/v22/errors"
 	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
@@ -75,7 +76,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
-	} else if isChartConfigNotInstalled(err) {
+	} else if pkgerrors.IsChartConfigNotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRs are not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	} else if pkgerrors.IsChartConfigNotInstalled(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
