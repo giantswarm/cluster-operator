@@ -16,7 +16,6 @@ func AppSpecs() []key.AppSpec {
 			App:             "external-dns",
 			Catalog:         "default",
 			Chart:           "external-dns-app",
-			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
 			Version:         "1.0.0",
