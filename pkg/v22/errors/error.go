@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	chartConfigEOFPattern = regexp.MustCompile(`[Get|Patch|Post] https://api\..*/apis/core.giantswarm.io/v1alpha1/chartconfigs* (unexpected )?EOF`)
+	chartConfigEOFPattern = regexp.MustCompile(`[Get|Patch|Post] https://api\..*/apis/core.giantswarm.io/v1alpha1/namespaces.* (unexpected )?EOF`)
 )
 
 // ChartConfigNotAvailableError is returned when the chartconfig custom
