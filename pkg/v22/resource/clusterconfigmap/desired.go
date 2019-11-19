@@ -45,15 +45,26 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	subscriptionId, err := r.getSubscriptionId(obj, cc.Client.TenantCluster.K8s)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	values := map[string]interface{}{
+		"baseDomain":   key.TenantBaseDomain(clusterConfig),
+		"clusterDNSIP": clusterDNSIP,
+		"clusterID":    key.ClusterID(clusterConfig),
+	}
+
+	if r.provider == "azure" {
+		values["subscriptionID"] = subscriptionId
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(clusterConfig),
 			Namespace: key.ClusterID(clusterConfig),
-			Values: map[string]interface{}{
-				"baseDomain":   key.TenantBaseDomain(clusterConfig),
-				"clusterDNSIP": clusterDNSIP,
-				"clusterID":    key.ClusterID(clusterConfig),
-			},
+			Values:    values,
 		},
 		{
 			Name:      key.IngressControllerConfigMapName,

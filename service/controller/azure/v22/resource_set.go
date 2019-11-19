@@ -40,6 +40,8 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/azure/v22/resource/configmap"
 )
 
+const SubscriptionId = "subscriptionID"
+
 // ResourceSetConfig contains necessary dependencies and settings for
 // AzureClusterConfig controller ResourceSet configuration.
 type ResourceSetConfig struct {
@@ -273,10 +275,12 @@ func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			GetWorkerCountFunc:       getWorkerCount,
+			GetSubscriptionId:        getSubscriptionId,
 			K8sClient:                config.K8sClient,
 			Logger:                   config.Logger,
 
 			ClusterIPRange: config.ClusterIPRange,
+			Provider:       config.Provider,
 		}
 
 		stateGetter, err := clusterconfigmap.New(c)
@@ -501,4 +505,23 @@ func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (
 	}
 
 	return r, nil
+}
+
+func getSubscriptionId(obj interface{}, k8s kubernetes.Interface) (string, error) {
+	cr, err := key.ToCustomObject(obj)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	secret, err := k8s.CoreV1().Secrets(cr.Spec.Guest.CredentialSecret.Namespace).Get(cr.Spec.Guest.CredentialSecret.Name, metav1.GetOptions{})
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	subscriptionId, ok := secret.Data[SubscriptionId]
+	if !ok {
+		return "", microerror.Mask(err)
+	}
+
+	return string(subscriptionId), nil
 }
