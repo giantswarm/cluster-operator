@@ -314,10 +314,6 @@ func serverDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.Cer
 	return string(cert) + "." + strings.TrimLeft(commonDomain, "\t ."), nil
 }
 
-func TenantBaseDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
-	return fmt.Sprintf("%s.k8s.%s", ClusterID(clusterGuestConfig), DNSZone(clusterGuestConfig))
-}
-
 // VersionBundles returns slice of versionbundle.Bundles for given guest
 // cluster config.
 func VersionBundles(clusterGuestConfig v1alpha1.ClusterGuestConfig) []versionbundle.Bundle {
