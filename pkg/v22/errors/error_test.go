@@ -18,7 +18,12 @@ func Test_IsChartConfigNotAvailable(t *testing.T) {
 			expectedMatch: true,
 		},
 		{
-			name:          "case 1: nodes EOF error does not match",
+			name:          "case 1: chartconfig request canceled",
+			errorMessage:  "Get https://api.q6irk.k8s.geckon.gridscale.kvm.gigantic.io/apis/core.giantswarm.io/v1alpha1/namespaces/giantswarm/chartconfigs?labelSelector=giantswarm.io%2Fmanaged-by%3Dcluster-operator: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)",
+			expectedMatch: true,
+		},
+		{
+			name:          "case 2: nodes EOF error does not match",
 			errorMessage:  "Get https://api.5xchu.aws.gigantic.io/api/v1/nodes: EOF",
 			expectedMatch: false,
 		},

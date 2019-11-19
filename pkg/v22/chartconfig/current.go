@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v22/controllercontext"
+	pkgerrors "github.com/giantswarm/cluster-operator/pkg/v22/errors"
 )
 
 func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig ClusterConfig) ([]*v1alpha1.ChartConfig, error) {
@@ -44,6 +45,11 @@ func (c *ChartConfig) GetCurrentState(ctx context.Context, clusterConfig Cluster
 	chartConfigList, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs(resourceNamespace).List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
 		c.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	} else if pkgerrors.IsChartConfigNotAvailable(err) {
+		c.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRs are not available yet")
 		c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil

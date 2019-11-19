@@ -12,7 +12,10 @@ const (
 )
 
 var (
-	chartConfigEOFPattern = regexp.MustCompile(`[Get|Patch|Post] https://api\..*/apis/core.giantswarm.io/v1alpha1/namespaces.* (unexpected )?EOF`)
+	chartConfigNotAvailablePatterns = []*regexp.Regexp{
+		regexp.MustCompile(`[Get|Patch|Post] https://api\..*/apis/core.giantswarm.io/v1alpha1/namespaces.* (unexpected )?EOF`),
+		regexp.MustCompile(`[Get|Patch|Post] https://api\..*/apis/core.giantswarm.io/v1alpha1/namespaces.* net/http: (TLS handshake timeout|request canceled).*?`),
+	}
 )
 
 // ChartConfigNotAvailableError is returned when the chartconfig custom
@@ -35,9 +38,12 @@ func IsChartConfigNotAvailable(err error) bool {
 
 	c := microerror.Cause(err)
 
-	matched := chartConfigEOFPattern.MatchString(c.Error())
-	if matched {
-		return true
+	for _, re := range chartConfigNotAvailablePatterns {
+		matched := re.MatchString(c.Error())
+
+		if matched {
+			return true
+		}
 	}
 
 	if c == ChartConfigNotAvailableError {
