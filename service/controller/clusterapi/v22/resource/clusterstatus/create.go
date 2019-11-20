@@ -93,7 +93,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(machineDeployments)))
 	}
 
-	updatedStatus := r.computeClusterConditions(ctx, cr, r.accessor.GetCommonClusterStatus(cr), nodes, machineDeployments)
+	updatedStatus := r.computeClusterConditions(ctx, cc, cr, r.accessor.GetCommonClusterStatus(cr), nodes, machineDeployments)
 
 	if !reflect.DeepEqual(r.accessor.GetCommonClusterStatus(cr), updatedStatus) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
@@ -116,12 +116,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1alpha1.Cluster, clusterStatus g8sv1alpha.CommonClusterStatus, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) g8sv1alpha.CommonClusterStatus {
+func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllercontext.Context, cluster cmav1alpha1.Cluster, clusterStatus g8sv1alpha.CommonClusterStatus, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) g8sv1alpha.CommonClusterStatus {
+	providerOperatorVersionLabel := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
+
 	var currentVersion string
 	var desiredVersion string
 	{
 		currentVersion = clusterStatus.LatestVersion()
-		desiredVersion = key.ReleaseVersion(&cluster)
+		desiredVersion = cc.Status.Versions[providerOperatorVersionLabel]
 	}
 
 	// Count total number of all workers and number of Ready workers that
@@ -159,7 +161,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 		isCreating := clusterStatus.HasCreatingCondition()
 		notCreated := !clusterStatus.HasCreatedCondition()
 		sameCount := readyReplicas == desiredReplicas
-		sameVersion := allNodesHaveVersion(nodes, desiredVersion)
+		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
 		if isCreating && notCreated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithCreatedCondition()
@@ -188,7 +190,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 		isUpdating := clusterStatus.HasUpdatingCondition()
 		notUpdated := !clusterStatus.HasUpdatedCondition()
 		sameCount := readyReplicas != 0 && readyReplicas == desiredReplicas
-		sameVersion := allNodesHaveVersion(nodes, desiredVersion)
+		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
 		if isUpdating && notUpdated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithUpdatedCondition()
@@ -202,7 +204,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 		hasTransitioned := clusterStatus.HasCreatedCondition() || clusterStatus.HasUpdatedCondition()
 		notSet := !clusterStatus.HasVersion(desiredVersion)
 		sameCount := readyReplicas != 0 && readyReplicas == desiredReplicas
-		sameVersion := allNodesHaveVersion(nodes, desiredVersion)
+		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
 		if hasTransitioned && notSet && sameCount && sameVersion {
 			clusterStatus.Versions = clusterStatus.WithNewVersion(desiredVersion)
@@ -213,13 +215,13 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cluster cmav1al
 	return clusterStatus
 }
 
-func allNodesHaveVersion(nodes []corev1.Node, version string) bool {
+func allNodesHaveVersion(nodes []corev1.Node, version string, providerOperatorVersionLabel string) bool {
 	if len(nodes) == 0 {
 		return false
 	}
 
 	for _, n := range nodes {
-		v := key.ReleaseVersion(&n)
+		v := n.Labels[providerOperatorVersionLabel]
 		if v != version {
 			return false
 		}
