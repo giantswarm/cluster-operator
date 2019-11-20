@@ -16,6 +16,8 @@ type Config struct {
 	CMAClient clientset.Interface
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
+
+	Provider string
 }
 
 type Resource struct {
@@ -23,6 +25,8 @@ type Resource struct {
 	cmaClient clientset.Interface
 	g8sClient versioned.Interface
 	logger    micrologger.Logger
+
+	provider string
 }
 
 func New(config Config) (*Resource, error) {
@@ -38,12 +42,16 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	r := &Resource{
 		accessor:  config.Accessor,
 		cmaClient: config.CMAClient,
 		g8sClient: config.G8sClient,
 		logger:    config.Logger,
+		provider:  config.Provider,
 	}
 
 	return r, nil
