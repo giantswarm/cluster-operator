@@ -196,6 +196,7 @@ func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.Resourc
 			CMAClient: config.CMAClient,
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
+			Provider:  config.Provider,
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
