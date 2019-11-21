@@ -18,6 +18,11 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "net-exporter",
+				Description: "Updated to version 1.4.0.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
 				Component:   "node-exporter",
 				Description: "Updated to version 0.18.1.",
 				Kind:        versionbundle.KindChanged,
