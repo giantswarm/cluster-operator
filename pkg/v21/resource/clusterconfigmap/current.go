@@ -10,6 +10,8 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/pkg/v21/key"
 )
 
@@ -36,28 +38,34 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 
 	// Cluster namespace is created by the provider operator. If it doesn't
 	// exist yet we should retry in the next reconciliation loop.
-	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
+	_, err = r.k8sClient.CoreV1().Namespaces().Get(key.ClusterID(clusterConfig), metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", key.ClusterID(clusterConfig)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
 	}
 
-	name := key.ClusterConfigMapName(clusterConfig)
+	var configMaps []*corev1.ConfigMap
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster configMaps in namespace %#q", key.ClusterID(clusterConfig)))
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
+		lo := metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+		}
 
-	cm, err := r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).Get(name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
+		list, err := r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).List(lo)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		for _, item := range list.Items {
+			configMaps = append(configMaps, item.DeepCopy())
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(clusterConfig)))
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found cluster configMap %#q in namespace %#q", name, clusterConfig.ID))
-
-	return []*corev1.ConfigMap{cm}, nil
+	return configMaps, nil
 }
