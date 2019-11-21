@@ -18,6 +18,11 @@ func VersionBundle() versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "external-dns",
+				Description: "Migrated to use default app catalog.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
 				Component:   "net-exporter",
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
