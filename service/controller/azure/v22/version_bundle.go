@@ -20,6 +20,11 @@ func VersionBundle() versionbundle.Bundle {
 			{
 				Component:   "node-exporter",
 				Description: "Updated to version 0.18.1.",
+        Kind:        versionbundle.KindChanged,
+      },
+      {
+				Component:   "external-dns",
+				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
 		},

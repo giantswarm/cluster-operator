@@ -46,7 +46,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	for _, appSpec := range r.newAppSpecs() {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
-		apps = append(apps, r.newApp(*cc, cr, appSpec, userConfig))
+
+		if !appSpec.LegacyOnly {
+			apps = append(apps, r.newApp(*cc, cr, appSpec, userConfig))
+		}
 	}
 
 	return apps, nil
@@ -91,6 +94,13 @@ func (r *Resource) getSecrets(ctx context.Context, cr cmav1alpha1.Cluster) (map[
 }
 
 func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+	configMapName := key.ClusterConfigMapName(&cr)
+
+	// Override config map name when specified.
+	if appSpec.ConfigMapName != "" {
+		configMapName = appSpec.ConfigMapName
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -119,7 +129,7 @@ func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, 
 
 			Config: g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
-					Name:      key.ClusterConfigMapName(&cr),
+					Name:      configMapName,
 					Namespace: key.ClusterID(&cr),
 				},
 			},

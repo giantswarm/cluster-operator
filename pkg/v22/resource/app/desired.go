@@ -100,7 +100,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 			return nil, microerror.Mask(err)
 		}
 
-		if !appSpec.ClusterAPI {
+		if !appSpec.ClusterAPIOnly {
 			apps = append(apps, r.newApp(clusterConfig, appSpec, userConfig))
 		}
 	}
@@ -147,6 +147,13 @@ func (r *Resource) getSecrets(ctx context.Context, clusterConfig v1alpha1.Cluste
 }
 
 func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+	configMapName := key.ClusterConfigMapName(clusterConfig)
+
+	// Override config map name when specified.
+	if appSpec.ConfigMapName != "" {
+		configMapName = appSpec.ConfigMapName
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -175,7 +182,7 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 
 			Config: g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
-					Name:      key.ClusterConfigMapName(clusterConfig),
+					Name:      configMapName,
 					Namespace: clusterConfig.ID,
 				},
 			},

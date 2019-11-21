@@ -104,6 +104,14 @@ func (r *Resource) ensureTillerInstalled(ctx context.Context, clusterGuestConfig
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil
+	} else if helmclient.IsTooManyResults(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "currently too many tiller pods due to upgrade")
+
+		// Too many tiller pods due to upgrade. We will retry on next reconciliation loop.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+
+		return nil
 	} else if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "guest API not available")
 
