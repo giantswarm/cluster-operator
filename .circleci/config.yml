@@ -28,7 +28,10 @@ jobs:
 workflows:
   build_and_push:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
 
       - architect/push-to-docker:
           name: push-cluster-operator-to-quay
@@ -37,6 +40,9 @@ workflows:
           password_envar: "QUAY_PASSWORD"
           requires:
             - build
+          filters:
+            tags:
+              only: /^v.*/
 
       - hold-push-cluster-operator-to-aliyun-pr:
           type: approval
@@ -46,6 +52,8 @@ workflows:
           filters:
             branches:
               ignore: master
+            tags:
+              only: /^v.*/
 
       - architect/push-to-docker:
           name: push-cluster-operator-to-aliyun-pr
@@ -59,6 +67,8 @@ workflows:
           filters:
             branches:
               ignore: master
+            tags:
+              only: /^v.*/
 
       # Push to Aliyun should execute without manual approval on master.
       - architect/push-to-docker:
@@ -72,3 +82,50 @@ workflows:
           filters:
             branches:
               only: master
+            tags:
+              only: /^v.*/
+
+      - architect/push-to-app-catalog:
+          name: push-cluster-operator-to-app-catalog
+          app_catalog: "control-plane-catalog"
+          app_catalog_test: "control-plane-test-catalog"
+          chart: "cluster-operator"
+          # Make sure docker image is successfully built.
+          requires:
+            - push-cluster-operator-to-quay
+          filters:
+            tags:
+              only: /^v.*/
+      - architect/push-to-app-collection:
+          name: push-cluster-operator-to-aws-app-collection
+          app_name: "cluster-operator"
+          app_collection_repo: "aws-app-collection"
+          requires:
+            - push-cluster-operator-to-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - architect/push-to-app-collection:
+          name: push-cluster-operator-to-azure-app-collection
+          app_name: "cluster-operator"
+          app_collection_repo: "azure-app-collection"
+          requires:
+            - push-cluster-operator-to-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - architect/push-to-app-collection:
+          name: push-cluster-operator-to-kvm-app-collection
+          app_name: "cluster-operator"
+          app_collection_repo: "kvm-app-collection"
+          requires:
+            - push-cluster-operator-to-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
