@@ -8,22 +8,22 @@ func VersionBundle() versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "cert-exporter",
-				Description: "Migrated to use default app catalog.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
 				Component:   "coredns",
-				Description: "Migrated to use default app catalog.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "external-dns",
-				Description: "Migrated to use default app catalog.",
+				Description: "Updated to version 1.6.5.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
 				Component:   "net-exporter",
+				Description: "Updated to version 1.4.0.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "node-exporter",
+				Description: "Updated to version 0.18.1.",
+				Kind:        versionbundle.KindChanged,
+			},
+			{
+				Component:   "external-dns",
 				Description: "Migrated to use default app catalog.",
 				Kind:        versionbundle.KindChanged,
 			},
@@ -39,11 +39,11 @@ func VersionBundle() versionbundle.Bundle {
 			},
 			{
 				Name:    "node-exporter",
-				Version: "0.18.0",
+				Version: "0.18.1",
 			},
 			{
 				Name:    "coredns",
-				Version: "1.6.4",
+				Version: "1.6.5",
 			},
 			{
 				Name:    "metrics-server",
