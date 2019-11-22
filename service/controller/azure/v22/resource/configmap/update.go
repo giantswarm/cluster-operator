@@ -8,9 +8,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/v22/configmap"
-	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/internal/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
