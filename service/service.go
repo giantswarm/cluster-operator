@@ -23,7 +23,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
+	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
