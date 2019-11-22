@@ -15,8 +15,8 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 	v22 "github.com/giantswarm/cluster-operator/service/controller/azure/v22"
+	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
 // LegacyClusterConfig contains necessary dependencies and settings for

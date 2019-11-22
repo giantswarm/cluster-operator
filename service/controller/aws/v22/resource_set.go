@@ -21,11 +21,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v22/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/aws/v22/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	chartconfigservice "github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/service/controller/internal/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
@@ -35,9 +37,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v22/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/aws/v22/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
 // ResourceSetConfig contains necessary dependencies and settings for
