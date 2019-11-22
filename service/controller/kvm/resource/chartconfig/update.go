@@ -10,16 +10,16 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/key"
 )
 
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	customObject, err := kvmkey.ToCustomObject(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	chartConfigsToDelete, err := toChartConfigs(deleteChange)
+	chartConfigsToUpdate, err := toChartConfigs(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -36,7 +36,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		Organization: key.ClusterOrganization(clusterGuestConfig),
 	}
 
-	err = r.chartConfig.ApplyDeleteChange(ctx, clusterConfig, chartConfigsToDelete)
+	err = r.chartConfig.ApplyUpdateChange(ctx, clusterConfig, chartConfigsToUpdate)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
@@ -53,7 +53,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	return nil
 }
 
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
 	currentChartConfigs, err := toChartConfigs(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -64,7 +64,7 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 		return nil, microerror.Mask(err)
 	}
 
-	patch, err := r.chartConfig.NewDeletePatch(ctx, currentChartConfigs, desiredChartConfigs)
+	patch, err := r.chartConfig.NewUpdatePatch(ctx, currentChartConfigs, desiredChartConfigs)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

@@ -1,4 +1,4 @@
-package v22
+package kvm
 
 import (
 	"context"
@@ -25,9 +25,9 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	chartconfigservice "github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
 	configmapservice "github.com/giantswarm/cluster-operator/service/controller/internal/configmap"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm/v22/resource/configmap"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/key"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/resource/chartconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/kvm/resource/configmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
@@ -40,9 +40,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
-// ResourceSetConfig contains necessary dependencies and settings for
-// KVMClusterConfig controller ResourceSet configuration.
-type ResourceSetConfig struct {
+type resourceSetConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
 	CertSearcher      certs.Interface
@@ -62,8 +60,7 @@ type ResourceSetConfig struct {
 	ResourceNamespace     string
 }
 
-// NewResourceSet returns a configured KVMClusterConfig controller ResourceSet.
-func NewResourceSet(config ResourceSetConfig) (*controller.ResourceSet, error) {
+func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	if config.K8sClient == nil {

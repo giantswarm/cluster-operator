@@ -1,4 +1,4 @@
-package v22
+package kvm
 
 import (
 	"github.com/giantswarm/versionbundle"

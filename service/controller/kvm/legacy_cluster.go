@@ -15,7 +15,6 @@ import (
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 
-	v22 "github.com/giantswarm/cluster-operator/service/controller/kvm/v22"
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
@@ -79,9 +78,9 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 		}
 	}
 
-	var v22ResourceSet *controller.ResourceSet
+	var resourceSet *controller.ResourceSet
 	{
-		c := v22.ResourceSetConfig{
+		c := resourceSetConfig{
 			ApprClient:        config.ApprClient,
 			BaseClusterConfig: config.BaseClusterConfig,
 			CertSearcher:      config.CertSearcher,
@@ -100,7 +99,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			ResourceNamespace:  config.ResourceNamespace,
 		}
 
-		v22ResourceSet, err = v22.NewResourceSet(c)
+		resourceSet, err = newResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -114,7 +113,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				v22ResourceSet,
+				resourceSet,
 			},
 			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
 
