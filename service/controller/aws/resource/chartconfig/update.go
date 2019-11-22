@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	"github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )

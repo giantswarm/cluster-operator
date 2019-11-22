@@ -16,7 +16,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	pkgerrors "github.com/giantswarm/cluster-operator/service/controller/internal/errors"

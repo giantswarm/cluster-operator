@@ -10,7 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"

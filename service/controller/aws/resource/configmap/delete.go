@@ -5,39 +5,36 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	"github.com/giantswarm/cluster-operator/service/controller/internal/configmap"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
+func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
 	customObject, err := awskey.ToCustomObject(obj)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return microerror.Mask(err)
 	}
 
-	if key.IsDeleted(customObject.ObjectMeta) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting configmap deletion to provider operators")
-		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil, nil
+	configMapsToDelete, err := toConfigMaps(deleteChange)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	clusterGuestConfig := awskey.ClusterGuestConfig(customObject)
 	apiDomain, err := key.APIDomain(clusterGuestConfig)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return microerror.Mask(err)
 	}
 
 	clusterConfig := configmap.ClusterConfig{
 		APIDomain: apiDomain,
 		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
-	configMaps, err := r.configMap.GetCurrentState(ctx, clusterConfig)
+	err = r.configMap.ApplyDeleteChange(ctx, clusterConfig, configMapsToDelete)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
@@ -46,10 +43,29 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		reconciliationcanceledcontext.SetCanceled(ctx)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
-		return nil, nil
+		return nil
 	} else if err != nil {
+		return microerror.Mask(err)
+	}
+
+	return nil
+}
+
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+	currentConfigMaps, err := toConfigMaps(currentState)
+	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	return configMaps, nil
+	desiredConfigMaps, err := toConfigMaps(desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch, err := r.configMap.NewDeletePatch(ctx, currentConfigMaps, desiredConfigMaps)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return patch, nil
 }
