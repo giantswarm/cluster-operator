@@ -3,6 +3,7 @@
 
 # build result
 cluster-operator
+!helm/cluster-operator
 
 # don't apply earlier restrictions under vendor
 !vendor/**
