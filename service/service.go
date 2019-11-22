@@ -9,7 +9,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -17,22 +16,17 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"gopkg.in/resty.v1"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
-	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
 )
 
@@ -64,10 +58,7 @@ type Service struct {
 	awsLegacyClusterController   *aws.LegacyCluster
 	azureLegacyClusterController *azure.LegacyCluster
 	bootOnce                     sync.Once
-	clusterController            *clusterapi.Cluster
-	machineDeploymentController  *clusterapi.MachineDeployment
 	kvmLegacyClusterController   *kvm.LegacyCluster
-	operatorCollector            *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -109,11 +100,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	cmaClient, err := clientset.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	g8sClient, err := versioned.NewForConfig(restConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -137,23 +123,6 @@ func New(config Config) (*Service, error) {
 		return nil, microerror.Mask(err)
 	}
 
-	var dnsIP string
-	{
-		dnsIP, err = key.DNSIP(clusterIPRange)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var apiIP string
-	{
-		_, ip, err := parseClusterIPRange(config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange))
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-		apiIP = ip.String()
-	}
-
 	var apprClient *apprclient.Client
 	{
 		c := apprclient.Config{
@@ -165,22 +134,6 @@ func New(config Config) (*Service, error) {
 		}
 
 		apprClient, err = apprclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterClient *clusterclient.Client
-	{
-		c := clusterclient.Config{
-			Address: config.Viper.GetString(config.Flag.Service.ClusterService.Address),
-			Logger:  config.Logger,
-
-			// Timeout & RetryCount are straight from `api/service/service.go`.
-			RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
-		}
-
-		clusterClient, err = clusterclient.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -288,55 +241,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var clusterController *clusterapi.Cluster
-	{
-		c := clusterapi.ClusterConfig{
-			ApprClient:    apprClient,
-			CertsSearcher: certsSearcher,
-			ClusterClient: clusterClient,
-			CMAClient:     cmaClient,
-			FileSystem:    afero.NewOsFs(),
-			G8sClient:     g8sClient,
-			K8sClient:     k8sClient,
-			K8sExtClient:  k8sExtClient,
-			Logger:        config.Logger,
-			Tenant:        tenantCluster,
-
-			APIIP:              apiIP,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			CertTTL:            config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
-			ClusterIPRange:     clusterIPRange,
-			DNSIP:              dnsIP,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-		}
-
-		clusterController, err = clusterapi.NewCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var machineDeploymentController *clusterapi.MachineDeployment
-	{
-		c := clusterapi.MachineDeploymentConfig{
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
-			K8sExtClient: k8sExtClient,
-			Logger:       config.Logger,
-			Tenant:       tenantCluster,
-
-			ProjectName: config.ProjectName,
-			Provider:    provider,
-		}
-
-		machineDeploymentController, err = clusterapi.NewMachineDeployment(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var kvmLegacyClusterController *kvm.LegacyCluster
 	{
 		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
@@ -370,21 +274,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var operatorCollector *collector.Set
-	{
-		c := collector.SetConfig{
-			CertSearcher: certsSearcher,
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
-			Logger:       config.Logger,
-		}
-
-		operatorCollector, err = collector.NewSet(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
@@ -408,10 +297,7 @@ func New(config Config) (*Service, error) {
 		awsLegacyClusterController:   awsLegacyClusterController,
 		bootOnce:                     sync.Once{},
 		azureLegacyClusterController: azureLegacyClusterController,
-		clusterController:            clusterController,
-		machineDeploymentController:  machineDeploymentController,
 		kvmLegacyClusterController:   kvmLegacyClusterController,
-		operatorCollector:            operatorCollector,
 	}
 
 	return s, nil
@@ -420,13 +306,9 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		go s.operatorCollector.Boot(ctx)
-
 		// Start the controllers.
 		go s.awsLegacyClusterController.Boot(ctx)
 		go s.azureLegacyClusterController.Boot(ctx)
-		go s.clusterController.Boot(ctx)
-		go s.machineDeploymentController.Boot(ctx)
 		go s.kvmLegacyClusterController.Boot(ctx)
 	})
 }
