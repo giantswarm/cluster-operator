@@ -115,7 +115,7 @@ workflows:
             - push-cluster-operator-to-app-catalog
           filters:
             branches:
-              ignore: /.*/
+              only: voo-ci-please
             tags:
               only: /^v.*/
       - architect/push-to-app-collection:
