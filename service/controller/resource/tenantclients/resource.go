@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	Name = "tenantclientsv22"
+	Name = "tenantclients"
 )
 
 type Config struct {

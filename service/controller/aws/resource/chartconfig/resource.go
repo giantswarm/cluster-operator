@@ -10,7 +10,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "chartconfigv22"
+	Name = "chartconfig"
 )
 
 // Config represents the configuration used to create a new chartconfig resource.
