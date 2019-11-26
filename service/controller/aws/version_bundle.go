@@ -2,6 +2,8 @@ package aws
 
 import (
 	"github.com/giantswarm/versionbundle"
+
+	"github.com/giantswarm/cluster-operator/pkg/project"
 )
 
 func VersionBundle() versionbundle.Bundle {
@@ -56,6 +58,6 @@ func VersionBundle() versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: "aws",
-		Version:  "0.22.0",
+		Version:  project.BundleVersion(),
 	}
 }
