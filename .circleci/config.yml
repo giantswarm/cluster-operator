@@ -110,6 +110,7 @@ workflows:
       - architect/push-to-app-collection:
           name: push-cluster-operator-to-azure-app-collection
           app_name: "cluster-operator"
+          app_catalog: "control-plane-test-catalog"
           app_collection_repo: "azure-app-collection"
           requires:
             - push-cluster-operator-to-app-catalog
