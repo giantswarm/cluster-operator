@@ -1,4 +1,4 @@
-package v22
+package azure
 
 import (
 	"github.com/giantswarm/versionbundle"

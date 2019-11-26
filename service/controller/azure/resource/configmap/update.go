@@ -1,4 +1,4 @@
-package chartconfig
+package configmap
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
-	"github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/key"
+	"github.com/giantswarm/cluster-operator/service/controller/internal/configmap"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	customObject, err := azurekey.ToCustomObject(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	chartConfigsToDelete, err := toChartConfigs(deleteChange)
+	configMapsToUpdate, err := toConfigMaps(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -30,13 +30,11 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		return microerror.Mask(err)
 	}
 
-	clusterConfig := chartconfig.ClusterConfig{
-		APIDomain:    apiDomain,
-		ClusterID:    key.ClusterID(clusterGuestConfig),
-		Organization: key.ClusterOrganization(clusterGuestConfig),
+	clusterConfig := configmap.ClusterConfig{
+		APIDomain: apiDomain,
+		ClusterID: key.ClusterID(clusterGuestConfig),
 	}
-
-	err = r.chartConfig.ApplyDeleteChange(ctx, clusterConfig, chartConfigsToDelete)
+	err = r.configMap.ApplyUpdateChange(ctx, clusterConfig, configMapsToUpdate)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
@@ -53,18 +51,18 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	return nil
 }
 
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
-	currentChartConfigs, err := toChartConfigs(currentState)
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+	currentConfigMaps, err := toConfigMaps(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	desiredChartConfigs, err := toChartConfigs(desiredState)
+	desiredConfigMaps, err := toConfigMaps(desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	patch, err := r.chartConfig.NewDeletePatch(ctx, currentChartConfigs, desiredChartConfigs)
+	patch, err := r.configMap.NewUpdatePatch(ctx, currentConfigMaps, desiredConfigMaps)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
