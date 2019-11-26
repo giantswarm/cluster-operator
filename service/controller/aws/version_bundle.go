@@ -1,4 +1,4 @@
-package v22
+package aws
 
 import (
 	"github.com/giantswarm/versionbundle"

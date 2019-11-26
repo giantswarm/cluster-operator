@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/giantswarm/versionbundle"
 
-	awsv22 "github.com/giantswarm/cluster-operator/service/controller/aws/v22"
+	awsv22 "github.com/giantswarm/cluster-operator/service/controller/aws"
 	azurev22 "github.com/giantswarm/cluster-operator/service/controller/azure/v22"
 	"github.com/giantswarm/cluster-operator/service/controller/kvm"
 )
