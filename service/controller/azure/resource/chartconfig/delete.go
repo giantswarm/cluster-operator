@@ -5,20 +5,21 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
+	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/key"
 	"github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
 	customObject, err := azurekey.ToCustomObject(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	chartConfigsToCreate, err := toChartConfigs(createChange)
+	chartConfigsToDelete, err := toChartConfigs(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -35,7 +36,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 		Organization: key.ClusterOrganization(clusterGuestConfig),
 	}
 
-	err = r.chartConfig.ApplyCreateChange(ctx, clusterConfig, chartConfigsToCreate)
+	err = r.chartConfig.ApplyDeleteChange(ctx, clusterConfig, chartConfigsToDelete)
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 
@@ -50,4 +51,23 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	return nil
+}
+
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+	currentChartConfigs, err := toChartConfigs(currentState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	desiredChartConfigs, err := toChartConfigs(desiredState)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	patch, err := r.chartConfig.NewDeletePatch(ctx, currentChartConfigs, desiredChartConfigs)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return patch, nil
 }
