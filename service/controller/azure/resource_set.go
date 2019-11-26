@@ -22,6 +22,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/key"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/resource/configmap"
@@ -416,7 +417,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			return false
 		}
 
-		if key.VersionBundleVersion(azureClusterConfig) == VersionBundle().Version {
+		if key.VersionBundleVersion(azureClusterConfig) == project.BundleVersion() {
 			return true
 		}
 

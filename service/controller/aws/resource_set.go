@@ -22,6 +22,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/resource/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/aws/resource/configmap"
@@ -419,11 +420,11 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			return false
 		}
 
-		if key.OperatorVersion(&cr) == VersionBundle().Version {
+		if key.OperatorVersion(&cr) == project.BundleVersion() {
 			return true
 		}
 
-		if key.VersionBundleVersion(cr) == VersionBundle().Version {
+		if key.VersionBundleVersion(cr) == project.BundleVersion() {
 			return true
 		}
 
