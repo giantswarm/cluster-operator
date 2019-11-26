@@ -4,7 +4,8 @@ metadata:
   name: {{ tpl .Values.resource.default.name  . }}
   namespace: {{ tpl .Values.resource.default.namespace  . }}
   labels:
-    app: {{ tpl .Values.resource.default.name  . }}
+    app: {{ .Values.project.name }}
+    version: {{ .Values.project.version }}
 spec:
   replicas: 1
   strategy:
@@ -12,7 +13,8 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ tpl .Values.resource.default.name  . }}
+        app: {{ .Values.project.name }}
+        version: {{ .Values.project.version }}
       annotations:
         releasetime: {{ $.Release.Time }}
     spec:
@@ -41,7 +43,7 @@ spec:
         runAsGroup: {{ .Values.pod.group.id }}
       containers:
       - name: {{ .Values.project.name }}
-        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
         - daemon
         - --config.dirs=/var/run/{{ .Values.project.name }}/configmap/

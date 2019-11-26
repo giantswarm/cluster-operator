@@ -30,7 +30,7 @@ data:
           domain: '{{ .Values.Installation.V1.Registry.Domain }}'
       kubeconfig:
         resource:
-          namespace: 'giantswarm'  // TODO replace this too?
+          namespace: 'giantswarm'
       kubernetes:
         address: ''
         inCluster: true

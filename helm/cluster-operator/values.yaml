@@ -1,6 +1,6 @@
 image:
   registry: "quay.io"
-  repository: "giantswarm/cluster-operator"
+  name: "giantswarm/cluster-operator"
   tag: "[[ .Version ]]"
 pod:
   user:
@@ -9,6 +9,7 @@ pod:
     id: 1000
 project:
   name: "cluster-operator"
+  version: "[[ .Version ]]"
 # Resource names are truncated to 47 characters.
 #
 # Kubernetes allows 63 characters limit for resource names. When pods for
