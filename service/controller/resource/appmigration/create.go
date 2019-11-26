@@ -24,7 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	pkgerrors "github.com/giantswarm/cluster-operator/service/controller/internal/errors"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
