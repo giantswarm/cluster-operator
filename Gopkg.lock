@@ -227,11 +227,10 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2658f85d8e63b3b8bbd869be479fad9f17f0098f7f63c1d14d618500464d604c"
+  digest = "1:bc6d5c3483b46d299608393f7d733ae1c99c28c04911dc989cb6976e2e7bb17d"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
-    "pkg/apis/cluster/v1alpha1",
     "pkg/apis/core/v1alpha1",
     "pkg/apis/example/v1alpha1",
     "pkg/apis/provider/v1alpha1",
@@ -285,52 +284,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d72e4e1f2b0f30292983d5f293165fccaaf98ebfc9f7e371d07b8de387fece26"
-  name = "github.com/giantswarm/clusterclient"
-  packages = [
-    ".",
-    "service/cluster",
-    "service/cluster/creator",
-    "service/cluster/creator/request",
-    "service/cluster/creator/request/aws",
-    "service/cluster/creator/request/azure",
-    "service/cluster/creator/response",
-    "service/cluster/deleter",
-    "service/cluster/deleter/config",
-    "service/cluster/lister",
-    "service/cluster/lister/config",
-    "service/cluster/searcher",
-    "service/cluster/searcher/request",
-    "service/cluster/searcher/response",
-    "service/cluster/searcher/response/aws",
-    "service/cluster/searcher/response/azure",
-    "service/cluster/searcher/response/kvm",
-    "service/cluster/updater",
-    "service/cluster/updater/config",
-    "service/cluster/updater/config/aws",
-    "service/cluster/updater/config/azure",
-    "service/info",
-    "service/info/aws",
-    "service/info/aws/response",
-    "service/info/azure",
-    "service/info/azure/response",
-    "service/info/kvm",
-    "service/info/kvm/response",
-    "service/keypair",
-    "service/keypair/creator",
-    "service/keypair/creator/config",
-    "service/keypair/lister",
-    "service/keypair/lister/config",
-    "service/release",
-    "service/release/lister",
-    "service/release/searcher",
-    "service/root",
-  ]
-  pruneopts = "UT"
-  revision = "d30b8dceb12b2a94821aa2f6d052f9e45ede5592"
-
-[[projects]]
-  branch = "master"
   digest = "1:e9e6c4c2ae7f624a6eb1b768c582c05f200041de51faf5151b8e074eae917b57"
   name = "github.com/giantswarm/errors"
   packages = ["tenant"]
@@ -374,15 +327,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d36b8416dae93d8bd866dd958954b86cf28f5d62b2be18ac59fb5a0721b776ea"
-  name = "github.com/giantswarm/microclient"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "459b479d046f262eadb1549a4789d04097bd8b23"
-
-[[projects]]
-  branch = "master"
-  digest = "1:a2122f2c0fae0df1c4225df3c18e624d712566cb43eabc38c6f0914231cae2bb"
+  digest = "1:568716a2e87ca3f4fb9bce7f65b8491a2ab92c97adee4b2b750b1d76c709b183"
   name = "github.com/giantswarm/microendpoint"
   packages = [
     "endpoint/healthz",
@@ -391,7 +336,7 @@
     "service/version",
   ]
   pruneopts = "UT"
-  revision = "2c0b54e888d682445c698d2b2b3544b2001e84ac"
+  revision = "e991deac265373d9347b96ecc56b13f228be144f"
 
 [[projects]]
   branch = "master"
@@ -1808,28 +1753,6 @@
   revision = "8d271d903fe4c290aa361acfb242cff7bcee96f1"
 
 [[projects]]
-  digest = "1:68e65e6ae936d015b54ae88de740a492df5f141bc8037865f0253b42f5b23af8"
-  name = "sigs.k8s.io/cluster-api"
-  packages = [
-    "pkg/apis/cluster/common",
-    "pkg/apis/cluster/v1alpha1",
-    "pkg/client/clientset_generated/clientset",
-    "pkg/client/clientset_generated/clientset/scheme",
-    "pkg/client/clientset_generated/clientset/typed/cluster/v1alpha1",
-  ]
-  pruneopts = "UT"
-  revision = "91f68a197033feecfdf1b1683cc7e426fb133533"
-  version = "v0.1.10"
-
-[[projects]]
-  digest = "1:84a8609383bec11b71d52dd813f33f1d16614b91966940bdc2aa79bea864fa25"
-  name = "sigs.k8s.io/controller-runtime"
-  packages = ["pkg/runtime/scheme"]
-  pruneopts = "UT"
-  revision = "f1eaba5087d69cebb154c6a48193e6667f5b512c"
-  version = "v0.1.12"
-
-[[projects]]
   digest = "1:cb422c75bab66a8339a38b64e837f3b28f3d5a8c06abd7b9048f420363baa18a"
   name = "sigs.k8s.io/kustomize"
   packages = [
@@ -1883,7 +1806,6 @@
     "github.com/Azure/go-autorest/autorest",
     "github.com/docker/distribution/reference",
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
-    "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
@@ -1892,10 +1814,7 @@
     "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
-    "github.com/giantswarm/clusterclient",
-    "github.com/giantswarm/clusterclient/service/release/searcher",
     "github.com/giantswarm/errors/tenant",
-    "github.com/giantswarm/exporterkit/collector",
     "github.com/giantswarm/helmclient",
     "github.com/giantswarm/helmclient/helmclienttest",
     "github.com/giantswarm/kubeconfig",
@@ -1911,7 +1830,6 @@
     "github.com/giantswarm/operatorkit/client/k8scrdclient",
     "github.com/giantswarm/operatorkit/client/k8srestconfig",
     "github.com/giantswarm/operatorkit/controller",
-    "github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext",
     "github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext",
     "github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext",
     "github.com/giantswarm/operatorkit/flag/service/kubernetes",
@@ -1925,17 +1843,14 @@
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
     "github.com/google/go-cmp/cmp",
-    "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/afero",
     "github.com/spf13/viper",
-    "gopkg.in/resty.v1",
     "gopkg.in/yaml.v2",
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/api/meta",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
-    "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
     "k8s.io/apimachinery/pkg/types",
@@ -1945,8 +1860,6 @@
     "k8s.io/client-go/rest",
     "k8s.io/client-go/testing",
     "k8s.io/helm/pkg/helm",
-    "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1",
-    "sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
