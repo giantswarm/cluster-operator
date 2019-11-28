@@ -48,7 +48,7 @@ workflows:
             branches:
               ignore: master
             tags:
-              only: /^v.*/
+              ignore: /^v.*/
 
       - architect/push-to-docker:
           name: push-cluster-operator-to-aliyun-pr
@@ -67,7 +67,7 @@ workflows:
 
       # Push to Aliyun should execute without manual approval on master.
       - architect/push-to-docker:
-          name: push-cluster-operator-to-aliyun-master
+          name: push-cluster-operator-to-aliyun-tag
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
           password_envar: "ALIYUN_PASSWORD"
@@ -76,7 +76,7 @@ workflows:
           # Needed to trigger job only on merge to master.
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /^v.*/
 
