@@ -19,11 +19,6 @@ jobs:
         root: .
         paths:
         - ./cluster-operator
-    - deploy:
-        command: |
-          if [ "${CIRCLE_BRANCH}" == "thiccc" ]; then
-            ./architect deploy
-          fi
 
 workflows:
   build_and_push:

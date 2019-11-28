@@ -28,12 +28,9 @@ import (
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/cluster"
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/pkg/v22/key"
 	"github.com/giantswarm/cluster-operator/service/collector"
-	"github.com/giantswarm/cluster-operator/service/controller/aws"
-	"github.com/giantswarm/cluster-operator/service/controller/azure"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm"
 )
 
 const (
@@ -61,13 +58,10 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	awsLegacyClusterController   *aws.LegacyCluster
-	azureLegacyClusterController *azure.LegacyCluster
-	bootOnce                     sync.Once
-	clusterController            *clusterapi.Cluster
-	machineDeploymentController  *clusterapi.MachineDeployment
-	kvmLegacyClusterController   *kvm.LegacyCluster
-	operatorCollector            *collector.Set
+	bootOnce                    sync.Once
+	clusterController           *clusterapi.Cluster
+	machineDeploymentController *clusterapi.MachineDeployment
+	operatorCollector           *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -82,7 +76,6 @@ func New(config Config) (*Service, error) {
 	var err error
 
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
-	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.Secret.Namespace)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
@@ -222,72 +215,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var awsLegacyClusterController *aws.LegacyCluster
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := aws.LegacyClusterConfig{
-			ApprClient:        apprClient,
-			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certsSearcher,
-			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
-
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     registryDomain,
-			Provider:           provider,
-			ResourceNamespace:  resourceNamespace,
-		}
-
-		awsLegacyClusterController, err = aws.NewLegacyCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var azureLegacyClusterController *azure.LegacyCluster
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := azure.LegacyClusterConfig{
-			ApprClient:        apprClient,
-			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certsSearcher,
-			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
-
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
-		}
-
-		azureLegacyClusterController, err = azure.NewLegacyCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var clusterController *clusterapi.Cluster
 	{
 		c := clusterapi.ClusterConfig{
@@ -337,39 +264,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var kvmLegacyClusterController *kvm.LegacyCluster
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := kvm.LegacyClusterConfig{
-			ApprClient:        apprClient,
-			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certsSearcher,
-			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
-
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
-		}
-
-		kvmLegacyClusterController, err = kvm.NewLegacyCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -405,13 +299,10 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		awsLegacyClusterController:   awsLegacyClusterController,
-		bootOnce:                     sync.Once{},
-		azureLegacyClusterController: azureLegacyClusterController,
-		clusterController:            clusterController,
-		machineDeploymentController:  machineDeploymentController,
-		kvmLegacyClusterController:   kvmLegacyClusterController,
-		operatorCollector:            operatorCollector,
+		bootOnce:                    sync.Once{},
+		clusterController:           clusterController,
+		machineDeploymentController: machineDeploymentController,
+		operatorCollector:           operatorCollector,
 	}
 
 	return s, nil
@@ -423,11 +314,8 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.operatorCollector.Boot(ctx)
 
 		// Start the controllers.
-		go s.awsLegacyClusterController.Boot(ctx)
-		go s.azureLegacyClusterController.Boot(ctx)
 		go s.clusterController.Boot(ctx)
 		go s.machineDeploymentController.Boot(ctx)
-		go s.kvmLegacyClusterController.Boot(ctx)
 	})
 }
 

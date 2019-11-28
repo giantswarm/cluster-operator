@@ -8,24 +8,24 @@ func VersionBundle(p string) versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "nodepools",
-				Description: "Add Node Pools functionality. See https://docs.giantswarm.io/basics/nodepools/ for details.",
+				Component:   "cluster-autoscaler",
+				Description: "Updated to version 1.16.2.",
 				Kind:        versionbundle.KindChanged,
 			},
 			{
-				Component:   "kiam",
-				Description: "Add managed kiam app into default app catalog(aws only).",
-				Kind:        versionbundle.KindAdded,
+				Component:   "coredns",
+				Description: "Updated to version 1.6.5.",
+				Kind:        versionbundle.KindChanged,
 			},
 			{
-				Component:   "external-dns",
-				Description: "Add managed external-dns app into default app catalog.",
-				Kind:        versionbundle.KindAdded,
+				Component:   "net-exporter",
+				Description: "Updated to version 1.4.0.",
+				Kind:        versionbundle.KindChanged,
 			},
 			{
-				Component:   "cert-manager",
-				Description: "Add managed cert-manager app into default app catalog.",
-				Kind:        versionbundle.KindAdded,
+				Component:   "node-exporter",
+				Description: "Updated to version 0.18.1.",
+				Kind:        versionbundle.KindChanged,
 			},
 		},
 		Components: []versionbundle.Component{
@@ -39,15 +39,15 @@ func VersionBundle(p string) versionbundle.Bundle {
 			},
 			{
 				Name:    "node-exporter",
-				Version: "0.18.0",
+				Version: "0.18.1",
 			},
 			{
 				Name:    "coredns",
-				Version: "1.6.4",
+				Version: "1.6.5",
 			},
 			{
 				Name:    "cluster-autoscaler",
-				Version: "1.15.2",
+				Version: "1.16.2",
 			},
 			{
 				Name:    "metrics-server",

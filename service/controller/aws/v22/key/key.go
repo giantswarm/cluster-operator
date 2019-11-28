@@ -45,7 +45,7 @@ func AppSpecs() []key.AppSpec {
 			Chart:           "cluster-autoscaler-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.1",
+			Version:         "1.1.0",
 		},
 	}
 }
