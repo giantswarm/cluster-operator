@@ -63,7 +63,7 @@ workflows:
             branches:
               ignore: master
             tags:
-              only: /^v.*/
+              ignore: /^v.*/
 
       # Push to Aliyun should execute without manual approval on master.
       - architect/push-to-docker:
