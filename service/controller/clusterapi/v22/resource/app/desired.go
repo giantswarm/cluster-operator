@@ -19,7 +19,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 	pkgkey "github.com/giantswarm/cluster-operator/service/controller/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
