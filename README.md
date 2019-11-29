@@ -5,6 +5,21 @@
 The cluster-operator is an in-cluster agent that handles Giant Swarm guest
 cluster specific resources.
 
+## Branches
+
+- `thiccc`
+    - Up to and including version v0.21.0.
+    - Contains all versions of legacy controllers (reconciling
+      {AWS,Azure,KVM}ClusterConfig CRs) up to and including v0.21.0.
+- `legacy`
+    - From version v0.21.1 up to and including v0.x.x.
+    - Contains only the latest version of legacy controllers (reconciling
+      {AWS,Azure,KVM}ClusterConfig CRs).
+- `master`
+    - From version v2.0.0.
+    - Contains only the latest version of controllers (reconciling cluster API
+      objects).
+
 ## Getting Project
 
 Clone the git repository: https://github.com/giantswarm/cluster-operator.git
