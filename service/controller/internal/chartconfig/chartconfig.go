@@ -12,7 +12,7 @@ import (
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/key"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/v22/key"
+	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/key"
 )
 
 const (
