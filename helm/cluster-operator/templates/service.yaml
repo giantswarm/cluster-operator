@@ -12,6 +12,5 @@ spec:
   ports:
   - port: 8000
   selector:
-    matchLabels:
-      app: {{ .Values.project.name }}
-      version: {{ .Values.project.version }}
+    app: {{ .Values.project.name }}
+    version: {{ .Values.project.version }}
