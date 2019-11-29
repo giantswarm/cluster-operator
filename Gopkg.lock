@@ -49,12 +49,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:d37f34e1e231ee4b8657d1b6153e2696b1d7341850f648f5d78151d3bc1f677b"
+  digest = "1:a5f0485ed2aad9b9c6a730815d1f2bc92b0acc126d7ee8e36c1a51882fc284f5"
   name = "github.com/Masterminds/semver"
   packages = ["."]
   pruneopts = "UT"
-  revision = "fe7c21038085e01e67044ec1efe3afb1eaa59f75"
-  version = "v3.0.1"
+  revision = "25911d36c978be5eb3e81847734874fd4e1dc6c7"
+  version = "v3.0.2"
 
 [[projects]]
   digest = "1:b565deb585c50ab8e94fe5d6c9903f1495970b97814803e4ab0e70c0a9c87a30"
@@ -420,11 +420,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8c692f26876d709cd28e18f6b0c935b15539097d6dfd5e71af87f12d1f420874"
+  digest = "1:672e0eb4d4982ab6bb53c51a7d874f81267806557cd611149b88e22feaecd494"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "da16c09beea209bff3aff94585f6b8d81eee95e6"
+  revision = "21f4b8d7441e7dc7de8b2db37f712a675cf83a70"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"

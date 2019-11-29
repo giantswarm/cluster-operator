@@ -103,6 +103,10 @@ required = [
   name = "github.com/google/go-cmp"
   version = "0.2.0"
 
+[[override]]
+  name = "github.com/Masterminds/semver"
+  version = "=3.0.2"
+
 [[constraint]]
   name = "github.com/spf13/viper"
   version = "1.0.0"
