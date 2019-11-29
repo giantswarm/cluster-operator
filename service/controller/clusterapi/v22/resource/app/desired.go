@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/v22/key"
+	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/v22/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
