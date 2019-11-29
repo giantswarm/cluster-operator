@@ -1,2 +1,2 @@
-name: cluster-operator-chart
+name: cluster-operator
 version: 1.0.0-[[ .SHA ]]
