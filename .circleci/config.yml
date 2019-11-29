@@ -23,11 +23,13 @@ jobs:
 workflows:
   build_and_push:
     jobs:
+      # build binary
       - build:
           filters:
             tags:
               only: /^v.*/
 
+      # build and push docker image to quay
       - architect/push-to-docker:
           name: push-cluster-operator-to-quay
           image: "quay.io/giantswarm/cluster-operator"
@@ -50,22 +52,22 @@ workflows:
             tags:
               ignore: /^v.*/
 
+      # build and push docker image to aliyun (only PRs branches)
       - architect/push-to-docker:
           name: push-cluster-operator-to-aliyun-pr
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
           password_envar: "ALIYUN_PASSWORD"
-          # Push to Aliyun should execute for non-legacy branches only once manually approved.
+          # requires manual approval
           requires:
             - hold-push-cluster-operator-to-aliyun-pr
-          # Needed to prevent job from being triggered on legacy branch.
           filters:
             branches:
               ignore: legacy
             tags:
               ignore: /^v.*/
 
-      # Push to Aliyun should execute without manual approval on tag.
+      # build and push docker image to aliyun (only tags)
       - architect/push-to-docker:
           name: push-cluster-operator-to-aliyun-tag
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
@@ -73,13 +75,13 @@ workflows:
           password_envar: "ALIYUN_PASSWORD"
           requires:
             - build
-          # Needed to trigger job only on tag.
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /^v.*/
 
+      # build and push chart to app catalog
       - architect/push-to-app-catalog:
           name: push-cluster-operator-to-app-catalog
           app_catalog: "control-plane-catalog"
@@ -91,6 +93,8 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+
+      # deploy to aws installations (only tags)
       - architect/push-to-app-collection:
           name: push-cluster-operator-to-aws-app-collection
           app_name: "cluster-operator"
@@ -102,6 +106,8 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+
+      # deploy to azure installations (only tags)
       - architect/push-to-app-collection:
           name: push-cluster-operator-to-azure-app-collection
           app_name: "cluster-operator"
@@ -113,6 +119,8 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+
+      # deploy to kvm installations (only tags)
       - architect/push-to-app-collection:
           name: push-cluster-operator-to-kvm-app-collection
           app_name: "cluster-operator"
