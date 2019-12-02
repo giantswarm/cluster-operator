@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app: cluster-operator
+    version: {{ .Chart.Version }}
   annotations:
     prometheus.io/scrape: "true"
 spec:
