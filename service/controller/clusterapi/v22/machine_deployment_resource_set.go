@@ -15,6 +15,7 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/machinedeploymentstatus"
@@ -112,7 +113,7 @@ func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) 
 			return false
 		}
 
-		if key.OperatorVersion(&cr) == VersionBundle(config.Provider).Version {
+		if key.OperatorVersion(&cr) == project.VersionBundle(config.Provider).Version {
 			return true
 		}
 
