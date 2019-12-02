@@ -23,11 +23,9 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - cluster-operator
+                matchLabels:
+                  app: cluster-operator
+                  version: {{ .Chart.Version }}
               topologyKey: kubernetes.io/hostname
             weight: 100
       volumes:
