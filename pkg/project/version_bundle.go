@@ -1,4 +1,4 @@
-package v22
+package project
 
 import (
 	"github.com/giantswarm/versionbundle"
