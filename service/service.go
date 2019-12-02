@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
@@ -27,6 +28,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -287,7 +289,7 @@ func New(config Config) (*Service, error) {
 			Name:           config.ProjectName,
 			Source:         config.Source,
 			Version:        config.Version,
-			VersionBundles: NewVersionBundles(provider),
+			VersionBundles: []versionbundle.Bundle{project.VersionBundle(provider)},
 		}
 
 		versionService, err = version.New(versionConfig)
