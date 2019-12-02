@@ -16,11 +16,11 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 )
 
 type MachineDeploymentResourceSetConfig struct {
