@@ -1,4 +1,4 @@
-package v22
+package controller
 
 import (
 	"context"
@@ -39,9 +39,9 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 )
 
-// ClusterResourceSetConfig contains necessary dependencies and settings for
+// clusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
-type ClusterResourceSetConfig struct {
+type clusterResourceSetConfig struct {
 	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
@@ -62,9 +62,9 @@ type ClusterResourceSetConfig struct {
 	RegistryDomain     string
 }
 
-// NewClusterResourceSet returns a configured Cluster API's Cluster controller
+// newClusterResourceSet returns a configured Cluster API's Cluster controller
 // ResourceSet.
-func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
+func newClusterResourceSet(config clusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	var appGetter appresource.StateGetter

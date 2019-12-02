@@ -30,7 +30,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/collector"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi"
+	"github.com/giantswarm/cluster-operator/service/controller"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
@@ -61,8 +61,8 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce                    sync.Once
-	clusterController           *clusterapi.Cluster
-	machineDeploymentController *clusterapi.MachineDeployment
+	clusterController           *controller.Cluster
+	machineDeploymentController *controller.MachineDeployment
 	operatorCollector           *collector.Set
 }
 
@@ -217,9 +217,9 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var clusterController *clusterapi.Cluster
+	var clusterController *controller.Cluster
 	{
-		c := clusterapi.ClusterConfig{
+		c := controller.ClusterConfig{
 			ApprClient:    apprClient,
 			CertsSearcher: certsSearcher,
 			ClusterClient: clusterClient,
@@ -241,15 +241,15 @@ func New(config Config) (*Service, error) {
 			RegistryDomain:     registryDomain,
 		}
 
-		clusterController, err = clusterapi.NewCluster(c)
+		clusterController, err = controller.NewCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var machineDeploymentController *clusterapi.MachineDeployment
+	var machineDeploymentController *controller.MachineDeployment
 	{
-		c := clusterapi.MachineDeploymentConfig{
+		c := controller.MachineDeploymentConfig{
 			CMAClient:    cmaClient,
 			G8sClient:    g8sClient,
 			K8sExtClient: k8sExtClient,
@@ -260,7 +260,7 @@ func New(config Config) (*Service, error) {
 			Provider:    provider,
 		}
 
-		machineDeploymentController, err = clusterapi.NewMachineDeployment(c)
+		machineDeploymentController, err = controller.NewMachineDeployment(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

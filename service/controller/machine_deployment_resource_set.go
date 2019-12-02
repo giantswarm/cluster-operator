@@ -1,4 +1,4 @@
-package v22
+package controller
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 )
 
-type MachineDeploymentResourceSetConfig struct {
+type machineDeploymentResourceSetConfig struct {
 	CMAClient clientset.Interface
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
@@ -32,7 +32,7 @@ type MachineDeploymentResourceSetConfig struct {
 	Provider string
 }
 
-func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
+func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	var machineDeploymentStatusResource resource.Interface

@@ -1,4 +1,4 @@
-package clusterapi
+package controller
 
 import (
 	clusterv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
@@ -12,8 +12,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
-
-	v22 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22"
 )
 
 type MachineDeploymentConfig struct {
@@ -63,9 +61,9 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 		}
 	}
 
-	var resourceSetV22 *controller.ResourceSet
+	var resourceSet *controller.ResourceSet
 	{
-		c := v22.MachineDeploymentResourceSetConfig{
+		c := machineDeploymentResourceSetConfig{
 			CMAClient: config.CMAClient,
 			G8sClient: config.G8sClient,
 			Logger:    config.Logger,
@@ -74,7 +72,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 			Provider: config.Provider,
 		}
 
-		resourceSetV22, err = v22.NewMachineDeploymentResourceSet(c)
+		resourceSet, err = newMachineDeploymentResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -88,7 +86,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV22,
+				resourceSet,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 
