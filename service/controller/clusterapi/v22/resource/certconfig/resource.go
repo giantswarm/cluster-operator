@@ -98,8 +98,8 @@ func getCertConfigByName(list []*v1alpha1.CertConfig, name string) (*v1alpha1.Ce
 }
 
 func isCertConfigModified(a, b *v1alpha1.CertConfig) bool {
-	aVersion := key.CertConfigVersionBundleVersion(*a)
-	bVersion := key.CertConfigVersionBundleVersion(*b)
+	aVersion := key.CertConfigCertOperatorVersion(*a)
+	bVersion := key.CertConfigCertOperatorVersion(*b)
 	return aVersion != bVersion
 }
 

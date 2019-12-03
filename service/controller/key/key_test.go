@@ -105,7 +105,7 @@ func Test_CertConfigName(t *testing.T) {
 	}
 }
 
-func Test_CertConfigVersionBundleVersion(t *testing.T) {
+func Test_CertConfigCertOperatorVersion(t *testing.T) {
 	testCases := []struct {
 		description     string
 		certConfig      v1alpha1.CertConfig
@@ -119,9 +119,9 @@ func Test_CertConfigVersionBundleVersion(t *testing.T) {
 		{
 			description: "CertConfig with version",
 			certConfig: v1alpha1.CertConfig{
-				Spec: v1alpha1.CertConfigSpec{
-					VersionBundle: v1alpha1.CertConfigSpecVersionBundle{
-						Version: "1.0.1",
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"cert-operator.giantswarm.io/version": "1.0.1",
 					},
 				},
 			},
@@ -131,7 +131,7 @@ func Test_CertConfigVersionBundleVersion(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			version := CertConfigVersionBundleVersion(tc.certConfig)
+			version := CertConfigCertOperatorVersion(tc.certConfig)
 			if version != tc.expectedVersion {
 				t.Fatalf("version '%s' doesn't match expected '%s'", version, tc.expectedVersion)
 			}
