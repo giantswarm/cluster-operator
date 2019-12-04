@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     app: cluster-operator
+    version: {{ .Chart.Version }}
 spec:
   replicas: 1
   strategy:
@@ -13,6 +14,7 @@ spec:
     metadata:
       labels:
         app: cluster-operator
+        version: {{ .Chart.Version }}
       annotations:
         releasetime: {{ $.Release.Time }}
     spec:
@@ -21,11 +23,9 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - cluster-operator
+                matchLabels:
+                  app: cluster-operator
+                  version: {{ .Chart.Version }}
               topologyKey: kubernetes.io/hostname
             weight: 100
       volumes:
