@@ -227,7 +227,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2658f85d8e63b3b8bbd869be479fad9f17f0098f7f63c1d14d618500464d604c"
+  digest = "1:19f874ece2fff8514bb506587f95bf5c1de1679920a636da59b9213cdf8a5430"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -237,30 +237,21 @@
     "pkg/apis/provider/v1alpha1",
     "pkg/apis/release/v1alpha1",
     "pkg/clientset/versioned",
-    "pkg/clientset/versioned/fake",
     "pkg/clientset/versioned/scheme",
     "pkg/clientset/versioned/typed/application/v1alpha1",
-    "pkg/clientset/versioned/typed/application/v1alpha1/fake",
     "pkg/clientset/versioned/typed/core/v1alpha1",
-    "pkg/clientset/versioned/typed/core/v1alpha1/fake",
     "pkg/clientset/versioned/typed/example/v1alpha1",
-    "pkg/clientset/versioned/typed/example/v1alpha1/fake",
     "pkg/clientset/versioned/typed/provider/v1alpha1",
-    "pkg/clientset/versioned/typed/provider/v1alpha1/fake",
     "pkg/clientset/versioned/typed/release/v1alpha1",
-    "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
   revision = "efa5c38da056932db3d24b786daf200b856dc9a2"
 
 [[projects]]
   branch = "master"
-  digest = "1:8862dd990e1d3ef61a2b1641462cc7cea0c784a51953684b2a905664c4e86248"
+  digest = "1:38ccf11d8d528b65b7776ca80ed70ccff043d53df42ed7d0779a06e2a4181495"
   name = "github.com/giantswarm/apprclient"
-  packages = [
-    ".",
-    "apprclienttest",
-  ]
+  packages = ["."]
   pruneopts = "UT"
   revision = "2f76bb5782052d7812786b664bee280b9971bf7f"
 
@@ -274,12 +265,9 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2a4282222b28b6b7b6e59b1b20b09b8a9a39641f6fd0117955789b853bdb5e57"
+  digest = "1:1277cd324153912fb762e7305ceedbc8e1e89bef9a3b320960a5f38dbf7f7358"
   name = "github.com/giantswarm/certs"
-  packages = [
-    ".",
-    "certstest",
-  ]
+  packages = ["."]
   pruneopts = "UT"
   revision = "776376d011031615b44d4080a0f2efaa301d6ddd"
 
@@ -347,12 +335,9 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c9ed9ad3b6f0727084cea6ac59a48cb32e566bbd908cd0b86f3222ce5807d9b1"
+  digest = "1:28713da767adbb226195e7e48e02975d3291bcf7607f91a34bc3db0a75e079a2"
   name = "github.com/giantswarm/helmclient"
-  packages = [
-    ".",
-    "helmclienttest",
-  ]
+  packages = ["."]
   pruneopts = "UT"
   revision = "386916cdcc22ddd332022e045d26d0e345562116"
 
@@ -426,12 +411,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c313924ca7110c452a83502384552f4dd2ed25dd0f3ab8aa8a34707315243561"
+  digest = "1:90c6d64e0533a0fa637bf64c0fe978e9616971502acea37e76e53ab8c9a6545f"
   name = "github.com/giantswarm/micrologger"
   packages = [
     ".",
     "loggermeta",
-    "microloggertest",
   ]
   pruneopts = "UT"
   revision = "d866337f739365a54de5924b8a7b29df17693ef8"
@@ -481,11 +465,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8c692f26876d709cd28e18f6b0c935b15539097d6dfd5e71af87f12d1f420874"
+  digest = "1:672e0eb4d4982ab6bb53c51a7d874f81267806557cd611149b88e22feaecd494"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "da16c09beea209bff3aff94585f6b8d81eee95e6"
+  revision = "21f4b8d7441e7dc7de8b2db37f712a675cf83a70"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
@@ -1404,12 +1388,11 @@
   version = "kubernetes-1.15.4"
 
 [[projects]]
-  digest = "1:646980c4e76f0fd66bf089c53c19c36b6aceed68338528ebc568ed3fb1003916"
+  digest = "1:197c2f83a36d89f52a9d3a9f179957484b4db013bfc114740c82d331b26fc3d4"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
     "discovery/cached/disk",
-    "discovery/fake",
     "dynamic",
     "dynamic/dynamicinformer",
     "dynamic/dynamiclister",
@@ -1465,80 +1448,43 @@
     "informers/storage/v1alpha1",
     "informers/storage/v1beta1",
     "kubernetes",
-    "kubernetes/fake",
     "kubernetes/scheme",
     "kubernetes/typed/admissionregistration/v1beta1",
-    "kubernetes/typed/admissionregistration/v1beta1/fake",
     "kubernetes/typed/apps/v1",
-    "kubernetes/typed/apps/v1/fake",
     "kubernetes/typed/apps/v1beta1",
-    "kubernetes/typed/apps/v1beta1/fake",
     "kubernetes/typed/apps/v1beta2",
-    "kubernetes/typed/apps/v1beta2/fake",
     "kubernetes/typed/auditregistration/v1alpha1",
-    "kubernetes/typed/auditregistration/v1alpha1/fake",
     "kubernetes/typed/authentication/v1",
-    "kubernetes/typed/authentication/v1/fake",
     "kubernetes/typed/authentication/v1beta1",
-    "kubernetes/typed/authentication/v1beta1/fake",
     "kubernetes/typed/authorization/v1",
-    "kubernetes/typed/authorization/v1/fake",
     "kubernetes/typed/authorization/v1beta1",
-    "kubernetes/typed/authorization/v1beta1/fake",
     "kubernetes/typed/autoscaling/v1",
-    "kubernetes/typed/autoscaling/v1/fake",
     "kubernetes/typed/autoscaling/v2beta1",
-    "kubernetes/typed/autoscaling/v2beta1/fake",
     "kubernetes/typed/autoscaling/v2beta2",
-    "kubernetes/typed/autoscaling/v2beta2/fake",
     "kubernetes/typed/batch/v1",
-    "kubernetes/typed/batch/v1/fake",
     "kubernetes/typed/batch/v1beta1",
-    "kubernetes/typed/batch/v1beta1/fake",
     "kubernetes/typed/batch/v2alpha1",
-    "kubernetes/typed/batch/v2alpha1/fake",
     "kubernetes/typed/certificates/v1beta1",
-    "kubernetes/typed/certificates/v1beta1/fake",
     "kubernetes/typed/coordination/v1",
-    "kubernetes/typed/coordination/v1/fake",
     "kubernetes/typed/coordination/v1beta1",
-    "kubernetes/typed/coordination/v1beta1/fake",
     "kubernetes/typed/core/v1",
-    "kubernetes/typed/core/v1/fake",
     "kubernetes/typed/events/v1beta1",
-    "kubernetes/typed/events/v1beta1/fake",
     "kubernetes/typed/extensions/v1beta1",
-    "kubernetes/typed/extensions/v1beta1/fake",
     "kubernetes/typed/networking/v1",
-    "kubernetes/typed/networking/v1/fake",
     "kubernetes/typed/networking/v1beta1",
-    "kubernetes/typed/networking/v1beta1/fake",
     "kubernetes/typed/node/v1alpha1",
-    "kubernetes/typed/node/v1alpha1/fake",
     "kubernetes/typed/node/v1beta1",
-    "kubernetes/typed/node/v1beta1/fake",
     "kubernetes/typed/policy/v1beta1",
-    "kubernetes/typed/policy/v1beta1/fake",
     "kubernetes/typed/rbac/v1",
-    "kubernetes/typed/rbac/v1/fake",
     "kubernetes/typed/rbac/v1alpha1",
-    "kubernetes/typed/rbac/v1alpha1/fake",
     "kubernetes/typed/rbac/v1beta1",
-    "kubernetes/typed/rbac/v1beta1/fake",
     "kubernetes/typed/scheduling/v1",
-    "kubernetes/typed/scheduling/v1/fake",
     "kubernetes/typed/scheduling/v1alpha1",
-    "kubernetes/typed/scheduling/v1alpha1/fake",
     "kubernetes/typed/scheduling/v1beta1",
-    "kubernetes/typed/scheduling/v1beta1/fake",
     "kubernetes/typed/settings/v1alpha1",
-    "kubernetes/typed/settings/v1alpha1/fake",
     "kubernetes/typed/storage/v1",
-    "kubernetes/typed/storage/v1/fake",
     "kubernetes/typed/storage/v1alpha1",
-    "kubernetes/typed/storage/v1alpha1/fake",
     "kubernetes/typed/storage/v1beta1",
-    "kubernetes/typed/storage/v1beta1/fake",
     "listers/admissionregistration/v1beta1",
     "listers/apps/v1",
     "listers/apps/v1beta1",
@@ -1587,7 +1533,6 @@
     "scale/scheme/autoscalingv1",
     "scale/scheme/extensionsint",
     "scale/scheme/extensionsv1beta1",
-    "testing",
     "third_party/forked/golang/template",
     "tools/auth",
     "tools/cache",
@@ -1886,18 +1831,12 @@
     "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
-    "github.com/giantswarm/apiextensions/pkg/clientset/versioned/fake",
     "github.com/giantswarm/apprclient",
-    "github.com/giantswarm/apprclient/apprclienttest",
-    "github.com/giantswarm/backoff",
     "github.com/giantswarm/certs",
-    "github.com/giantswarm/certs/certstest",
     "github.com/giantswarm/clusterclient",
     "github.com/giantswarm/clusterclient/service/release/searcher",
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/exporterkit/collector",
-    "github.com/giantswarm/helmclient",
-    "github.com/giantswarm/helmclient/helmclienttest",
     "github.com/giantswarm/kubeconfig",
     "github.com/giantswarm/microendpoint/endpoint/healthz",
     "github.com/giantswarm/microendpoint/endpoint/version",
@@ -1907,7 +1846,6 @@
     "github.com/giantswarm/microkit/flag",
     "github.com/giantswarm/microkit/server",
     "github.com/giantswarm/micrologger",
-    "github.com/giantswarm/micrologger/microloggertest",
     "github.com/giantswarm/operatorkit/client/k8scrdclient",
     "github.com/giantswarm/operatorkit/client/k8srestconfig",
     "github.com/giantswarm/operatorkit/controller",
@@ -1924,7 +1862,6 @@
     "github.com/giantswarm/resource/appresource",
     "github.com/giantswarm/tenantcluster",
     "github.com/giantswarm/versionbundle",
-    "github.com/google/go-cmp/cmp",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/spf13/afero",
     "github.com/spf13/viper",
@@ -1933,18 +1870,12 @@
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
     "k8s.io/apimachinery/pkg/api/errors",
-    "k8s.io/apimachinery/pkg/api/meta",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
-    "k8s.io/apimachinery/pkg/runtime/schema",
-    "k8s.io/apimachinery/pkg/types",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
-    "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/rest",
-    "k8s.io/client-go/testing",
-    "k8s.io/helm/pkg/helm",
     "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1",
     "sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset",
   ]
