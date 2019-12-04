@@ -4,12 +4,11 @@ import "net"
 
 // Config data structure provides configuration values for cluster.
 type Config struct {
-	ClusterID            string
-	CertTTL              string
-	Domain               Domain
-	IP                   IP
-	Organization         string
-	VersionBundleVersion string
+	ClusterID    string
+	CertTTL      string
+	Domain       Domain
+	IP           IP
+	Organization string
 }
 
 // Domain data structure holds different domain entries for cluster components.

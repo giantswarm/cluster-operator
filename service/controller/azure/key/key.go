@@ -58,10 +58,6 @@ func ToCustomObject(v interface{}) (v1alpha1.AzureClusterConfig, error) {
 	return *customObjectPointer, nil
 }
 
-func VersionBundleVersion(azureClusterConfig v1alpha1.AzureClusterConfig) string {
-	return azureClusterConfig.Spec.VersionBundle.Version
-}
-
 func WorkerCount(azureClusterConfig v1alpha1.AzureClusterConfig) int {
 	return len(azureClusterConfig.Spec.Guest.Workers)
 }

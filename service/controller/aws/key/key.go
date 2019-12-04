@@ -88,11 +88,6 @@ func ToCustomObject(v interface{}) (v1alpha1.AWSClusterConfig, error) {
 	return *customObjectPointer, nil
 }
 
-// VersionBundleVersion extracts version bundle version from AWSClusterConfig.
-func VersionBundleVersion(awsClusterConfig v1alpha1.AWSClusterConfig) string {
-	return awsClusterConfig.Spec.VersionBundle.Version
-}
-
 func WorkerCount(awsClusterConfig v1alpha1.AWSClusterConfig) int {
 	return len(awsClusterConfig.Spec.Guest.Workers)
 }

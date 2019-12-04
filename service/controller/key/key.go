@@ -8,8 +8,8 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/versionbundle"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -53,10 +53,14 @@ func CertConfigName(clusterID string, cert certs.Cert) string {
 	return fmt.Sprintf("%s-%s", clusterID, cert)
 }
 
-// CertConfigVersionBundleVersion returns version bundle version for given
+// CertConfigCertOperatorVersion returns version bundle version for given
 // CertConfig.
-func CertConfigVersionBundleVersion(customObject v1alpha1.CertConfig) string {
-	return customObject.Spec.VersionBundle.Version
+func CertConfigCertOperatorVersion(cr v1alpha1.CertConfig) string {
+	if cr.Labels == nil {
+		return ""
+	}
+
+	return cr.Labels[label.CertOperatorVersion]
 }
 
 // CIDRBlock returns a CIDR block for the given address and prefix.
@@ -300,16 +304,4 @@ func serverDomain(clusterGuestConfig v1alpha1.ClusterGuestConfig, cert certs.Cer
 	}
 
 	return string(cert) + "." + strings.TrimLeft(commonDomain, "\t ."), nil
-}
-
-// VersionBundles returns slice of versionbundle.Bundles for given guest
-// cluster config.
-func VersionBundles(clusterGuestConfig v1alpha1.ClusterGuestConfig) []versionbundle.Bundle {
-	versionBundles := make([]versionbundle.Bundle, len(clusterGuestConfig.VersionBundles))
-	for i, vb := range clusterGuestConfig.VersionBundles {
-		versionBundles[i].Name = vb.Name
-		versionBundles[i].Version = vb.Version
-	}
-
-	return versionBundles
 }
