@@ -1,4 +1,4 @@
-package v22
+package controller
 
 import (
 	"context"
@@ -16,14 +16,14 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/machinedeploymentstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
 
-type MachineDeploymentResourceSetConfig struct {
+type machineDeploymentResourceSetConfig struct {
 	CMAClient clientset.Interface
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
@@ -32,7 +32,7 @@ type MachineDeploymentResourceSetConfig struct {
 	Provider string
 }
 
-func NewMachineDeploymentResourceSet(config MachineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
+func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	var machineDeploymentStatusResource resource.Interface

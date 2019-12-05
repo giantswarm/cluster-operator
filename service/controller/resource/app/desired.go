@@ -16,8 +16,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
 	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	pkgkey "github.com/giantswarm/cluster-operator/service/controller/key"
 	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/key"
 )

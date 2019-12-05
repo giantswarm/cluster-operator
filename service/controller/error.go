@@ -1,4 +1,4 @@
-package v22
+package controller
 
 import "github.com/giantswarm/microerror"
 

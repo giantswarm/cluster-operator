@@ -1,4 +1,4 @@
-package clusterapi
+package controller
 
 import (
 	clusterv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
@@ -19,7 +19,6 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	v22 "github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22"
 )
 
 // ClusterConfig contains necessary dependencies and settings for
@@ -83,9 +82,9 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		}
 	}
 
-	var resourceSetV22 *controller.ResourceSet
+	var resourceSet *controller.ResourceSet
 	{
-		c := v22.ClusterResourceSetConfig{
+		c := clusterResourceSetConfig{
 			ApprClient:    config.ApprClient,
 			CertsSearcher: config.CertsSearcher,
 			ClusterClient: config.ClusterClient,
@@ -106,7 +105,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			RegistryDomain:     config.RegistryDomain,
 		}
 
-		resourceSetV22, err = v22.NewClusterResourceSet(c)
+		resourceSet, err = newClusterResourceSet(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -120,7 +119,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Informer:  newInformer,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
-				resourceSetV22,
+				resourceSet,
 			},
 			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
 

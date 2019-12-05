@@ -1,4 +1,4 @@
-package v22
+package controller
 
 import (
 	"context"
@@ -22,26 +22,26 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/app"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/cleanupmachinedeployments"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/clusterid"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/clusterstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/cpnamespace"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/operatorversions"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/tenantclients"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/updatemachinedeployments"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
 
-// ClusterResourceSetConfig contains necessary dependencies and settings for
+// clusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
-type ClusterResourceSetConfig struct {
+type clusterResourceSetConfig struct {
 	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
@@ -62,9 +62,9 @@ type ClusterResourceSetConfig struct {
 	RegistryDomain     string
 }
 
-// NewClusterResourceSet returns a configured Cluster API's Cluster controller
+// newClusterResourceSet returns a configured Cluster API's Cluster controller
 // ResourceSet.
-func NewClusterResourceSet(config ClusterResourceSetConfig) (*controller.ResourceSet, error) {
+func newClusterResourceSet(config clusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
 	var appGetter appresource.StateGetter
