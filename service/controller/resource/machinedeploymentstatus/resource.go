@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	Name = "machinedeploymentstatusv22"
+	Name = "machinedeploymentstatus"
 )
 
 type Config struct {

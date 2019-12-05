@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	Name = "operatorversionsv22"
+	Name = "operatorversions"
 )
 
 type Config struct {

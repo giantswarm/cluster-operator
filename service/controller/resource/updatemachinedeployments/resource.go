@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Name = "updatemachinedeploymentsv22"
+	Name = "updatemachinedeployments"
 )
 
 type Config struct {

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "appv22"
+	Name = "app"
 )
 
 // Config represents the configuration used to create a new chartconfig service.

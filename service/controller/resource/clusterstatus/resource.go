@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "clusterstatusv22"
+	Name = "clusterstatus"
 )
 
 type Config struct {
