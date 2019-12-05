@@ -13,6 +13,8 @@ func ClusterCommonStatus(cluster cmav1alpha1.Cluster) g8sv1alpha1.CommonClusterS
 	return g8sClusterCommonStatusFromCMAClusterStatus(cluster.Status.ProviderStatus)
 }
 
+// ClusterConfigMapName returns the cluster name used in the configMap
+// generated for this tenant cluster.
 func ClusterConfigMapName(getter LabelsGetter) string {
 	return fmt.Sprintf("%s-cluster-values", ClusterID(getter))
 }
