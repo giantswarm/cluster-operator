@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 const (

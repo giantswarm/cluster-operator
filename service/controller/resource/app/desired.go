@@ -14,9 +14,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
-	pkgkey "github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
@@ -90,7 +89,7 @@ func (r *Resource) getSecrets(ctx context.Context, cr cmav1alpha1.Cluster) (map[
 	return secrets, nil
 }
 
-func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
 	// Override config map name when specified.
@@ -146,36 +145,36 @@ func (r *Resource) newApp(cc controllercontext.Context, cr cmav1alpha1.Cluster, 
 	}
 }
 
-func (r *Resource) newAppSpecs() []pkgkey.AppSpec {
+func (r *Resource) newAppSpecs() []key.AppSpec {
 	switch r.provider {
 	case "aws":
-		return append(pkgkey.CommonAppSpecs(), pkgkey.AWSAppSpecs()...)
+		return append(key.CommonAppSpecs(), key.AWSAppSpecs()...)
 	case "azure":
-		return append(pkgkey.CommonAppSpecs(), pkgkey.AzureAppSpecs()...)
+		return append(key.CommonAppSpecs(), key.AzureAppSpecs()...)
 	case "kvm":
-		return append(pkgkey.CommonAppSpecs(), pkgkey.KVMAppSpecs()...)
+		return append(key.CommonAppSpecs(), key.KVMAppSpecs()...)
 	default:
-		return pkgkey.CommonAppSpecs()
+		return key.CommonAppSpecs()
 	}
 }
 
-func newUserConfig(cr cmav1alpha1.Cluster, appSpec pkgkey.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
+func newUserConfig(cr cmav1alpha1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
 	userConfig := g8sv1alpha1.AppSpecUserConfig{}
 
-	_, ok := configMaps[pkgkey.AppUserConfigMapName(appSpec)]
+	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]
 	if ok {
 		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
-			Name:      pkgkey.AppUserConfigMapName(appSpec),
+			Name:      key.AppUserConfigMapName(appSpec),
 			Namespace: key.ClusterID(&cr),
 		}
 
 		userConfig.ConfigMap = configMapSpec
 	}
 
-	_, ok = secrets[pkgkey.AppUserSecretName(appSpec)]
+	_, ok = secrets[key.AppUserSecretName(appSpec)]
 	if ok {
 		secretSpec := g8sv1alpha1.AppSpecUserConfigSecret{
-			Name:      pkgkey.AppUserSecretName(appSpec),
+			Name:      key.AppUserSecretName(appSpec),
 			Namespace: key.ClusterID(&cr),
 		}
 

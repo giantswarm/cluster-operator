@@ -5,7 +5,7 @@ import (
 
 	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi/v22/key"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func secretName(cr v1alpha1.Cluster) string {
