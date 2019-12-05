@@ -2,14 +2,12 @@ package key
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-// AppSpecs returns apps installed only for AWS.
-func AppSpecs() []key.AppSpec {
+// AWSAppSpecs returns apps installed only for AWS.
+func AWSAppSpecs() []AppSpec {
 	// Add any provider specific charts here.
-	return []key.AppSpec{
+	return []AppSpec{
 		{
 			App:             "external-dns",
 			Catalog:         "default",
@@ -46,4 +44,25 @@ func AppSpecs() []key.AppSpec {
 			Version:         "1.1.0",
 		},
 	}
+}
+
+// AzureAppSpecs returns apps installed only for Azure.
+func AzureAppSpecs() []AppSpec {
+	// Add any provider specific charts here.
+	return []AppSpec{
+		{
+			App:             "external-dns",
+			Catalog:         "default",
+			Chart:           "external-dns-app",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.0",
+		},
+	}
+}
+
+// KVMAppSpecs returns apps installed only for KVM.
+func KVMAppSpecs() []AppSpec {
+	// Add any provider specific charts here.
+	return []AppSpec{}
 }
