@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	Name = "clusteridv22"
+	Name = "clusterid"
 )
 
 type Config struct {

@@ -11,7 +11,7 @@ import (
 
 const (
 	// Name is the identifier of the resource.
-	Name = "certconfigv22"
+	Name = "certconfig"
 )
 
 const (
