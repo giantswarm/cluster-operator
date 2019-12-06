@@ -68,6 +68,6 @@ func VersionBundle(p string) versionbundle.Bundle {
 		},
 		Name:     "cluster-operator",
 		Provider: p,
-		Version:  "2.0.0-dev",
+		Version:  BundleVersion(),
 	}
 }
