@@ -113,7 +113,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 			return false
 		}
 
-		if key.OperatorVersion(&cr) == project.VersionBundle(config.Provider).Version {
+		if key.OperatorVersion(&cr) == project.BundleVersion() {
 			return true
 		}
 
