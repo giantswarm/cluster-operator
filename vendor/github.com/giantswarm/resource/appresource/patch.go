@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 )
 
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
 	p, err := r.newPatch(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -16,7 +16,7 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 	return p, nil
 }
 
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
 	p, err := r.newPatch(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -25,7 +25,7 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 	return p, nil
 }
 
-func (r *Resource) newPatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+func (r *Resource) newPatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
 	create, err := r.newCreateChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -41,7 +41,7 @@ func (r *Resource) newPatch(ctx context.Context, obj, currentState, desiredState
 		return nil, microerror.Mask(err)
 	}
 
-	patch := controller.NewPatch()
+	patch := crud.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetDeleteChange(delete)
 	patch.SetUpdateChange(update)

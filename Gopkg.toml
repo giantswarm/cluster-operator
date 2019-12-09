@@ -73,8 +73,8 @@
   branch = "master"
   name = "github.com/giantswarm/resource"
 
-[[override]]
-  branch = "k8s-1-16"
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/tenantcluster"
 
 [[constraint]]
