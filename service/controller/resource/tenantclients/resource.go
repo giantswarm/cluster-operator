@@ -3,11 +3,11 @@ package tenantclients
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -64,20 +64,9 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var g8sClient versioned.Interface
-	var k8sClient kubernetes.Interface
+	var restConfig *rest.Config
 	{
-		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
-		if tenantcluster.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		k8sClient, err = r.tenant.NewK8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
+		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(&cr), key.APIEndpoint(cr, cc.Status.Endpoint.Base))
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -88,9 +77,21 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		}
 	}
 
+	var k8sClient k8sclient.Interface
 	{
-		cc.Client.TenantCluster.G8s = g8sClient
-		cc.Client.TenantCluster.K8s = k8sClient
+		c := k8sclient.ClientsConfig{
+			RestConfig: rest.CopyConfig(restConfig),
+		}
+
+		k8sClient, err = k8sclient.NewClients(c)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
+	{
+		cc.Client.TenantCluster.G8s = k8sClient.G8sClient()
+		cc.Client.TenantCluster.K8s = k8sClient.K8sClient()
 	}
 
 	return nil

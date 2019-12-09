@@ -1,13 +1,15 @@
 package collector
 
 import (
+	"context"
+
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
@@ -43,7 +45,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	}
 
 	c := &Cluster{
-		cmaClient: config.CMAClient,
+		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 	}
 
@@ -51,14 +53,23 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 }
 
 func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
-	list, err := c.cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).List(metav1.ListOptions{})
+	ctx := context.Background()
+	list := &apiv1alpha2.ClusterList{}
+
+	err := c.k8sClient.CtrlClient().List(ctx, list)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	for _, cluster := range list.Items {
+		statusReader := &infrastructurev1alpha2.StatusReader{}
+		err := c.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: cluster.Spec.InfrastructureRef.Name, Namespace: cluster.Spec.InfrastructureRef.Namespace}, statusReader)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
 		{
-			latest := key.ClusterCommonStatus(cluster).LatestCondition()
+			latest := statusReader.Status.Cluster.LatestCondition()
 
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,

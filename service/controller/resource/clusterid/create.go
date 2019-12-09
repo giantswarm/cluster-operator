@@ -4,38 +4,28 @@ import (
 	"context"
 	"fmt"
 
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	old, err := key.ToCluster(obj)
+	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	var cr clusterv1alpha2.Cluster
-	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
-
-		cl, err := r.cmaClient.ClusterV1alpha1().Clusters(old.Namespace).Get(old.Name, metav1.GetOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		cr = *cl
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
+	statusReader := &infrastructurev1alpha2.StatusReader{}
+	err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: cr.Spec.InfrastructureRef.Name, Namespace: cr.Spec.InfrastructureRef.Namespace}, statusReader)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
-	status := key.ClusterCommonStatus(cr)
-
 	{
-		if status.ID != "" {
+		if statusReader.Status.Cluster.ID != "" {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q has cluster id in status", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
@@ -52,10 +42,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-		status.ID = key.ClusterID(&cr)
-		new := r.commonClusterStatusAccessor.SetCommonClusterStatus(cr, status)
+		statusReader.Status.Cluster.ID = key.ClusterID(&cr)
 
-		_, err = r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&new)
+		err = r.k8sClient.CtrlClient().Status().Update(ctx, statusReader)
 		if err != nil {
 			return microerror.Mask(err)
 		}

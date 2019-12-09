@@ -1,4 +1,4 @@
-package clusterid
+package basedomain
 
 import (
 	"github.com/giantswarm/k8sclient"
@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Name = "clusterid"
+	Name = "basedomain"
 )
 
 type Config struct {

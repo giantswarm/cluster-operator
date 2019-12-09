@@ -10,6 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -18,11 +19,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
 	var configMap *corev1.ConfigMap
 	{
 		v := map[string]string{
-			"baseDomain":   key.TenantBaseDomain(cr),
+			"baseDomain":   key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
 			"clusterDNSIP": r.dnsIP,
 			"clusterID":    key.ClusterID(&cr),
 		}
