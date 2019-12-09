@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "infrastructure/v1alpha2"
-  digest = "1:4056e9d7f3db9c3a76d1e478eec52a2e4b816d80bbea62982f92ac94920425a3"
+  digest = "1:cf9c200b8c99c2ea59ad36fc29d0eacc686d774fcf3dcbd21049b18af9996028"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "4b68a5314324981f2a940757ab245354ef4de5d5"
+  revision = "1c2ef27be4bcbdf257742a5f8acd3ca68e694205"
 
 [[projects]]
   branch = "master"
@@ -98,11 +98,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2f7917651b57cc2e4a92745b29ede61a0432b4b9225d59ae66e0d7f569bc456c"
+  digest = "1:330792610e9867b25e94acf7f5ca1061dc6f45c0502d1439522bc50068c2b722"
   name = "github.com/giantswarm/certs"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ada4896290219c76ac213d690eb1903981ad5cac"
+  revision = "3f774da07e59f9446507f506cae152c93ad2e46c"
 
 [[projects]]
   branch = "master"
@@ -684,7 +684,7 @@
     "publicsuffix",
   ]
   pruneopts = "UT"
-  revision = "e7e4b65ae66375ec1e85afc8e6b9b4933ae4da81"
+  revision = "c0dbc17a35534bf2e581d7a942408dc936316da4"
 
 [[projects]]
   branch = "master"
@@ -1161,6 +1161,7 @@
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
     "sigs.k8s.io/cluster-api/api/v1alpha2",
+    "sigs.k8s.io/controller-runtime/pkg/client",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
