@@ -2,9 +2,9 @@ package clusterstatus
 
 import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
 const (
@@ -13,7 +13,7 @@ const (
 
 type Config struct {
 	Accessor  Accessor
-	CMAClient clientset.Interface
+	K8sClient k8sclient.Interface
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 
@@ -22,7 +22,7 @@ type Config struct {
 
 type Resource struct {
 	accessor  Accessor
-	cmaClient clientset.Interface
+	k8sClient k8sclient.Interface
 	g8sClient versioned.Interface
 	logger    micrologger.Logger
 
@@ -33,8 +33,8 @@ func New(config Config) (*Resource, error) {
 	if config.Accessor == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Accessor must not be empty", config)
 	}
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)

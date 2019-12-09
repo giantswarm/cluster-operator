@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -21,20 +21,20 @@ const (
 )
 
 type Config struct {
-	CMAClient clientset.Interface
+	K8sClient k8sclient.Interface
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 }
 
 type Resource struct {
-	cmaClient clientset.Interface
+	k8sClient k8sclient.Interface
 	g8sClient versioned.Interface
 	logger    micrologger.Logger
 }
 
 func New(config Config) (*Resource, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
@@ -66,7 +66,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var md *v1alpha1.MachineDeployment
+	var md *clusterv1alpha2.MachineDeployment
 	{
 		md, err = r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).Get(cr.Name, metav1.GetOptions{})
 		if err != nil {

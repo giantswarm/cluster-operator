@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -12,8 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -24,8 +23,7 @@ import (
 )
 
 type machineDeploymentResourceSetConfig struct {
-	CMAClient clientset.Interface
-	G8sClient versioned.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 	Tenant    tenantcluster.Interface
 
@@ -38,9 +36,9 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	var machineDeploymentStatusResource resource.Interface
 	{
 		c := machinedeploymentstatus.Config{
-			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			G8sClient:  config.K8sClient.G8sClient(),
+			Logger:     config.Logger,
 		}
 
 		machineDeploymentStatusResource, err = machinedeploymentstatus.New(c)
@@ -138,16 +136,16 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	return resourceSet, nil
 }
 
-func newMachineDeploymentToClusterFunc(cmaClient clientset.Interface) func(obj interface{}) (v1alpha1.Cluster, error) {
-	return func(obj interface{}) (v1alpha1.Cluster, error) {
+func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(obj interface{}) (apiv1alpha2.Cluster, error) {
+	return func(obj interface{}) (apiv1alpha2.Cluster, error) {
 		cr, err := key.ToMachineDeployment(obj)
 		if err != nil {
-			return v1alpha1.Cluster{}, microerror.Mask(err)
+			return apiv1alpha2.Cluster{}, microerror.Mask(err)
 		}
 
 		m, err := cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Get(key.ClusterID(&cr), metav1.GetOptions{})
 		if err != nil {
-			return v1alpha1.Cluster{}, microerror.Mask(err)
+			return apiv1alpha2.Cluster{}, microerror.Mask(err)
 		}
 
 		return *m, nil

@@ -1,12 +1,12 @@
 package collector
 
 import (
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 )
@@ -43,18 +43,18 @@ var (
 )
 
 type NodePoolConfig struct {
-	CMAClient clientset.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
 
 type NodePool struct {
-	cmaClient clientset.Interface
+	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 }
 
 func NewNodePool(config NodePoolConfig) (*NodePool, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)

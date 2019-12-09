@@ -2,17 +2,17 @@ package key
 
 import (
 	"github.com/giantswarm/microerror"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 )
 
-func ToMachineDeployment(v interface{}) (v1alpha1.MachineDeployment, error) {
+func ToMachineDeployment(v interface{}) (clusterv1alpha2.MachineDeployment, error) {
 	if v == nil {
-		return v1alpha1.MachineDeployment{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.MachineDeployment{}, v)
+		return clusterv1alpha2.MachineDeployment{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &clusterv1alpha2.MachineDeployment{}, v)
 	}
 
-	p, ok := v.(*v1alpha1.MachineDeployment)
+	p, ok := v.(*clusterv1alpha2.MachineDeployment)
 	if !ok {
-		return v1alpha1.MachineDeployment{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.MachineDeployment{}, v)
+		return clusterv1alpha2.MachineDeployment{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &clusterv1alpha2.MachineDeployment{}, v)
 	}
 
 	c := p.DeepCopy()

@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -20,7 +20,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var machineDeployments []v1alpha1.MachineDeployment
+	var machineDeployments []clusterv1alpha2.MachineDeployment
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding machine deployments for tenant cluster")
 

@@ -6,25 +6,23 @@ import (
 	"sync"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
+	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
 	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -104,19 +102,22 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	cmaClient, err := clientset.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	var k8sClient *k8sclient.Clients
+	{
+		c := k8sclient.ClientsConfig{
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				infrastructurev1alpha2.AddToScheme,
+				apiv1alpha2.AddToScheme,
+			},
+			Logger: config.Logger,
 
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+			RestConfig: restConfig,
+		}
 
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
+		k8sClient, err = k8sclient.NewClients(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	// TODO drop the migration once it is done.
@@ -125,11 +126,6 @@ func New(config Config) (*Service, error) {
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-	}
-
-	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	var dnsIP string
@@ -184,7 +180,7 @@ func New(config Config) (*Service, error) {
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
-			K8sClient: k8sClient,
+			K8sClient: k8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WatchTimeout: 5 * time.Second,
@@ -223,11 +219,8 @@ func New(config Config) (*Service, error) {
 			ApprClient:    apprClient,
 			CertsSearcher: certsSearcher,
 			ClusterClient: clusterClient,
-			CMAClient:     cmaClient,
 			FileSystem:    afero.NewOsFs(),
-			G8sClient:     g8sClient,
 			K8sClient:     k8sClient,
-			K8sExtClient:  k8sExtClient,
 			Logger:        config.Logger,
 			Tenant:        tenantCluster,
 
@@ -250,14 +243,11 @@ func New(config Config) (*Service, error) {
 	var machineDeploymentController *controller.MachineDeployment
 	{
 		c := controller.MachineDeploymentConfig{
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
-			K8sExtClient: k8sExtClient,
-			Logger:       config.Logger,
-			Tenant:       tenantCluster,
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+			Tenant:    tenantCluster,
 
-			ProjectName: config.ProjectName,
-			Provider:    provider,
+			Provider: provider,
 		}
 
 		machineDeploymentController, err = controller.NewMachineDeployment(c)
@@ -270,8 +260,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := collector.SetConfig{
 			CertSearcher: certsSearcher,
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
 			Logger:       config.Logger,
 		}
 
@@ -363,14 +352,14 @@ func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	return networkIP, apiServerIP, nil
 }
 
-func migrateSecretLabels(logger micrologger.Logger, k8sClient kubernetes.Interface) error {
+func migrateSecretLabels(logger micrologger.Logger, k8sClient k8sclient.Interface) error {
 	var secrets []*corev1.Secret
 	{
 		o := metav1.ListOptions{
 			LabelSelector: "clusterKey=encryption",
 		}
 
-		l, err := k8sClient.CoreV1().Secrets(corev1.NamespaceAll).List(o)
+		l, err := k8sClient.K8sClient().CoreV1().Secrets(corev1.NamespaceAll).List(o)
 		if err != nil {
 			return microerror.Mask(err)
 		}

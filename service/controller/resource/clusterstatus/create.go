@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	g8sv1alpha "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -13,7 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -37,7 +37,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	var cr cmav1alpha1.Cluster
+	var cr clusterv1alpha2.Cluster
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 
@@ -70,7 +70,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	var machineDeployments []cmav1alpha1.MachineDeployment
+	var machineDeployments []clusterv1alpha2.MachineDeployment
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
 
@@ -116,7 +116,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllercontext.Context, cluster cmav1alpha1.Cluster, clusterStatus g8sv1alpha.CommonClusterStatus, nodes []corev1.Node, machineDeployments []cmav1alpha1.MachineDeployment) g8sv1alpha.CommonClusterStatus {
+func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllercontext.Context, cluster clusterv1alpha2.Cluster, clusterStatus infrastructurev1alpha2.CommonClusterStatus, nodes []corev1.Node, machineDeployments []clusterv1alpha2.MachineDeployment) infrastructurev1alpha2.CommonClusterStatus {
 	providerOperatorVersionLabel := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
 
 	var currentVersion string
@@ -151,7 +151,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllerc
 
 		if notCreating && conditionsEmpty && versionsEmpty {
 			clusterStatus.Conditions = clusterStatus.WithCreatingCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionCreating))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreating))
 		}
 	}
 
@@ -165,7 +165,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllerc
 
 		if isCreating && notCreated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithCreatedCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionCreated))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreated))
 		}
 	}
 
@@ -179,7 +179,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllerc
 
 		if isCreated && notUpdating && versionDiffers {
 			clusterStatus.Conditions = clusterStatus.WithUpdatingCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionUpdating))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdating))
 		}
 	}
 
@@ -194,7 +194,7 @@ func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllerc
 
 		if isUpdating && notUpdated && sameCount && sameVersion {
 			clusterStatus.Conditions = clusterStatus.WithUpdatedCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", g8sv1alpha.ClusterStatusConditionUpdated))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdated))
 		}
 	}
 

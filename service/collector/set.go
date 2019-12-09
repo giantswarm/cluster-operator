@@ -1,18 +1,16 @@
 package collector
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/exporterkit/collector"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
 type SetConfig struct {
 	CertSearcher certs.Interface
-	CMAClient    clientset.Interface
-	G8sClient    versioned.Interface
+	K8sClient    k8sclient.Interface
 	Logger       micrologger.Logger
 }
 

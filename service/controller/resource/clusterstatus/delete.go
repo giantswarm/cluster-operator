@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
@@ -47,14 +47,14 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeDeleteClusterConditions(ctx context.Context, clusterStatus v1alpha1.CommonClusterStatus) v1alpha1.CommonClusterStatus {
+func (r *Resource) computeDeleteClusterConditions(ctx context.Context, clusterStatus infrastructurev1alpha2.CommonClusterStatus) infrastructurev1alpha2.CommonClusterStatus {
 	// On Deletion we always add the deleting status condition.
 	// We skip adding the condition if it's already set.
 	{
 		notDeleting := !clusterStatus.HasDeletingCondition()
 		if notDeleting {
 			clusterStatus.Conditions = clusterStatus.WithDeletingCondition()
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", v1alpha1.ClusterStatusConditionDeleting))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionDeleting))
 		}
 	}
 

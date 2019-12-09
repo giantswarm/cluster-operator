@@ -3,11 +3,11 @@ package encryptionkey
 import (
 	"fmt"
 
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-func secretName(cr v1alpha1.Cluster) string {
+func secretName(cr clusterv1alpha2.Cluster) string {
 	return fmt.Sprintf("%s-%s", key.ClusterID(&cr), "encryption")
 }

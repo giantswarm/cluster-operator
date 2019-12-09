@@ -3,7 +3,7 @@ package workercount
 import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 )
 
 const (
@@ -12,12 +12,12 @@ const (
 
 type Config struct {
 	Logger        micrologger.Logger
-	ToClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
+	ToClusterFunc func(v interface{}) (clusterv1alpha2.Cluster, error)
 }
 
 type Resource struct {
 	logger        micrologger.Logger
-	toClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
+	toClusterFunc func(v interface{}) (clusterv1alpha2.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {

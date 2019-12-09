@@ -3,15 +3,8 @@ package key
 import (
 	"fmt"
 
-	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
-	cmav1alpha1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-
 	"github.com/giantswarm/cluster-operator/pkg/label"
 )
-
-func ClusterCommonStatus(cluster cmav1alpha1.Cluster) g8sv1alpha1.CommonClusterStatus {
-	return g8sClusterCommonStatusFromCMAClusterStatus(cluster.Status.ProviderStatus)
-}
 
 // ClusterConfigMapName returns the cluster name used in the configMap
 // generated for this tenant cluster.

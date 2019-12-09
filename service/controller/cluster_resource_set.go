@@ -3,14 +3,15 @@ package controller
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
 	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
@@ -18,8 +19,6 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -45,10 +44,8 @@ type clusterResourceSetConfig struct {
 	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
-	CMAClient     clientset.Interface
 	FileSystem    afero.Fs
-	G8sClient     versioned.Interface
-	K8sClient     kubernetes.Interface
+	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
 
@@ -70,8 +67,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Provider: config.Provider,
@@ -86,7 +83,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appResource resource.Interface
 	{
 		c := appresource.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			Name:        app.Name,
@@ -107,7 +104,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			APIIP:    config.APIIP,
@@ -142,7 +139,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterConfigMapGetter configmapresource.StateGetter
 	{
 		c := clusterconfigmap.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			DNSIP: config.DNSIP,
@@ -157,7 +154,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterConfigMapResource resource.Interface
 	{
 		c := configmapresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        clusterconfigmap.Name,
@@ -180,7 +177,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := clusterid.Config{
 			CMAClient:                   config.CMAClient,
 			CommonClusterStatusAccessor: &key.AWSClusterStatusAccessor{},
-			G8sClient:                   config.G8sClient,
+			G8sClient:                   config.K8sClient.G8sClient(),
 			Logger:                      config.Logger,
 		}
 
@@ -195,7 +192,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := clusterstatus.Config{
 			Accessor:  &key.AWSClusterStatusAccessor{},
 			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 			Provider:  config.Provider,
 		}
@@ -209,7 +206,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var cpNamespaceResource resource.Interface
 	{
 		c := cpnamespace.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 
@@ -227,7 +224,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var encryptionKeyGetter secretresource.StateGetter
 	{
 		c := encryptionkey.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 
@@ -240,7 +237,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var encryptionKeyResource resource.Interface
 	{
 		c := secretresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        encryptionkey.Name,
@@ -262,7 +259,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	{
 		c := kubeconfig.Config{
 			CertsSearcher: config.CertsSearcher,
-			K8sClient:     config.K8sClient,
+			K8sClient:     config.K8sClient.K8sClient(),
 			Logger:        config.Logger,
 		}
 
@@ -275,7 +272,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var kubeConfigResource resource.Interface
 	{
 		c := secretresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        kubeconfig.Name,
@@ -426,13 +423,13 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	return resourceSet, nil
 }
 
-func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
-	c := controller.CRUDResourceConfig{
+func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {
+	c := crud.ResourceConfig{
+		CRUD:   v,
 		Logger: logger,
-		Ops:    ops,
 	}
 
-	r, err := controller.NewCRUDResource(c)
+	r, err := crud.NewResource(c)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
