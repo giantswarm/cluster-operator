@@ -19,15 +19,12 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
-	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 
 	"github.com/giantswarm/cluster-operator/flag"
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller"
@@ -117,14 +114,6 @@ func New(config Config) (*Service, error) {
 	k8sClient, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
-	}
-
-	// TODO drop the migration once it is done.
-	{
-		err := migrateSecretLabels(config.Logger, k8sClient)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
 	}
 
 	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
@@ -361,58 +350,4 @@ func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	apiServerIP := net.IPv4(networkIP[0], networkIP[1], networkIP[2], apiServerIPLastOctet)
 
 	return networkIP, apiServerIP, nil
-}
-
-func migrateSecretLabels(logger micrologger.Logger, k8sClient kubernetes.Interface) error {
-	var secrets []*corev1.Secret
-	{
-		o := metav1.ListOptions{
-			LabelSelector: "clusterKey=encryption",
-		}
-
-		l, err := k8sClient.CoreV1().Secrets(corev1.NamespaceAll).List(o)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		for _, s := range l.Items {
-			secrets = append(secrets, s.DeepCopy())
-		}
-	}
-
-	for _, s := range secrets {
-		if hasLabels(s, label.Cluster, label.RandomKey) {
-			continue
-		}
-
-		s.Labels[label.Cluster] = s.Labels["clusterID"]
-		s.Labels[label.RandomKey] = label.RandomKeyTypeEncryption
-
-		_, err := k8sClient.CoreV1().Secrets(s.Namespace).Update(s)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	return nil
-}
-
-func hasLabels(s *corev1.Secret, labels ...string) bool {
-	for _, l := range labels {
-		if !hasLabel(s, l) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func hasLabel(s *corev1.Secret, l string) bool {
-	for k := range s.Labels {
-		if k == l {
-			return true
-		}
-	}
-
-	return false
 }
