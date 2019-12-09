@@ -8,7 +8,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -63,7 +62,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 
 	for _, cluster := range list.Items {
 		statusReader := &infrastructurev1alpha2.StatusReader{}
-		err := c.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: cluster.Spec.InfrastructureRef.Name, Namespace: cluster.Spec.InfrastructureRef.Namespace}, statusReader)
+		err := c.k8sClient.CtrlClient().Get(ctx, key.InfrastructureRef(cluster), statusReader)
 		if err != nil {
 			return microerror.Mask(err)
 		}

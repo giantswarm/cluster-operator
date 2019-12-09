@@ -7,7 +7,6 @@ import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
@@ -19,7 +18,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	statusReader := &infrastructurev1alpha2.StatusReader{}
-	err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: cr.Spec.InfrastructureRef.Name, Namespace: cr.Spec.InfrastructureRef.Namespace}, statusReader)
+	err = r.k8sClient.CtrlClient().Get(ctx, key.InfrastructureRef(cr), statusReader)
 	if err != nil {
 		return microerror.Mask(err)
 	}

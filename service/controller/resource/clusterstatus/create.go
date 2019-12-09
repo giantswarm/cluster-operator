@@ -11,9 +11,8 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -21,10 +20,6 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	old, err := key.ToCluster(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
@@ -37,16 +32,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	var cr clusterv1alpha2.Cluster
+	cr := &apiv1alpha2.Cluster{}
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 
-		cl, err := r.cmaClient.ClusterV1alpha1().Clusters(old.Namespace).Get(old.Name, metav1.GetOptions{})
+		cl, err := key.ToCluster(obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		cr = *cl
+		err = r.k8sClient.CtrlClient().Get(ctx, key.InfrastructureRef(cl), cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
@@ -70,27 +68,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	var machineDeployments []clusterv1alpha2.MachineDeployment
+	machineDeployments := &apiv1alpha2.MachineDeploymentList{}
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
 
-		l := metav1.AddLabelToSelector(
-			&v1.LabelSelector{},
-			label.Cluster,
-			key.ClusterID(&cr),
+		err = r.k8sClient.CtrlClient().List(
+			ctx,
+			machineDeployments,
+			client.InNamespace(cr.Namespace),
+			client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
 		)
-		o := metav1.ListOptions{
-			LabelSelector: labels.Set(l.MatchLabels).String(),
-		}
-
-		list, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).List(o)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		machineDeployments = list.Items
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(machineDeployments)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(machineDeployments.Items)))
 	}
 
 	updatedStatus := r.computeClusterConditions(ctx, cc, cr, r.accessor.GetCommonClusterStatus(cr), nodes, machineDeployments)
@@ -116,7 +108,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllercontext.Context, cluster clusterv1alpha2.Cluster, clusterStatus infrastructurev1alpha2.CommonClusterStatus, nodes []corev1.Node, machineDeployments []clusterv1alpha2.MachineDeployment) infrastructurev1alpha2.CommonClusterStatus {
+func (r *Resource) computeClusterConditions(ctx context.Context, cc *controllercontext.Context, cluster apiv1alpha2.Cluster, clusterStatus infrastructurev1alpha2.CommonClusterStatus, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) infrastructurev1alpha2.CommonClusterStatus {
 	providerOperatorVersionLabel := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
 
 	var currentVersion string
