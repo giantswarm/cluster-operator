@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "infrastructure/v1alpha2"
-  digest = "1:abff0b77e8cf5825cf2d6307bf438db665fd4aedc4b415c82ae07b8f9792d597"
+  digest = "1:4056e9d7f3db9c3a76d1e478eec52a2e4b816d80bbea62982f92ac94920425a3"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "5f7f26ec5b9125dca8c653d0fd4f802e01f13616"
+  revision = "4b68a5314324981f2a940757ab245354ef4de5d5"
 
 [[projects]]
   branch = "master"
@@ -1157,6 +1157,7 @@
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apimachinery/pkg/types",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
     "sigs.k8s.io/cluster-api/api/v1alpha2",
