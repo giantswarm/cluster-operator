@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 
-	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
@@ -42,7 +41,6 @@ import (
 // clusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
 type clusterResourceSetConfig struct {
-	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
 	FileSystem    afero.Fs

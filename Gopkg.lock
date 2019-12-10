@@ -82,14 +82,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9df3a29f6c60e6a436e53384d94d15fec3187b9bf9463aaa1a7d9d61931e51ba"
-  name = "github.com/giantswarm/apprclient"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "955b7e89e6e212610b2f233082fbe76636c8acf1"
-
-[[projects]]
-  branch = "master"
   digest = "1:0dc70d5c96ccd9ef24d12f7c222447425447f7a2ec72556f2479137fe72f5476"
   name = "github.com/giantswarm/backoff"
   packages = ["."]
@@ -707,14 +699,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8191c209ac2aaba9e958a061256fab8955ad10cc731aa609660184800f1ef55a"
+  digest = "1:472d3f5adc36e1c0b9120bc3830d692a090134aa5461335f39caabd0fdb7feac"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "eeba5f6aabab6d6594a9191d6bfeaca5fa6a8248"
+  revision = "ac6580df4449443a05718fd7858c1f91ad5f8d20"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1116,7 +1108,6 @@
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
-    "github.com/giantswarm/apprclient",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/clusterclient",
     "github.com/giantswarm/clusterclient/service/release/searcher",
@@ -1155,7 +1146,6 @@
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
-    "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/types",
     "k8s.io/client-go/kubernetes",

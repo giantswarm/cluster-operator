@@ -2,7 +2,6 @@ package controller
 
 import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
@@ -20,7 +19,6 @@ import (
 // ClusterConfig contains necessary dependencies and settings for
 // Cluster API's Cluster CRD controller implementation.
 type ClusterConfig struct {
-	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
 	FileSystem    afero.Fs
@@ -49,7 +47,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var resourceSet *controller.ResourceSet
 	{
 		c := clusterResourceSetConfig{
-			ApprClient:    config.ApprClient,
 			CertsSearcher: config.CertsSearcher,
 			ClusterClient: config.ClusterClient,
 			FileSystem:    config.FileSystem,
