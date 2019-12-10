@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -19,30 +18,24 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var machineDeployments []clusterv1alpha2.MachineDeployment
+	mdList := &apiv1alpha2.MachineDeploymentList{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding machine deployments for tenant cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
 
-		l := metav1.AddLabelToSelector(
-			&metav1.LabelSelector{},
-			label.Cluster,
-			key.ClusterID(&cr),
+		err = r.k8sClient.CtrlClient().List(
+			ctx,
+			mdList,
+			client.InNamespace(cr.Namespace),
+			client.MatchingLabels{label.Cluster: key.ClusterID(&cr)},
 		)
-		o := metav1.ListOptions{
-			LabelSelector: labels.Set(l.MatchLabels).String(),
-		}
-
-		list, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(cr.Namespace).List(o)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		machineDeployments = list.Items
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d machine deployments for tenant cluster", len(machineDeployments)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
 	}
 
-	for _, md := range machineDeployments {
+	for _, md := range mdList.Items {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
 
 		var updated bool
@@ -88,7 +81,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if updated {
-			_, err := r.cmaClient.ClusterV1alpha1().MachineDeployments(md.Namespace).Update(&md)
+			err = r.k8sClient.CtrlClient().Update(ctx, &md)
 			if err != nil {
 				return microerror.Mask(err)
 			}

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
@@ -52,8 +53,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			CertsSearcher: config.CertsSearcher,
 			ClusterClient: config.ClusterClient,
 			FileSystem:    config.FileSystem,
-			G8sClient:     config.K8sClient.G8sClient(),
-			K8sClient:     config.K8sClient.K8sClient(),
+			K8sClient:     config.K8sClient,
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 

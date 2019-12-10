@@ -61,14 +61,14 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, cluster := range list.Items {
-		statusReader := &infrastructurev1alpha2.StatusReader{}
-		err := c.k8sClient.CtrlClient().Get(ctx, key.InfrastructureRef(cluster), statusReader)
+		cr := &infrastructurev1alpha2.CommonCluster{}
+		err := c.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cluster), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
 		{
-			latest := statusReader.Status.Cluster.LatestCondition()
+			latest := cr.Status.Cluster.LatestCondition()
 
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,

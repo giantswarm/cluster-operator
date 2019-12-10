@@ -31,10 +31,9 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 	var resourceSet *controller.ResourceSet
 	{
 		c := machineDeploymentResourceSetConfig{
-			CtrlClient: config.K8sClient.CtrlClient(),
-			G8sClient:  config.K8sClient.G8sClient(),
-			Logger:     config.Logger,
-			Tenant:     config.Tenant,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+			Tenant:    config.Tenant,
 
 			Provider: config.Provider,
 		}

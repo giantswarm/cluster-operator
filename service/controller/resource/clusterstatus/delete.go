@@ -14,19 +14,30 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return microerror.Mask(err)
+	cr := &infrastructurev1alpha2.CommonCluster{}
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
+
+		cl, err := key.ToCluster(obj)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cl), cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
 
-	updatedClusterStatus := r.computeDeleteClusterConditions(ctx, r.accessor.GetCommonClusterStatus(cr))
+	uc := r.computeDeleteClusterStatusConditions(ctx, cr)
 
-	if !reflect.DeepEqual(r.accessor.GetCommonClusterStatus(cr), updatedClusterStatus) {
+	if !reflect.DeepEqual(cr.Status.Cluster, uc.Status.Cluster) {
 		{
 			r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-			cr = r.accessor.SetCommonClusterStatus(cr, updatedClusterStatus)
-			_, err := r.cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).UpdateStatus(&cr)
+			err := r.k8sClient.CtrlClient().Status().Update(ctx, uc)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -47,16 +58,16 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeDeleteClusterConditions(ctx context.Context, clusterStatus infrastructurev1alpha2.CommonClusterStatus) infrastructurev1alpha2.CommonClusterStatus {
+func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, cr *infrastructurev1alpha2.CommonCluster) *infrastructurev1alpha2.CommonCluster {
 	// On Deletion we always add the deleting status condition.
 	// We skip adding the condition if it's already set.
 	{
-		notDeleting := !clusterStatus.HasDeletingCondition()
+		notDeleting := !cr.Status.Cluster.HasDeletingCondition()
 		if notDeleting {
-			clusterStatus.Conditions = clusterStatus.WithDeletingCondition()
+			cr.Status.Cluster.Conditions = cr.Status.Cluster.WithDeletingCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionDeleting))
 		}
 	}
 
-	return clusterStatus
+	return cr
 }

@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -126,7 +127,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var cleanupMachineDeployments resource.Interface
 	{
 		c := cleanupmachinedeployments.Config{
-			CMAClient: config.CMAClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
@@ -175,10 +176,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterIDResource resource.Interface
 	{
 		c := clusterid.Config{
-			CMAClient:                   config.CMAClient,
-			CommonClusterStatusAccessor: &key.AWSClusterStatusAccessor{},
-			G8sClient:                   config.K8sClient.G8sClient(),
-			Logger:                      config.Logger,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 		}
 
 		clusterIDResource, err = clusterid.New(c)
@@ -190,11 +189,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterStatusResource resource.Interface
 	{
 		c := clusterstatus.Config{
-			Accessor:  &key.AWSClusterStatusAccessor{},
-			CMAClient: config.CMAClient,
-			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			Provider:  config.Provider,
+
+			Provider: config.Provider,
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
@@ -308,7 +306,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := tenantclients.Config{
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
-			ToClusterFunc: key.ToCluster,
+			ToClusterFunc: toClusterFunc,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
@@ -320,7 +318,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var updateMachineDeployments resource.Interface
 	{
 		c := updatemachinedeployments.Config{
-			CMAClient: config.CMAClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			Provider: config.Provider,
@@ -337,7 +335,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := workercount.Config{
 			Logger: config.Logger,
 
-			ToClusterFunc: key.ToCluster,
+			ToClusterFunc: toClusterFunc,
 		}
 
 		workerCountResource, err = workercount.New(c)
@@ -421,6 +419,15 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	}
 
 	return resourceSet, nil
+}
+
+func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return apiv1alpha2.Cluster{}, microerror.Mask(err)
+	}
+
+	return cr, nil
 }
 
 func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {

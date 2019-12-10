@@ -29,7 +29,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		cmaClient: config.CMAClient,
+		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 	}
 

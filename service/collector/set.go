@@ -27,7 +27,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	var clusterCollector *Cluster
 	{
 		c := ClusterConfig{
-			CMAClient: config.CMAClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
@@ -40,7 +40,7 @@ func NewSet(config SetConfig) (*Set, error) {
 	var nodePoolCollector *NodePool
 	{
 		c := NodePoolConfig{
-			CMAClient: config.CMAClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 

@@ -12,26 +12,28 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
+	cr := &infrastructurev1alpha2.CommonCluster{}
+	{
+		cl, err := key.ToCluster(obj)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 
-	statusReader := &infrastructurev1alpha2.StatusReader{}
-	err = r.k8sClient.CtrlClient().Get(ctx, key.InfrastructureRef(cr), statusReader)
-	if err != nil {
-		return microerror.Mask(err)
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cl), cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	{
-		if statusReader.Status.Cluster.ID != "" {
+		if cr.Status.Cluster.ID != "" {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q has cluster id in status", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
 		}
 
-		if key.ClusterID(&cr) == "" {
+		if key.ClusterID(cr) == "" {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q misses cluster id in labels", cr.Name))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
@@ -41,9 +43,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-		statusReader.Status.Cluster.ID = key.ClusterID(&cr)
+		cr.Status.Cluster.ID = key.ClusterID(cr)
 
-		err = r.k8sClient.CtrlClient().Status().Update(ctx, statusReader)
+		err := r.k8sClient.CtrlClient().Status().Update(ctx, cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}

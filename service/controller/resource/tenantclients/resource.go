@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/rest"
-	clusterv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -21,13 +21,13 @@ const (
 type Config struct {
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
-	ToClusterFunc func(v interface{}) (clusterv1alpha2.Cluster, error)
+	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 type Resource struct {
 	logger        micrologger.Logger
 	tenant        tenantcluster.Interface
-	toClusterFunc func(v interface{}) (clusterv1alpha2.Cluster, error)
+	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {
@@ -55,7 +55,7 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cr, err := r.toClusterFunc(obj)
+	cr, err := r.toClusterFunc(ctx, obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
