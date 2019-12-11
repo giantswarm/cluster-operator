@@ -79,7 +79,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 				resourceSet,
 			},
 			NewRuntimeObjectFunc: func() pkgruntime.Object {
-				return new(v1alpha1.AzureClusterConfig)
+				return new(v1alpha1.KVMClusterConfig)
 			},
 
 			Name: config.ProjectName,
