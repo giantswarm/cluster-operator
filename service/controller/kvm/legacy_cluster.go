@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
@@ -24,7 +23,6 @@ type LegacyClusterConfig struct {
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	K8sClient         k8sclient.Interface
-	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
@@ -44,21 +42,6 @@ type LegacyCluster struct {
 // NewLegacyCluster returns a configured KVMClusterConfig controller implementation.
 func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	var err error
-
-	var k8sClient *k8sclient.Clients
-	{
-		c := k8sclient.ClientsConfig{
-			Logger: config.Logger,
-			SchemeBuilder: k8sclient.SchemeBuilder{
-				v1alpha1.AddToScheme,
-			},
-		}
-
-		k8sClient, err = k8sclient.NewClients(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
 
 	var resourceSet *controller.ResourceSet
 	{
@@ -90,7 +73,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	{
 		c := controller.Config{
 			CRD:       v1alpha1.NewKVMClusterConfigCRD(),
-			K8sClient: k8sClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
 				resourceSet,

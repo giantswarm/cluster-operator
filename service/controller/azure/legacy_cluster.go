@@ -10,7 +10,6 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
@@ -24,7 +23,6 @@ type LegacyClusterConfig struct {
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
 	K8sClient         k8sclient.Interface
-	K8sExtClient      apiextensionsclient.Interface
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
