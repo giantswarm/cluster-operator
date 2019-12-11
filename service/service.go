@@ -6,9 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	corev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
@@ -16,12 +17,9 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
@@ -42,12 +40,6 @@ type Config struct {
 
 	Flag  *flag.Flag
 	Viper *viper.Viper
-
-	Description string
-	GitCommit   string
-	ProjectName string
-	Source      string
-	Version     string
 }
 
 // Service is a type providing implementation of microkit service interface.
@@ -99,25 +91,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	var k8sClient k8sclient.Interface
+	{
+		c := k8sclient.ClientsConfig{
+			Logger: config.Logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				corev1alpha1.AddToScheme,
+			},
 
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+			RestConfig: restConfig,
+		}
 
 		k8sClient, err = k8sclient.NewClients(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-	}
-
-	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	var apprClient *apprclient.Client
@@ -139,7 +127,7 @@ func New(config Config) (*Service, error) {
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
-			K8sClient: k8sClient,
+			K8sClient: k8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WatchTimeout: 5 * time.Second,
@@ -184,16 +172,14 @@ func New(config Config) (*Service, error) {
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
 			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
+			ProjectName:        project.Name(),
 			RegistryDomain:     registryDomain,
 			Provider:           provider,
 			ResourceNamespace:  resourceNamespace,
@@ -217,16 +203,14 @@ func New(config Config) (*Service, error) {
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
 			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
+			ProjectName:        project.Name(),
 			Provider:           provider,
 			RegistryDomain:     registryDomain,
 			ResourceNamespace:  resourceNamespace,
@@ -250,16 +234,14 @@ func New(config Config) (*Service, error) {
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
 			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
+			ProjectName:        project.Name(),
 			Provider:           provider,
 			RegistryDomain:     registryDomain,
 			ResourceNamespace:  resourceNamespace,
@@ -274,11 +256,11 @@ func New(config Config) (*Service, error) {
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
-			Description:    config.Description,
-			GitCommit:      config.GitCommit,
-			Name:           config.ProjectName,
-			Source:         config.Source,
-			Version:        config.Version,
+			Description:    project.Description(),
+			GitCommit:      project.GitSHA(),
+			Name:           project.Name(),
+			Source:         project.Source(),
+			Version:        project.Version(),
 			VersionBundles: project.NewVersionBundles(),
 		}
 

@@ -51,12 +51,6 @@ func mainE() error {
 				Flag:   f,
 				Logger: newLogger,
 				Viper:  v,
-
-				Description: project.Description(),
-				GitCommit:   project.GitSHA(),
-				ProjectName: project.Name(),
-				Source:      project.Source(),
-				Version:     project.Version(),
 			}
 
 			newService, err = service.New(serviceConfig)
