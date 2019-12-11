@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clientgofake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -251,12 +251,10 @@ func Test_ConfigMap_GetDesiredState(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fakeTenantK8sClient := clientgofake.NewSimpleClientset()
-
 			c := Config{
 				Logger: microloggertest.New(),
 				Tenant: &tenantMock{
-					fakeTenantK8sClient: fakeTenantK8sClient,
+					fakeTenantRestConfig: &rest.Config{},
 				},
 
 				Provider: "aws",

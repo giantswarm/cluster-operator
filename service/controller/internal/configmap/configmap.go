@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
@@ -79,10 +80,21 @@ func (s *Service) getChartSpecByAppName(appName string) key.ChartSpec {
 }
 
 func (s *Service) newTenantK8sClient(ctx context.Context, clusterConfig ClusterConfig) (kubernetes.Interface, error) {
-	tenantK8sClient, err := s.tenant.NewK8sClient(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
+	tenantRestConfig, err := s.tenant.NewRestConfig(ctx, clusterConfig.ClusterID, clusterConfig.APIDomain)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	tenantClientsConfig := k8sclient.ClientsConfig{
+		Logger:     s.logger,
+		RestConfig: tenantRestConfig,
+	}
+	tenantK8sClients, err := k8sclient.NewClients(tenantClientsConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	tenantK8sClient := tenantK8sClients.K8sClient()
 
 	return tenantK8sClient, nil
 }

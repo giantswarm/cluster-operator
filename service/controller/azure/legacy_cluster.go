@@ -5,14 +5,14 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/informer"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
@@ -52,27 +52,16 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 
 	var err error
 
-	var crdClient *k8scrdclient.CRDClient
+	var k8sClient *k8sclient.Clients
 	{
-		c := k8scrdclient.Config{
-			K8sExtClient: config.K8sExtClient,
-			Logger:       config.Logger,
+		c := k8sclient.ClientsConfig{
+			Logger: config.Logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				v1alpha1.AddToScheme,
+			},
 		}
 
-		crdClient, err = k8scrdclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var newInformer *informer.Informer
-	{
-		c := informer.Config{
-			Logger:  config.Logger,
-			Watcher: config.G8sClient.CoreV1alpha1().AzureClusterConfigs(""),
-		}
-
-		newInformer, err = informer.New(c)
+		k8sClient, err = k8sclient.NewClients(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -109,13 +98,14 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	{
 		c := controller.Config{
 			CRD:       v1alpha1.NewAzureClusterConfigCRD(),
-			CRDClient: crdClient,
-			Informer:  newInformer,
+			K8sClient: k8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
 				resourceSet,
 			},
-			RESTClient: config.G8sClient.CoreV1alpha1().RESTClient(),
+			NewRuntimeObjectFunc: func() pkgruntime.Object {
+				return new(v1alpha1.AzureClusterConfig)
+			},
 
 			Name: config.ProjectName,
 		}

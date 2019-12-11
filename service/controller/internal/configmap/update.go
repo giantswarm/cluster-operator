@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -35,7 +35,7 @@ func (s *Service) ApplyUpdateChange(ctx context.Context, clusterConfig ClusterCo
 	return nil
 }
 
-func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
+func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*crud.Patch, error) {
 	create, err := s.newCreateChange(ctx, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -51,7 +51,7 @@ func (s *Service) NewUpdatePatch(ctx context.Context, currentState, desiredState
 		return nil, microerror.Mask(err)
 	}
 
-	patch := controller.NewPatch()
+	patch := crud.NewPatch()
 	patch.SetCreateChange(create)
 	patch.SetUpdateChange(update)
 	patch.SetDeleteChange(delete)
