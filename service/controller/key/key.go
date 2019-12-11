@@ -104,11 +104,11 @@ func CommonAppSpecs() []AppSpec {
 		},
 		{
 			App:             "chart-operator",
-			Catalog:         "default",
+			Catalog:         "default-test",
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.10.10",
+			Version:         "0.11.0-86b2a7abdf27c2449fdb0f67f576ea6368cdc1a4",
 		},
 		{
 			App:             "kube-state-metrics",
