@@ -51,7 +51,7 @@ rules:
     verbs:
       - "*"
   - apiGroups:
-      - cluster.k8s.io
+      - cluster.x-k8s.io
     resources:
       - clusters
       - clusters/status
