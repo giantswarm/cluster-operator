@@ -1,9 +1,15 @@
 package basedomain
 
 import (
-	"github.com/giantswarm/k8sclient"
+	"context"
+	"fmt"
+
+	"github.com/giantswarm/api/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 )
 
 const (
@@ -11,26 +17,26 @@ const (
 )
 
 type Config struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
+	Logger        micrologger.Logger
+	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 type Resource struct {
-	k8sClient k8sclient.Interface
-	logger    micrologger.Logger
+	logger        micrologger.Logger
+	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {
-	if config.K8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.ToClusterFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterFunc must not be empty", config)
+	}
 
 	r := &Resource{
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		logger:        config.Logger,
+		toClusterFunc: config.ToClusterFunc,
 	}
 
 	return r, nil
@@ -38,4 +44,25 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
+}
+
+func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
+	cr, err := r.toClusterFunc(ctx, obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if len(cr.Status.APIEndpoints) != 1 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q does not have any api endpoint set in the cr status yet", key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
+	cc.Status.Endpoint.Base = cr.Status.APIEndpoints[0].Host
+
+	return nil
 }

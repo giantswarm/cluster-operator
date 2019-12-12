@@ -24,6 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
@@ -95,6 +96,19 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 
 		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var baseDomainResource resource.Interface
+	{
+		c := basedomain.Config{
+			Logger:        config.Logger,
+			ToClusterFunc: toClusterFunc,
+		}
+
+		baseDomainResource, err = basedomain.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -344,10 +358,13 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		clusterIDResource,
+		baseDomainResource,
 		operatorVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
+
+		// Following resources manage CR status information.
+		clusterIDResource,
 		clusterStatusResource,
 
 		// Following resources manage resources in the control plane.

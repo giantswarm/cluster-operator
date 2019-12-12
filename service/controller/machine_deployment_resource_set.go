@@ -11,11 +11,13 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
+	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
@@ -31,6 +33,19 @@ type machineDeploymentResourceSetConfig struct {
 
 func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
+
+	var baseDomainResource resource.Interface
+	{
+		c := basedomain.Config{
+			Logger:        config.Logger,
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
+		}
+
+		baseDomainResource, err = basedomain.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var machineDeploymentStatusResource resource.Interface
 	{
@@ -74,8 +89,12 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	}
 
 	resources := []resource.Interface{
+		// Following resources manage controller context information.
+		baseDomainResource,
 		tenantClientsResource,
 		workerCountResource,
+
+		// Following resources manage CR status information.
 		machineDeploymentStatusResource,
 	}
 
@@ -143,7 +162,11 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 				return apiv1alpha2.Cluster{}, microerror.Mask(err)
 			}
 
-			err = k8sClient.CtrlClient().Get(ctx, key.MachineDeploymentInfraRef(md), cr)
+			// Note that we cannot use key.MachineDeploymentInfraRef here because we
+			// do not need to fetch the Machine Deployment again. We need to lookup
+			// the Cluster CR based on the MachineDeployment CR. This is why we use
+			// types.NamespacedName here explicitly.
+			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&md), Namespace: md.Namespace}, cr)
 			if err != nil {
 				return apiv1alpha2.Cluster{}, microerror.Mask(err)
 			}
