@@ -6,24 +6,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	corev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/aws"
 	"github.com/giantswarm/cluster-operator/service/controller/azure"
@@ -44,12 +40,6 @@ type Config struct {
 
 	Flag  *flag.Flag
 	Viper *viper.Viper
-
-	Description string
-	GitCommit   string
-	ProjectName string
-	Source      string
-	Version     string
 }
 
 // Service is a type providing implementation of microkit service interface.
@@ -101,27 +91,21 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	// TODO drop the migration once it is done.
+	var k8sClient k8sclient.Interface
 	{
-		err := migrateSecretLabels(config.Logger, k8sClient)
+		c := k8sclient.ClientsConfig{
+			Logger: config.Logger,
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				corev1alpha1.AddToScheme,
+			},
+
+			RestConfig: restConfig,
+		}
+
+		k8sClient, err = k8sclient.NewClients(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-	}
-
-	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	var apprClient *apprclient.Client
@@ -143,7 +127,7 @@ func New(config Config) (*Service, error) {
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
-			K8sClient: k8sClient,
+			K8sClient: k8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WatchTimeout: 5 * time.Second,
@@ -188,16 +172,14 @@ func New(config Config) (*Service, error) {
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
 			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
+			ProjectName:        project.Name(),
 			RegistryDomain:     registryDomain,
 			Provider:           provider,
 			ResourceNamespace:  resourceNamespace,
@@ -221,16 +203,14 @@ func New(config Config) (*Service, error) {
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
 			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
+			ProjectName:        project.Name(),
 			Provider:           provider,
 			RegistryDomain:     registryDomain,
 			ResourceNamespace:  resourceNamespace,
@@ -254,16 +234,14 @@ func New(config Config) (*Service, error) {
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
 			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
 			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
 			ClusterIPRange:     clusterIPRange,
 			CalicoAddress:      calicoAddress,
 			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
+			ProjectName:        project.Name(),
 			Provider:           provider,
 			RegistryDomain:     registryDomain,
 			ResourceNamespace:  resourceNamespace,
@@ -278,11 +256,11 @@ func New(config Config) (*Service, error) {
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
-			Description:    config.Description,
-			GitCommit:      config.GitCommit,
-			Name:           config.ProjectName,
-			Source:         config.Source,
-			Version:        config.Version,
+			Description:    project.Description(),
+			GitCommit:      project.GitSHA(),
+			Name:           project.Name(),
+			Source:         project.Source(),
+			Version:        project.Version(),
 			VersionBundles: project.NewVersionBundles(),
 		}
 
@@ -354,58 +332,4 @@ func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	apiServerIP := net.IPv4(networkIP[0], networkIP[1], networkIP[2], apiServerIPLastOctet)
 
 	return networkIP, apiServerIP, nil
-}
-
-func migrateSecretLabels(logger micrologger.Logger, k8sClient kubernetes.Interface) error {
-	var secrets []*corev1.Secret
-	{
-		o := metav1.ListOptions{
-			LabelSelector: "clusterKey=encryption",
-		}
-
-		l, err := k8sClient.CoreV1().Secrets(corev1.NamespaceAll).List(o)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		for _, s := range l.Items {
-			secrets = append(secrets, s.DeepCopy())
-		}
-	}
-
-	for _, s := range secrets {
-		if hasLabels(s, label.Cluster, label.RandomKey) {
-			continue
-		}
-
-		s.Labels[label.Cluster] = s.Labels["clusterID"]
-		s.Labels[label.RandomKey] = label.RandomKeyTypeEncryption
-
-		_, err := k8sClient.CoreV1().Secrets(s.Namespace).Update(s)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	return nil
-}
-
-func hasLabels(s *corev1.Secret, labels ...string) bool {
-	for _, l := range labels {
-		if !hasLabel(s, l) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func hasLabel(s *corev1.Secret, l string) bool {
-	for k := range s.Labels {
-		if k == l {
-			return true
-		}
-	}
-
-	return false
 }

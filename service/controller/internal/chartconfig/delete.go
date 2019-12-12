@@ -6,7 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -42,7 +42,7 @@ func (c *ChartConfig) ApplyDeleteChange(ctx context.Context, clusterConfig Clust
 
 // NewDeletePatch is a no-op because chartconfig CRs in the tenant cluster are
 // deleted with the tenant cluster resources.
-func (c *ChartConfig) NewDeletePatch(ctx context.Context, currentState, desiredState []*v1alpha1.ChartConfig) (*controller.Patch, error) {
+func (c *ChartConfig) NewDeletePatch(ctx context.Context, currentState, desiredState []*v1alpha1.ChartConfig) (*crud.Patch, error) {
 	return nil, nil
 }
 

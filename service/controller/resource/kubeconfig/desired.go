@@ -5,9 +5,9 @@ import (
 	"net/url"
 
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"

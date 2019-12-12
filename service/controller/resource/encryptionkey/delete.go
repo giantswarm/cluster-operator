@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -50,6 +50,6 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 // and the desired state as provided by GetDesiredState. NewDeletePatch
 // analyses the current and desired state and returns the patch to be applied by
 // Create, Delete, and Update functions.
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
 	return nil, nil
 }

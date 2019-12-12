@@ -3,7 +3,7 @@ package configmap
 import (
 	"context"
 
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -15,8 +15,8 @@ type Interface interface {
 	ApplyUpdateChange(ctx context.Context, clusterConfig ClusterConfig, configMapsToUpdate []*corev1.ConfigMap) error
 	GetCurrentState(ctx context.Context, configMapConfig ClusterConfig) ([]*corev1.ConfigMap, error)
 	GetDesiredState(ctx context.Context, configMapConfig ClusterConfig, configMapValues ConfigMapValues, providerChartSpecs []key.ChartSpec) ([]*corev1.ConfigMap, error)
-	NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
-	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error)
+	NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*crud.Patch, error)
+	NewUpdatePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*crud.Patch, error)
 }
 
 // ClusterConfig is used by the configmap resources to provide config to

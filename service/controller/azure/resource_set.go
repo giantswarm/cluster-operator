@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
 	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
@@ -19,7 +20,6 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -46,8 +46,7 @@ type resourceSetConfig struct {
 	BaseClusterConfig *cluster.Config
 	CertSearcher      certs.Interface
 	Fs                afero.Fs
-	G8sClient         versioned.Interface
-	K8sClient         kubernetes.Interface
+	K8sClient         k8sclient.Interface
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
@@ -78,10 +77,10 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient:                config.G8sClient,
+			G8sClient:                config.K8sClient.G8sClient(),
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			K8sClient:                config.K8sClient,
+			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 
 			Provider: config.Provider,
@@ -96,7 +95,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var appResource resource.Interface
 	{
 		c := appresource.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			Name:        app.Name,
@@ -119,7 +118,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		c := appmigration.Config{
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			G8sClient:                config.G8sClient,
+			G8sClient:                config.K8sClient.G8sClient(),
 			Logger:                   config.Logger,
 			Tenant:                   config.Tenant,
 
@@ -136,8 +135,8 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	{
 		c := certconfig.Config{
 			BaseClusterConfig:        *config.BaseClusterConfig,
-			G8sClient:                config.G8sClient,
-			K8sClient:                config.K8sClient,
+			G8sClient:                config.K8sClient.G8sClient(),
+			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 			Provider:                 label.ProviderAzure,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
@@ -158,7 +157,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var encryptionKeyResource resource.Interface
 	{
 		c := encryptionkey.Config{
-			K8sClient:                config.K8sClient,
+			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 			ToClusterGuestConfigFunc: toClusterGuestConfig,
 			ToClusterObjectMetaFunc:  toClusterObjectMeta,
@@ -219,7 +218,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		c := configmapmigration.Config{
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			K8sClient:                config.K8sClient,
+			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 
 			Provider: config.Provider,
@@ -271,7 +270,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			GetWorkerCountFunc:       getWorkerCount,
-			K8sClient:                config.K8sClient,
+			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 
 			ClusterIPRange: config.ClusterIPRange,
@@ -283,7 +282,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		configOps := configmapresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        clusterconfigmap.Name,
@@ -307,7 +306,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			CertSearcher:             config.CertSearcher,
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			K8sClient:                config.K8sClient,
+			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 		}
 
@@ -317,7 +316,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		configOps := secretresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        kubeconfig.Name,
@@ -487,13 +486,13 @@ func toClusterObjectMeta(obj interface{}) (metav1.ObjectMeta, error) {
 	return azureClusterConfig.ObjectMeta, nil
 }
 
-func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
-	c := controller.CRUDResourceConfig{
+func toCRUDResource(logger micrologger.Logger, ops crud.Interface) (resource.Interface, error) {
+	c := crud.ResourceConfig{
+		CRUD:   ops,
 		Logger: logger,
-		Ops:    ops,
 	}
 
-	r, err := controller.NewCRUDResource(c)
+	r, err := crud.NewResource(c)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

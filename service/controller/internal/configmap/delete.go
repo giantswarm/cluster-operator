@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,7 +39,7 @@ func (s *Service) ApplyDeleteChange(ctx context.Context, clusterConfig ClusterCo
 
 // NewDeletePatch is a no-op because configmaps in the tenant cluster are
 // deleted with the tenant cluster resources.
-func (s *Service) NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*controller.Patch, error) {
+func (s *Service) NewDeletePatch(ctx context.Context, currentState, desiredState []*corev1.ConfigMap) (*crud.Patch, error) {
 	return nil, nil
 }
 

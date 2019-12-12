@@ -5,8 +5,8 @@ import (
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/resource/crud"
 
 	"github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -53,7 +53,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	return nil
 }
 
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*controller.Patch, error) {
+func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
 	currentChartConfigs, err := toChartConfigs(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
