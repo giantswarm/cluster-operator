@@ -135,6 +135,17 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "1.4.0",
 		},
 		{
+			App:           "nginx-ingress-controller",
+			Catalog:       "default",
+			Chart:         "nginx-ingress-controller-app",
+			ConfigMapName: IngressControllerConfigMapName,
+			Namespace:     metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid dropping customer traffic
+			// that is using the Ingress Controller.
+			UseUpgradeForce: false,
+			Version:         "1.1.0",
+		},
+		{
 			App:             "node-exporter",
 			Catalog:         "default",
 			Chart:           "node-exporter-app",
@@ -207,7 +218,7 @@ func CommonChartSpecs() []ChartSpec {
 			ChannelName:   "1-0-stable",
 			ChartName:     "kubernetes-nginx-ingress-controller-chart",
 			ConfigMapName: "nginx-ingress-controller-values",
-			HasAppCR:      false,
+			HasAppCR:      true,
 			Namespace:     metav1.NamespaceSystem,
 			ReleaseName:   "nginx-ingress-controller",
 			// Upgrade force is disabled to avoid dropping customer traffic
