@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/api/pkg/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 const (
