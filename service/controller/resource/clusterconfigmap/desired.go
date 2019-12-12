@@ -45,6 +45,17 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	// We limit the number of replicas to 20 as running more than this does
+	// not make sense.
+	//
+	// TODO: Remove Ingress Controller configmap once HPA is enabled by default.
+	//
+	//	https://github.com/giantswarm/giantswarm/issues/8080
+	//
+	if ingressControllerReplicas > 20 {
+		ingressControllerReplicas = 20
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(clusterConfig),
