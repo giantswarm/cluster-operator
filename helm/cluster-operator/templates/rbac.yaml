@@ -60,6 +60,15 @@ rules:
     verbs:
       - "*"
   - apiGroups:
+      - infrastructure.giantswarm.io
+    resources:
+      - awsclusters
+      - awsclusters/status
+      - awsmachinedeployments
+      - awsmachinedeployments/status
+    verbs:
+      - "*"
+  - apiGroups:
       - core.giantswarm.io
     resources:
       - awsclusterconfigs
