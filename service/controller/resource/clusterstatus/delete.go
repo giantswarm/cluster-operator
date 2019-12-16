@@ -14,7 +14,7 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cr := r.newCommonClusterObject()
+	cr := r.newCommonClusterObjectFunc()
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 

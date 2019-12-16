@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -190,14 +191,15 @@ func New(config Config) (*Service, error) {
 			Logger:        config.Logger,
 			Tenant:        tenantCluster,
 
-			APIIP:              apiIP,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			CertTTL:            config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
-			ClusterIPRange:     clusterIPRange,
-			DNSIP:              dnsIP,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
+			APIIP:                      apiIP,
+			CalicoAddress:              calicoAddress,
+			CalicoPrefixLength:         calicoPrefixLength,
+			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
+			ClusterIPRange:             clusterIPRange,
+			DNSIP:                      dnsIP,
+			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
+			Provider:                   provider,
+			RegistryDomain:             registryDomain,
 		}
 
 		clusterController, err = controller.NewCluster(c)
@@ -228,6 +230,8 @@ func New(config Config) (*Service, error) {
 			CertSearcher: certsSearcher,
 			K8sClient:    k8sClient,
 			Logger:       config.Logger,
+
+			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -291,6 +295,18 @@ func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error)
 	}
 
 	return clusterConfig, nil
+}
+
+func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
+	switch provider {
+	case "aws":
+		return func() infrastructurev1alpha2.CommonClusterObject {
+			return new(infrastructurev1alpha2.AWSCluster)
+		}
+
+	default:
+		panic(fmt.Sprintf("No support for provider %s", provider))
+	}
 }
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {

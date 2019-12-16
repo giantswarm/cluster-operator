@@ -32,7 +32,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
-	cr := r.newCommonClusterObject()
+	cr := r.newCommonClusterObjectFunc()
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 

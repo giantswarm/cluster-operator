@@ -12,7 +12,7 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr := r.newCommonClusterObject()
+	cr := r.newCommonClusterObjectFunc()
 	var status infrastructurev1alpha2.CommonClusterStatus
 	{
 		cl, err := key.ToCluster(obj)

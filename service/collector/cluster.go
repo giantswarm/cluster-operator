@@ -29,14 +29,14 @@ type ClusterConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NewCommonClusterObject func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
 type Cluster struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	newCommonClusterObject func() infrastructurev1alpha2.CommonClusterObject
+	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
 func NewCluster(config ClusterConfig) (*Cluster, error) {
@@ -47,15 +47,15 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.NewCommonClusterObject == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObject must not be empty", config)
+	if config.NewCommonClusterObjectFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
 
 	c := &Cluster{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		newCommonClusterObject: config.NewCommonClusterObject,
+		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 	}
 
 	return c, nil
@@ -71,7 +71,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, cluster := range list.Items {
-		cr := c.newCommonClusterObject()
+		cr := c.newCommonClusterObjectFunc()
 		err := c.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cluster), cr)
 		if err != nil {
 			return microerror.Mask(err)

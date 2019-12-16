@@ -15,16 +15,16 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NewCommonClusterObject func() infrastructurev1alpha2.CommonClusterObject
-	Provider               string
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	Provider                   string
 }
 
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	newCommonClusterObject func() infrastructurev1alpha2.CommonClusterObject
-	provider               string
+	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	provider                   string
 }
 
 func New(config Config) (*Resource, error) {
@@ -35,8 +35,8 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.NewCommonClusterObject == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObject must not be empty", config)
+	if config.NewCommonClusterObjectFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -46,8 +46,8 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		newCommonClusterObject: config.NewCommonClusterObject,
-		provider:               config.Provider,
+		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		provider:                   config.Provider,
 	}
 
 	return r, nil

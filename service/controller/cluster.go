@@ -26,14 +26,15 @@ type ClusterConfig struct {
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
 
-	APIIP              string
-	CalicoAddress      string
-	CalicoPrefixLength string
-	CertTTL            string
-	ClusterIPRange     string
-	DNSIP              string
-	Provider           string
-	RegistryDomain     string
+	APIIP                      string
+	CalicoAddress              string
+	CalicoPrefixLength         string
+	CertTTL                    string
+	ClusterIPRange             string
+	DNSIP                      string
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	Provider                   string
+	RegistryDomain             string
 }
 
 type Cluster struct {
@@ -54,14 +55,15 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 
-			APIIP:              config.APIIP,
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			CertTTL:            config.CertTTL,
-			ClusterIPRange:     config.ClusterIPRange,
-			DNSIP:              config.DNSIP,
-			Provider:           config.Provider,
-			RegistryDomain:     config.RegistryDomain,
+			APIIP:                      config.APIIP,
+			CalicoAddress:              config.CalicoAddress,
+			CalicoPrefixLength:         config.CalicoPrefixLength,
+			CertTTL:                    config.CertTTL,
+			ClusterIPRange:             config.ClusterIPRange,
+			DNSIP:                      config.DNSIP,
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
+			RegistryDomain:             config.RegistryDomain,
 		}
 
 		resourceSet, err = newClusterResourceSet(c)
