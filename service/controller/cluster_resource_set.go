@@ -2,7 +2,9 @@ package controller
 
 import (
 	"context"
+	"fmt"
 
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
@@ -190,6 +192,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := clusterid.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			NewCommonClusterObject: newCommonClusterObjectFunc(config.Provider),
 		}
 
 		clusterIDResource, err = clusterid.New(c)
@@ -204,7 +208,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			Provider: config.Provider,
+			NewCommonClusterObject: newCommonClusterObjectFunc(config.Provider),
+			Provider:               config.Provider,
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
@@ -434,6 +439,18 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	}
 
 	return resourceSet, nil
+}
+
+func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
+	switch provider {
+	case "aws":
+		return func() infrastructurev1alpha2.CommonClusterObject {
+			return new(infrastructurev1alpha2.AWSCluster)
+		}
+
+	default:
+		panic(fmt.Sprintf("No support for provider %s", provider))
+	}
 }
 
 func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
