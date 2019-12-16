@@ -90,9 +90,9 @@ var (
 // CommonClusterStatus is shared type to contain provider independent cluster
 // status information.
 type CommonClusterStatus struct {
-	Conditions []CommonClusterStatusCondition `json:"conditions" yaml:"conditions"`
+	Conditions []CommonClusterStatusCondition `json:"conditions,omitempty" yaml:"conditions,omitempty"`
 	ID         string                         `json:"id" yaml:"id"`
-	Versions   []CommonClusterStatusVersion   `json:"versions" yaml:"versions"`
+	Versions   []CommonClusterStatusVersion   `json:"versions,omitempty" yaml:"versions,omitempty"`
 }
 
 type CommonClusterStatusCondition struct {
