@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
@@ -16,7 +17,7 @@ import (
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	cr := r.newCommonClusterObjectFunc()
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding latest infrastructure reference for cluster %#q", key.ClusterID(cr)))
 
 		cl, err := key.ToCluster(obj)
 		if err != nil {
@@ -24,11 +25,16 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		}
 
 		err = r.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cl), cr)
-		if err != nil {
+		if errors.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find latest infrastructure reference for cluster %#q", key.ClusterID(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+
+		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found latest infrastructure reference for cluster %#q", key.ClusterID(cr)))
 	}
 
 	updatedCR := r.computeDeleteClusterStatusConditions(ctx, cr)
