@@ -22,7 +22,7 @@
 
 
 [[override]]
-  branch = "infrastructure/v1alpha2"
+  branch = "abstract-commoncluster-status"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]

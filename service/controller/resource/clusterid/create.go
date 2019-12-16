@@ -12,7 +12,8 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr := &infrastructurev1alpha2.CommonCluster{}
+	cr := r.newCommonClusterObject()
+	var status infrastructurev1alpha2.CommonClusterStatus
 	{
 		cl, err := key.ToCluster(obj)
 		if err != nil {
@@ -23,18 +24,20 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		status = cr.GetCommonClusterStatus()
 	}
 
 	{
-		if cr.Status.Cluster.ID != "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q has cluster id in status", cr.Name))
+		if status.ID != "" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q has cluster id in status", cr.GetName()))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 
 			return nil
 		}
 
 		if key.ClusterID(cr) == "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q misses cluster id in labels", cr.Name))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q misses cluster id in labels", cr.GetName()))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		}
@@ -43,7 +46,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-		cr.Status.Cluster.ID = key.ClusterID(cr)
+		status.ID = key.ClusterID(cr)
+
+		cr.SetCommonClusterStatus(status)
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, cr)
 		if err != nil {

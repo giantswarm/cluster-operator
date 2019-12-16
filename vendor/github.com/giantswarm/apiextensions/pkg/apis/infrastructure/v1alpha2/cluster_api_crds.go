@@ -57,7 +57,7 @@ func NewClusterCRD() *apiextensionsv1beta1.CustomResourceDefinition {
 //     apiVersion: apiextensions.k8s.io/v1beta1
 //     kind: CustomResourceDefinition
 //     metadata:
-//       name: machinedeployments.cluster.k8s.io
+//       name: machinedeployments.cluster.x-k8s.io
 //     spec:
 //       group: cluster.x-k8s.io
 //       scope: Namespaced

@@ -58,8 +58,8 @@
   revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
-  branch = "infrastructure/v1alpha2"
-  digest = "1:f7c77bf7f39275b010c7441d93563697a00b764333b3b9a59d5c0cd9449c2fdb"
+  branch = "abstract-commoncluster-status"
+  digest = "1:7778673e65ce57a67a95f1e9d5ae294983635f0ebc6a7f4e9095a1ecaf97d82c"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "8d9b8269c9cbaef84894c20be3b8f440c9ba4e05"
+  revision = "ca152c6b063d492f0181559b5f676d1c69dd35cc"
 
 [[projects]]
   branch = "master"
@@ -98,7 +98,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:77e9658737704b600199dce9dd31ebc911bfe61b0a621ddbd9dc4a6032ab6b7b"
+  digest = "1:91552ea8ac634f3c96ce94569836a17fe8b1fa2ae62b690b5e50cbd4a6ffef5b"
   name = "github.com/giantswarm/clusterclient"
   packages = [
     ".",
@@ -140,15 +140,15 @@
     "service/root",
   ]
   pruneopts = "UT"
-  revision = "ade7e364f4870b7e6dbce070958d56aa4b9c2e77"
+  revision = "4914698d52137c079d2765e75f0e7a2862ee3045"
 
 [[projects]]
   branch = "master"
-  digest = "1:e9e6c4c2ae7f624a6eb1b768c582c05f200041de51faf5151b8e074eae917b57"
+  digest = "1:91c99bd60da349380e5912ca7a44de1ad3dc5540b6469685cd88fd6779c7ff2e"
   name = "github.com/giantswarm/errors"
   packages = ["tenant"]
   pruneopts = "UT"
-  revision = "2640113be13f2eec85fe785ed74418a1a2852e5d"
+  revision = "e5b9af3cd373291dff7fc430e3f76bfd2b06b98b"
 
 [[projects]]
   branch = "master"
@@ -168,7 +168,7 @@
     "k8srestconfig",
   ]
   pruneopts = "UT"
-  revision = "6cb127468cd6b30eaf8030b875f796e34b481938"
+  revision = "f75fead2ae064a2ae20a117cc1cd1d2f6d050641"
 
 [[projects]]
   branch = "master"

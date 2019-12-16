@@ -14,7 +14,7 @@ import (
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
-	cr := &infrastructurev1alpha2.CommonCluster{}
+	cr := r.newCommonClusterObject()
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 
@@ -31,13 +31,13 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
 
-	uc := r.computeDeleteClusterStatusConditions(ctx, cr)
+	updatedCR := r.computeDeleteClusterStatusConditions(ctx, cr)
 
-	if !reflect.DeepEqual(cr.Status.Cluster, uc.Status.Cluster) {
+	if !reflect.DeepEqual(cr, updatedCR) {
 		{
 			r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
 
-			err := r.k8sClient.CtrlClient().Status().Update(ctx, uc)
+			err := r.k8sClient.CtrlClient().Status().Update(ctx, updatedCR)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -58,13 +58,18 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, cr *infrastructurev1alpha2.CommonCluster) *infrastructurev1alpha2.CommonCluster {
+func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj infrastructurev1alpha2.CommonClusterObject) infrastructurev1alpha2.CommonClusterObject {
+	cr := (obj.DeepCopyObject()).(infrastructurev1alpha2.CommonClusterObject)
+
+	status := cr.GetCommonClusterStatus()
+
 	// On Deletion we always add the deleting status condition.
 	// We skip adding the condition if it's already set.
 	{
-		notDeleting := !cr.Status.Cluster.HasDeletingCondition()
+		notDeleting := !status.HasDeletingCondition()
 		if notDeleting {
-			cr.Status.Cluster.Conditions = cr.Status.Cluster.WithDeletingCondition()
+			status.Conditions = status.WithDeletingCondition()
+			cr.SetCommonClusterStatus(status)
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionDeleting))
 		}
 	}
