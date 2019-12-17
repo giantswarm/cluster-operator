@@ -7,9 +7,10 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
@@ -31,20 +32,25 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, nil
 	}
 
-	var configMap *corev1.ConfigMap
+	var configMaps []*corev1.ConfigMap
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster config maps in namespace %#q", key.ClusterID(&cr)))
 
-		configMap, err = r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get(key.ClusterConfigMapName(&cr), metav1.GetOptions{})
-		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
-			return nil, nil
-		} else if err != nil {
+		lo := metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+		}
+
+		list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(lo)
+		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
+		for _, item := range list.Items {
+			configMaps = append(configMaps, item.DeepCopy())
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d config maps in namespace %#q", len(configMaps), key.ClusterID(&cr)))
 	}
 
-	return []*corev1.ConfigMap{configMap}, nil
+	return configMaps, nil
 }
