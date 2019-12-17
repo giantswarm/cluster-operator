@@ -1,9 +1,9 @@
 package updatemachinedeployments
 
 import (
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
 const (
@@ -11,7 +11,7 @@ const (
 )
 
 type Config struct {
-	CMAClient clientset.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
 	Provider string
@@ -22,15 +22,15 @@ type Config struct {
 // meta data labels, so syncing is as simple as writing the Cluster CR version
 // label values to the MachineDeployment CR version labels.
 type Resource struct {
-	cmaClient clientset.Interface
+	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
 	provider string
 }
 
 func New(config Config) (*Resource, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -41,7 +41,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		cmaClient: config.CMAClient,
+		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		provider: config.Provider,

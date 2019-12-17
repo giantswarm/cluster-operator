@@ -1,12 +1,14 @@
 package collector
 
 import (
+	"context"
+	"fmt"
+
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 )
@@ -43,25 +45,25 @@ var (
 )
 
 type NodePoolConfig struct {
-	CMAClient clientset.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 }
 
 type NodePool struct {
-	cmaClient clientset.Interface
+	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 }
 
 func NewNodePool(config NodePoolConfig) (*NodePool, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
 	np := &NodePool{
-		cmaClient: config.CMAClient,
+		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 	}
 
@@ -69,9 +71,18 @@ func NewNodePool(config NodePoolConfig) (*NodePool, error) {
 }
 
 func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
-	list, err := np.cmaClient.ClusterV1alpha1().MachineDeployments(corev1.NamespaceAll).List(metav1.ListOptions{})
-	if err != nil {
-		return microerror.Mask(err)
+	ctx := context.Background()
+
+	list := &apiv1alpha2.MachineDeploymentList{}
+	{
+		np.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
+
+		err := np.k8sClient.CtrlClient().List(ctx, list)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		np.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(list.Items)))
 	}
 
 	type nodes struct {

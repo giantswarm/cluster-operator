@@ -1,13 +1,14 @@
 package collector
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
+	"context"
+
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
@@ -25,75 +26,94 @@ var (
 )
 
 type ClusterConfig struct {
-	CMAClient clientset.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
 type Cluster struct {
-	cmaClient clientset.Interface
+	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+
+	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
 func NewCluster(config ClusterConfig) (*Cluster, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.NewCommonClusterObjectFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
+	}
+
 	c := &Cluster{
-		cmaClient: config.CMAClient,
+		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+
+		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 	}
 
 	return c, nil
 }
 
 func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
-	list, err := c.cmaClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll).List(metav1.ListOptions{})
+	ctx := context.Background()
+	list := &apiv1alpha2.ClusterList{}
+
+	err := c.k8sClient.CtrlClient().List(ctx, list)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	for _, cluster := range list.Items {
+		cr := c.newCommonClusterObjectFunc()
+		err := c.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cluster), cr)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
 		{
-			latest := key.ClusterCommonStatus(cluster).LatestCondition()
+			latest := cr.GetCommonClusterStatus().LatestCondition()
 
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == v1alpha1.ClusterStatusConditionCreating),
+				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreating),
 				key.ClusterID(&cluster),
-				v1alpha1.ClusterStatusConditionCreating,
+				infrastructurev1alpha2.ClusterStatusConditionCreating,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == v1alpha1.ClusterStatusConditionCreated),
+				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreated),
 				key.ClusterID(&cluster),
-				v1alpha1.ClusterStatusConditionCreated,
+				infrastructurev1alpha2.ClusterStatusConditionCreated,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == v1alpha1.ClusterStatusConditionUpdating),
+				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdating),
 				key.ClusterID(&cluster),
-				v1alpha1.ClusterStatusConditionUpdating,
+				infrastructurev1alpha2.ClusterStatusConditionUpdating,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == v1alpha1.ClusterStatusConditionUpdated),
+				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdated),
 				key.ClusterID(&cluster),
-				v1alpha1.ClusterStatusConditionUpdated,
+				infrastructurev1alpha2.ClusterStatusConditionUpdated,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == v1alpha1.ClusterStatusConditionDeleting),
+				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionDeleting),
 				key.ClusterID(&cluster),
-				v1alpha1.ClusterStatusConditionDeleting,
+				infrastructurev1alpha2.ClusterStatusConditionDeleting,
 			)
 		}
 	}

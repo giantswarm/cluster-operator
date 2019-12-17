@@ -3,15 +3,10 @@ package tenantclients
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster"
-	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 )
 
 const (
@@ -21,13 +16,13 @@ const (
 type Config struct {
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
-	ToClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
+	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 type Resource struct {
 	logger        micrologger.Logger
 	tenant        tenantcluster.Interface
-	toClusterFunc func(v interface{}) (v1alpha1.Cluster, error)
+	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {
@@ -52,46 +47,4 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
-}
-
-func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cr, err := r.toClusterFunc(obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	var g8sClient versioned.Interface
-	var k8sClient kubernetes.Interface
-	{
-		g8sClient, err = r.tenant.NewG8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
-		if tenantcluster.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		k8sClient, err = r.tenant.NewK8sClient(ctx, key.ClusterID(&cr), key.ClusterAPIEndpoint(cr))
-		if tenantcluster.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil
-
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	{
-		cc.Client.TenantCluster.G8s = g8sClient
-		cc.Client.TenantCluster.K8s = k8sClient
-	}
-
-	return nil
 }

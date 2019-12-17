@@ -1,22 +1,17 @@
 package controller
 
 import (
-	clusterv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/cluster/v1alpha1"
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apprclient"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8scrdclient"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/operatorkit/informer"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	"k8s.io/apimachinery/pkg/runtime"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 )
@@ -24,25 +19,22 @@ import (
 // ClusterConfig contains necessary dependencies and settings for
 // Cluster API's Cluster CRD controller implementation.
 type ClusterConfig struct {
-	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
-	CMAClient     clientset.Interface
 	FileSystem    afero.Fs
-	G8sClient     versioned.Interface
-	K8sClient     kubernetes.Interface
-	K8sExtClient  apiextensionsclient.Interface
+	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
 
-	APIIP              string
-	CalicoAddress      string
-	CalicoPrefixLength string
-	CertTTL            string
-	ClusterIPRange     string
-	DNSIP              string
-	Provider           string
-	RegistryDomain     string
+	APIIP                      string
+	CalicoAddress              string
+	CalicoPrefixLength         string
+	CertTTL                    string
+	ClusterIPRange             string
+	DNSIP                      string
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	Provider                   string
+	RegistryDomain             string
 }
 
 type Cluster struct {
@@ -53,56 +45,25 @@ type Cluster struct {
 func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var err error
 
-	var crdClient *k8scrdclient.CRDClient
-	{
-		c := k8scrdclient.Config{
-			K8sExtClient: config.K8sExtClient,
-			Logger:       config.Logger,
-		}
-
-		crdClient, err = k8scrdclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var newInformer *informer.Informer
-	{
-		c := informer.Config{
-			Logger:  config.Logger,
-			Watcher: config.CMAClient.ClusterV1alpha1().Clusters(corev1.NamespaceAll),
-
-			RateWait:     informer.DefaultRateWait,
-			ResyncPeriod: informer.DefaultResyncPeriod,
-		}
-
-		newInformer, err = informer.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var resourceSet *controller.ResourceSet
 	{
 		c := clusterResourceSetConfig{
-			ApprClient:    config.ApprClient,
 			CertsSearcher: config.CertsSearcher,
 			ClusterClient: config.ClusterClient,
-			CMAClient:     config.CMAClient,
 			FileSystem:    config.FileSystem,
-			G8sClient:     config.G8sClient,
 			K8sClient:     config.K8sClient,
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 
-			APIIP:              config.APIIP,
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			CertTTL:            config.CertTTL,
-			ClusterIPRange:     config.ClusterIPRange,
-			DNSIP:              config.DNSIP,
-			Provider:           config.Provider,
-			RegistryDomain:     config.RegistryDomain,
+			APIIP:                      config.APIIP,
+			CalicoAddress:              config.CalicoAddress,
+			CalicoPrefixLength:         config.CalicoPrefixLength,
+			CertTTL:                    config.CertTTL,
+			ClusterIPRange:             config.ClusterIPRange,
+			DNSIP:                      config.DNSIP,
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
+			RegistryDomain:             config.RegistryDomain,
 		}
 
 		resourceSet, err = newClusterResourceSet(c)
@@ -114,14 +75,15 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       clusterv1alpha1.NewClusterCRD(),
-			CRDClient: crdClient,
-			Informer:  newInformer,
+			CRD:       infrastructurev1alpha2.NewClusterCRD(),
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
 				resourceSet,
 			},
-			RESTClient: config.CMAClient.ClusterV1alpha1().RESTClient(),
+			NewRuntimeObjectFunc: func() runtime.Object {
+				return new(apiv1alpha2.Cluster)
+			},
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.

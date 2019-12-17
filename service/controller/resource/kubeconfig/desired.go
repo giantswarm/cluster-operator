@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -23,7 +24,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
+	// TODO we should rather use github.com/giantswarm/tenantcluster to generate
+	// the rest config.
 	var appOperator certs.AppOperator
 	{
 		appOperator, err = r.certsSearcher.SearchAppOperator(key.ClusterID(&cr))
@@ -45,7 +52,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		c := k8srestconfig.Config{
 			Logger: r.logger,
 
-			Address:   fmt.Sprintf("https://%s", key.ClusterAPIEndpoint(cr)),
+			Address:   fmt.Sprintf("https://%s", key.APIEndpoint(cr, cc.Status.Endpoint.Base)),
 			InCluster: false,
 			TLS: k8srestconfig.ConfigTLS{
 				CAData:  appOperator.APIServer.CA,

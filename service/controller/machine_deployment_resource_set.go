@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
@@ -11,21 +11,20 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	"k8s.io/apimachinery/pkg/types"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
 
 type machineDeploymentResourceSetConfig struct {
-	CMAClient clientset.Interface
-	G8sClient versioned.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 	Tenant    tenantcluster.Interface
 
@@ -35,11 +34,23 @@ type machineDeploymentResourceSetConfig struct {
 func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
+	var baseDomainResource resource.Interface
+	{
+		c := basedomain.Config{
+			Logger:        config.Logger,
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
+		}
+
+		baseDomainResource, err = basedomain.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var machineDeploymentStatusResource resource.Interface
 	{
 		c := machinedeploymentstatus.Config{
-			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
@@ -54,7 +65,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		c := tenantclients.Config{
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.CMAClient),
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
@@ -68,7 +79,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		c := workercount.Config{
 			Logger: config.Logger,
 
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.CMAClient),
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
 		}
 
 		workerCountResource, err = workercount.New(c)
@@ -78,8 +89,12 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	}
 
 	resources := []resource.Interface{
+		// Following resources manage controller context information.
+		baseDomainResource,
 		tenantClientsResource,
 		workerCountResource,
+
+		// Following resources manage CR status information.
 		machineDeploymentStatusResource,
 	}
 
@@ -138,18 +153,25 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	return resourceSet, nil
 }
 
-func newMachineDeploymentToClusterFunc(cmaClient clientset.Interface) func(obj interface{}) (v1alpha1.Cluster, error) {
-	return func(obj interface{}) (v1alpha1.Cluster, error) {
-		cr, err := key.ToMachineDeployment(obj)
-		if err != nil {
-			return v1alpha1.Cluster{}, microerror.Mask(err)
+func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
+	return func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
+		cr := &apiv1alpha2.Cluster{}
+		{
+			md, err := key.ToMachineDeployment(obj)
+			if err != nil {
+				return apiv1alpha2.Cluster{}, microerror.Mask(err)
+			}
+
+			// Note that we cannot use key.MachineDeploymentInfraRef here because we
+			// do not need to fetch the Machine Deployment again. We need to lookup
+			// the Cluster CR based on the MachineDeployment CR. This is why we use
+			// types.NamespacedName here explicitly.
+			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&md), Namespace: md.Namespace}, cr)
+			if err != nil {
+				return apiv1alpha2.Cluster{}, microerror.Mask(err)
+			}
 		}
 
-		m, err := cmaClient.ClusterV1alpha1().Clusters(cr.Namespace).Get(key.ClusterID(&cr), metav1.GetOptions{})
-		if err != nil {
-			return v1alpha1.Cluster{}, microerror.Mask(err)
-		}
-
-		return *m, nil
+		return *cr, nil
 	}
 }

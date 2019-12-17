@@ -3,14 +3,15 @@ package controller
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apprclient"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/operatorkit/resource"
+	"github.com/giantswarm/operatorkit/resource/crud"
 	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
 	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
@@ -18,13 +19,13 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
@@ -42,24 +43,22 @@ import (
 // clusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
 type clusterResourceSetConfig struct {
-	ApprClient    *apprclient.Client
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
-	CMAClient     clientset.Interface
 	FileSystem    afero.Fs
-	G8sClient     versioned.Interface
-	K8sClient     kubernetes.Interface
+	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
 
-	APIIP              string
-	CalicoAddress      string
-	CalicoPrefixLength string
-	CertTTL            string
-	ClusterIPRange     string
-	DNSIP              string
-	Provider           string
-	RegistryDomain     string
+	APIIP                      string
+	CalicoAddress              string
+	CalicoPrefixLength         string
+	CertTTL                    string
+	ClusterIPRange             string
+	DNSIP                      string
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	Provider                   string
+	RegistryDomain             string
 }
 
 // newClusterResourceSet returns a configured Cluster API's Cluster controller
@@ -70,8 +69,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.G8sClient,
-			K8sClient: config.K8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Provider: config.Provider,
@@ -86,7 +85,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appResource resource.Interface
 	{
 		c := appresource.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			Name:        app.Name,
@@ -104,10 +103,23 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	var baseDomainResource resource.Interface
+	{
+		c := basedomain.Config{
+			Logger:        config.Logger,
+			ToClusterFunc: toClusterFunc,
+		}
+
+		baseDomainResource, err = basedomain.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
-			G8sClient: config.G8sClient,
+			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
 			APIIP:    config.APIIP,
@@ -129,7 +141,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var cleanupMachineDeployments resource.Interface
 	{
 		c := cleanupmachinedeployments.Config{
-			CMAClient: config.CMAClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 		}
 
@@ -142,7 +154,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterConfigMapGetter configmapresource.StateGetter
 	{
 		c := clusterconfigmap.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			DNSIP: config.DNSIP,
@@ -157,7 +169,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterConfigMapResource resource.Interface
 	{
 		c := configmapresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        clusterconfigmap.Name,
@@ -178,10 +190,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterIDResource resource.Interface
 	{
 		c := clusterid.Config{
-			CMAClient:                   config.CMAClient,
-			CommonClusterStatusAccessor: &key.AWSClusterStatusAccessor{},
-			G8sClient:                   config.G8sClient,
-			Logger:                      config.Logger,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 		}
 
 		clusterIDResource, err = clusterid.New(c)
@@ -193,11 +205,11 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterStatusResource resource.Interface
 	{
 		c := clusterstatus.Config{
-			Accessor:  &key.AWSClusterStatusAccessor{},
-			CMAClient: config.CMAClient,
-			G8sClient: config.G8sClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			Provider:  config.Provider,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
@@ -209,7 +221,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var cpNamespaceResource resource.Interface
 	{
 		c := cpnamespace.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 
@@ -227,7 +239,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var encryptionKeyGetter secretresource.StateGetter
 	{
 		c := encryptionkey.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 
@@ -240,7 +252,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var encryptionKeyResource resource.Interface
 	{
 		c := secretresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        encryptionkey.Name,
@@ -262,7 +274,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	{
 		c := kubeconfig.Config{
 			CertsSearcher: config.CertsSearcher,
-			K8sClient:     config.K8sClient,
+			K8sClient:     config.K8sClient.K8sClient(),
 			Logger:        config.Logger,
 		}
 
@@ -275,7 +287,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var kubeConfigResource resource.Interface
 	{
 		c := secretresource.Config{
-			K8sClient: config.K8sClient,
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			Name:        kubeconfig.Name,
@@ -311,7 +323,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := tenantclients.Config{
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
-			ToClusterFunc: key.ToCluster,
+			ToClusterFunc: toClusterFunc,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
@@ -323,7 +335,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var updateMachineDeployments resource.Interface
 	{
 		c := updatemachinedeployments.Config{
-			CMAClient: config.CMAClient,
+			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
 			Provider: config.Provider,
@@ -340,7 +352,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := workercount.Config{
 			Logger: config.Logger,
 
-			ToClusterFunc: key.ToCluster,
+			ToClusterFunc: toClusterFunc,
 		}
 
 		workerCountResource, err = workercount.New(c)
@@ -351,10 +363,13 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		clusterIDResource,
+		baseDomainResource,
 		operatorVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
+
+		// Following resources manage CR status information.
+		clusterIDResource,
 		clusterStatusResource,
 
 		// Following resources manage resources in the control plane.
@@ -426,13 +441,22 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	return resourceSet, nil
 }
 
-func toCRUDResource(logger micrologger.Logger, ops controller.CRUDResourceOps) (*controller.CRUDResource, error) {
-	c := controller.CRUDResourceConfig{
-		Logger: logger,
-		Ops:    ops,
+func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return apiv1alpha2.Cluster{}, microerror.Mask(err)
 	}
 
-	r, err := controller.NewCRUDResource(c)
+	return cr, nil
+}
+
+func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {
+	c := crud.ResourceConfig{
+		CRUD:   v,
+		Logger: logger,
+	}
+
+	r, err := crud.NewResource(c)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

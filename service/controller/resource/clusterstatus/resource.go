@@ -1,10 +1,10 @@
 package clusterstatus
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
 const (
@@ -12,46 +12,42 @@ const (
 )
 
 type Config struct {
-	Accessor  Accessor
-	CMAClient clientset.Interface
-	G8sClient versioned.Interface
+	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	Provider string
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	Provider                   string
 }
 
 type Resource struct {
-	accessor  Accessor
-	cmaClient clientset.Interface
-	g8sClient versioned.Interface
+	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	provider string
+	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	provider                   string
 }
 
 func New(config Config) (*Resource, error) {
-	if config.Accessor == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Accessor must not be empty", config)
-	}
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+
+	if config.NewCommonClusterObjectFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
 
 	r := &Resource{
-		accessor:  config.Accessor,
-		cmaClient: config.CMAClient,
-		g8sClient: config.G8sClient,
+		k8sClient: config.K8sClient,
 		logger:    config.Logger,
-		provider:  config.Provider,
+
+		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		provider:                   config.Provider,
 	}
 
 	return r, nil

@@ -4,29 +4,25 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 )
 
-func ClusterAPIEndpoint(cluster v1alpha1.Cluster) string {
-	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
+func APIEndpoint(cluster apiv1alpha2.Cluster, base string) string {
+	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(&cluster), base)
 }
 
-func ClusterBaseDomain(cluster v1alpha1.Cluster) string {
-	return clusterProviderSpec(cluster).Cluster.DNS.Domain
+func TenantEndpoint(cluster apiv1alpha2.Cluster, base string) string {
+	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), base)
 }
 
-func TenantBaseDomain(cluster v1alpha1.Cluster) string {
-	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), ClusterBaseDomain(cluster))
-}
-
-func ToCluster(v interface{}) (v1alpha1.Cluster, error) {
+func ToCluster(v interface{}) (apiv1alpha2.Cluster, error) {
 	if v == nil {
-		return v1alpha1.Cluster{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Cluster{}, v)
+		return apiv1alpha2.Cluster{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &apiv1alpha2.Cluster{}, v)
 	}
 
-	p, ok := v.(*v1alpha1.Cluster)
+	p, ok := v.(*apiv1alpha2.Cluster)
 	if !ok {
-		return v1alpha1.Cluster{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &v1alpha1.Cluster{}, v)
+		return apiv1alpha2.Cluster{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &apiv1alpha2.Cluster{}, v)
 	}
 
 	c := p.DeepCopy()

@@ -2,27 +2,26 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sync"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apprclient"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
+	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -101,24 +100,22 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	cmaClient, err := clientset.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+	var k8sClient *k8sclient.Clients
+	{
+		c := k8sclient.ClientsConfig{
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				infrastructurev1alpha2.AddToScheme,
+				apiv1alpha2.AddToScheme,
+			},
+			Logger: config.Logger,
 
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
+			RestConfig: restConfig,
+		}
 
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
+		k8sClient, err = k8sclient.NewClients(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var dnsIP string
@@ -136,22 +133,6 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 		apiIP = ip.String()
-	}
-
-	var apprClient *apprclient.Client
-	{
-		c := apprclient.Config{
-			Fs:     afero.NewOsFs(),
-			Logger: config.Logger,
-
-			Address:      defaultCNRAddress,
-			Organization: defaultCNROrganization,
-		}
-
-		apprClient, err = apprclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
 	}
 
 	var clusterClient *clusterclient.Client
@@ -173,7 +154,7 @@ func New(config Config) (*Service, error) {
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
-			K8sClient: k8sClient,
+			K8sClient: k8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WatchTimeout: 5 * time.Second,
@@ -192,12 +173,6 @@ func New(config Config) (*Service, error) {
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
-			// TODO: Reduce the max wait to reduce delay when processing
-			// broken tenant clusters.
-			//
-			//     https://github.com/giantswarm/giantswarm/issues/6703
-			//
-			// EnsureTillerInstalledMaxWait: 2 * time.Minute,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
@@ -209,25 +184,22 @@ func New(config Config) (*Service, error) {
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
-			ApprClient:    apprClient,
 			CertsSearcher: certsSearcher,
 			ClusterClient: clusterClient,
-			CMAClient:     cmaClient,
 			FileSystem:    afero.NewOsFs(),
-			G8sClient:     g8sClient,
 			K8sClient:     k8sClient,
-			K8sExtClient:  k8sExtClient,
 			Logger:        config.Logger,
 			Tenant:        tenantCluster,
 
-			APIIP:              apiIP,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			CertTTL:            config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
-			ClusterIPRange:     clusterIPRange,
-			DNSIP:              dnsIP,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
+			APIIP:                      apiIP,
+			CalicoAddress:              calicoAddress,
+			CalicoPrefixLength:         calicoPrefixLength,
+			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
+			ClusterIPRange:             clusterIPRange,
+			DNSIP:                      dnsIP,
+			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
+			Provider:                   provider,
+			RegistryDomain:             registryDomain,
 		}
 
 		clusterController, err = controller.NewCluster(c)
@@ -239,14 +211,11 @@ func New(config Config) (*Service, error) {
 	var machineDeploymentController *controller.MachineDeployment
 	{
 		c := controller.MachineDeploymentConfig{
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
-			K8sExtClient: k8sExtClient,
-			Logger:       config.Logger,
-			Tenant:       tenantCluster,
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+			Tenant:    tenantCluster,
 
-			ProjectName: config.ProjectName,
-			Provider:    provider,
+			Provider: provider,
 		}
 
 		machineDeploymentController, err = controller.NewMachineDeployment(c)
@@ -259,9 +228,10 @@ func New(config Config) (*Service, error) {
 	{
 		c := collector.SetConfig{
 			CertSearcher: certsSearcher,
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
 			Logger:       config.Logger,
+
+			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -325,6 +295,18 @@ func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error)
 	}
 
 	return clusterConfig, nil
+}
+
+func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
+	switch provider {
+	case "aws":
+		return func() infrastructurev1alpha2.CommonClusterObject {
+			return new(infrastructurev1alpha2.AWSCluster)
+		}
+
+	default:
+		panic(fmt.Sprintf("No support for provider %s", provider))
+	}
 }
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {

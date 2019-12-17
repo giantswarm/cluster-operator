@@ -1,12 +1,10 @@
 package clusterid
 
 import (
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
-
-	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 const (
@@ -14,38 +12,36 @@ const (
 )
 
 type Config struct {
-	CMAClient                   clientset.Interface
-	CommonClusterStatusAccessor key.CommonClusterStatusAccessor
-	G8sClient                   versioned.Interface
-	Logger                      micrologger.Logger
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+
+	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
 type Resource struct {
-	cmaClient                   clientset.Interface
-	commonClusterStatusAccessor key.CommonClusterStatusAccessor
-	g8sClient                   versioned.Interface
-	logger                      micrologger.Logger
+	k8sClient k8sclient.Interface
+	logger    micrologger.Logger
+
+	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
 func New(config Config) (*Resource, error) {
-	if config.CMAClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CMAClient must not be empty", config)
-	}
-	if config.CommonClusterStatusAccessor == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CommonClusterStatusAccessor must not be empty", config)
-	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.NewCommonClusterObjectFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
+	}
+
 	r := &Resource{
-		cmaClient:                   config.CMAClient,
-		commonClusterStatusAccessor: config.CommonClusterStatusAccessor,
-		g8sClient:                   config.G8sClient,
-		logger:                      config.Logger,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
+
+		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 	}
 
 	return r, nil
