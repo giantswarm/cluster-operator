@@ -58,7 +58,7 @@
   revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
-  branch = "abstract-commoncluster-status"
+  branch = "master"
   digest = "1:ece2f9df824d8a022621c7857ae15fb4fbcba380a7cb3d6f12e4fddb99184a77"
   name = "github.com/giantswarm/apiextensions"
   packages = [
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "e1c2b33476bcf63dcbdaba74667c41d8a4f7dcad"
+  revision = "29482fb3d774cedee3578619809e04274372bf9b"
 
 [[projects]]
   branch = "master"
@@ -244,7 +244,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3905dfc2d991286bd21ca21fcdd97a4e14a85efb2048ffc28499576ae3052f74"
+  digest = "1:e159e48ef8bbe6d0dc9af3652b26f6e3414c51573061c7ec0ebc085a61b1aba6"
   name = "github.com/giantswarm/operatorkit"
   packages = [
     "controller",
@@ -264,7 +264,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "5d098618662e74384f52bf064fe3588436873eb2"
+  revision = "ce72eefd011ccef2eee654ae1e90b81241195b85"
 
 [[projects]]
   branch = "master"
@@ -292,11 +292,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:90fda7152f6ded9c45d67bee5f23f2d8f148eb15672f30030c095e08eccf02b0"
+  digest = "1:62f331bfc5c1f966a4c289170927241ce4eb5d801e6f488962376afaf370654a"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "be95231628aed039183214a0e337bfe621e3072a"
+  revision = "0e21f30ed4e6d96dd8bc1a7f1f57610f445f2620"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
@@ -1042,7 +1042,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "6ca3b61696b65b0e81f1a39b4937fc2d2994ed6a"
+  revision = "dcd0c905194ba97424c4c168fb94fa1c61016559"
 
 [[projects]]
   digest = "1:7f75ccb5699922f4563bef0d8d3b00ea85b3796605e7d1fd1f20b5610ef010f4"

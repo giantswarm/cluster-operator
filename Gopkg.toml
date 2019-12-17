@@ -21,8 +21,8 @@
 
 
 
-[[override]]
-  branch = "abstract-commoncluster-status"
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
@@ -99,7 +99,7 @@
 
 [[constraint]]
   name = "sigs.k8s.io/cluster-api"
-  version = "v0.2.7"
+  version = "v0.2.8"
 
 [[override]]
   name = "k8s.io/cli-runtime"
