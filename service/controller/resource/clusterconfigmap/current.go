@@ -31,15 +31,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, nil
 	}
 
-	// The cluster config map is deleted implicitly by the provider operator when
-	// it deletes the tenant cluster namespace in the control plane.
-	if key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
-	}
-
 	var configMap *corev1.ConfigMap
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding config map %#q for tenant cluster %#q", key.ClusterConfigMapName(&cr), key.ClusterID(&cr)))
