@@ -33,6 +33,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	cr := r.newCommonClusterObjectFunc()
+	var uc infrastructurev1alpha2.CommonClusterObject
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
 
@@ -45,6 +46,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+
+		uc = cr.DeepCopyObject().(infrastructurev1alpha2.CommonClusterObject)
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
@@ -85,7 +88,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
 	}
 
-	uc, err := r.computeCreateClusterStatusConditions(ctx, cr, nodes, mdList.Items)
+	err = r.computeCreateClusterStatusConditions(ctx, uc, nodes, mdList.Items)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -109,10 +112,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) (infrastructurev1alpha2.CommonClusterObject, error) {
+func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
-		return nil, microerror.Mask(err)
+		return microerror.Mask(err)
 	}
 
 	providerOperatorVersionLabel := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
@@ -214,7 +217,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 
 	cr.SetCommonClusterStatus(status)
 
-	return cr, nil
+	return nil
 }
 
 func allNodesHaveVersion(nodes []corev1.Node, version string, providerOperatorVersionLabel string) bool {
