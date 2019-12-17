@@ -58,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			// During cluster creation / upgrade the tenant API is naturally not
 			// available but this resource must still continue execution as that's
 			// when `Creating` and `Upgrading` conditions may need to be applied.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {

@@ -17,16 +17,16 @@ import (
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	cr := r.newCommonClusterObjectFunc()
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding latest infrastructure reference for cluster %#q", key.ClusterID(cr)))
-
 		cl, err := key.ToCluster(obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding latest infrastructure reference for cluster %#q", key.ClusterID(&cl)))
+
 		err = r.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cl), cr)
 		if errors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find latest infrastructure reference for cluster %#q", key.ClusterID(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find latest infrastructure reference for cluster %#q", key.ClusterID(&cl)))
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 
@@ -34,7 +34,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found latest infrastructure reference for cluster %#q", key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found latest infrastructure reference for cluster %#q", key.ClusterID(&cl)))
 	}
 
 	updatedCR := r.computeDeleteClusterStatusConditions(ctx, cr)
