@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "abstract-commoncluster-status"
-  digest = "1:f13785faecdbe2f9b4546830b2caf61be76a71d64eecbfc4f6e6f3747e1b01af"
+  digest = "1:5bfbec6c7557fd4d129ba8461500e018b601e205906c577b0988618f5d4ce9bf"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "6d6dc190a0a6ada29093ec58e5f6e4e84c1dc714"
+  revision = "b7bd0c68b26eb16cafe1c5a6c5dc25fd95a4e680"
 
 [[projects]]
   branch = "master"

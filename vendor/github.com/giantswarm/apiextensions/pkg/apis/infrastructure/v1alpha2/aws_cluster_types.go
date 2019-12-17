@@ -93,7 +93,7 @@ spec:
                 network:
                   properties:
                     cidr:
-                      pattern: ^\d+\.\d+\.\d+.\d+$
+                      pattern: ^\d+\.\d+\.\d+.\d+\/\d+$
                       type: string
                   type: object
               type: object
@@ -219,8 +219,8 @@ type AWSClusterSpecProviderMaster struct {
 }
 
 type AWSClusterStatus struct {
-	Cluster  CommonClusterStatus      `json:"cluster" yaml:"cluster"`
-	Provider AWSClusterStatusProvider `json:"provider" yaml:"provider"`
+	Cluster  CommonClusterStatus      `json:"cluster,omitempty" yaml:"cluster,omitempty"`
+	Provider AWSClusterStatusProvider `json:"provider,omitempty" yaml:"provider,omitempty"`
 }
 
 type AWSClusterStatusProvider struct {
