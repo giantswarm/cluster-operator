@@ -44,6 +44,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var k8sClient k8sclient.Interface
 	{
 		c := k8sclient.ClientsConfig{
+			Logger:     r.logger,
 			RestConfig: rest.CopyConfig(restConfig),
 		}
 
