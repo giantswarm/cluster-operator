@@ -6,36 +6,7 @@ import (
 
 func VersionBundle(p string) versionbundle.Bundle {
 	return versionbundle.Bundle{
-		Changelogs: []versionbundle.Changelog{
-			{
-				Component:   "cluster-autoscaler",
-				Description: "Updated to version 1.16.2.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "clusterapi",
-				Description: "Cluster API types upgraded to v1alpha2.",
-				Kind:        versionbundle.KindChanged,
-				URLs: []string{
-					"https://github.com/giantswarm/cluster-operator/pull/842",
-				},
-			},
-			{
-				Component:   "coredns",
-				Description: "Updated to version 1.6.5.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "net-exporter",
-				Description: "Updated to version 1.4.0.",
-				Kind:        versionbundle.KindChanged,
-			},
-			{
-				Component:   "node-exporter",
-				Description: "Updated to version 0.18.1.",
-				Kind:        versionbundle.KindChanged,
-			},
-		},
+		Changelogs: []versionbundle.Changelog{},
 		Components: []versionbundle.Component{
 			{
 				Name:    "kube-state-metrics",
