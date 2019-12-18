@@ -18,6 +18,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	if cc.Status.Endpoint.Base == "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
 
 	var apps []*v1alpha1.App
 	{
