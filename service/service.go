@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -298,14 +297,9 @@ func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error)
 }
 
 func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
-	switch provider {
-	case "aws":
-		return func() infrastructurev1alpha2.CommonClusterObject {
-			return new(infrastructurev1alpha2.AWSCluster)
-		}
-
-	default:
-		panic(fmt.Sprintf("No support for provider %s", provider))
+	// Deal with different providers in here once they reach Cluster API.
+	return func() infrastructurev1alpha2.CommonClusterObject {
+		return new(infrastructurev1alpha2.AWSCluster)
 	}
 }
 
