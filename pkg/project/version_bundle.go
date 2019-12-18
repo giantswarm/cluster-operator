@@ -34,10 +34,6 @@ func VersionBundle(p string) versionbundle.Bundle {
 				Version: "1.8.0",
 			},
 			{
-				Name:    "nginx-ingress-controller",
-				Version: "0.26.1",
-			},
-			{
 				Name:    "node-exporter",
 				Version: "0.18.1",
 			},
