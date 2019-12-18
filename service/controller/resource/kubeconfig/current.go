@@ -31,6 +31,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, nil
 	}
 
+	// The secrets are deleted when the namespace is deleted.
+	if key.IsDeleted(&cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting kubeconfig secret for tenant cluster %#q", key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
 	var secret *corev1.Secret
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))

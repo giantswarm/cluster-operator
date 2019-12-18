@@ -32,6 +32,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 		return nil, nil
 	}
 
+	// The app custom resources are deleted when the namespace is deleted.
+	if key.IsDeleted(&cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting apps for tenant cluster %#q", key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
 	var apps []*v1alpha1.App
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps for tenant cluster %#q", key.ClusterID(&cr)))

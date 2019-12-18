@@ -32,6 +32,14 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, nil
 	}
 
+	// The config maps are deleted when the namespace is deleted.
+	if key.IsDeleted(&cr) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting config maps for tenant cluster %#q", key.ClusterID(&cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
 	var configMaps []*corev1.ConfigMap
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster config maps in namespace %#q", key.ClusterID(&cr)))
