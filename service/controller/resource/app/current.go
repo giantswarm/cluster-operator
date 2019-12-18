@@ -6,10 +6,12 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
