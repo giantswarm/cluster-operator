@@ -11,6 +11,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -19,9 +20,19 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	// The app custom resource is deleted implicitly by the provider operator
-	// when it deletes the tenant cluster namespace in the control plane.
+	if cc.Status.Endpoint.Base == "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
+	// The app custom resources are deleted when the namespace is deleted.
 	if key.IsDeleted(&cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting apps for tenant cluster %#q", key.ClusterID(&cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
