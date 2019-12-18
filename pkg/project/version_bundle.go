@@ -13,6 +13,14 @@ func VersionBundle(p string) versionbundle.Bundle {
 				Kind:        versionbundle.KindChanged,
 			},
 			{
+				Component:   "clusterapi",
+				Description: "Cluster API types upgraded to v1alpha2.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/cluster-operator/pull/842",
+				},
+			},
+			{
 				Component:   "coredns",
 				Description: "Updated to version 1.6.5.",
 				Kind:        versionbundle.KindChanged,
