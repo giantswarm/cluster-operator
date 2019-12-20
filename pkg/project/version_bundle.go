@@ -6,7 +6,13 @@ import (
 
 func VersionBundle(p string) versionbundle.Bundle {
 	return versionbundle.Bundle{
-		Changelogs: []versionbundle.Changelog{},
+		Changelogs: []versionbundle.Changelog{
+			{
+				Component:   "todo",
+				Description: "TODO",
+				Kind:        versionbundle.KindFixed,
+			},
+		},
 		Components: []versionbundle.Component{
 			{
 				Name:    "kube-state-metrics",
