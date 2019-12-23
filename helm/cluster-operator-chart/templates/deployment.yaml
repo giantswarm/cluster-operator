@@ -41,7 +41,7 @@ spec:
         runAsGroup: {{ .Values.groupID }}
       containers:
       - name: cluster-operator
-        image: quay.io/giantswarm/cluster-operator:[[ .SHA ]]
+        image: {{ .Values.Installation.V1.Registry.Domain }}/giantswarm/cluster-operator:[[ .SHA ]]
         args:
         - daemon
         - --config.dirs=/var/run/cluster-operator/configmap/
