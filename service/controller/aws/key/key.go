@@ -56,13 +56,8 @@ func ChartSpecs() []key.ChartSpec {
 	return []key.ChartSpec{
 		{
 			AppName:           "cluster-autoscaler",
-			ChannelName:       "0-9-stable",
 			ChartName:         "kubernetes-cluster-autoscaler-chart",
 			ConfigMapName:     "cluster-autoscaler-values",
-			HasAppCR:          true,
-			Namespace:         metav1.NamespaceSystem,
-			ReleaseName:       "cluster-autoscaler",
-			UseUpgradeForce:   true,
 			UserConfigMapName: "cluster-autoscaler-user-values",
 		},
 	}

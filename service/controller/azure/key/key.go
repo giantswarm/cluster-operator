@@ -27,13 +27,8 @@ func AppSpecs() []key.AppSpec {
 func ChartSpecs() []key.ChartSpec {
 	return []key.ChartSpec{
 		{
-			AppName:         "external-dns",
-			ChannelName:     "0-3-stable",
-			ChartName:       "kubernetes-external-dns-chart",
-			HasAppCR:        true,
-			Namespace:       metav1.NamespaceSystem,
-			ReleaseName:     "external-dns",
-			UseUpgradeForce: true,
+			AppName:   "external-dns",
+			ChartName: "kubernetes-external-dns-chart",
 		},
 	}
 }
