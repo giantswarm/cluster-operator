@@ -24,11 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/azure/key"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/resource/chartconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/azure/resource/configmap"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
-	chartconfigservice "github.com/giantswarm/cluster-operator/service/controller/internal/chartconfig"
-	configmapservice "github.com/giantswarm/cluster-operator/service/controller/internal/configmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
@@ -174,45 +170,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var configMapService configmapservice.Interface
-	{
-		c := configmapservice.Config{
-			Logger: config.Logger,
-			Tenant: config.Tenant,
-
-			Provider: config.Provider,
-		}
-
-		configMapService, err = configmapservice.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var configMapResource resource.Interface
-	{
-		c := configmap.Config{
-			ConfigMap: configMapService,
-			Logger:    config.Logger,
-
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     config.RegistryDomain,
-		}
-
-		ops, err := configmap.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		configMapResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var configMapMigrationResource resource.Interface
 	{
 		c := configmapmigration.Config{
@@ -225,40 +182,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		configMapMigrationResource, err = configmapmigration.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartConfigService chartconfigservice.Interface
-	{
-		c := chartconfigservice.Config{
-			Logger: config.Logger,
-
-			Provider: config.Provider,
-		}
-
-		chartConfigService, err = chartconfigservice.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var chartConfigResource resource.Interface
-	{
-		c := chartconfig.Config{
-			ChartConfig: chartConfigService,
-			Logger:      config.Logger,
-
-			ProjectName: config.ProjectName,
-		}
-
-		ops, err := chartconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		chartConfigResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -378,11 +301,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 
 		// appResource is executed after migration resources.
 		appResource,
-
-		// Following resources manage resources in tenant clusters so they
-		// should be executed last
-		configMapResource,
-		chartConfigResource,
 	}
 
 	// Wrap resources with retry and metrics.
