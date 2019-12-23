@@ -2,7 +2,7 @@ package project
 
 var (
 	bundleVersion = "0.21.1-dev"
-	description   = "The cluster-operator manages Kubernetes guest cluster resources."
+	description   = "The cluster-operator manages Kubernetes tenant cluster resources."
 	gitSHA        = "n/a"
 	name          = "cluster-operator"
 	source        = "https://github.com/giantswarm/cluster-operator"

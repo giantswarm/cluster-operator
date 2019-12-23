@@ -26,6 +26,11 @@ var versionBundleAWS = versionbundle.Bundle{
 			Description: "Updated to version 0.18.1.",
 			Kind:        versionbundle.KindChanged,
 		},
+		{
+			Component:   "nginx-ingress-controller",
+			Description: "Migrated to use default app catalog.",
+			Kind:        versionbundle.KindChanged,
+		},
 	},
 	Components: []versionbundle.Component{
 		{
