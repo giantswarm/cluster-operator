@@ -70,7 +70,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
-	// useProxyProtocol is only enabled for AWS clusters.
+	// useProxyProtocol is only enabled by default for AWS clusters.
 	var useProxyProtocol bool
 	{
 		if r.provider == "aws" {
