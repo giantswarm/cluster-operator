@@ -196,6 +196,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			Logger:                   config.Logger,
 
 			ClusterIPRange: config.ClusterIPRange,
+			Provider:       config.Provider,
 		}
 
 		stateGetter, err := clusterconfigmap.New(c)

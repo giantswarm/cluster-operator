@@ -56,6 +56,28 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		ingressControllerReplicas = 20
 	}
 
+	// controllerServiceEnabled is true for Azure legacy clusters. For AWS and
+	// KVM legacy clusters this service is disabled and it is created via
+	// ignition.
+	var controllerServiceEnabled bool
+	{
+		if r.provider == "azure" {
+			controllerServiceEnabled = true
+		} else if r.provider == "aws" || r.provider == "kvm" {
+			controllerServiceEnabled = false
+		} else {
+			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
+		}
+	}
+
+	// useProxyProtocol is only enabled by default for AWS clusters.
+	var useProxyProtocol bool
+	{
+		if r.provider == "aws" {
+			useProxyProtocol = true
+		}
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(clusterConfig),
@@ -72,7 +94,20 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			Values: map[string]interface{}{
 				"baseDomain": key.DNSZone(clusterConfig),
 				"clusterID":  key.ClusterID(clusterConfig),
+				"controller": map[string]interface{}{
+					"service": map[string]interface{}{
+						"enabled": controllerServiceEnabled,
+					},
+				},
+				"global": map[string]interface{}{
+					"controller": map[string]interface{}{
+						"useProxyProtocol": useProxyProtocol,
+					},
+				},
 				"ingressController": map[string]interface{}{
+					// Legacy flag is set to true so resources created by
+					// legacy provider operators are not created.
+					"legacy":   true,
 					"replicas": ingressControllerReplicas,
 				},
 			},

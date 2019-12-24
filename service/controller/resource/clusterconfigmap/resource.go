@@ -27,6 +27,7 @@ type Config struct {
 
 	// Settings.
 	ClusterIPRange string
+	Provider       string
 }
 
 // Resource implements the clusterConfigMap resource.
@@ -40,6 +41,7 @@ type StateGetter struct {
 
 	// Settings.
 	clusterIPRange string
+	provider       string
 }
 
 // New creates a new configured clusterConfigMap resource.
@@ -65,6 +67,9 @@ func New(config Config) (*StateGetter, error) {
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	r := &StateGetter{
 		// Dependencies.
@@ -76,6 +81,7 @@ func New(config Config) (*StateGetter, error) {
 
 		// Settings
 		clusterIPRange: config.ClusterIPRange,
+		provider:       config.Provider,
 	}
 
 	return r, nil
