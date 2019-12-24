@@ -88,7 +88,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "net-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.4.0",
+			Version:         "1.4.2",
 		},
 		{
 			App:             "node-exporter",
