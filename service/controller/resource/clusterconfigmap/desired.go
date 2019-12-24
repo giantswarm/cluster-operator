@@ -70,6 +70,14 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	// useProxyProtocol is only enabled for AWS clusters.
+	var useProxyProtocol bool
+	{
+		if r.provider == "aws" {
+			useProxyProtocol = true
+		}
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(clusterConfig),
@@ -89,6 +97,11 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"controller": map[string]interface{}{
 					"service": map[string]interface{}{
 						"enabled": controllerServiceEnabled,
+					},
+				},
+				"global": map[string]interface{}{
+					"controller": map[string]interface{}{
+						"useProxyProtocol": useProxyProtocol,
 					},
 				},
 				"ingressController": map[string]interface{}{
