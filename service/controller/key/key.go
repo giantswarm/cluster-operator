@@ -56,7 +56,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace: metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "1.1.0",
+			Version:         "1.1.1",
 		},
 		{
 			App:             "chart-operator",
