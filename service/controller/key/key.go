@@ -47,7 +47,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "cert-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.2.0",
+			Version:         "1.2.1",
 		},
 		{
 			App:       "coredns",
