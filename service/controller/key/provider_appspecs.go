@@ -15,7 +15,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.0",
+			Version:         "1.0.1",
 		},
 		{
 			App:             "kiam",
