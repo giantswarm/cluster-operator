@@ -15,7 +15,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.0",
+			Version:         "1.0.1",
 		},
 		{
 			App:             "kiam",
@@ -24,7 +24,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.0",
+			Version:         "1.0.1",
 		},
 		{
 			App:             "cert-manager",
@@ -33,7 +33,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.1",
+			Version:         "1.0.2",
 		},
 		{
 			App:             "cluster-autoscaler",
@@ -41,7 +41,7 @@ func AWSAppSpecs() []AppSpec {
 			Chart:           "cluster-autoscaler-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.1.0",
+			Version:         "1.1.1",
 		},
 	}
 }

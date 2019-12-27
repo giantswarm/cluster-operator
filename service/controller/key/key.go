@@ -47,7 +47,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "cert-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.2.0",
+			Version:         "1.2.1",
 		},
 		{
 			App:       "coredns",
@@ -56,7 +56,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace: metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "1.1.0",
+			Version:         "1.1.1",
 		},
 		{
 			App:             "chart-operator",
@@ -64,7 +64,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.10.10",
+			Version:         "0.11.2",
 		},
 		{
 			App:             "kube-state-metrics",
@@ -88,7 +88,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "net-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.4.0",
+			Version:         "1.4.3",
 		},
 		{
 			App:             "node-exporter",
