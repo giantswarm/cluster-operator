@@ -132,7 +132,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "net-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.4.2",
+			Version:         "1.4.3",
 		},
 		{
 			App:           "nginx-ingress-controller",

@@ -18,7 +18,7 @@ var versionBundleAWS = versionbundle.Bundle{
 		},
 		{
 			Component:   "net-exporter",
-			Description: "Updated to version 1.4.0.",
+			Description: "Updated to version 1.4.3.",
 			Kind:        versionbundle.KindChanged,
 		},
 		{
