@@ -20,12 +20,7 @@ type AppSpec struct {
 // ChartSpec is used to define chartconfig custom resources.
 type ChartSpec struct {
 	AppName           string
-	ChannelName       string
 	ChartName         string
 	ConfigMapName     string
-	HasAppCR          bool
-	Namespace         string
-	ReleaseName       string
-	UseUpgradeForce   bool
 	UserConfigMapName string
 }
