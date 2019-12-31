@@ -6,34 +6,28 @@ import (
 	"sync"
 	"time"
 
-	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/apprclient"
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/clusterclient"
+	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/client/k8srestconfig"
 	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/resty.v1"
-	corev1 "k8s.io/api/core/v1"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
+	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/flag"
-	"github.com/giantswarm/cluster-operator/pkg/cluster"
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/v19/key"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/collector"
-	"github.com/giantswarm/cluster-operator/service/controller/aws"
-	"github.com/giantswarm/cluster-operator/service/controller/azure"
-	"github.com/giantswarm/cluster-operator/service/controller/clusterapi"
-	"github.com/giantswarm/cluster-operator/service/controller/kvm"
+	"github.com/giantswarm/cluster-operator/service/controller"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
 const (
@@ -61,13 +55,10 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	awsLegacyClusterController   *aws.LegacyCluster
-	azureLegacyClusterController *azure.LegacyCluster
-	bootOnce                     sync.Once
-	clusterController            *clusterapi.Cluster
-	machineDeploymentController  *clusterapi.MachineDeployment
-	kvmLegacyClusterController   *kvm.LegacyCluster
-	operatorCollector            *collector.Set
+	bootOnce                    sync.Once
+	clusterController           *controller.Cluster
+	machineDeploymentController *controller.MachineDeployment
+	operatorCollector           *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -82,7 +73,6 @@ func New(config Config) (*Service, error) {
 	var err error
 
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
-	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.Secret.Namespace)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
@@ -109,32 +99,22 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	cmaClient, err := clientset.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	g8sClient, err := versioned.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	k8sClient, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	// TODO drop the migration once it is done.
+	var k8sClient *k8sclient.Clients
 	{
-		err := migrateSecretLabels(config.Logger, k8sClient)
+		c := k8sclient.ClientsConfig{
+			SchemeBuilder: k8sclient.SchemeBuilder{
+				infrastructurev1alpha2.AddToScheme,
+				apiv1alpha2.AddToScheme,
+			},
+			Logger: config.Logger,
+
+			RestConfig: restConfig,
+		}
+
+		k8sClient, err = k8sclient.NewClients(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-	}
-
-	k8sExtClient, err := apiextensionsclient.NewForConfig(restConfig)
-	if err != nil {
-		return nil, microerror.Mask(err)
 	}
 
 	var dnsIP string
@@ -152,22 +132,6 @@ func New(config Config) (*Service, error) {
 			return nil, microerror.Mask(err)
 		}
 		apiIP = ip.String()
-	}
-
-	var apprClient *apprclient.Client
-	{
-		c := apprclient.Config{
-			Fs:     afero.NewOsFs(),
-			Logger: config.Logger,
-
-			Address:      defaultCNRAddress,
-			Organization: defaultCNROrganization,
-		}
-
-		apprClient, err = apprclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
 	}
 
 	var clusterClient *clusterclient.Client
@@ -189,7 +153,7 @@ func New(config Config) (*Service, error) {
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
-			K8sClient: k8sClient,
+			K8sClient: k8sClient.K8sClient(),
 			Logger:    config.Logger,
 
 			WatchTimeout: 5 * time.Second,
@@ -208,12 +172,6 @@ func New(config Config) (*Service, error) {
 			Logger:        config.Logger,
 
 			CertID: certs.ClusterOperatorAPICert,
-			// TODO: Reduce the max wait to reduce delay when processing
-			// broken tenant clusters.
-			//
-			//     https://github.com/giantswarm/giantswarm/issues/6703
-			//
-			// EnsureTillerInstalledMaxWait: 2 * time.Minute,
 		}
 
 		tenantCluster, err = tenantcluster.New(c)
@@ -222,149 +180,44 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var awsLegacyClusterController *aws.LegacyCluster
+	var clusterController *controller.Cluster
 	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := aws.LegacyClusterConfig{
-			ApprClient:        apprClient,
-			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certsSearcher,
-			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
-
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			RegistryDomain:     registryDomain,
-			Provider:           provider,
-			ResourceNamespace:  resourceNamespace,
-		}
-
-		awsLegacyClusterController, err = aws.NewLegacyCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var azureLegacyClusterController *azure.LegacyCluster
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := azure.LegacyClusterConfig{
-			ApprClient:        apprClient,
-			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certsSearcher,
-			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
-
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
-		}
-
-		azureLegacyClusterController, err = azure.NewLegacyCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterController *clusterapi.Cluster
-	{
-		c := clusterapi.ClusterConfig{
-			ApprClient:    apprClient,
+		c := controller.ClusterConfig{
 			CertsSearcher: certsSearcher,
 			ClusterClient: clusterClient,
-			CMAClient:     cmaClient,
 			FileSystem:    afero.NewOsFs(),
-			G8sClient:     g8sClient,
 			K8sClient:     k8sClient,
-			K8sExtClient:  k8sExtClient,
 			Logger:        config.Logger,
 			Tenant:        tenantCluster,
 
-			APIIP:              apiIP,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			CertTTL:            config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
-			ClusterIPRange:     clusterIPRange,
-			DNSIP:              dnsIP,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
+			APIIP:                      apiIP,
+			CalicoAddress:              calicoAddress,
+			CalicoPrefixLength:         calicoPrefixLength,
+			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
+			ClusterIPRange:             clusterIPRange,
+			DNSIP:                      dnsIP,
+			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
+			Provider:                   provider,
+			RegistryDomain:             registryDomain,
 		}
 
-		clusterController, err = clusterapi.NewCluster(c)
+		clusterController, err = controller.NewCluster(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var machineDeploymentController *clusterapi.MachineDeployment
+	var machineDeploymentController *controller.MachineDeployment
 	{
-		c := clusterapi.MachineDeploymentConfig{
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
-			K8sExtClient: k8sExtClient,
-			Logger:       config.Logger,
-			Tenant:       tenantCluster,
+		c := controller.MachineDeploymentConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+			Tenant:    tenantCluster,
 
-			ProjectName: config.ProjectName,
-			Provider:    provider,
+			Provider: provider,
 		}
 
-		machineDeploymentController, err = clusterapi.NewMachineDeployment(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var kvmLegacyClusterController *kvm.LegacyCluster
-	{
-		baseClusterConfig, err := newBaseClusterConfig(config.Flag, config.Viper)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		c := kvm.LegacyClusterConfig{
-			ApprClient:        apprClient,
-			BaseClusterConfig: baseClusterConfig,
-			CertSearcher:      certsSearcher,
-			Fs:                afero.NewOsFs(),
-			G8sClient:         g8sClient,
-			K8sClient:         k8sClient,
-			K8sExtClient:      k8sExtClient,
-			Logger:            config.Logger,
-			Tenant:            tenantCluster,
-
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        config.ProjectName,
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
-		}
-
-		kvmLegacyClusterController, err = kvm.NewLegacyCluster(c)
+		machineDeploymentController, err = controller.NewMachineDeployment(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -374,9 +227,10 @@ func New(config Config) (*Service, error) {
 	{
 		c := collector.SetConfig{
 			CertSearcher: certsSearcher,
-			CMAClient:    cmaClient,
-			G8sClient:    g8sClient,
+			K8sClient:    k8sClient,
 			Logger:       config.Logger,
+
+			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -393,7 +247,7 @@ func New(config Config) (*Service, error) {
 			Name:           config.ProjectName,
 			Source:         config.Source,
 			Version:        config.Version,
-			VersionBundles: NewVersionBundles(provider),
+			VersionBundles: []versionbundle.Bundle{project.VersionBundle(provider)},
 		}
 
 		versionService, err = version.New(versionConfig)
@@ -405,13 +259,10 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		awsLegacyClusterController:   awsLegacyClusterController,
-		bootOnce:                     sync.Once{},
-		azureLegacyClusterController: azureLegacyClusterController,
-		clusterController:            clusterController,
-		machineDeploymentController:  machineDeploymentController,
-		kvmLegacyClusterController:   kvmLegacyClusterController,
-		operatorCollector:            operatorCollector,
+		bootOnce:                    sync.Once{},
+		clusterController:           clusterController,
+		machineDeploymentController: machineDeploymentController,
+		operatorCollector:           operatorCollector,
 	}
 
 	return s, nil
@@ -423,11 +274,8 @@ func (s *Service) Boot(ctx context.Context) {
 		go s.operatorCollector.Boot(ctx)
 
 		// Start the controllers.
-		go s.awsLegacyClusterController.Boot(ctx)
-		go s.azureLegacyClusterController.Boot(ctx)
 		go s.clusterController.Boot(ctx)
 		go s.machineDeploymentController.Boot(ctx)
-		go s.kvmLegacyClusterController.Boot(ctx)
 	})
 }
 
@@ -446,6 +294,13 @@ func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error)
 	}
 
 	return clusterConfig, nil
+}
+
+func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
+	// Deal with different providers in here once they reach Cluster API.
+	return func() infrastructurev1alpha2.CommonClusterObject {
+		return new(infrastructurev1alpha2.AWSCluster)
+	}
 }
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
@@ -471,58 +326,4 @@ func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	apiServerIP := net.IPv4(networkIP[0], networkIP[1], networkIP[2], apiServerIPLastOctet)
 
 	return networkIP, apiServerIP, nil
-}
-
-func migrateSecretLabels(logger micrologger.Logger, k8sClient kubernetes.Interface) error {
-	var secrets []*corev1.Secret
-	{
-		o := metav1.ListOptions{
-			LabelSelector: "clusterKey=encryption",
-		}
-
-		l, err := k8sClient.CoreV1().Secrets(corev1.NamespaceAll).List(o)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		for _, s := range l.Items {
-			secrets = append(secrets, s.DeepCopy())
-		}
-	}
-
-	for _, s := range secrets {
-		if hasLabels(s, label.Cluster, label.RandomKey) {
-			continue
-		}
-
-		s.Labels[label.Cluster] = s.Labels["clusterID"]
-		s.Labels[label.RandomKey] = label.RandomKeyTypeEncryption
-
-		_, err := k8sClient.CoreV1().Secrets(s.Namespace).Update(s)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-	}
-
-	return nil
-}
-
-func hasLabels(s *corev1.Secret, labels ...string) bool {
-	for _, l := range labels {
-		if !hasLabel(s, l) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func hasLabel(s *corev1.Secret, l string) bool {
-	for k := range s.Labels {
-		if k == l {
-			return true
-		}
-	}
-
-	return false
 }

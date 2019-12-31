@@ -1,9 +1,10 @@
 package response
 
 type General struct {
-	Datacenter       string `json:"datacenter"`
-	InstallationName string `json:"installation_name"`
-	Provider         string `json:"provider"`
+	AvailabilityZones AvailabilityZones `json:"availability_zones"`
+	Datacenter        string            `json:"datacenter"`
+	InstallationName  string            `json:"installation_name"`
+	Provider          string            `json:"provider"`
 }
 
 func DefaultGeneral() General {

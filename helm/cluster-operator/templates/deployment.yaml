@@ -1,18 +1,24 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cluster-operator
-  namespace: {{ .Values.namespace }}
+  name: {{ tpl .Values.resource.default.name  . }}
+  namespace: {{ tpl .Values.resource.default.namespace  . }}
   labels:
-    app: cluster-operator
+    app: {{ .Values.project.name }}
+    version: {{ .Values.project.version }}
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.project.name }}
+      version: {{ .Values.project.version }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: cluster-operator
+        app: {{ .Values.project.name }}
+        version: {{ .Values.project.version }}
       annotations:
         releasetime: {{ $.Release.Time }}
     spec:
@@ -21,34 +27,32 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - cluster-operator
+                matchLabels:
+                  app: {{ .Values.project.name }}
+                  version: {{ .Values.project.version }}
               topologyKey: kubernetes.io/hostname
             weight: 100
       volumes:
-      - name: cluster-operator-configmap
+      - name: {{ .Values.project.name }}-configmap
         configMap:
-          name: cluster-operator-configmap
+          name: {{ tpl .Values.resource.default.name  . }}
           items:
           - key: config.yml
             path: config.yml
-      serviceAccountName: cluster-operator
+      serviceAccountName: {{ tpl .Values.resource.default.name  . }}
       securityContext:
-        runAsUser: {{ .Values.userID }}
-        runAsGroup: {{ .Values.groupID }}
+        runAsUser: {{ .Values.pod.user.id }}
+        runAsGroup: {{ .Values.pod.group.id }}
       containers:
-      - name: cluster-operator
-        image: quay.io/giantswarm/cluster-operator:[[ .SHA ]]
+      - name: {{ .Values.project.name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         args:
         - daemon
-        - --config.dirs=/var/run/cluster-operator/configmap/
+        - --config.dirs=/var/run/{{ .Values.project.name }}/configmap/
         - --config.files=config
         volumeMounts:
-        - name: cluster-operator-configmap
-          mountPath: /var/run/cluster-operator/configmap/
+        - name: {{ .Values.project.name }}-configmap
+          mountPath: /var/run/{{ .Values.project.name }}/configmap/
         livenessProbe:
           httpGet:
             path: /healthz
@@ -63,4 +67,4 @@ spec:
             cpu: 100m
             memory: 220Mi
       imagePullSecrets:
-      - name: cluster-operator-pull-secret
+      - name: {{ tpl .Values.resource.pullSecret.name . }}
