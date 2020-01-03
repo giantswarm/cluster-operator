@@ -56,7 +56,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace: metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "1.1.1",
+			Version:         "1.1.2",
 		},
 		{
 			App:             "chart-operator",
@@ -72,7 +72,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "kube-state-metrics-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.6.0",
+			Version:         "1.0.0",
 		},
 		{
 			App:             "metrics-server",
@@ -80,7 +80,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "metrics-server-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.4.1",
+			Version:         "1.0.0",
 		},
 		{
 			App:             "net-exporter",
