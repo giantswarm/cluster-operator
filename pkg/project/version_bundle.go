@@ -8,8 +8,8 @@ func VersionBundle(p string) versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "todo",
-				Description: "TODO",
+				Component:   "external-dns",
+				Description: "Add support for AWS SDK explicit configuration, required in AWS China region.",
 				Kind:        versionbundle.KindFixed,
 			},
 		},
