@@ -42,23 +42,8 @@ func CertConfigCertOperatorVersion(cr v1alpha1.CertConfig) string {
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
-			App:             "cert-exporter",
-			Catalog:         "default",
-			Chart:           "cert-exporter",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.2.1",
-		},
-		{
-			App:       "coredns",
-			Catalog:   "default",
-			Chart:     "coredns-app",
-			Namespace: metav1.NamespaceSystem,
-			// Upgrade force is disabled to avoid affecting customer workloads.
-			UseUpgradeForce: false,
-			Version:         "1.1.1",
-		},
-		{
+			// chart-operator must be installed first so the chart CRD is
+			// created in the tenant cluster.
 			App:             "chart-operator",
 			Catalog:         "default",
 			Chart:           "chart-operator",
@@ -67,12 +52,31 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "0.11.2",
 		},
 		{
+			// coredns must be installed second as its a requirement for other
+			// apps.
+			App:       "coredns",
+			Catalog:   "default",
+			Chart:     "coredns-app",
+			Namespace: metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "1.1.2",
+		},
+		{
+			App:             "cert-exporter",
+			Catalog:         "default",
+			Chart:           "cert-exporter",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.2.1",
+		},
+		{
 			App:             "kube-state-metrics",
 			Catalog:         "default",
 			Chart:           "kube-state-metrics-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.6.0",
+			Version:         "1.0.0",
 		},
 		{
 			App:             "metrics-server",
@@ -80,7 +84,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "metrics-server-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.4.1",
+			Version:         "1.0.0",
 		},
 		{
 			App:             "net-exporter",
