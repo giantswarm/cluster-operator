@@ -42,14 +42,18 @@ func CertConfigCertOperatorVersion(cr v1alpha1.CertConfig) string {
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
-			App:             "cert-exporter",
+			// chart-operator must be installed first so the chart CRD is
+			// created in the tenant cluster.
+			App:             "chart-operator",
 			Catalog:         "default",
-			Chart:           "cert-exporter",
-			Namespace:       metav1.NamespaceSystem,
+			Chart:           "chart-operator",
+			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "1.2.1",
+			Version:         "0.11.2",
 		},
 		{
+			// coredns must be installed second as its a requirement for other
+			// apps.
 			App:       "coredns",
 			Catalog:   "default",
 			Chart:     "coredns-app",
@@ -59,12 +63,12 @@ func CommonAppSpecs() []AppSpec {
 			Version:         "1.1.2",
 		},
 		{
-			App:             "chart-operator",
+			App:             "cert-exporter",
 			Catalog:         "default",
-			Chart:           "chart-operator",
-			Namespace:       "giantswarm",
+			Chart:           "cert-exporter",
+			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.11.2",
+			Version:         "1.2.1",
 		},
 		{
 			App:             "kube-state-metrics",
