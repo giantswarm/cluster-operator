@@ -9,24 +9,6 @@ func AWSAppSpecs() []AppSpec {
 	// Add any provider specific charts here.
 	return []AppSpec{
 		{
-			App:             "external-dns",
-			Catalog:         "default",
-			Chart:           "external-dns-app",
-			ClusterAPIOnly:  true,
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.1.0",
-		},
-		{
-			App:             "kiam",
-			Catalog:         "default",
-			Chart:           "kiam-app",
-			ClusterAPIOnly:  true,
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.0.1",
-		},
-		{
 			App:             "cert-manager",
 			Catalog:         "default",
 			Chart:           "cert-manager-app",
@@ -42,6 +24,24 @@ func AWSAppSpecs() []AppSpec {
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
 			Version:         "1.1.2",
+		},
+		{
+			App:             "external-dns",
+			Catalog:         "default",
+			Chart:           "external-dns-app",
+			ClusterAPIOnly:  true,
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.1.0",
+		},
+		{
+			App:             "kiam",
+			Catalog:         "default",
+			Chart:           "kiam-app",
+			ClusterAPIOnly:  true,
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.0.2",
 		},
 	}
 }
