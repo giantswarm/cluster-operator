@@ -17,6 +17,11 @@ var versionBundleAWS = versionbundle.Bundle{
 			Kind:        versionbundle.KindChanged,
 		},
 		{
+			Component:   "kube-state-metrics",
+			Description: "Updated to version 1.9.0.",
+			Kind:        versionbundle.KindChanged,
+		},
+		{
 			Component:   "net-exporter",
 			Description: "Updated to version 1.4.3.",
 			Kind:        versionbundle.KindChanged,
@@ -35,7 +40,7 @@ var versionBundleAWS = versionbundle.Bundle{
 	Components: []versionbundle.Component{
 		{
 			Name:    "kube-state-metrics",
-			Version: "1.8.0",
+			Version: "1.9.0",
 		},
 		{
 			Name:    "nginx-ingress-controller",
