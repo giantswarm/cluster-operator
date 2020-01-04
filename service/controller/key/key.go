@@ -86,29 +86,33 @@ func ClusterOrganization(clusterGuestConfig v1alpha1.ClusterGuestConfig) string 
 func CommonAppSpecs() []AppSpec {
 	return []AppSpec{
 		{
-			App:             "cert-exporter",
-			Catalog:         "default",
-			Chart:           "cert-exporter",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.2.1",
-		},
-		{
-			App:       "coredns",
-			Catalog:   "default",
-			Chart:     "coredns-app",
-			Namespace: metav1.NamespaceSystem,
-			// Upgrade force is disabled to avoid affecting customer workloads.
-			UseUpgradeForce: false,
-			Version:         "1.1.1",
-		},
-		{
+			// chart-operator must be installed first so the chart CRD is
+			// created in the tenant cluster.
 			App:             "chart-operator",
 			Catalog:         "default",
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
 			Version:         "0.11.2",
+		},
+		{
+			// coredns must be installed second as its a requirement for other
+			// apps.
+			App:       "coredns",
+			Catalog:   "default",
+			Chart:     "coredns-app",
+			Namespace: metav1.NamespaceSystem,
+			// Upgrade force is disabled to avoid affecting customer workloads.
+			UseUpgradeForce: false,
+			Version:         "1.1.2",
+		},
+		{
+			App:             "cert-exporter",
+			Catalog:         "default",
+			Chart:           "cert-exporter",
+			Namespace:       metav1.NamespaceSystem,
+			UseUpgradeForce: true,
+			Version:         "1.2.1",
 		},
 		{
 			App:             "kube-state-metrics",
@@ -124,7 +128,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "metrics-server-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.4.1",
+			Version:         "1.0.0",
 		},
 		{
 			App:             "net-exporter",
@@ -143,7 +147,7 @@ func CommonAppSpecs() []AppSpec {
 			// Upgrade force is disabled to avoid dropping customer traffic
 			// that is using the Ingress Controller.
 			UseUpgradeForce: false,
-			Version:         "1.1.0",
+			Version:         "1.1.1",
 		},
 		{
 			App:             "node-exporter",
