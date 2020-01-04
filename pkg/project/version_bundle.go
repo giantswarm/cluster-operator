@@ -16,7 +16,7 @@ func VersionBundle(p string) versionbundle.Bundle {
 		Components: []versionbundle.Component{
 			{
 				Name:    "kube-state-metrics",
-				Version: "1.8.0",
+				Version: "1.9.0",
 			},
 			{
 				Name:    "node-exporter",
