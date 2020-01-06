@@ -12,7 +12,7 @@ func VersionBundle(p string) versionbundle.Bundle {
 				Description: "Fix cluster status conditions to be reconciled upon cluster creation.",
 				Kind:        versionbundle.KindFixed,
 				URLs: []string{
-					"TODO",
+					"https://github.com/giantswarm/cluster-operator/pull/866",
 				},
 			},
 		},
