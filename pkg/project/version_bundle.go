@@ -8,9 +8,12 @@ func VersionBundle(p string) versionbundle.Bundle {
 	return versionbundle.Bundle{
 		Changelogs: []versionbundle.Changelog{
 			{
-				Component:   "todo",
-				Description: "TODO",
+				Component:   "cluster-operator",
+				Description: "Fix cluster status conditions to be reconciled upon cluster creation.",
 				Kind:        versionbundle.KindFixed,
+				URLs: []string{
+					"https://github.com/giantswarm/cluster-operator/pull/866",
+				},
 			},
 		},
 		Components: []versionbundle.Component{

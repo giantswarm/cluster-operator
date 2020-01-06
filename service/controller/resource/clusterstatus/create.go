@@ -25,13 +25,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if cc.Client.TenantCluster.K8s == nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available in controller context")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-
-		return nil
-	}
-
 	cr := r.newCommonClusterObjectFunc()
 	var uc infrastructurev1alpha2.CommonClusterObject
 	{
@@ -53,7 +46,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	var nodes []corev1.Node
-	{
+	if cc.Client.TenantCluster.K8s != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
