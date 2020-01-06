@@ -1,7 +1,7 @@
 package project
 
 var (
-	bundleVersion = "2.0.1-xh3b4sd"
+	bundleVersion = "2.0.1-dev"
 	description   = "The cluster-operator manages Kubernetes guest cluster resources."
 	gitSHA        = "n/a"
 	name          = "cluster-operator"
