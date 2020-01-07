@@ -70,7 +70,7 @@ workflows:
             branches:
               ignore: thiccc
 
-      - architect/push-to-docker:
+      - architect/push-to-docker-legacy:
           name: push-cluster-operator-to-aliyun-pr
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
@@ -84,7 +84,7 @@ workflows:
               ignore: thiccc
 
       # Push to Aliyun should execute without manual approval on thiccc.
-      - architect/push-to-docker:
+      - architect/push-to-docker-legacy:
           name: push-cluster-operator-to-aliyun-thiccc
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
