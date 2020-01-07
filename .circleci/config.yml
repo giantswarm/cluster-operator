@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@0.4.3
+  architect: giantswarm/architect@0.4.5
 
 jobs:
   build:
@@ -12,24 +12,47 @@ jobs:
         wget -q $(curl -sS -H "Authorization: token $RELEASE_TOKEN" https://api.github.com/repos/giantswarm/architect/releases/latest | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
         chmod +x ./architect
         ./architect version
+
+    - run: |
+        date +"%Y" > /tmp/year
+        date +"%m" > /tmp/month
+        date +"%d" > /tmp/day
+    - restore_cache:
+        keys:
+        - go-cache-v1-{{ checksum "/tmp/year" }}-{{ checksum "/tmp/month" }}-{{ checksum "/tmp/day" }}
+        - go-cache-v1-{{ checksum "/tmp/year" }}-{{ checksum "/tmp/month" }}
+        - go-cache-v1-{{ checksum "/tmp/year" }}
+
     - run: ./architect build
+
     - store_test_results:
         path: /tmp/results
+
+    - save_cache:
+        key: go-cache-v1-{{ checksum "/tmp/year" }}-{{ checksum "/tmp/month" }}-{{ checksum "/tmp/day" }}
+        paths:
+        - /tmp/go/cache
+
     - persist_to_workspace:
         root: .
         paths:
         - ./cluster-operator
+        - ./architect
+
+  deploy:
+    machine: true
+    steps:
+    - checkout
+    - attach_workspace:
+        at: .
     - deploy:
         command: |
-          if [ "${CIRCLE_BRANCH}" == "thiccc" ]; then
             ./architect deploy
-          fi
 
 workflows:
   build_and_push:
     jobs:
       - build
-
       - architect/push-to-docker:
           name: push-cluster-operator-to-quay
           image: "quay.io/giantswarm/cluster-operator"
@@ -47,7 +70,7 @@ workflows:
             branches:
               ignore: thiccc
 
-      - architect/push-to-docker:
+      - architect/push-to-docker-legacy:
           name: push-cluster-operator-to-aliyun-pr
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
@@ -61,7 +84,7 @@ workflows:
               ignore: thiccc
 
       # Push to Aliyun should execute without manual approval on thiccc.
-      - architect/push-to-docker:
+      - architect/push-to-docker-legacy:
           name: push-cluster-operator-to-aliyun-thiccc
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
@@ -72,3 +95,13 @@ workflows:
           filters:
             branches:
               only: thiccc
+
+      - deploy:
+          name: deploy
+          requires:
+            - push-cluster-operator-to-aliyun-thiccc
+            - push-cluster-operator-to-quay
+          filters:
+            branches:
+              only: thiccc
+
