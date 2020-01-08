@@ -104,7 +104,7 @@ func CommonAppSpecs() []AppSpec {
 			Namespace: metav1.NamespaceSystem,
 			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
-			Version:         "1.1.2",
+			Version:         "1.1.3",
 		},
 		{
 			App:             "cert-exporter",
