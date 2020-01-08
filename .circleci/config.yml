@@ -81,7 +81,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-catalog:
-          name: push-cluster-operator-to-app-catalog
+          name: push-cluster-operator-to-control-plane-app-catalog
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
           chart: "cluster-operator"
@@ -96,7 +96,7 @@ workflows:
           app_name: "cluster-operator"
           app_collection_repo: "aws-app-collection"
           requires:
-            - push-cluster-operator-to-app-catalog
+            - push-cluster-operator-to-control-plane-app-catalog
           filters:
             branches:
               ignore: /.*/
@@ -107,7 +107,7 @@ workflows:
           app_name: "cluster-operator"
           app_collection_repo: "azure-app-collection"
           requires:
-            - push-cluster-operator-to-app-catalog
+            - push-cluster-operator-to-control-plane-app-catalog
           filters:
             branches:
               ignore: /.*/
@@ -118,7 +118,7 @@ workflows:
           app_name: "cluster-operator"
           app_collection_repo: "kvm-app-collection"
           requires:
-            - push-cluster-operator-to-app-catalog
+            - push-cluster-operator-to-control-plane-app-catalog
           filters:
             branches:
               ignore: /.*/
