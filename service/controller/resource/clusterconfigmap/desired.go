@@ -51,7 +51,20 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain":   key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
+				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
+				"cluster": map[string]interface{}{
+					"calico": map[string]interface{}{
+						"CIDR": r.calicoCIDR,
+					},
+					"kubernetes": map[string]interface{}{
+						"API": map[string]interface{}{
+							"clusterIPRange": r.clusterIPRange,
+						},
+						"DNS": map[string]interface{}{
+							"IP": r.dnsIP,
+						},
+					},
+				},
 				"clusterDNSIP": r.dnsIP,
 				"clusterID":    key.ClusterID(&cr),
 			},
