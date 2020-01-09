@@ -157,7 +157,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
-			DNSIP: config.DNSIP,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			DNSIP:              config.DNSIP,
 		}
 
 		clusterConfigMapGetter, err = clusterconfigmap.New(c)

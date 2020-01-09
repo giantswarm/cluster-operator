@@ -15,6 +15,14 @@ func VersionBundle(p string) versionbundle.Bundle {
 					"https://github.com/giantswarm/cluster-operator/pull/866",
 				},
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Added additional settings for coredns to cluster configmap.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/cluster-operator/pull/871",
+				},
+			},
 		},
 		Components: []versionbundle.Component{
 			{
