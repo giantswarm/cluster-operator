@@ -46,7 +46,8 @@ type resourceSetConfig struct {
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
-	CalicoCIDR            string
+	CalicoAddress         string
+	CalicoPrefixLength    string
 	ClusterIPRange        string
 	HandledVersionBundles []string
 	ProjectName           string
@@ -195,9 +196,10 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 
-			CalicoCIDR:     config.CalicoCIDR,
-			ClusterIPRange: config.ClusterIPRange,
-			Provider:       config.Provider,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			Provider:           config.Provider,
 		}
 
 		stateGetter, err := clusterconfigmap.New(c)
