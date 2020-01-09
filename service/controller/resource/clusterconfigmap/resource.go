@@ -26,8 +26,10 @@ type Config struct {
 	Logger                   micrologger.Logger
 
 	// Settings.
-	ClusterIPRange string
-	Provider       string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	Provider           string
 }
 
 // Resource implements the clusterConfigMap resource.
@@ -40,8 +42,10 @@ type StateGetter struct {
 	logger                   micrologger.Logger
 
 	// Settings.
-	clusterIPRange string
-	provider       string
+	calicoAddress      string
+	calicoPrefixLength string
+	clusterIPRange     string
+	provider           string
 }
 
 // New creates a new configured clusterConfigMap resource.
@@ -64,6 +68,12 @@ func New(config Config) (*StateGetter, error) {
 	}
 
 	// Settings
+	if config.CalicoAddress == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
+	}
+	if config.CalicoPrefixLength == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
+	}
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
@@ -80,8 +90,10 @@ func New(config Config) (*StateGetter, error) {
 		logger:                   config.Logger,
 
 		// Settings
-		clusterIPRange: config.ClusterIPRange,
-		provider:       config.Provider,
+		calicoAddress:      config.CalicoAddress,
+		calicoPrefixLength: config.CalicoPrefixLength,
+		clusterIPRange:     config.ClusterIPRange,
+		provider:           config.Provider,
 	}
 
 	return r, nil
