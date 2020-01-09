@@ -63,11 +63,10 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
+	calicoCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
+	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
 	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.Secret.Namespace)
-	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
-	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
-	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
 
 	var restConfig *rest.Config
@@ -176,13 +175,12 @@ func New(config Config) (*Service, error) {
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        project.Name(),
-			RegistryDomain:     registryDomain,
-			Provider:           provider,
-			ResourceNamespace:  resourceNamespace,
+			CalicoCIDR:        calicoCIDR,
+			ClusterIPRange:    clusterIPRange,
+			ProjectName:       project.Name(),
+			RegistryDomain:    registryDomain,
+			Provider:          provider,
+			ResourceNamespace: resourceNamespace,
 		}
 
 		awsLegacyClusterController, err = aws.NewLegacyCluster(c)
@@ -207,13 +205,12 @@ func New(config Config) (*Service, error) {
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        project.Name(),
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
+			CalicoCIDR:        calicoCIDR,
+			ClusterIPRange:    clusterIPRange,
+			ProjectName:       project.Name(),
+			Provider:          provider,
+			RegistryDomain:    registryDomain,
+			ResourceNamespace: resourceNamespace,
 		}
 
 		azureLegacyClusterController, err = azure.NewLegacyCluster(c)
@@ -238,13 +235,12 @@ func New(config Config) (*Service, error) {
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			ClusterIPRange:     clusterIPRange,
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ProjectName:        project.Name(),
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
+			CalicoCIDR:        calicoCIDR,
+			ClusterIPRange:    clusterIPRange,
+			ProjectName:       project.Name(),
+			Provider:          provider,
+			RegistryDomain:    registryDomain,
+			ResourceNamespace: resourceNamespace,
 		}
 
 		kvmLegacyClusterController, err = kvm.NewLegacyCluster(c)

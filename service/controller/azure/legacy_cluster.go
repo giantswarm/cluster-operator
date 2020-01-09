@@ -26,13 +26,12 @@ type LegacyClusterConfig struct {
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
-	CalicoAddress      string
-	CalicoPrefixLength string
-	ClusterIPRange     string
-	ProjectName        string
-	Provider           string
-	RegistryDomain     string
-	ResourceNamespace  string
+	CalicoCIDR        string
+	ClusterIPRange    string
+	ProjectName       string
+	Provider          string
+	RegistryDomain    string
+	ResourceNamespace string
 }
 
 type LegacyCluster struct {
@@ -54,13 +53,12 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			Logger:            config.Logger,
 			Tenant:            config.Tenant,
 
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			Provider:           config.Provider,
-			RegistryDomain:     config.RegistryDomain,
-			ResourceNamespace:  config.ResourceNamespace,
+			CalicoCIDR:        config.CalicoCIDR,
+			ClusterIPRange:    config.ClusterIPRange,
+			ProjectName:       config.ProjectName,
+			Provider:          config.Provider,
+			RegistryDomain:    config.RegistryDomain,
+			ResourceNamespace: config.ResourceNamespace,
 		}
 
 		resourceSet, err = newResourceSet(c)
