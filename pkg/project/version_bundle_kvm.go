@@ -31,6 +31,11 @@ var versionBundleKVM = versionbundle.Bundle{
 			Description: "Migrated to use default app catalog.",
 			Kind:        versionbundle.KindChanged,
 		},
+		{
+			Component:   "cluster-operator",
+			Description: "Added additional settings for coredns to cluster configmap.",
+			Kind:        versionbundle.KindChanged,
+		},
 	},
 	Components: []versionbundle.Component{
 		{
