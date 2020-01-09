@@ -26,6 +26,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
+	// Calculating CIDR block for Calico.
+	calicoCIDRBlock := key.CIDRBlock(r.calicoAddress, r.calicoPrefixLength)
+
 	// Calculating DNS IP from the IP range so we other operators could use it w/o processing it.
 	clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
 	if err != nil {
@@ -86,7 +89,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"baseDomain": key.DNSZone(clusterConfig),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
-						"CIDR": r.calicoCIDR,
+						"CIDR": calicoCIDRBlock,
 					},
 					"kubernetes": map[string]interface{}{
 						"API": map[string]interface{}{
