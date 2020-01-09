@@ -17,9 +17,10 @@ type Config struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
-	CalicoCIDR     string
-	ClusterIPRange string
-	DNSIP          string
+	CalicoAddress      string
+	CalicoPrefixLength string
+	ClusterIPRange     string
+	DNSIP              string
 }
 
 // Resource implements the clusterConfigMap resource.
@@ -27,9 +28,10 @@ type Resource struct {
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 
-	calicoCIDR     string
-	clusterIPRange string
-	dnsIP          string
+	calicoAddress      string
+	calicoPrefixLength string
+	clusterIPRange     string
+	dnsIP              string
 }
 
 // New creates a new configured config map state getter resource managing
@@ -45,8 +47,11 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.CalicoCIDR == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoCIDR must not be empty", config)
+	if config.CalicoAddress == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
+	}
+	if config.CalicoPrefixLength == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
 	}
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
@@ -59,9 +64,10 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		calicoCIDR:     config.CalicoCIDR,
-		clusterIPRange: config.ClusterIPRange,
-		dnsIP:          config.DNSIP,
+		calicoAddress:      config.CalicoAddress,
+		calicoPrefixLength: config.CalicoPrefixLength,
+		clusterIPRange:     config.ClusterIPRange,
+		dnsIP:              config.DNSIP,
 	}
 
 	return r, nil

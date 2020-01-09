@@ -51,7 +51,8 @@ type clusterResourceSetConfig struct {
 	Tenant        tenantcluster.Interface
 
 	APIIP                      string
-	CalicoCIDR                 string
+	CalicoAddress              string
+	CalicoPrefixLength         string
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
@@ -156,9 +157,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
-			CalicoCIDR:     config.CalicoCIDR,
-			ClusterIPRange: config.ClusterIPRange,
-			DNSIP:          config.DNSIP,
+			CalicoAddress:      config.CalicoAddress,
+			CalicoPrefixLength: config.CalicoPrefixLength,
+			ClusterIPRange:     config.ClusterIPRange,
+			DNSIP:              config.DNSIP,
 		}
 
 		clusterConfigMapGetter, err = clusterconfigmap.New(c)

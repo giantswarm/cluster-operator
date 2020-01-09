@@ -72,7 +72,8 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	calicoCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
+	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
+	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
@@ -190,7 +191,8 @@ func New(config Config) (*Service, error) {
 			Tenant:        tenantCluster,
 
 			APIIP:                      apiIP,
-			CalicoCIDR:                 calicoCIDR,
+			CalicoAddress:              calicoAddress,
+			CalicoPrefixLength:         calicoPrefixLength,
 			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
 			ClusterIPRange:             clusterIPRange,
 			DNSIP:                      dnsIP,

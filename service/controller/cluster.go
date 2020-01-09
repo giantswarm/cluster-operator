@@ -27,7 +27,8 @@ type ClusterConfig struct {
 	Tenant        tenantcluster.Interface
 
 	APIIP                      string
-	CalicoCIDR                 string
+	CalicoAddress              string
+	CalicoPrefixLength         string
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
@@ -55,7 +56,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			Tenant:        config.Tenant,
 
 			APIIP:                      config.APIIP,
-			CalicoCIDR:                 config.CalicoCIDR,
+			CalicoAddress:              config.CalicoAddress,
+			CalicoPrefixLength:         config.CalicoPrefixLength,
 			CertTTL:                    config.CertTTL,
 			ClusterIPRange:             config.ClusterIPRange,
 			DNSIP:                      config.DNSIP,

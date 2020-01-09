@@ -2,6 +2,7 @@ package clusterconfigmap
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
@@ -23,6 +24,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	// calicoCIDRBlock is used by the coredns app.
+	var calicoCIDRBlock string
+	{
+		calicoCIDRBlock = cidrBlock(r.calicoAddress, r.calicoPrefixLength)
 	}
 
 	var ingressControllerReplicas int32
@@ -54,7 +61,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
-						"CIDR": r.calicoCIDR,
+						"CIDR": calicoCIDRBlock,
 					},
 					"kubernetes": map[string]interface{}{
 						"API": map[string]interface{}{
@@ -119,4 +126,12 @@ func newConfigMap(cr apiv1alpha2.Cluster, configMapSpec configMapSpec) (*corev1.
 	}
 
 	return cm, nil
+}
+
+// cidrBlock returns a CIDR block for the given address and prefix.
+func cidrBlock(address, prefix string) string {
+	if address == "" && prefix == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/%s", address, prefix)
 }
