@@ -26,6 +26,7 @@ type Config struct {
 	Logger                   micrologger.Logger
 
 	// Settings.
+	CalicoCIDR     string
 	ClusterIPRange string
 	Provider       string
 }
@@ -40,6 +41,7 @@ type StateGetter struct {
 	logger                   micrologger.Logger
 
 	// Settings.
+	calicoCIDR     string
 	clusterIPRange string
 	provider       string
 }
@@ -64,6 +66,9 @@ func New(config Config) (*StateGetter, error) {
 	}
 
 	// Settings
+	if config.CalicoCIDR == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoCIDR must not be empty", config)
+	}
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
@@ -80,6 +85,7 @@ func New(config Config) (*StateGetter, error) {
 		logger:                   config.Logger,
 
 		// Settings
+		calicoCIDR:     config.CalicoCIDR,
 		clusterIPRange: config.ClusterIPRange,
 		provider:       config.Provider,
 	}
