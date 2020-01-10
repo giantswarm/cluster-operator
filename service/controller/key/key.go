@@ -120,7 +120,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "kube-state-metrics-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "0.6.0",
+			Version:         "1.0.0",
 		},
 		{
 			App:             "metrics-server",
