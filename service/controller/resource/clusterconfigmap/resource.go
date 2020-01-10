@@ -47,12 +47,6 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.CalicoAddress == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoAddress must not be empty", config)
-	}
-	if config.CalicoPrefixLength == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.CalicoPrefixLength must not be empty", config)
-	}
 	if config.ClusterIPRange == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterIPRange must not be empty", config)
 	}
