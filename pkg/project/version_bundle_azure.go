@@ -32,7 +32,7 @@ var versionBundleAzure = versionbundle.Bundle{
 		},
 		{
 			Name:    "metrics-server",
-			Version: "0.4.1",
+			Version: "0.3.3",
 		},
 	},
 	Name:     "cluster-operator",
