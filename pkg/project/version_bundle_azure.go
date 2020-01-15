@@ -8,7 +8,7 @@ var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "nginx-ingress-controller",
-			Description: "Updated to version 0.27.0.",
+			Description: "Updated to version 0.27.1.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
 				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
@@ -22,7 +22,7 @@ var versionBundleAzure = versionbundle.Bundle{
 		},
 		{
 			Name:    "nginx-ingress-controller",
-			Version: "0.27.0",
+			Version: "0.27.1",
 		},
 		{
 			Name:    "node-exporter",
