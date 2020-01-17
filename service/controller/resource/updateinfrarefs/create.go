@@ -46,47 +46,45 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found infrastructure reference")
 	}
 
+	var updated bool
+
+	// Syncing the provider operator version label, e.g. for aws-operator,
+	// kvm-operator or the like.
 	{
+		l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
+		d := cc.Status.Versions[l]
+		c, ok := ir.GetLabels()[l]
+		if ok && d != "" && d != c {
+			labels := ir.GetLabels()
+			labels[l] = d
+			ir.SetLabels(labels)
+			updated = true
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+		}
+	}
+
+	// Syncing the Giant Swarm Release version.
+	{
+		l := label.ReleaseVersion
+		d, ok := cr.GetLabels()[l]
+		c := ir.GetLabels()[l]
+		if ok && d != "" && d != c {
+			labels := ir.GetLabels()
+			labels[l] = d
+			ir.SetLabels(labels)
+			updated = true
+
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+		}
+	}
+
+	if updated {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating infrastructure reference %#q", ir.GetNamespace()+"/"+ir.GetName()))
 
-		var updated bool
-
-		// Syncing the provider operator version label, e.g. for aws-operator,
-		// kvm-operator or the like.
-		{
-			l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
-			d := cc.Status.Versions[l]
-			c, ok := ir.GetLabels()[l]
-			if ok && d != "" && d != c {
-				labels := ir.GetLabels()
-				labels[l] = d
-				ir.SetLabels(labels)
-				updated = true
-
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
-			}
-		}
-
-		// Syncing the Giant Swarm Release version.
-		{
-			l := label.ReleaseVersion
-			d, ok := cr.GetLabels()[l]
-			c := ir.GetLabels()[l]
-			if ok && d != "" && d != c {
-				labels := ir.GetLabels()
-				labels[l] = d
-				ir.SetLabels(labels)
-				updated = true
-
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
-			}
-		}
-
-		if updated {
-			err = r.k8sClient.CtrlClient().Update(ctx, ir)
-			if err != nil {
-				return microerror.Mask(err)
-			}
+		err = r.k8sClient.CtrlClient().Update(ctx, ir)
+		if err != nil {
+			return microerror.Mask(err)
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated infrastructure reference %#q", ir.GetNamespace()+"/"+ir.GetName()))

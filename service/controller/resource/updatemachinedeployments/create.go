@@ -36,8 +36,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	for _, md := range mdList.Items {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
-
 		var updated bool
 
 		// Syncing the cluster-operator version.
@@ -67,13 +65,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if updated {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+
 			err = r.k8sClient.CtrlClient().Update(ctx, &md)
 			if err != nil {
 				return microerror.Mask(err)
 			}
-		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+		}
 	}
 
 	return nil
