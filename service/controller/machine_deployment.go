@@ -2,6 +2,7 @@ package controller
 
 import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -14,9 +15,10 @@ import (
 )
 
 type MachineDeploymentConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Tenant    tenantcluster.Interface
+	ClusterClient *clusterclient.Client
+	K8sClient     k8sclient.Interface
+	Logger        micrologger.Logger
+	Tenant        tenantcluster.Interface
 
 	Provider string
 }
@@ -31,9 +33,10 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 	var resourceSet *controller.ResourceSet
 	{
 		c := machineDeploymentResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-			Tenant:    config.Tenant,
+			ClusterClient: config.ClusterClient,
+			K8sClient:     config.K8sClient,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
 
 			Provider: config.Provider,
 		}

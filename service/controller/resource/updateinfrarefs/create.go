@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -17,6 +18,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 	nn, err := r.toNamespacedName(obj)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -42,9 +47,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		// kvm-operator or the like.
 		{
 			l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
-			d, ok := cr.GetLabels()[l]
-			c := ir.GetLabels()[l]
-			if ok && d != "" && d != ir.GetLabels()[l] {
+			d := cc.Status.Versions[l]
+			c, ok := ir.GetLabels()[l]
+			if ok && d != "" && d != c {
 				ir.GetLabels()[l] = d
 				updated = true
 
@@ -57,7 +62,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			l := label.ReleaseVersion
 			d, ok := cr.GetLabels()[l]
 			c := ir.GetLabels()[l]
-			if ok && d != "" && d != ir.GetLabels()[l] {
+			if ok && d != "" && d != c {
 				ir.GetLabels()[l] = d
 				updated = true
 

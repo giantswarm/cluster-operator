@@ -19,14 +19,17 @@ type Config struct {
 	Provider         string
 }
 
-// Resource implements the operatorkit resource interface to propagate the
-// following version labels from either Cluster CRs to AWSCluster CRs, or from
-// MachineDeployments CRs to AWSMachineDeployments CRs.
+// Resource implements the operatorkit resource interface to ensure the
+// following version labels in our infrastructure CRs, e.g. AWSCluster
+// AWSMachineDeployments.
 //
 //     $PROVIDER-operator.giantswarm.io/version
 //     release.giantswarm.io/version
 //
-// This process ensures to distribute the right version labels among Giant Swarm
+// The release version label is taken from the Cluster CR and propagated. The
+// provider operator version label is set with the value taken from the
+// controller context versions as defined for the current release. This process
+// ensures to distribute the right version labels among Giant Swarm
 // infrastructure CRs during Tenant Cluster upgrades.
 type Resource struct {
 	k8sClient        k8sclient.Interface

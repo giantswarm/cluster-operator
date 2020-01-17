@@ -45,7 +45,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			l := label.OperatorVersion
 			d, ok := cr.Labels[l]
 			c := md.Labels[l]
-			if ok && d != "" && d != md.Labels[l] {
+			if ok && d != "" && d != c {
 				md.Labels[l] = d
 				updated = true
 
@@ -58,7 +58,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			l := label.ReleaseVersion
 			d, ok := cr.Labels[l]
 			c := md.Labels[l]
-			if ok && d != "" && d != md.Labels[l] {
+			if ok && d != "" && d != c {
 				md.Labels[l] = d
 				updated = true
 

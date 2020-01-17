@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -19,15 +20,17 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
 
 type machineDeploymentResourceSetConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Tenant    tenantcluster.Interface
+	ClusterClient *clusterclient.Client
+	K8sClient     k8sclient.Interface
+	Logger        micrologger.Logger
+	Tenant        tenantcluster.Interface
 
 	Provider string
 }
@@ -56,6 +59,19 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		}
 
 		machineDeploymentStatusResource, err = machinedeploymentstatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var operatorVersionsResource resource.Interface
+	{
+		c := operatorversions.Config{
+			ClusterClient: config.ClusterClient,
+			Logger:        config.Logger,
+		}
+
+		operatorVersionsResource, err = operatorversions.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -108,6 +124,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		baseDomainResource,
+		operatorVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 
