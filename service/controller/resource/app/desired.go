@@ -6,12 +6,14 @@ import (
 	"strconv"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/clusterclient/service/release/searcher"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
+	appspec "github.com/giantswarm/cluster-operator/pkg/app"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -39,8 +41,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	var apps []*g8sv1alpha1.App
+	appSpecs, err := r.newAppSpecs(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	for _, appSpec := range r.newAppSpecs() {
+	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
@@ -145,16 +151,48 @@ func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, 
 	}
 }
 
-func (r *Resource) newAppSpecs() []key.AppSpec {
+func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
 	switch r.provider {
 	case "aws":
-		return append(key.CommonAppSpecs(), key.AWSAppSpecs()...)
+		req := searcher.Request{
+			ReleaseVersion: key.ReleaseVersion(&cr),
+		}
+
+		res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		var specs []key.AppSpec
+		for _, app := range res.Apps {
+
+			spec := key.AppSpec{
+				App:             app.App,
+				Catalog:         appspec.Default.Catalog,
+				Chart:           fmt.Sprintf("%s-app", app.App),
+				Namespace:       appspec.Default.Namespace,
+				UseUpgradeForce: appspec.Default.UseUpgradeForce,
+				Version:         app.Version,
+			}
+			if val, ok := appspec.Exceptions[app.App]; ok {
+				if val.Chart != "" {
+					spec.Chart = val.Chart
+				}
+				if val.Namespace != "" {
+					spec.Namespace = val.Namespace
+				}
+				if !val.UseUpgradeForce {
+					spec.UseUpgradeForce = false
+				}
+			}
+			specs = append(specs, spec)
+		}
+		return specs, nil
 	case "azure":
-		return append(key.CommonAppSpecs(), key.AzureAppSpecs()...)
+		return append(key.CommonAppSpecs(), key.AzureAppSpecs()...), nil
 	case "kvm":
-		return append(key.CommonAppSpecs(), key.KVMAppSpecs()...)
+		return append(key.CommonAppSpecs(), key.KVMAppSpecs()...), nil
 	default:
-		return key.CommonAppSpecs()
+		return key.CommonAppSpecs(), nil
 	}
 }
 
