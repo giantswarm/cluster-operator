@@ -97,8 +97,8 @@
   revision = "3f774da07e59f9446507f506cae152c93ad2e46c"
 
 [[projects]]
-  branch = "master"
-  digest = "1:91552ea8ac634f3c96ce94569836a17fe8b1fa2ae62b690b5e50cbd4a6ffef5b"
+  branch = "apps-on-release"
+  digest = "1:d445f17d7d98c7f19f6e5f46a40abf2ab57337246e33e8b45f0794c04c06cc90"
   name = "github.com/giantswarm/clusterclient"
   packages = [
     ".",
@@ -140,7 +140,7 @@
     "service/root",
   ]
   pruneopts = "UT"
-  revision = "4914698d52137c079d2765e75f0e7a2862ee3045"
+  revision = "63c1ea453a05ef16ec01b2813e6d0d0954717177"
 
 [[projects]]
   branch = "master"
@@ -291,12 +291,12 @@
   revision = "f2078541ec95746f9e8631c944a16592d185b2d7"
 
 [[projects]]
-  branch = "master"
-  digest = "1:62f331bfc5c1f966a4c289170927241ce4eb5d801e6f488962376afaf370654a"
+  branch = "apps-on-release"
+  digest = "1:ef2b828c529d6be9c197637a2be1f4ba07689dad82810d99b06aad88210465e5"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0e21f30ed4e6d96dd8bc1a7f1f57610f445f2620"
+  revision = "6cb1ff9c2777768e42cd60c3ba6d3c37eef54451"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
