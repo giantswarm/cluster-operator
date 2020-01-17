@@ -20,6 +20,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
 
@@ -74,6 +75,22 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		}
 	}
 
+	var updateInfraRefsResource resource.Interface
+	{
+		c := updateinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToNamespacedName: toMachineDeploymentNamespacedName,
+			Provider:         config.Provider,
+		}
+
+		updateInfraRefsResource, err = updateinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var workerCountResource resource.Interface
 	{
 		c := workercount.Config{
@@ -96,6 +113,9 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 
 		// Following resources manage CR status information.
 		machineDeploymentStatusResource,
+
+		// Following resources manage resources in the control plane.
+		updateInfraRefsResource,
 	}
 
 	{
@@ -174,4 +194,13 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 
 		return *cr, nil
 	}
+}
+
+func toMachineDeploymentNamespacedName(obj interface{}) (types.NamespacedName, error) {
+	cr, err := key.ToMachineDeployment(obj)
+	if err != nil {
+		return types.NamespacedName{}, microerror.Mask(err)
+	}
+
+	return key.MachineDeploymentInfraRef(cr), nil
 }

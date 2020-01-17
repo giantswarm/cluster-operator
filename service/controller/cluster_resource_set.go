@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
+	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -36,6 +37,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
@@ -335,16 +337,30 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var updateMachineDeployments resource.Interface
+	var updateInfraRefsResource resource.Interface
+	{
+		c := updateinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToNamespacedName: toClusterNamespacedName,
+			Provider:         config.Provider,
+		}
+
+		updateInfraRefsResource, err = updateinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var updateMachineDeploymentsResource resource.Interface
 	{
 		c := updatemachinedeployments.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-
-			Provider: config.Provider,
 		}
 
-		updateMachineDeployments, err = updatemachinedeployments.New(c)
+		updateMachineDeploymentsResource, err = updatemachinedeployments.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -382,7 +398,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
-		updateMachineDeployments,
+		updateMachineDeploymentsResource,
+		updateInfraRefsResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,
@@ -451,6 +468,15 @@ func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, e
 	}
 
 	return cr, nil
+}
+
+func toClusterNamespacedName(obj interface{}) (types.NamespacedName, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return types.NamespacedName{}, microerror.Mask(err)
+	}
+
+	return key.ClusterInfraRef(cr), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {

@@ -40,20 +40,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		var updated bool
 
-		// Syncing the Provider Operator version. For instance aws-operator,
-		// kvm-operator or the like.
-		{
-			l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
-			d, ok := cr.Labels[l]
-			c := md.Labels[l]
-			if ok && d != "" && d != md.Labels[l] {
-				md.Labels[l] = d
-				updated = true
-
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
-			}
-		}
-
 		// Syncing the cluster-operator version.
 		{
 			l := label.OperatorVersion
