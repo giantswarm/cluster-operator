@@ -108,7 +108,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var baseDomainResource resource.Interface
 	{
 		c := basedomain.Config{
-			Logger:        config.Logger,
+			Logger: config.Logger,
+
 			ToClusterFunc: toClusterFunc,
 		}
 
@@ -315,6 +316,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := operatorversions.Config{
 			ClusterClient: config.ClusterClient,
 			Logger:        config.Logger,
+
+			ToClusterFunc: toClusterFunc,
 		}
 
 		operatorVersionsResource, err = operatorversions.New(c)

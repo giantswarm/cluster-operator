@@ -41,7 +41,8 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	var baseDomainResource resource.Interface
 	{
 		c := basedomain.Config{
-			Logger:        config.Logger,
+			Logger: config.Logger,
+
 			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
 		}
 
@@ -69,6 +70,8 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		c := operatorversions.Config{
 			ClusterClient: config.ClusterClient,
 			Logger:        config.Logger,
+
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
 		}
 
 		operatorVersionsResource, err = operatorversions.New(c)
