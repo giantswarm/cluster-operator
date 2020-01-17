@@ -93,7 +93,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.11.2",
+			Version:         "0.11.3",
 		},
 		{
 			// coredns must be installed second as its a requirement for other
