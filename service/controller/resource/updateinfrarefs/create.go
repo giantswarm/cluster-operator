@@ -58,7 +58,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			d := cc.Status.Versions[l]
 			c, ok := ir.GetLabels()[l]
 			if ok && d != "" && d != c {
-				ir.GetLabels()[l] = d
+				labels := ir.GetLabels()
+				labels[l] = d
+				ir.SetLabels(labels)
 				updated = true
 
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
@@ -71,7 +73,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			d, ok := cr.GetLabels()[l]
 			c := ir.GetLabels()[l]
 			if ok && d != "" && d != c {
-				ir.GetLabels()[l] = d
+				labels := ir.GetLabels()
+				labels[l] = d
+				ir.SetLabels(labels)
 				updated = true
 
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
