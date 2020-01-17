@@ -1,7 +1,7 @@
 package project
 
 var (
-	bundleVersion = "2.0.2-dev"
+	bundleVersion = "2.0.2-xh3b4sd"
 	description   = "The cluster-operator manages Kubernetes tenant cluster resources."
 	gitSHA        = "n/a"
 	name          = "cluster-operator"

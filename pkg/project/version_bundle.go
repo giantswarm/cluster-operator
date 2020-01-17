@@ -9,9 +9,11 @@ func VersionBundle(p string) versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Add your changes here.",
-				Kind:        versionbundle.KindChanged,
-				URLs:        []string{},
+				Description: "Add resource implementation to update infrastructure reference labels.",
+				Kind:        versionbundle.KindFixed,
+				URLs: []string{
+					"https://github.com/giantswarm/cluster-operator/pull/888",
+				},
 			},
 		},
 		Components: []versionbundle.Component{
