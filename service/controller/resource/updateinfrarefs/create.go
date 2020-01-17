@@ -10,6 +10,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -17,7 +18,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	nn, err := r.toNamespacedName(obj)
+	or, err := r.toObjRef(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -26,11 +27,18 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Here we fetch the provider specific CR defined as infrastructure reference
+	// in the CAPI type. We use an unstructured object and therefore need to set
+	// the api version and kind accordingly. If we would not do that the
+	// controller-runtime client cannot find the right object.
 	ir := &unstructured.Unstructured{}
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding infrastructure reference")
 
-		err = r.k8sClient.CtrlClient().Get(ctx, nn, ir)
+		ir.SetAPIVersion(or.APIVersion)
+		ir.SetKind(or.Kind)
+
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(or), ir)
 		if err != nil {
 			return microerror.Mask(err)
 		}

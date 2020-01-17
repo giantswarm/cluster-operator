@@ -12,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
@@ -100,8 +101,8 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ToNamespacedName: toMachineDeploymentNamespacedName,
-			Provider:         config.Provider,
+			ToObjRef: toMachineDeploymentObjRef,
+			Provider: config.Provider,
 		}
 
 		updateInfraRefsResource, err = updateinfrarefs.New(c)
@@ -202,9 +203,9 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 				return apiv1alpha2.Cluster{}, microerror.Mask(err)
 			}
 
-			// Note that we cannot use key.MachineDeploymentInfraRef here because we
-			// do not need to fetch the Machine Deployment again. We need to lookup
-			// the Cluster CR based on the MachineDeployment CR. This is why we use
+			// Note that we cannot use a key function here because we do not need to
+			// fetch the Machine Deployment again. We need to lookup the Cluster CR
+			// based on the MachineDeployment CR. This is why we use
 			// types.NamespacedName here explicitly.
 			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&md), Namespace: md.Namespace}, cr)
 			if err != nil {
@@ -216,11 +217,11 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 	}
 }
 
-func toMachineDeploymentNamespacedName(obj interface{}) (types.NamespacedName, error) {
+func toMachineDeploymentObjRef(obj interface{}) (corev1.ObjectReference, error) {
 	cr, err := key.ToMachineDeployment(obj)
 	if err != nil {
-		return types.NamespacedName{}, microerror.Mask(err)
+		return corev1.ObjectReference{}, microerror.Mask(err)
 	}
 
-	return key.MachineDeploymentInfraRef(cr), nil
+	return key.ObjRefFromMachineDeployment(cr), nil
 }

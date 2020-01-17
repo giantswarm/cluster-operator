@@ -19,7 +19,7 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	"k8s.io/apimachinery/pkg/types"
+	corev1 "k8s.io/api/core/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -346,8 +346,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ToNamespacedName: toClusterNamespacedName,
-			Provider:         config.Provider,
+			ToObjRef: toClusterObjRef,
+			Provider: config.Provider,
 		}
 
 		updateInfraRefsResource, err = updateinfrarefs.New(c)
@@ -473,13 +473,13 @@ func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, e
 	return cr, nil
 }
 
-func toClusterNamespacedName(obj interface{}) (types.NamespacedName, error) {
+func toClusterObjRef(obj interface{}) (corev1.ObjectReference, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
-		return types.NamespacedName{}, microerror.Mask(err)
+		return corev1.ObjectReference{}, microerror.Mask(err)
 	}
 
-	return key.ClusterInfraRef(cr), nil
+	return key.ObjRefFromCluster(cr), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {

@@ -4,7 +4,7 @@ import (
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"k8s.io/apimachinery/pkg/types"
+	corev1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -15,8 +15,8 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	ToNamespacedName func(v interface{}) (types.NamespacedName, error)
-	Provider         string
+	ToObjRef func(v interface{}) (corev1.ObjectReference, error)
+	Provider string
 }
 
 // Resource implements the operatorkit resource interface to ensure the
@@ -32,9 +32,9 @@ type Config struct {
 // ensures to distribute the right version labels among Giant Swarm
 // infrastructure CRs during Tenant Cluster upgrades.
 type Resource struct {
-	k8sClient        k8sclient.Interface
-	logger           micrologger.Logger
-	toNamespacedName func(v interface{}) (types.NamespacedName, error)
+	k8sClient k8sclient.Interface
+	logger    micrologger.Logger
+	toObjRef  func(v interface{}) (corev1.ObjectReference, error)
 
 	provider string
 }
@@ -47,8 +47,8 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.ToNamespacedName == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ToNamespacedName must not be empty", config)
+	if config.ToObjRef == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToObjRef must not be empty", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -58,8 +58,8 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		toNamespacedName: config.ToNamespacedName,
-		provider:         config.Provider,
+		toObjRef: config.ToObjRef,
+		provider: config.Provider,
 	}
 
 	return r, nil

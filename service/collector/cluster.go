@@ -72,7 +72,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 
 	for _, cl := range list.Items {
 		cr := c.newCommonClusterObjectFunc()
-		err := c.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cl), cr)
+		err := c.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
