@@ -17,10 +17,14 @@ type Config struct {
 	Provider string
 }
 
-// Resource implements the operatorkit resource interface to keep Cluster and
-// MachineDeployment CR versions in sync. CR versions are defined in the object
-// meta data labels, so syncing is as simple as writing the Cluster CR version
-// label values to the MachineDeployment CR version labels.
+// Resource implements the operatorkit resource interface to propagate the
+// following version labels from Cluster CRs to MachineDeployment CRs.
+//
+//     cluster-operator.giantswarm.io/version
+//     release.giantswarm.io/version
+//
+// This process ensures to distribute the right version labels among CAPI CRs
+// during Tenant Cluster upgrades.
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
