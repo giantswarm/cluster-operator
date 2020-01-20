@@ -13,19 +13,19 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
-
-	Provider string
 }
 
-// Resource implements the operatorkit resource interface to keep Cluster and
-// MachineDeployment CR versions in sync. CR versions are defined in the object
-// meta data labels, so syncing is as simple as writing the Cluster CR version
-// label values to the MachineDeployment CR version labels.
+// Resource implements the operatorkit resource interface to propagate the
+// following version labels from Cluster CRs to MachineDeployment CRs.
+//
+//     cluster-operator.giantswarm.io/version
+//     release.giantswarm.io/version
+//
+// This process ensures to distribute the right version labels among CAPI CRs
+// during Tenant Cluster upgrades.
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
-
-	provider string
 }
 
 func New(config Config) (*Resource, error) {
@@ -36,15 +36,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.Provider == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
-	}
-
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
-
-		provider: config.Provider,
 	}
 
 	return r, nil

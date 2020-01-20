@@ -61,7 +61,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		err = r.k8sClient.CtrlClient().Get(ctx, key.MachineDeploymentInfraRef(md), cr)
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromMachineDeployment(md)), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}

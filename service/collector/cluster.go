@@ -70,9 +70,9 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 		return microerror.Mask(err)
 	}
 
-	for _, cluster := range list.Items {
+	for _, cl := range list.Items {
 		cr := c.newCommonClusterObjectFunc()
-		err := c.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cluster), cr)
+		err := c.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -84,35 +84,35 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreating),
-				key.ClusterID(&cluster),
+				key.ClusterID(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionCreating,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreated),
-				key.ClusterID(&cluster),
+				key.ClusterID(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionCreated,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdating),
-				key.ClusterID(&cluster),
+				key.ClusterID(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionUpdating,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdated),
-				key.ClusterID(&cluster),
+				key.ClusterID(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionUpdated,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionDeleting),
-				key.ClusterID(&cluster),
+				key.ClusterID(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionDeleting,
 			)
 		}

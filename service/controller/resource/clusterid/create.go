@@ -20,7 +20,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		err = r.k8sClient.CtrlClient().Get(ctx, key.ClusterInfraRef(cl), cr)
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}

@@ -1,4 +1,4 @@
-package updatemachinedeployments
+package updateinfrarefs
 
 import (
 	"github.com/giantswarm/microerror"

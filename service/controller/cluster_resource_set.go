@@ -19,6 +19,7 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
+	corev1 "k8s.io/api/core/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -36,6 +37,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
@@ -106,7 +108,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var baseDomainResource resource.Interface
 	{
 		c := basedomain.Config{
-			Logger:        config.Logger,
+			Logger: config.Logger,
+
 			ToClusterFunc: toClusterFunc,
 		}
 
@@ -313,6 +316,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := operatorversions.Config{
 			ClusterClient: config.ClusterClient,
 			Logger:        config.Logger,
+
+			ToClusterFunc: toClusterFunc,
 		}
 
 		operatorVersionsResource, err = operatorversions.New(c)
@@ -335,16 +340,30 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var updateMachineDeployments resource.Interface
+	var updateInfraRefsResource resource.Interface
+	{
+		c := updateinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toClusterObjRef,
+			Provider: config.Provider,
+		}
+
+		updateInfraRefsResource, err = updateinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var updateMachineDeploymentsResource resource.Interface
 	{
 		c := updatemachinedeployments.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-
-			Provider: config.Provider,
 		}
 
-		updateMachineDeployments, err = updatemachinedeployments.New(c)
+		updateMachineDeploymentsResource, err = updatemachinedeployments.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -382,7 +401,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
-		updateMachineDeployments,
+		updateMachineDeploymentsResource,
+		updateInfraRefsResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,
@@ -451,6 +471,15 @@ func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, e
 	}
 
 	return cr, nil
+}
+
+func toClusterObjRef(obj interface{}) (corev1.ObjectReference, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return corev1.ObjectReference{}, microerror.Mask(err)
+	}
+
+	return key.ObjRefFromCluster(cr), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {
