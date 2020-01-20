@@ -152,48 +152,39 @@ func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, 
 }
 
 func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
-	switch r.provider {
-	case "aws":
-		req := searcher.Request{
-			ReleaseVersion: key.ReleaseVersion(&cr),
-		}
-
-		res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-		var specs []key.AppSpec
-		for _, app := range res.Apps {
-
-			spec := key.AppSpec{
-				App:             app.App,
-				Catalog:         appspec.Default.Catalog,
-				Chart:           fmt.Sprintf("%s-app", app.App),
-				Namespace:       appspec.Default.Namespace,
-				UseUpgradeForce: appspec.Default.UseUpgradeForce,
-				Version:         app.Version,
-			}
-			if val, ok := appspec.Exceptions[app.App]; ok {
-				if val.Chart != "" {
-					spec.Chart = val.Chart
-				}
-				if val.Namespace != "" {
-					spec.Namespace = val.Namespace
-				}
-				if !val.UseUpgradeForce {
-					spec.UseUpgradeForce = false
-				}
-			}
-			specs = append(specs, spec)
-		}
-		return specs, nil
-	case "azure":
-		return append(key.CommonAppSpecs(), key.AzureAppSpecs()...), nil
-	case "kvm":
-		return append(key.CommonAppSpecs(), key.KVMAppSpecs()...), nil
-	default:
-		return key.CommonAppSpecs(), nil
+	req := searcher.Request{
+		ReleaseVersion: key.ReleaseVersion(&cr),
 	}
+
+	res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	var specs []key.AppSpec
+	for _, app := range res.Apps {
+
+		spec := key.AppSpec{
+			App:             app.App,
+			Catalog:         appspec.Default.Catalog,
+			Chart:           fmt.Sprintf("%s-app", app.App),
+			Namespace:       appspec.Default.Namespace,
+			UseUpgradeForce: appspec.Default.UseUpgradeForce,
+			Version:         app.Version,
+		}
+		if val, ok := appspec.Exceptions[app.App]; ok {
+			if val.Chart != "" {
+				spec.Chart = val.Chart
+			}
+			if val.Namespace != "" {
+				spec.Namespace = val.Namespace
+			}
+			if !val.UseUpgradeForce {
+				spec.UseUpgradeForce = false
+			}
+		}
+		specs = append(specs, spec)
+	}
+	return specs, nil
 }
 
 func newUserConfig(cr apiv1alpha2.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
