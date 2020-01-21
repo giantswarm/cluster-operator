@@ -15,38 +15,6 @@ var versionBundleKVM = versionbundle.Bundle{
 			},
 		},
 		{
-			Component:   "cert-manager",
-			Description: "Improve helm chart for clusters with restrictive network policies.",
-			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.4",
-			},
-		},
-		{
-			Component:   "cert-manager",
-			Description: "Update manifests for Kubernetes 1.16 compatibility.",
-			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.3",
-			},
-		},
-		{
-			Component:   "kiam",
-			Description: "Improve helm chart for clusters with restrictive network policies.",
-			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.3",
-			},
-		},
-		{
-			Component:   "kiam",
-			Description: "Update manifests for Kubernetes 1.16 compatibility.",
-			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.2",
-			},
-		},
-		{
 			Component:   "metrics-server",
 			Description: "Update manifests for Kubernetes 1.16 compatibility.",
 			Kind:        versionbundle.KindChanged,
