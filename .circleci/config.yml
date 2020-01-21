@@ -100,7 +100,7 @@ workflows:
           app_name: "cluster-operator"
           app_collection_repo: "aws-app-collection"
           requires:
-            - push-cluster-operator-to-app-catalog
+            - push-cluster-operator-to-control-plane-app-catalog
           filters:
             branches:
               ignore: /.*/
@@ -113,7 +113,7 @@ workflows:
           app_name: "cluster-operator"
           app_collection_repo: "azure-app-collection"
           requires:
-            - push-cluster-operator-to-app-catalog
+            - push-cluster-operator-to-control-plane-app-catalog
           filters:
             branches:
               ignore: /.*/
@@ -126,7 +126,7 @@ workflows:
           app_name: "cluster-operator"
           app_collection_repo: "kvm-app-collection"
           requires:
-            - push-cluster-operator-to-app-catalog
+            - push-cluster-operator-to-control-plane-app-catalog
           filters:
             branches:
               ignore: /.*/
