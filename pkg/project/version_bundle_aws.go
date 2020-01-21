@@ -10,7 +10,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Component:   "chart-operator",
 			Description: "Adjust ClusterRole permissions.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
+			URLs: []string{
 				"https://github.com/giantswarm/chart-operator/releases/tag/v0.11.3",
 			},
 		},
@@ -18,7 +18,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Component:   "cert-manager",
 			Description: "Improve helm chart for clusters with restrictive network policies.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
+			URLs: []string{
 				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.4",
 			},
 		},
@@ -26,7 +26,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Component:   "cert-manager",
 			Description: "Update manifests for Kubernetes 1.16 compatibility.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
+			URLs: []string{
 				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.3",
 			},
 		},
@@ -34,7 +34,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Component:   "kiam",
 			Description: "Improve helm chart for clusters with restrictive network policies.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
+			URLs: []string{
 				"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.3",
 			},
 		},
@@ -42,7 +42,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Component:   "kiam",
 			Description: "Update manifests for Kubernetes 1.16 compatibility.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
+			URLs: []string{
 				"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.2",
 			},
 		},
@@ -50,7 +50,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Component:   "metrics-server",
 			Description: "Update manifests for Kubernetes 1.16 compatibility.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
+			URLs: []string{
 				"https://github.com/giantswarm/metrics-server-app/releases/tag/v1.0.0",
 			},
 		},
