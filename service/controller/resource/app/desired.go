@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/clusterclient/service/release/searcher"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -153,20 +152,14 @@ func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, 
 }
 
 func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
-	req := searcher.Request{
-		ReleaseVersion: key.ReleaseVersion(&cr),
-	}
-
-	res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
+	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	if len(res.Apps) == 0 {
-		return nil, microerror.Maskf(executionFailedError, "no app found on release %#q", res.ReleaseVersion)
-	}
 
 	var specs []key.AppSpec
-	for _, app := range res.Apps {
+
+	for _, app := range cc.Status.Apps {
 		spec := key.AppSpec{
 			App:             app.App,
 			Catalog:         pkgapp.Default.Catalog,

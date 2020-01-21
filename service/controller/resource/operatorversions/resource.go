@@ -69,6 +69,9 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+		if len(res.Apps) == 0 {
+			return microerror.Maskf(executionFailedError, "no app found in release %#q", req.ReleaseVersion)
+		}
 
 		apps = res.Apps
 		versionBundles = res.VersionBundles
@@ -76,7 +79,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 
 	{
 		if cc.Status.Apps == nil {
-			cc.Status.Apps = make([]controllercontext.App, 0)
+			cc.Status.Apps = make([]controllercontext.App, len(apps))
 		}
 		for _, app := range apps {
 			a := controllercontext.App{
