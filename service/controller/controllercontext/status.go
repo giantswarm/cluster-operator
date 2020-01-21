@@ -1,6 +1,11 @@
 package controllercontext
 
 type ContextStatus struct {
+	// Apps is a array of where it keep the chart version for specific release.
+	//
+	//     - coredns: 1.15.0
+	//
+	Apps     []App
 	Endpoint ContextStatusEndpoint
 	// Versions is a map of key value pairs where the map key is a version label
 	// of a given operator. The map value is the version of the corresponding
@@ -13,6 +18,11 @@ type ContextStatus struct {
 	// ID. The map value is a structure holding node information for the
 	// corresponding machine deployment.
 	Worker map[string]ContextStatusWorker
+}
+
+type App struct {
+	App     string
+	Version string
 }
 
 type ContextStatusEndpoint struct {

@@ -59,6 +59,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	var versionBundles []versionbundle.Bundle
+	var apps []versionbundle.App
 	{
 		req := searcher.Request{
 			ReleaseVersion: key.ReleaseVersion(&cr),
@@ -69,7 +70,21 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
+		apps = res.Apps
 		versionBundles = res.VersionBundles
+	}
+
+	{
+		if cc.Status.Apps == nil {
+			cc.Status.Apps = make([]controllercontext.App, 0)
+		}
+		for _, app := range apps {
+			a := controllercontext.App{
+				App:     app.App,
+				Version: app.Version,
+			}
+			cc.Status.Apps = append(cc.Status.Apps, a)
+		}
 	}
 
 	{
