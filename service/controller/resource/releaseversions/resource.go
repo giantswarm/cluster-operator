@@ -79,7 +79,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 
 	{
 		if cc.Status.Apps == nil {
-			cc.Status.Apps = make([]controllercontext.App, len(apps))
+			cc.Status.Apps = make([]controllercontext.App, 0)
 		}
 		for _, app := range apps {
 			a := controllercontext.App{
