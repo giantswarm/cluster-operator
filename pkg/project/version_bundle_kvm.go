@@ -116,7 +116,7 @@ var versionBundleKVM = versionbundle.Bundle{
 	Components: []versionbundle.Component{
 		{
 			Name:    "kube-state-metrics",
-			Version: "1.9.0",
+			Version: "1.9.2",
 		},
 		{
 			Name:    "nginx-ingress-controller",
