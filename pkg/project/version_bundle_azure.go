@@ -7,10 +7,52 @@ import (
 var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "cluster-operator",
-			Description: "Add your changes here.",
+			Component:   "chart-operator",
+			Description: "Adjust ClusterRole permissions.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{},
+			URLs: []string{
+				"https://github.com/giantswarm/chart-operator/releases/tag/v0.11.3",
+			},
+		},
+		{
+			Component:   "cert-manager",
+			Description: "Improve helm chart for clusters with restrictive network policies.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.4",
+			},
+		},
+		{
+			Component:   "cert-manager",
+			Description: "Update manifests for Kubernetes 1.16 compatibility.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.3",
+			},
+		},
+		{
+			Component:   "kiam",
+			Description: "Improve helm chart for clusters with restrictive network policies.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.3",
+			},
+		},
+		{
+			Component:   "kiam",
+			Description: "Update manifests for Kubernetes 1.16 compatibility.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.2",
+			},
+		},
+		{
+			Component:   "metrics-server",
+			Description: "Update manifests for Kubernetes 1.16 compatibility.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/metrics-server-app/releases/tag/v1.0.0",
+			},
 		},
 	},
 	Components: []versionbundle.Component{
