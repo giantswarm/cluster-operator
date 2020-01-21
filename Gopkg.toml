@@ -29,8 +29,8 @@
   branch = "master"
   name = "github.com/giantswarm/certs"
 
-[[override]]
-  branch = "apps-on-release"
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/versionbundle"
 
 [[constraint]]

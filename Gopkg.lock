@@ -291,12 +291,12 @@
   revision = "f2078541ec95746f9e8631c944a16592d185b2d7"
 
 [[projects]]
-  branch = "apps-on-release"
-  digest = "1:ef2b828c529d6be9c197637a2be1f4ba07689dad82810d99b06aad88210465e5"
+  branch = "master"
+  digest = "1:a9417c5096de7245f859346a831e8f06f15356c54c9b363084b71e64357cd05c"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6cb1ff9c2777768e42cd60c3ba6d3c37eef54451"
+  revision = "460177a461bd8069a25d3628aad821052410fd9b"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
