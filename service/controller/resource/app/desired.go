@@ -13,7 +13,7 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
-	appspec "github.com/giantswarm/cluster-operator/pkg/app"
+	pkgapp "github.com/giantswarm/cluster-operator/pkg/app"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -41,6 +41,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	var apps []*g8sv1alpha1.App
+
 	appSpecs, err := r.newAppSpecs(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -160,18 +161,23 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	if len(res.Apps) == 0 {
+		return nil, microerror.Maskf(executionFailedError, "no app found on release %#q", res.ReleaseVersion)
+	}
+
 	var specs []key.AppSpec
 	for _, app := range res.Apps {
-
 		spec := key.AppSpec{
 			App:             app.App,
-			Catalog:         appspec.Default.Catalog,
+			Catalog:         pkgapp.Default.Catalog,
 			Chart:           fmt.Sprintf("%s-app", app.App),
-			Namespace:       appspec.Default.Namespace,
-			UseUpgradeForce: appspec.Default.UseUpgradeForce,
+			Namespace:       pkgapp.Default.Namespace,
+			UseUpgradeForce: pkgapp.Default.UseUpgradeForce,
 			Version:         app.Version,
 		}
-		if val, ok := appspec.Exceptions[app.App]; ok {
+		// Some apps may need to apply other chart name format, namespace, or helm properties.
+		// We are looking into ConfigException map to see if this chart is the case.
+		if val, ok := pkgapp.ConfigExceptions[app.App]; ok {
 			if val.Chart != "" {
 				spec.Chart = val.Chart
 			}
@@ -182,6 +188,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 				spec.UseUpgradeForce = false
 			}
 		}
+
 		specs = append(specs, spec)
 	}
 	return specs, nil

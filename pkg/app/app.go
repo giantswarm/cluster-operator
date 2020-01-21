@@ -9,18 +9,18 @@ var (
 		UseUpgradeForce: true,
 	}
 
-	Exceptions = map[string]key.AppSpec{
+	ConfigExceptions = map[string]key.AppSpec{
 		"cert-exporter": {
 			Chart: "cert-exporter",
 		},
+		// chart-operator must be installed first so the chart CRD is
+		// created in the tenant cluster.
 		"chart-operator": {
-			// chart-operator must be installed first so the chart CRD is
-			// created in the tenant cluster.
 			Chart:     "chart-operator",
 			Namespace: "giantswarm",
 		},
+		// CoreDNS's Upgrade force is disabled to avoid affecting customer workloads.
 		"coredns": {
-			// Upgrade force is disabled to avoid affecting customer workloads.
 			UseUpgradeForce: false,
 		},
 		"net-exporter": {
