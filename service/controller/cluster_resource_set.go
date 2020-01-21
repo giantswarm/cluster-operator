@@ -34,7 +34,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
@@ -308,14 +308,14 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var operatorVersionsResource resource.Interface
+	var releaseVersionsResource resource.Interface
 	{
-		c := operatorversions.Config{
+		c := releaseversions.Config{
 			ClusterClient: config.ClusterClient,
 			Logger:        config.Logger,
 		}
 
-		operatorVersionsResource, err = operatorversions.New(c)
+		releaseVersionsResource, err = releaseversions.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -367,7 +367,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		baseDomainResource,
-		operatorVersionsResource,
+		releaseVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 

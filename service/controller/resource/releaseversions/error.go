@@ -1,4 +1,4 @@
-package operatorversions
+package releaseversions
 
 import (
 	"github.com/giantswarm/microerror"

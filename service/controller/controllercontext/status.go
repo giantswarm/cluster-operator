@@ -9,7 +9,7 @@ type ContextStatus struct {
 	Endpoint ContextStatusEndpoint
 	// Versions is a map of key value pairs where the map key is a version label
 	// of a given operator. The map value is the version of the corresponding
-	// operator. See also the operatorversions resource.
+	// operator. See also the releaseversions resource.
 	//
 	//     aws-operator.giantswarm.io/version: 6.5.0
 	//

@@ -1,4 +1,4 @@
-package operatorversions
+package releaseversions
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	Name = "operatorversions"
+	Name = "releaseversions"
 )
 
 type Config struct {
