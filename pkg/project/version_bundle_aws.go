@@ -7,27 +7,11 @@ import (
 var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "net-exporter",
-			Description: "Change priority class to system-node-critical.",
-			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
-				"https://github.com/giantswarm/net-exporter/releases/tag/v1.5.1",
-			},
-		},
-		{
 			Component:   "chart-operator",
 			Description: "Adjust ClusterRole permissions.",
 			Kind:        versionbundle.KindChanged,
 			URLs:        []string{
 				"https://github.com/giantswarm/chart-operator/releases/tag/v0.11.3",
-			},
-		},
-		{
-			Component:   "chart-operator",
-			Description: "Remove CPU limits.",
-			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
-				"https://github.com/giantswarm/chart-operator/releases/tag/v0.11.2",
 			},
 		},
 		{
@@ -44,14 +28,6 @@ var versionBundleAWS = versionbundle.Bundle{
 			Kind:        versionbundle.KindChanged,
 			URLs:        []string{
 				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.3",
-			},
-		},
-		{
-			Component:   "cert-manager",
-			Description: "Remove CPU limits.",
-			Kind:        versionbundle.KindChanged,
-			URLs:        []string{
-				"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.0.2",
 			},
 		},
 		{
