@@ -1,6 +1,9 @@
 package app
 
-import "github.com/giantswarm/cluster-operator/service/controller/key"
+import (
+	"github.com/giantswarm/cluster-operator/service/controller/key"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 var (
 	Default = key.AppSpec{
