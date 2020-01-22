@@ -5,7 +5,7 @@ import "github.com/giantswarm/cluster-operator/service/controller/key"
 var (
 	Default = key.AppSpec{
 		Catalog:         "default",
-		Namespace:       "kube-system",
+		Namespace:       metav1.NamespaceSystem,
 		UseUpgradeForce: true,
 	}
 
