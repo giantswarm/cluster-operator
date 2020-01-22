@@ -11,7 +11,7 @@ var versionBundleAWS = versionbundle.Bundle{
 			Description: "Add additional settings for coredns to cluster configmap.",
 			Kind:        versionbundle.KindAdded,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/871",
+				"https://github.com/giantswarm/cluster-operator/pull/873",
 			},
 		},
 		{
@@ -217,6 +217,18 @@ var versionBundleAWS = versionbundle.Bundle{
 		{
 			Name:    "metrics-server",
 			Version: "0.3.3",
+		},
+		{
+			Name:    "kiam",
+			Version: "3.4.0",
+		},
+		{
+			Name:    "external-dns",
+			Version: "0.5.11",
+		},
+		{
+			Name:    "cert-manager",
+			Version: "0.9.0",
 		},
 	},
 	Name:     "cluster-operator",

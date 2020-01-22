@@ -150,6 +150,10 @@ var versionBundleAzure = versionbundle.Bundle{
 			Name:    "metrics-server",
 			Version: "0.3.3",
 		},
+		{
+			Name:    "external-dns",
+			Version: "0.5.11",
+		},
 	},
 	Name:     "cluster-operator",
 	Provider: "azure",
