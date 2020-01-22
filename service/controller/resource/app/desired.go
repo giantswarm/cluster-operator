@@ -168,7 +168,8 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 			UseUpgradeForce: pkgapp.Default.UseUpgradeForce,
 			Version:         app.Version,
 		}
-		// Some apps may need to apply other chart name format, namespace, or helm properties.
+		// For some apps we can't use default settings. We check ConfigExceptions map
+		// for these differences.
 		// We are looking into ConfigException map to see if this chart is the case.
 		if val, ok := pkgapp.ConfigExceptions[app.App]; ok {
 			if val.Chart != "" {
