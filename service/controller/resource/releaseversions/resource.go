@@ -70,7 +70,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 		if len(res.Apps) == 0 {
-			return microerror.Maskf(executionFailedError, "no app found in release %#q", req.ReleaseVersion)
+			return microerror.Maskf(executionFailedError, "no apps found for release %#q", req.ReleaseVersion)
 		}
 
 		apps = res.Apps
