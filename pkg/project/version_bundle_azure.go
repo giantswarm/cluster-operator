@@ -11,7 +11,7 @@ var versionBundleAzure = versionbundle.Bundle{
 			Description: "Add additional settings for coredns to cluster configmap.",
 			Kind:        versionbundle.KindAdded,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/871",
+				"https://github.com/giantswarm/cluster-operator/pull/873",
 			},
 		},
 		{
