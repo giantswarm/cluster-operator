@@ -1,7 +1,8 @@
 package controllercontext
 
 type ContextStatus struct {
-	// Apps is a array of where it keep the chart version for specific release.
+	// Apps is a slice of the apps and versions that should be created for a specific release.
+	// It is fetched from cluster-service by the releaseversions resource.
 	//
 	//     - coredns: 1.15.0
 	//
