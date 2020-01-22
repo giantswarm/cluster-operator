@@ -65,6 +65,14 @@ var versionBundleKVM = versionbundle.Bundle{
 		},
 		{
 			Component:   "kube-state-metrics",
+			Description: "Adjust RBAC permissions.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/kube-state-metrics-app/releases/tag/v1.0.2",
+			},
+		},
+		{
+			Component:   "kube-state-metrics",
 			Description: "Update to upstream version 1.9.2.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{

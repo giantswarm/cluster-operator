@@ -96,6 +96,14 @@ var versionBundleAWS = versionbundle.Bundle{
 		},
 		{
 			Component:   "cluster-autoscaler",
+			Description: "Adjust RBAC permissions.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/cluster-autoscaler-app/releases/tag/v1.1.3",
+			},
+		},
+		{
+			Component:   "cluster-autoscaler",
 			Description: "Update to v1.16.2.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
@@ -141,6 +149,14 @@ var versionBundleAWS = versionbundle.Bundle{
 			Kind:        versionbundle.KindRemoved,
 			URLs: []string{
 				"https://github.com/giantswarm/external-dns-app/releases/tag/v1.0.1",
+			},
+		},
+		{
+			Component:   "kube-state-metrics",
+			Description: "Adjust RBAC permissions.",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/kube-state-metrics-app/releases/tag/v1.0.2",
 			},
 		},
 		{
