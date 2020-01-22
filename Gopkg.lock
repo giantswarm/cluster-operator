@@ -97,7 +97,7 @@
   revision = "3f774da07e59f9446507f506cae152c93ad2e46c"
 
 [[projects]]
-  branch = "apps-on-release"
+  branch = "master"
   digest = "1:d445f17d7d98c7f19f6e5f46a40abf2ab57337246e33e8b45f0794c04c06cc90"
   name = "github.com/giantswarm/clusterclient"
   packages = [
@@ -140,7 +140,7 @@
     "service/root",
   ]
   pruneopts = "UT"
-  revision = "63c1ea453a05ef16ec01b2813e6d0d0954717177"
+  revision = "09e24827f0f425cc102d9a8fb60c22a425417e02"
 
 [[projects]]
   branch = "master"

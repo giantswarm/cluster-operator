@@ -31,11 +31,11 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/giantswarm/versionbundle"
+  name = "github.com/giantswarm/clusterclient"
 
 [[constraint]]
-  branch = "apps-on-release"
-  name = "github.com/giantswarm/clusterclient"
+  branch = "master"
+  name = "github.com/giantswarm/versionbundle"
 
 [[constraint]]
   branch = "master"
