@@ -22,8 +22,9 @@ type ContextStatus struct {
 }
 
 type App struct {
-	App     string
-	Version string
+	App              string
+	ComponentVersion string
+	Version          string
 }
 
 type ContextStatusEndpoint struct {

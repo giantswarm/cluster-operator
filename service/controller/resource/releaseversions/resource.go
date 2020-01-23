@@ -83,8 +83,9 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		}
 		for _, app := range apps {
 			a := controllercontext.App{
-				App:     app.App,
-				Version: app.Version,
+				App:              app.App,
+				ComponentVersion: app.ComponentVersion,
+				Version:          app.Version,
 			}
 			cc.Status.Apps = append(cc.Status.Apps, a)
 		}
