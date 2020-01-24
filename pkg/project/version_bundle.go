@@ -65,6 +65,14 @@ func VersionBundle(p string) versionbundle.Bundle {
 			},
 			{
 				Component:   "cluster-autoscaler",
+				Description: "Adjust RBAC permissions.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/cluster-autoscaler-app/releases/tag/v1.1.3",
+				},
+			},
+			{
+				Component:   "cluster-autoscaler",
 				Description: "Update to upstream version 1.16.2.",
 				Kind:        versionbundle.KindChanged,
 				URLs: []string{
@@ -78,6 +86,22 @@ func VersionBundle(p string) versionbundle.Bundle {
 				URLs: []string{
 					"https://github.com/giantswarm/coredns-app/releases/tag/v1.1.3",
 					"https://github.com/giantswarm/coredns-app/releases/tag/v1.1.2",
+				},
+			},
+			{
+				Component:   "external-dns",
+				Description: "Add support AWS SDK configuration with explicit credentials.",
+				Kind:        versionbundle.KindAdded,
+				URLs: []string{
+					"https://github.com/giantswarm/external-dns-app/releases/tag/v1.1.0",
+				},
+			},
+			{
+				Component:   "kube-state-metrics",
+				Description: "Adjust RBAC permissions.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/kube-state-metrics-app/releases/tag/v1.0.2",
 				},
 			},
 			{
@@ -95,6 +119,14 @@ func VersionBundle(p string) versionbundle.Bundle {
 				URLs: []string{
 					"https://github.com/giantswarm/net-exporter/releases/tag/v1.5.1",
 					"https://github.com/giantswarm/net-exporter/releases/tag/v1.5.0",
+				},
+			},
+			{
+				Component:   "node-exporter",
+				Description: "Update dependencies to support Kubernetes 1.16.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/node-exporter-app/releases/tag/v1.1.1",
 				},
 			},
 		},

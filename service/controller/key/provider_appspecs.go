@@ -23,7 +23,7 @@ func AWSAppSpecs() []AppSpec {
 			Chart:           "cluster-autoscaler-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.1.2",
+			Version:         "1.1.3",
 		},
 		{
 			App:             "external-dns",
