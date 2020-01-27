@@ -88,11 +88,11 @@ func CommonAppSpecs() []AppSpec {
 		},
 		{
 			App:             "net-exporter",
-			Catalog:         "default",
+			Catalog:         "default-test",
 			Chart:           "net-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.5.1",
+			Version:         "1.5.1-f45d41f5c723fe1cf8783bf4f830376904ad38e7",
 		},
 		{
 			App:             "node-exporter",
