@@ -36,12 +36,12 @@ func AWSAppSpecs() []AppSpec {
 		},
 		{
 			App:             "kiam",
-			Catalog:         "default",
+			Catalog:         "default-test",
 			Chart:           "kiam-app",
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.3",
+			Version:         "1.0.3-045eedac92e1694ff197671f92f901f2ad48ed73",
 		},
 	}
 }
