@@ -7,11 +7,27 @@ import (
 var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "cluster-operator",
-			Description: "TODO.",
+			Component:   "nginx-ingress-controller",
+			Description: "Updated to version 0.27.1.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"TODO",
+				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
+			},
+		},
+		{
+			Component:   "nginx-ingress-controller",
+			Description: "Added metrics Service for prometheus-operator support.",
+			Kind:        versionbundle.KindAdded,
+			URLs: []string{
+				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
+			},
+		},
+		{
+			Component:   "nginx-ingress-controller",
+			Description: "Supported configuring which SSL/TLS protocols should be enabled.",
+			Kind:        versionbundle.KindAdded,
+			URLs: []string{
+				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
 			},
 		},
 	},
@@ -22,7 +38,7 @@ var versionBundleKVM = versionbundle.Bundle{
 		},
 		{
 			Name:    "nginx-ingress-controller",
-			Version: "0.26.1",
+			Version: "0.27.1",
 		},
 		{
 			Name:    "node-exporter",
