@@ -15,6 +15,14 @@ func VersionBundle(p string) versionbundle.Bundle {
 					"https://github.com/giantswarm/cluster-operator/pull/888",
 				},
 			},
+			{
+				Component:   "net-exporter",
+				Description: "Update to 1.6.0.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/net-exporter/pull/81",
+				},
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -48,6 +56,10 @@ func VersionBundle(p string) versionbundle.Bundle {
 			{
 				Name:    "cert-manager",
 				Version: "0.9.0",
+			},
+			{
+				Name:    "net-exporter",
+				Version: "1.6.0",
 			},
 		},
 		Name:     "cluster-operator",
