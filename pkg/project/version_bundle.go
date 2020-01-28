@@ -52,7 +52,7 @@ func VersionBundle(p string) versionbundle.Bundle {
 				Description: "Update manifests for Kubernetes 1.16 compatibility.",
 				Kind:        versionbundle.KindChanged,
 				URLs: []string{
-					"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.2",
+					"https://github.com/giantswarm/kiam-app/releases/tag/v1.0.4",
 				},
 			},
 			{
