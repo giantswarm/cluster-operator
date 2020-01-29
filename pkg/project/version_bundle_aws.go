@@ -7,27 +7,11 @@ import (
 var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "nginx-ingress-controller",
-			Description: "Updated to version 0.27.1.",
+			Component:   "net-exporter",
+			Description: "Updated to version 1.6.0.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
-			},
-		},
-		{
-			Component:   "nginx-ingress-controller",
-			Description: "Added metrics Service for prometheus-operator support.",
-			Kind:        versionbundle.KindAdded,
-			URLs: []string{
-				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
-			},
-		},
-		{
-			Component:   "nginx-ingress-controller",
-			Description: "Supported configuring which SSL/TLS protocols should be enabled.",
-			Kind:        versionbundle.KindAdded,
-			URLs: []string{
-				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v120-2020-01-13",
+				"https://github.com/giantswarm/net-exporter/releases/tag/v1.6.0",
 			},
 		},
 	},
@@ -67,6 +51,10 @@ var versionBundleAWS = versionbundle.Bundle{
 		{
 			Name:    "cert-manager",
 			Version: "0.9.0",
+		},
+		{
+			Name:    "net-exporter",
+			Version: "1.6.0",
 		},
 	},
 	Name:     "cluster-operator",
