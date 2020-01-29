@@ -20,7 +20,7 @@ func VersionBundle(p string) versionbundle.Bundle {
 				Description: "Update to 1.6.0.",
 				Kind:        versionbundle.KindChanged,
 				URLs: []string{
-					"https://github.com/giantswarm/net-exporter/pull/81",
+					"https://github.com/giantswarm/net-exporter/pull/83",
 				},
 			},
 		},
