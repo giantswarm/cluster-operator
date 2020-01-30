@@ -33,9 +33,6 @@
   branch = "master"
   name = "github.com/giantswarm/clusterclient"
 
-[[constraint]]
-  branch = "master"
-  name = "github.com/giantswarm/versionbundle"
 
 [[constraint]]
   branch = "master"
@@ -76,6 +73,10 @@
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/tenantcluster"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/versionbundle"
 
 [[constraint]]
   name = "github.com/prometheus/client_golang"
