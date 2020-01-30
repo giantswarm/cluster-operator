@@ -196,9 +196,11 @@ func New(config Config) (*Service, error) {
 			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
 			ClusterIPRange:             clusterIPRange,
 			DNSIP:                      dnsIP,
+			Flag:                       config.Flag,
 			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 			Provider:                   provider,
 			RegistryDomain:             registryDomain,
+			Viper:                      config.Viper,
 		}
 
 		clusterController, err = controller.NewCluster(c)

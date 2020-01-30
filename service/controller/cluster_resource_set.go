@@ -19,9 +19,11 @@ import (
 	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 	corev1 "k8s.io/api/core/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
+	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -58,9 +60,11 @@ type clusterResourceSetConfig struct {
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
+	Flag                       *flag.Flag
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
 	RegistryDomain             string
+	Viper                      *viper.Viper
 }
 
 // newClusterResourceSet returns a configured Cluster API's Cluster controller
@@ -75,7 +79,9 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
+			Flag:     config.Flag,
 			Provider: config.Provider,
+			Viper:    config.Viper,
 		}
 
 		appGetter, err = app.New(c)

@@ -63,8 +63,14 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.Flag == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
+	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+	if config.Viper == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
 	}
 
 	rawDefaultConfig := config.Viper.GetString(config.Flag.Service.Release.App.Config.Default)
