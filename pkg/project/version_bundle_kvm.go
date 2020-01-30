@@ -8,14 +8,6 @@ var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "nginx-ingress-controller",
-			Description: "Supported enabling the proxy protocol with AWS ELB.",
-			Kind:        versionbundle.KindAdded,
-			URLs: []string{
-				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v121-2020-01-29",
-			},
-		},
-		{
-			Component:   "nginx-ingress-controller",
 			Description: "Updated to version 0.28.0.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
