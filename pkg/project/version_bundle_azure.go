@@ -7,11 +7,11 @@ import (
 var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "net-exporter",
-			Description: "Updated to version 1.6.0.",
+			Component:   "cluster-operator",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/net-exporter/releases/tag/v1.6.0",
+				"",
 			},
 		},
 	},
