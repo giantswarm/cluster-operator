@@ -5,10 +5,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/giantswarm/cluster-operator/flag"
 )
 
 const (
@@ -21,9 +18,9 @@ type Config struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 
-	Flag     *flag.Flag
-	Provider string
-	Viper    *viper.Viper
+	Provider             string
+	RawAppDefaultConfig  string
+	RawAppOverrideConfig string
 }
 
 // Resource provides shared functionality for managing chartconfigs.
@@ -63,34 +60,24 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.Flag == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Flag must not be empty", config)
-	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
-	if config.Viper == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Viper must not be empty", config)
+	if config.RawAppDefaultConfig == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.RawDefaultConfig must not be empty", config)
 	}
-
-	rawDefaultConfig := config.Viper.GetString(config.Flag.Service.Release.App.Config.Default)
-	if rawDefaultConfig == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Flag.Service.App.Config.Default must not be empty", config)
+	if config.RawAppOverrideConfig == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.RawOverrideConfig must not be empty", config)
 	}
 
 	defaultConfig := defaultConfig{}
-	err := yaml.Unmarshal([]byte(rawDefaultConfig), &defaultConfig)
+	err := yaml.Unmarshal([]byte(config.RawAppDefaultConfig), &defaultConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	rawOverrideConfig := config.Viper.GetString(config.Flag.Service.Release.App.Config.Override)
-	if rawOverrideConfig == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Flag.Service.App.Config.Override must not be empty", config)
-	}
-
 	overrideConfig := overrideConfig{}
-	err = yaml.Unmarshal([]byte(rawOverrideConfig), &overrideConfig)
+	err = yaml.Unmarshal([]byte(config.RawAppOverrideConfig), &overrideConfig)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

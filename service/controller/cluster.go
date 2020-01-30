@@ -10,11 +10,9 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
-	"github.com/giantswarm/cluster-operator/flag"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 )
 
@@ -34,11 +32,11 @@ type ClusterConfig struct {
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
-	Flag                       *flag.Flag
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
+	RawAppDefaultConfig        string
+	RawAppOverrideConfig       string
 	RegistryDomain             string
-	Viper                      *viper.Viper
 }
 
 type Cluster struct {
@@ -64,11 +62,11 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			CertTTL:                    config.CertTTL,
 			ClusterIPRange:             config.ClusterIPRange,
 			DNSIP:                      config.DNSIP,
-			Flag:                       config.Flag,
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
+			RawAppDefaultConfig:        config.RawAppDefaultConfig,
+			RawAppOverrideConfig:       config.RawAppOverrideConfig,
 			RegistryDomain:             config.RegistryDomain,
-			Viper:                      config.Viper,
 		}
 
 		resourceSet, err = newClusterResourceSet(c)
