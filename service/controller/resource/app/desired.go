@@ -12,7 +12,6 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
-	pkgapp "github.com/giantswarm/cluster-operator/pkg/app"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -162,24 +161,24 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 	for _, app := range cc.Status.Apps {
 		spec := key.AppSpec{
 			App:             app.App,
-			Catalog:         pkgapp.Default.Catalog,
+			Catalog:         r.defaultConfig.Catalog,
 			Chart:           fmt.Sprintf("%s-app", app.App),
-			Namespace:       pkgapp.Default.Namespace,
-			UseUpgradeForce: pkgapp.Default.UseUpgradeForce,
+			Namespace:       r.defaultConfig.Namespace,
+			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
 			Version:         app.Version,
 		}
 		// For some apps we can't use default settings. We check ConfigExceptions map
 		// for these differences.
 		// We are looking into ConfigException map to see if this chart is the case.
-		if val, ok := pkgapp.ConfigExceptions[app.App]; ok {
+		if val, ok := r.overrideConfig[app.App]; ok {
 			if val.Chart != "" {
 				spec.Chart = val.Chart
 			}
 			if val.Namespace != "" {
 				spec.Namespace = val.Namespace
 			}
-			if !val.UseUpgradeForce {
-				spec.UseUpgradeForce = false
+			if val.UseUpgradeForce != nil {
+				spec.UseUpgradeForce = *val.UseUpgradeForce
 			}
 		}
 
