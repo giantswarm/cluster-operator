@@ -13,12 +13,14 @@ const (
 )
 
 type Config struct {
-	Logger        micrologger.Logger
+	Logger micrologger.Logger
+
 	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 type Resource struct {
-	logger        micrologger.Logger
+	logger micrologger.Logger
+
 	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
@@ -26,12 +28,14 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
 	if config.ToClusterFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterFunc must not be empty", config)
 	}
 
 	r := &Resource{
-		logger:        config.Logger,
+		logger: config.Logger,
+
 		toClusterFunc: config.ToClusterFunc,
 	}
 

@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -11,6 +12,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
@@ -19,14 +21,17 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 )
 
 type machineDeploymentResourceSetConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Tenant    tenantcluster.Interface
+	ClusterClient *clusterclient.Client
+	K8sClient     k8sclient.Interface
+	Logger        micrologger.Logger
+	Tenant        tenantcluster.Interface
 
 	Provider string
 }
@@ -37,7 +42,8 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	var baseDomainResource resource.Interface
 	{
 		c := basedomain.Config{
-			Logger:        config.Logger,
+			Logger: config.Logger,
+
 			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
 		}
 
@@ -60,6 +66,21 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		}
 	}
 
+	var operatorVersionsResource resource.Interface
+	{
+		c := operatorversions.Config{
+			ClusterClient: config.ClusterClient,
+			Logger:        config.Logger,
+
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
+		}
+
+		operatorVersionsResource, err = operatorversions.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
@@ -69,6 +90,22 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var updateInfraRefsResource resource.Interface
+	{
+		c := updateinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toMachineDeploymentObjRef,
+			Provider: config.Provider,
+		}
+
+		updateInfraRefsResource, err = updateinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -91,11 +128,15 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		baseDomainResource,
+		operatorVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 
 		// Following resources manage CR status information.
 		machineDeploymentStatusResource,
+
+		// Following resources manage resources in the control plane.
+		updateInfraRefsResource,
 	}
 
 	{
@@ -162,9 +203,9 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 				return apiv1alpha2.Cluster{}, microerror.Mask(err)
 			}
 
-			// Note that we cannot use key.MachineDeploymentInfraRef here because we
-			// do not need to fetch the Machine Deployment again. We need to lookup
-			// the Cluster CR based on the MachineDeployment CR. This is why we use
+			// Note that we cannot use a key function here because we do not need to
+			// fetch the Machine Deployment again. We need to lookup the Cluster CR
+			// based on the MachineDeployment CR. This is why we use
 			// types.NamespacedName here explicitly.
 			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&md), Namespace: md.Namespace}, cr)
 			if err != nil {
@@ -174,4 +215,13 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 
 		return *cr, nil
 	}
+}
+
+func toMachineDeploymentObjRef(obj interface{}) (corev1.ObjectReference, error) {
+	cr, err := key.ToMachineDeployment(obj)
+	if err != nil {
+		return corev1.ObjectReference{}, microerror.Mask(err)
+	}
+
+	return key.ObjRefFromMachineDeployment(cr), nil
 }

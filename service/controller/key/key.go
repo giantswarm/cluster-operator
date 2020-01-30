@@ -49,7 +49,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.11.2",
+			Version:         "0.11.3",
 		},
 		{
 			// coredns must be installed second as its a requirement for other
@@ -76,7 +76,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "kube-state-metrics-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.0",
+			Version:         "1.0.2",
 		},
 		{
 			App:             "metrics-server",
@@ -92,7 +92,7 @@ func CommonAppSpecs() []AppSpec {
 			Chart:           "net-exporter",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.4.3",
+			Version:         "1.5.1",
 		},
 		{
 			App:             "node-exporter",

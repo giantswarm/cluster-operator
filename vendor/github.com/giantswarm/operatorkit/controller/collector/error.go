@@ -1,4 +1,4 @@
-package updatemachinedeployments
+package collector
 
 import (
 	"github.com/giantswarm/microerror"

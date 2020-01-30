@@ -36,30 +36,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	for _, md := range mdList.Items {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
-
 		var updated bool
-
-		// Syncing the Provider Operator version. For instance aws-operator,
-		// kvm-operator or the like.
-		{
-			l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
-			d, ok := cr.Labels[l]
-			c := md.Labels[l]
-			if ok && d != "" && d != md.Labels[l] {
-				md.Labels[l] = d
-				updated = true
-
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
-			}
-		}
 
 		// Syncing the cluster-operator version.
 		{
 			l := label.OperatorVersion
 			d, ok := cr.Labels[l]
 			c := md.Labels[l]
-			if ok && d != "" && d != md.Labels[l] {
+			if ok && d != "" && d != c {
 				md.Labels[l] = d
 				updated = true
 
@@ -72,7 +56,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			l := label.ReleaseVersion
 			d, ok := cr.Labels[l]
 			c := md.Labels[l]
-			if ok && d != "" && d != md.Labels[l] {
+			if ok && d != "" && d != c {
 				md.Labels[l] = d
 				updated = true
 
@@ -81,13 +65,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 
 		if updated {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+
 			err = r.k8sClient.CtrlClient().Update(ctx, &md)
 			if err != nil {
 				return microerror.Mask(err)
 			}
-		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+		}
 	}
 
 	return nil

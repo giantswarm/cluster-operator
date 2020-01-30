@@ -16,8 +16,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 )
 
-// ClusterConfig contains necessary dependencies and settings for
-// Cluster API's Cluster CRD controller implementation.
+// ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
+// CRD controller implementation.
 type ClusterConfig struct {
 	CertsSearcher certs.Interface
 	ClusterClient *clusterclient.Client
@@ -41,7 +41,6 @@ type Cluster struct {
 	*controller.Controller
 }
 
-// NewCluster returns a configured AWSClusterConfig controller implementation.
 func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var err error
 
