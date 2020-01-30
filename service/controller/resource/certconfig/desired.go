@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -61,7 +61,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	return certConfigs, nil
 }
 
-func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert corev1alpha1.CertConfigSpecCert) *corev1alpha1.CertConfig {
+func newCertConfig(cc controllercontext.Context, cr apiv1alpha3.Cluster, cert corev1alpha1.CertConfigSpecCert) *corev1alpha1.CertConfig {
 	return &corev1alpha1.CertConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "CertConfig",
@@ -87,7 +87,7 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 	}
 }
 
-func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		AltNames:         key.CertAltNames(fmt.Sprintf("master.%s", key.ClusterID(&cr)), fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base)),
@@ -100,7 +100,7 @@ func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cl
 	}
 }
 
-func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.AppOperatorAPICert.String(),
@@ -115,7 +115,7 @@ func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1a
 	}
 }
 
-func (r *Resource) newSpecForCalico(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForCalico(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.CalicoEtcdClientCert.String(),
@@ -125,7 +125,7 @@ func (r *Resource) newSpecForCalico(cc controllercontext.Context, cr apiv1alpha2
 	}
 }
 
-func (r *Resource) newSpecForClusterOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForClusterOperator(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.ClusterOperatorAPICert.String(),
@@ -140,7 +140,7 @@ func (r *Resource) newSpecForClusterOperator(cc controllercontext.Context, cr ap
 	}
 }
 
-func (r *Resource) newSpecForEtcd(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForEtcd(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.EtcdCert.String(),
@@ -151,7 +151,7 @@ func (r *Resource) newSpecForEtcd(cc controllercontext.Context, cr apiv1alpha2.C
 	}
 }
 
-func (r *Resource) newSpecForFlanneldEtcdClient(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForFlanneldEtcdClient(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.FlanneldEtcdClientCert.String(),
@@ -161,7 +161,7 @@ func (r *Resource) newSpecForFlanneldEtcdClient(cc controllercontext.Context, cr
 	}
 }
 
-func (r *Resource) newSpecForNodeOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForNodeOperator(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.NodeOperatorCert.String(),
@@ -176,7 +176,7 @@ func (r *Resource) newSpecForNodeOperator(cc controllercontext.Context, cr apiv1
 	}
 }
 
-func (r *Resource) newSpecForPrometheus(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForPrometheus(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.PrometheusCert.String(),
@@ -191,7 +191,7 @@ func (r *Resource) newSpecForPrometheus(cc controllercontext.Context, cr apiv1al
 	}
 }
 
-func (r *Resource) newSpecForServiceAccount(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForServiceAccount(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.ServiceAccountCert.String(),
@@ -201,7 +201,7 @@ func (r *Resource) newSpecForServiceAccount(cc controllercontext.Context, cr api
 	}
 }
 
-func (r *Resource) newSpecForWorker(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForWorker(cc controllercontext.Context, cr apiv1alpha3.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		AltNames:         key.CertAltNames(),

@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 )
@@ -81,7 +81,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 				resourceSet,
 			},
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha2.Cluster)
+				return new(apiv1alpha3.Cluster)
 			},
 
 			// Name is used to compute finalizer names. This here results in something

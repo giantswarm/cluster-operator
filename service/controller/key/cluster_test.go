@@ -5,38 +5,38 @@ import (
 	"testing"
 
 	"github.com/giantswarm/microerror"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 )
 
 func Test_ToCluster(t *testing.T) {
 	testCases := []struct {
 		description          string
 		inputObject          interface{}
-		expectedCustomObject apiv1alpha2.Cluster
+		expectedCustomObject apiv1alpha3.Cluster
 		expectedError        error
 	}{
 		{
 			description:          "reference to empty value Cluster returns empty Cluster",
-			inputObject:          &apiv1alpha2.Cluster{},
-			expectedCustomObject: apiv1alpha2.Cluster{},
+			inputObject:          &apiv1alpha3.Cluster{},
+			expectedCustomObject: apiv1alpha3.Cluster{},
 			expectedError:        nil,
 		},
 		{
 			description:          "non-pointer value of Cluster must return wrongTypeError",
-			inputObject:          apiv1alpha2.Cluster{},
-			expectedCustomObject: apiv1alpha2.Cluster{},
+			inputObject:          apiv1alpha3.Cluster{},
+			expectedCustomObject: apiv1alpha3.Cluster{},
 			expectedError:        wrongTypeError,
 		},
 		{
 			description:          "wrong type must return wrongTypeError",
-			inputObject:          &apiv1alpha2.Machine{},
-			expectedCustomObject: apiv1alpha2.Cluster{},
+			inputObject:          &apiv1alpha3.Machine{},
+			expectedCustomObject: apiv1alpha3.Cluster{},
 			expectedError:        wrongTypeError,
 		},
 		{
 			description:          "nil interface{} must return wrongTypeError",
 			inputObject:          nil,
-			expectedCustomObject: apiv1alpha2.Cluster{},
+			expectedCustomObject: apiv1alpha3.Cluster{},
 			expectedError:        wrongTypeError,
 		},
 	}

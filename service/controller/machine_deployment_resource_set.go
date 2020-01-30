@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -194,13 +194,13 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	return resourceSet, nil
 }
 
-func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-	return func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-		cr := &apiv1alpha2.Cluster{}
+func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx context.Context, obj interface{}) (apiv1alpha3.Cluster, error) {
+	return func(ctx context.Context, obj interface{}) (apiv1alpha3.Cluster, error) {
+		cr := &apiv1alpha3.Cluster{}
 		{
 			md, err := key.ToMachineDeployment(obj)
 			if err != nil {
-				return apiv1alpha2.Cluster{}, microerror.Mask(err)
+				return apiv1alpha3.Cluster{}, microerror.Mask(err)
 			}
 
 			// Note that we cannot use a key function here because we do not need to
@@ -209,7 +209,7 @@ func newMachineDeploymentToClusterFunc(k8sClient k8sclient.Interface) func(ctx c
 			// types.NamespacedName here explicitly.
 			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&md), Namespace: md.Namespace}, cr)
 			if err != nil {
-				return apiv1alpha2.Cluster{}, microerror.Mask(err)
+				return apiv1alpha3.Cluster{}, microerror.Mask(err)
 			}
 		}
 

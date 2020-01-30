@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -64,7 +64,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	mdList := &apiv1alpha2.MachineDeploymentList{}
+	mdList := &apiv1alpha3.MachineDeploymentList{}
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
 
@@ -105,7 +105,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) error {
+func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha3.MachineDeployment) error {
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)

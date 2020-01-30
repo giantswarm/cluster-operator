@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
@@ -63,7 +63,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
-	list := &apiv1alpha2.ClusterList{}
+	list := &apiv1alpha3.ClusterList{}
 
 	err := c.k8sClient.CtrlClient().List(ctx, list)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/versionbundle"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -23,14 +23,14 @@ type Config struct {
 	ClusterClient *clusterclient.Client
 	Logger        micrologger.Logger
 
-	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
+	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha3.Cluster, error)
 }
 
 type Resource struct {
 	clusterClient *clusterclient.Client
 	logger        micrologger.Logger
 
-	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
+	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha3.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {

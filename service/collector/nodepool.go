@@ -8,7 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 )
@@ -73,7 +73,7 @@ func NewNodePool(config NodePoolConfig) (*NodePool, error) {
 func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	list := &apiv1alpha2.MachineDeploymentList{}
+	list := &apiv1alpha3.MachineDeploymentList{}
 	{
 		np.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
 

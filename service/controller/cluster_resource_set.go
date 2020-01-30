@@ -20,7 +20,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -464,10 +464,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	return resourceSet, nil
 }
 
-func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
+func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha3.Cluster, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
-		return apiv1alpha2.Cluster{}, microerror.Mask(err)
+		return apiv1alpha3.Cluster{}, microerror.Mask(err)
 	}
 
 	return cr, nil

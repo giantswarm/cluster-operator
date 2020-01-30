@@ -21,8 +21,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if len(cr.Status.APIEndpoints) != 1 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q does not have any api endpoint set in the cr status yet", key.ClusterID(&cr)))
+	if cr.Spec.ControlPlaneEndpoint.IsZero() {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q does not have an endpoint set in the cr spec yet", key.ClusterID(&cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	}
@@ -37,7 +37,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	//
 	//     gauss.eu-central-1.aws.gigantic.io
 	//
-	cc.Status.Endpoint.Base = strings.Replace(cr.Status.APIEndpoints[0].Host, fmt.Sprintf("api.%s.k8s.", key.ClusterID(&cr)), "", 1)
+	cc.Status.Endpoint.Base = strings.Replace(cr.Spec.ControlPlaneEndpoint.Host, fmt.Sprintf("api.%s.k8s.", key.ClusterID(&cr)), "", 1)
 
 	return nil
 }

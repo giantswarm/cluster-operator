@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/tenantcluster"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 )
@@ -57,7 +57,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 				resourceSet,
 			},
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha2.MachineDeployment)
+				return new(apiv1alpha3.MachineDeployment)
 			},
 
 			// Name is used to compute finalizer names. This here results in something
