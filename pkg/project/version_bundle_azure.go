@@ -7,11 +7,11 @@ import (
 var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "cluster-operator",
-			Description: "TODO",
+			Component:   "nginx-ingress-controller",
+			Description: "Updated to version 0.28.0.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"",
+				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v130-2020-01-30",
 			},
 		},
 	},
@@ -22,7 +22,7 @@ var versionBundleAzure = versionbundle.Bundle{
 		},
 		{
 			Name:    "nginx-ingress-controller",
-			Version: "0.27.1",
+			Version: "0.28.0",
 		},
 		{
 			Name:    "node-exporter",
