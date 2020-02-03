@@ -33,7 +33,6 @@
   branch = "master"
   name = "github.com/giantswarm/clusterclient"
 
-
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/errors"
