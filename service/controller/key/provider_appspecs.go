@@ -15,7 +15,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.4",
+			Version:         "1.1.0",
 		},
 		{
 			App:             "cluster-autoscaler",
@@ -32,7 +32,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.1.0",
+			Version:         "1.2.0",
 		},
 		{
 			App:             "kiam",
@@ -41,7 +41,7 @@ func AWSAppSpecs() []AppSpec {
 			ClusterAPIOnly:  true,
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.0.4",
+			Version:         "1.1.0",
 		},
 	}
 }
@@ -56,7 +56,7 @@ func AzureAppSpecs() []AppSpec {
 			Chart:           "external-dns-app",
 			Namespace:       metav1.NamespaceSystem,
 			UseUpgradeForce: true,
-			Version:         "1.1.0",
+			Version:         "1.2.0",
 		},
 	}
 }

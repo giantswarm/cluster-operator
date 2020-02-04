@@ -15,6 +15,30 @@ func VersionBundle(p string) versionbundle.Bundle {
 					"https://github.com/giantswarm/net-exporter/releases/tag/v1.6.0",
 				},
 			},
+			{
+				Component:   "kiam",
+				Description: "Update to 3.5.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/kiam-app/releases/tag/v1.1.0",
+				},
+			},
+			{
+				Component:   "cert-manager",
+				Description: "Update to 0.13.0.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/cert-manager-app/releases/tag/v1.1.0",
+				},
+			},
+			{
+				Component:   "external-dns",
+				Description: "Update to 0.5.18.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/external-dns-app/releases/tag/v1.2.0",
+				},
+			},
 		},
 		Components: []versionbundle.Component{
 			{
@@ -39,15 +63,15 @@ func VersionBundle(p string) versionbundle.Bundle {
 			},
 			{
 				Name:    "kiam",
-				Version: "3.4.0",
+				Version: "3.5.0",
 			},
 			{
 				Name:    "external-dns",
-				Version: "0.5.11",
+				Version: "0.5.18",
 			},
 			{
 				Name:    "cert-manager",
-				Version: "0.9.0",
+				Version: "0.3.0",
 			},
 			{
 				Name:    "net-exporter",
