@@ -71,7 +71,7 @@ func VersionBundle(p string) versionbundle.Bundle {
 			},
 			{
 				Name:    "cert-manager",
-				Version: "0.3.0",
+				Version: "0.13.0",
 			},
 			{
 				Name:    "net-exporter",
