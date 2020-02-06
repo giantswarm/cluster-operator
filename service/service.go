@@ -198,6 +198,8 @@ func New(config Config) (*Service, error) {
 			DNSIP:                      dnsIP,
 			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 			Provider:                   provider,
+			RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+			RawAppOverrideConfig:       config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
 			RegistryDomain:             registryDomain,
 		}
 

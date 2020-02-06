@@ -32,8 +32,8 @@
   branch = "master"
   name = "github.com/giantswarm/micrologger"
 
-[[constraint]]
-  branch = "master"
+[[override]]
+  branch = "apps-on-release"
   name = "github.com/giantswarm/versionbundle"
 
 [[constraint]]

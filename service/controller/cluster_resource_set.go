@@ -35,7 +35,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/operatorversions"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
@@ -60,6 +60,8 @@ type clusterResourceSetConfig struct {
 	DNSIP                      string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
+	RawAppDefaultConfig        string
+	RawAppOverrideConfig       string
 	RegistryDomain             string
 }
 
@@ -75,7 +77,9 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
-			Provider: config.Provider,
+			Provider:             config.Provider,
+			RawAppDefaultConfig:  config.RawAppDefaultConfig,
+			RawAppOverrideConfig: config.RawAppOverrideConfig,
 		}
 
 		appGetter, err = app.New(c)
@@ -311,16 +315,16 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var operatorVersionsResource resource.Interface
+	var releaseVersionsResource resource.Interface
 	{
-		c := operatorversions.Config{
+		c := releaseversions.Config{
 			ClusterClient: config.ClusterClient,
 			Logger:        config.Logger,
 
 			ToClusterFunc: toClusterFunc,
 		}
 
-		operatorVersionsResource, err = operatorversions.New(c)
+		releaseVersionsResource, err = releaseversions.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -386,7 +390,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		baseDomainResource,
-		operatorVersionsResource,
+		releaseVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 

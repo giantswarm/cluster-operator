@@ -1,4 +1,4 @@
-package operatorversions
+package releaseversions
 
 import (
 	"context"

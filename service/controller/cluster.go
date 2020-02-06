@@ -34,6 +34,8 @@ type ClusterConfig struct {
 	DNSIP                      string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
+	RawAppDefaultConfig        string
+	RawAppOverrideConfig       string
 	RegistryDomain             string
 }
 
@@ -62,6 +64,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			DNSIP:                      config.DNSIP,
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
+			RawAppDefaultConfig:        config.RawAppDefaultConfig,
+			RawAppOverrideConfig:       config.RawAppOverrideConfig,
 			RegistryDomain:             config.RegistryDomain,
 		}
 

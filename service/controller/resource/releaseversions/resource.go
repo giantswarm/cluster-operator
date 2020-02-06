@@ -1,4 +1,4 @@
-package operatorversions
+package releaseversions
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	Name = "operatorversions"
+	Name = "releaseversions"
 )
 
 type Config struct {
@@ -70,6 +70,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	var versionBundles []versionbundle.Bundle
+	var apps []versionbundle.App
 	{
 		req := searcher.Request{
 			ReleaseVersion: key.ReleaseVersion(&cr),
@@ -79,8 +80,26 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		if err != nil {
 			return microerror.Mask(err)
 		}
+		if len(res.Apps) == 0 {
+			return microerror.Maskf(executionFailedError, "no apps found for release %#q", req.ReleaseVersion)
+		}
 
+		apps = res.Apps
 		versionBundles = res.VersionBundles
+	}
+
+	{
+		if cc.Status.Apps == nil {
+			cc.Status.Apps = make([]controllercontext.App, 0)
+		}
+		for _, app := range apps {
+			a := controllercontext.App{
+				App:              app.App,
+				ComponentVersion: app.ComponentVersion,
+				Version:          app.Version,
+			}
+			cc.Status.Apps = append(cc.Status.Apps, a)
+		}
 	}
 
 	{

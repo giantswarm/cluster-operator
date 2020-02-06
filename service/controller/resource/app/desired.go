@@ -40,7 +40,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	var apps []*g8sv1alpha1.App
 
-	for _, appSpec := range r.newAppSpecs() {
+	appSpecs, err := r.newAppSpecs(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
@@ -145,17 +150,41 @@ func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, 
 	}
 }
 
-func (r *Resource) newAppSpecs() []key.AppSpec {
-	switch r.provider {
-	case "aws":
-		return append(key.CommonAppSpecs(), key.AWSAppSpecs()...)
-	case "azure":
-		return append(key.CommonAppSpecs(), key.AzureAppSpecs()...)
-	case "kvm":
-		return append(key.CommonAppSpecs(), key.KVMAppSpecs()...)
-	default:
-		return key.CommonAppSpecs()
+func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
+
+	var specs []key.AppSpec
+
+	for _, app := range cc.Status.Apps {
+		spec := key.AppSpec{
+			App:             app.App,
+			Catalog:         r.defaultConfig.Catalog,
+			Chart:           fmt.Sprintf("%s-app", app.App),
+			Namespace:       r.defaultConfig.Namespace,
+			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
+			Version:         app.Version,
+		}
+		// For some apps we can't use default settings. We check ConfigExceptions map
+		// for these differences.
+		// We are looking into ConfigException map to see if this chart is the case.
+		if val, ok := r.overrideConfig[app.App]; ok {
+			if val.Chart != "" {
+				spec.Chart = val.Chart
+			}
+			if val.Namespace != "" {
+				spec.Namespace = val.Namespace
+			}
+			if val.UseUpgradeForce != nil {
+				spec.UseUpgradeForce = *val.UseUpgradeForce
+			}
+		}
+
+		specs = append(specs, spec)
+	}
+	return specs, nil
 }
 
 func newUserConfig(cr apiv1alpha2.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
