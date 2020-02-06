@@ -89,11 +89,11 @@ func CommonAppSpecs() []AppSpec {
 			// chart-operator must be installed first so the chart CRD is
 			// created in the tenant cluster.
 			App:             "chart-operator",
-			Catalog:         "default",
+			Catalog:         "default-test",
 			Chart:           "chart-operator",
 			Namespace:       "giantswarm",
 			UseUpgradeForce: true,
-			Version:         "0.11.3",
+			Version:         "0.11.4-5c13aad15017e530110e96ab09965a6412f53320",
 		},
 		{
 			// coredns must be installed second as its a requirement for other
