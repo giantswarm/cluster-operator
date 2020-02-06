@@ -9,10 +9,10 @@ func VersionBundle(p string) versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Add resource implementation to update infrastructure reference labels.",
-				Kind:        versionbundle.KindFixed,
+				Description: "Moved default app list from cluster-operator code to release repository.",
+				Kind:        versionbundle.KindChanged,
 				URLs: []string{
-					"https://github.com/giantswarm/cluster-operator/pull/888",
+					"https://github.com/giantswarm/cluster-operator/pull/889",
 				},
 			},
 		},
