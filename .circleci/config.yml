@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@0.4.3
+  architect: giantswarm/architect@0.4.5
 
 jobs:
   build:
@@ -47,8 +47,6 @@ workflows:
             - build
           # Needed to prevent job from being triggered on legacy branch.
           filters:
-            branches:
-              ignore: legacy
             tags:
               ignore: /^v.*/
 
@@ -62,8 +60,6 @@ workflows:
           requires:
             - hold-push-cluster-operator-to-aliyun-pr
           filters:
-            branches:
-              ignore: legacy
             tags:
               ignore: /^v.*/
 
