@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@0.4.3
+  architect: giantswarm/architect@0.4.5
 
 jobs:
   build:
@@ -41,17 +41,6 @@ workflows:
             tags:
               only: /^v.*/
 
-      - hold-push-cluster-operator-to-aliyun-pr:
-          type: approval
-          requires:
-            - build
-          # Needed to prevent job from being triggered on legacy branch.
-          filters:
-            branches:
-              ignore: legacy
-            tags:
-              ignore: /^v.*/
-
       # build and push docker image to aliyun (only PRs branches)
       - architect/push-to-docker:
           name: push-cluster-operator-to-aliyun-pr
@@ -60,10 +49,8 @@ workflows:
           password_envar: "ALIYUN_PASSWORD"
           # requires manual approval
           requires:
-            - hold-push-cluster-operator-to-aliyun-pr
+            - build
           filters:
-            branches:
-              ignore: legacy
             tags:
               ignore: /^v.*/
 
