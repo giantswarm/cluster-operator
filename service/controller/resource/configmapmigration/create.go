@@ -37,6 +37,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if cc.Status.TenantCluster.IsUnavailable {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	chartSpecsToMigrate := r.newChartSpecsToMigrate()
 
 	if len(chartSpecsToMigrate) == 0 {
@@ -52,11 +63,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Get all configmaps in the cluster namespace.
 	clusterConfigMaps, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(cr)).List(metav1.ListOptions{})
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
-	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return microerror.Mask(err)
 	}

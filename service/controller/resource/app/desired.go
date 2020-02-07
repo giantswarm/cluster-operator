@@ -2,10 +2,8 @@ package app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
-	"time"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -58,29 +56,27 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, nil
 	}
 
+	if cc.Status.TenantCluster.IsUnavailable {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	}
+
 	listOptions := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
-
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
 
 	// Get all configmaps in kube-system in the tenant cluster to ensure user
 	// configmaps have been migrated.
 	list, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
 	if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
-	}
-	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting tenant configmaps")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
 	}
 
 	tenantConfigMaps := map[string]corev1.ConfigMap{}

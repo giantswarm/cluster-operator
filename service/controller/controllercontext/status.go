@@ -1,7 +1,12 @@
 package controllercontext
 
 type ContextStatus struct {
-	Worker ContextStatusWorker
+	TenantCluster ContextStatusTenantCluster
+	Worker        ContextStatusWorker
+}
+
+type ContextStatusTenantCluster struct {
+	IsUnavailable bool
 }
 
 type ContextStatusWorker struct {
