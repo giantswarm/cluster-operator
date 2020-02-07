@@ -41,15 +41,6 @@ workflows:
             tags:
               only: /^v.*/
 
-      - hold-push-cluster-operator-to-aliyun-pr:
-          type: approval
-          requires:
-            - build
-          # Needed to prevent job from being triggered on legacy branch.
-          filters:
-            tags:
-              ignore: /^v.*/
-
       # build and push docker image to aliyun (only PRs branches)
       - architect/push-to-docker:
           name: push-cluster-operator-to-aliyun-pr
@@ -58,7 +49,7 @@ workflows:
           password_envar: "ALIYUN_PASSWORD"
           # requires manual approval
           requires:
-            - hold-push-cluster-operator-to-aliyun-pr
+            - build
           filters:
             tags:
               ignore: /^v.*/
