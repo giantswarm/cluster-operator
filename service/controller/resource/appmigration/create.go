@@ -92,6 +92,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		}
+	default:
+		// Fall through.
 	}
 
 	res := <-ch
