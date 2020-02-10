@@ -7,11 +7,11 @@ import (
 var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "cluster-operator",
-			Description: "TODO",
+			Component:   "nginx-ingress-controller",
+			Description: "Support user overrides of all NGINX configmap settings.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"",
+				"https://github.com/giantswarm/nginx-ingress-controller-app/blob/master/CHANGELOG.md#v140-2020-02-10",
 			},
 		},
 	},

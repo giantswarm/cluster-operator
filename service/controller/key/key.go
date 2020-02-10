@@ -147,7 +147,7 @@ func CommonAppSpecs() []AppSpec {
 			// Upgrade force is disabled to avoid dropping customer traffic
 			// that is using the Ingress Controller.
 			UseUpgradeForce: false,
-			Version:         "1.3.0",
+			Version:         "1.4.0",
 		},
 		{
 			App:             "node-exporter",
