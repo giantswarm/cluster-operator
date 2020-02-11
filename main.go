@@ -121,6 +121,9 @@ func mainE() error {
 
 	daemonCommand.PersistentFlags().String(f.Service.Provider.Kind, "", "Provider of the installation. One of aws, azure, kvm.")
 
+	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Default, "", "Default properties for app in YAML format.")
+	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Override, "", "Overriding properties for app in YAML format.")
+
 	newCommand.CobraCommand().Execute()
 
 	return nil

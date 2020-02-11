@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -41,6 +42,7 @@ type resourceSetConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
 	CertSearcher      certs.Interface
+	ClusterClient     *clusterclient.Client
 	Fs                afero.Fs
 	K8sClient         k8sclient.Interface
 	Logger            micrologger.Logger
@@ -52,6 +54,8 @@ type resourceSetConfig struct {
 	HandledVersionBundles []string
 	ProjectName           string
 	Provider              string
+	RawAppDefaultConfig   string
+	RawAppOverrideConfig  string
 	RegistryDomain        string
 	ResourceNamespace     string
 }
@@ -59,6 +63,9 @@ type resourceSetConfig struct {
 func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
+	if config.ClusterClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterClient must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "config.K8sClient must not be empty")
 	}
@@ -72,13 +79,16 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
+			ClusterClient:            config.ClusterClient,
 			G8sClient:                config.K8sClient.G8sClient(),
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 
-			Provider: config.Provider,
+			Provider:             config.Provider,
+			RawAppDefaultConfig:  config.RawAppDefaultConfig,
+			RawAppOverrideConfig: config.RawAppOverrideConfig,
 		}
 
 		appGetter, err = app.New(c)

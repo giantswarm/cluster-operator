@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"gopkg.in/resty.v1"
 	"net"
 	"sync"
 	"time"
@@ -9,6 +10,7 @@ import (
 	corev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -124,6 +126,22 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var clusterClient *clusterclient.Client
+	{
+		c := clusterclient.Config{
+			Address: config.Viper.GetString(config.Flag.Service.ClusterService.Address),
+			Logger:  config.Logger,
+
+			// Timeout & RetryCount are straight from `api/service/service.go`.
+			RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
+		}
+
+		clusterClient, err = clusterclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
@@ -171,18 +189,21 @@ func New(config Config) (*Service, error) {
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
+			ClusterClient:     clusterClient,
 			Fs:                afero.NewOsFs(),
 			K8sClient:         k8sClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ClusterIPRange:     clusterIPRange,
-			ProjectName:        project.Name(),
-			RegistryDomain:     registryDomain,
-			Provider:           provider,
-			ResourceNamespace:  resourceNamespace,
+			CalicoAddress:        calicoAddress,
+			CalicoPrefixLength:   calicoPrefixLength,
+			ClusterIPRange:       clusterIPRange,
+			ProjectName:          project.Name(),
+			RegistryDomain:       registryDomain,
+			Provider:             provider,
+			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+			RawAppOverrideConfig: config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
+			ResourceNamespace:    resourceNamespace,
 		}
 
 		awsLegacyClusterController, err = aws.NewLegacyCluster(c)
@@ -202,18 +223,21 @@ func New(config Config) (*Service, error) {
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
+			ClusterClient:     clusterClient,
 			Fs:                afero.NewOsFs(),
 			K8sClient:         k8sClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ClusterIPRange:     clusterIPRange,
-			ProjectName:        project.Name(),
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
+			CalicoAddress:        calicoAddress,
+			CalicoPrefixLength:   calicoPrefixLength,
+			ClusterIPRange:       clusterIPRange,
+			ProjectName:          project.Name(),
+			Provider:             provider,
+			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+			RawAppOverrideConfig: config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
+			RegistryDomain:       registryDomain,
+			ResourceNamespace:    resourceNamespace,
 		}
 
 		azureLegacyClusterController, err = azure.NewLegacyCluster(c)
@@ -233,18 +257,21 @@ func New(config Config) (*Service, error) {
 			ApprClient:        apprClient,
 			BaseClusterConfig: baseClusterConfig,
 			CertSearcher:      certsSearcher,
+			ClusterClient:     clusterClient,
 			Fs:                afero.NewOsFs(),
 			K8sClient:         k8sClient,
 			Logger:            config.Logger,
 			Tenant:            tenantCluster,
 
-			CalicoAddress:      calicoAddress,
-			CalicoPrefixLength: calicoPrefixLength,
-			ClusterIPRange:     clusterIPRange,
-			ProjectName:        project.Name(),
-			Provider:           provider,
-			RegistryDomain:     registryDomain,
-			ResourceNamespace:  resourceNamespace,
+			CalicoAddress:        calicoAddress,
+			CalicoPrefixLength:   calicoPrefixLength,
+			ClusterIPRange:       clusterIPRange,
+			ProjectName:          project.Name(),
+			Provider:             provider,
+			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+			RawAppOverrideConfig: config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
+			RegistryDomain:       registryDomain,
+			ResourceNamespace:    resourceNamespace,
 		}
 
 		kvmLegacyClusterController, err = kvm.NewLegacyCluster(c)

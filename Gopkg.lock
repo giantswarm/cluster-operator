@@ -147,6 +147,52 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:aa57277f3d6ffec9858db86d191efd0194be4eb3a9fe376423d8e133de809625"
+  name = "github.com/giantswarm/clusterclient"
+  packages = [
+    ".",
+    "service/cluster",
+    "service/cluster/creator",
+    "service/cluster/creator/request",
+    "service/cluster/creator/request/aws",
+    "service/cluster/creator/request/azure",
+    "service/cluster/creator/response",
+    "service/cluster/deleter",
+    "service/cluster/deleter/config",
+    "service/cluster/lister",
+    "service/cluster/lister/config",
+    "service/cluster/searcher",
+    "service/cluster/searcher/request",
+    "service/cluster/searcher/response",
+    "service/cluster/searcher/response/aws",
+    "service/cluster/searcher/response/azure",
+    "service/cluster/searcher/response/kvm",
+    "service/cluster/updater",
+    "service/cluster/updater/config",
+    "service/cluster/updater/config/aws",
+    "service/cluster/updater/config/azure",
+    "service/info",
+    "service/info/aws",
+    "service/info/aws/response",
+    "service/info/azure",
+    "service/info/azure/response",
+    "service/info/kvm",
+    "service/info/kvm/response",
+    "service/keypair",
+    "service/keypair/creator",
+    "service/keypair/creator/config",
+    "service/keypair/lister",
+    "service/keypair/lister/config",
+    "service/release",
+    "service/release/lister",
+    "service/release/searcher",
+    "service/root",
+  ]
+  pruneopts = "UT"
+  revision = "6c6f565f94c79e0b69dc1cf73d9e3f57c5cd14f1"
+
+[[projects]]
+  branch = "master"
   digest = "1:884bdbe11ea256c792d19f4cac235c0943d30353b08755b017960932f3e2e588"
   name = "github.com/giantswarm/errors"
   packages = ["tenant"]
@@ -180,6 +226,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "c5784ae65a4927e2e6a0158b4d67b7f1e75dfbc3"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d36b8416dae93d8bd866dd958954b86cf28f5d62b2be18ac59fb5a0721b776ea"
+  name = "github.com/giantswarm/microclient"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "459b479d046f262eadb1549a4789d04097bd8b23"
 
 [[projects]]
   branch = "master"
@@ -295,12 +349,11 @@
   revision = "cd94540b7d5a064d0b106387f85078c0031271d9"
 
 [[projects]]
-  digest = "1:9db6e7ab54d909d92bebfec495fd679bd3af1a6ba0b22d7da72edb23347dddb9"
+  digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
   name = "github.com/go-kit/kit"
   packages = [
     "endpoint",
     "log",
-    "transport",
     "transport/http",
   ]
   pruneopts = "UT"
@@ -1154,6 +1207,7 @@
   input-imports = [
     "github.com/Azure/go-autorest/autorest",
     "github.com/docker/distribution/reference",
+    "github.com/ghodss/yaml",
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1",
     "github.com/giantswarm/apiextensions/pkg/clientset/versioned",
@@ -1161,6 +1215,8 @@
     "github.com/giantswarm/apprclient",
     "github.com/giantswarm/certs",
     "github.com/giantswarm/certs/certstest",
+    "github.com/giantswarm/clusterclient",
+    "github.com/giantswarm/clusterclient/service/release/searcher",
     "github.com/giantswarm/errors/tenant",
     "github.com/giantswarm/k8sclient",
     "github.com/giantswarm/k8sclient/k8srestconfig",
@@ -1190,6 +1246,7 @@
     "github.com/google/go-cmp/cmp",
     "github.com/spf13/afero",
     "github.com/spf13/viper",
+    "gopkg.in/resty.v1",
     "gopkg.in/yaml.v2",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",

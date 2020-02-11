@@ -40,3 +40,8 @@ data:
           keyFile: ''
       provider:
         kind: '{{ .Values.Installation.V1.Provider.Kind }}'
+      release:
+        app:
+          config:
+            default: {{ toYaml .Values.Installation.V1.GiantSwarm.Release.App.Config.Default | indent 12 }}
+            override: {{ toYaml .Values.Installation.V1.GiantSwarm.Release.App.Config.Override | indent 12 }}

@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
 	"github.com/giantswarm/certs"
+	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -23,18 +24,21 @@ type LegacyClusterConfig struct {
 	ApprClient        *apprclient.Client
 	BaseClusterConfig *cluster.Config
 	CertSearcher      certs.Interface
+	ClusterClient     *clusterclient.Client
 	Fs                afero.Fs
 	K8sClient         k8sclient.Interface
 	Logger            micrologger.Logger
 	Tenant            tenantcluster.Interface
 
-	CalicoAddress      string
-	CalicoPrefixLength string
-	ClusterIPRange     string
-	ProjectName        string
-	Provider           string
-	RegistryDomain     string
-	ResourceNamespace  string
+	CalicoAddress        string
+	CalicoPrefixLength   string
+	ClusterIPRange       string
+	ProjectName          string
+	Provider             string
+	RawAppDefaultConfig  string
+	RawAppOverrideConfig string
+	RegistryDomain       string
+	ResourceNamespace    string
 }
 
 type LegacyCluster struct {
@@ -51,18 +55,21 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			ApprClient:        config.ApprClient,
 			BaseClusterConfig: config.BaseClusterConfig,
 			CertSearcher:      config.CertSearcher,
+			ClusterClient:     config.ClusterClient,
 			Fs:                config.Fs,
 			K8sClient:         config.K8sClient,
 			Logger:            config.Logger,
 			Tenant:            config.Tenant,
 
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			ProjectName:        config.ProjectName,
-			Provider:           config.Provider,
-			RegistryDomain:     config.RegistryDomain,
-			ResourceNamespace:  config.ResourceNamespace,
+			CalicoAddress:        config.CalicoAddress,
+			CalicoPrefixLength:   config.CalicoPrefixLength,
+			ClusterIPRange:       config.ClusterIPRange,
+			ProjectName:          config.ProjectName,
+			Provider:             config.Provider,
+			RawAppDefaultConfig:  config.RawAppDefaultConfig,
+			RawAppOverrideConfig: config.RawAppOverrideConfig,
+			RegistryDomain:       config.RegistryDomain,
+			ResourceNamespace:    config.ResourceNamespace,
 		}
 
 		resourceSet, err = newResourceSet(c)
