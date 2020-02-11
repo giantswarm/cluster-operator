@@ -3,7 +3,6 @@ package appmigration
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -68,37 +67,29 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
-	ch := make(chan response)
+	ch := make(chan struct{})
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
+	var chartConfigs *v1alpha1.ChartConfigList
 
 	go func() {
-		chartConfigs, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
-		ch <- response{
-			ChartConfigs: chartConfigs.Items,
-			Error:        err,
-		}
+		chartConfigs, err = cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+		close(ch)
 	}()
 
-	var res = response{}
-
 	select {
-	case res = <-ch:
+	case <-ch:
 		// Fall through.
-	case <-ctx.Done():
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			// Set status so we don't try to connect to the tenant cluster
-			// again in this reconciliation loop.
-			cc.Status.TenantCluster.IsUnavailable = true
+	case <-time.After(3 * time.Second):
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig crs")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig crs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
 	}
 
-	if tenant.IsAPINotAvailable(res.Error) {
+	if tenant.IsAPINotAvailable(err) {
 		// Set status so we don't try to connect to the tenant cluster
 		// again in this reconciliation loop.
 		cc.Status.TenantCluster.IsUnavailable = true
@@ -106,22 +97,22 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
-	} else if pkgerrors.IsChartConfigNotAvailable(res.Error) {
+	} else if pkgerrors.IsChartConfigNotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRs are not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
-	} else if pkgerrors.IsChartConfigNotInstalled(res.Error) {
+	} else if pkgerrors.IsChartConfigNotInstalled(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
-	} else if res.Error != nil {
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	for _, chartSpec := range chartSpecsToMigrate {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding out if chartconfig CR %#q has been migrated", chartSpec.ChartName))
 
-		chartCR, err := getChartConfigByName(res.ChartConfigs, chartSpec.ChartName)
+		chartCR, err := getChartConfigByName(chartConfigs.Items, chartSpec.ChartName)
 		if IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("chartconfig CR %#q has been migrated, continuing", chartSpec.ChartName))
 			continue
