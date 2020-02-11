@@ -43,20 +43,6 @@ type Resource struct {
 	provider       string
 }
 
-type defaultConfig struct {
-	Catalog         string `json:"catalog"`
-	Namespace       string `json:"namespace"`
-	UseUpgradeForce bool   `json:"useUpgradeForce"`
-}
-
-type overrideProperties struct {
-	Chart           string `json:"chart"`
-	Namespace       string `json:"namespace"`
-	UseUpgradeForce *bool  `json:"useUpgradeForce,omitempty"`
-}
-
-type overrideConfig map[string]overrideProperties
-
 // New creates a new chartconfig service.
 func New(config Config) (*Resource, error) {
 	if config.ClusterClient == nil {
