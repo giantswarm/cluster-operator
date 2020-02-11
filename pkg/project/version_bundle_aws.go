@@ -8,10 +8,10 @@ var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "cluster-operator",
-			Description: "Move default app list from cluster-operator code to release repository.",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/889",
+				"",
 			},
 		},
 	},
