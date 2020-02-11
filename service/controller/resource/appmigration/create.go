@@ -68,7 +68,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
-	ch := make(chan response, 1)
+	ch := make(chan response)
 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
@@ -81,7 +81,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}()
 
+	var res = response{}
+
 	select {
+	case res = <-ch:
+		// Fall through.
 	case <-ctx.Done():
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			// Set status so we don't try to connect to the tenant cluster
@@ -92,11 +96,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		}
-	default:
-		// Fall through.
 	}
-
-	res := <-ch
 
 	if tenant.IsAPINotAvailable(res.Error) {
 		// Set status so we don't try to connect to the tenant cluster

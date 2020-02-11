@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -77,9 +76,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
 	// Get all chartconfig CRs in the tenant cluster. The migration needs to
 	// complete before we create app CRs. So we cancel the entire loop on error.
 	chartConfigs, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
@@ -97,11 +93,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
-	}
-	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
 	}
 
 	// Get all configmaps in kube-system in the tenant cluster. The migration needs to
