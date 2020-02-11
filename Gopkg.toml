@@ -52,6 +52,10 @@ required = [
   branch = "master"
 
 [[constraint]]
+  name = "github.com/giantswarm/clusterclient"
+  branch = "master"
+
+[[constraint]]
   name = "github.com/giantswarm/errors"
   branch = "master"
 
@@ -93,6 +97,10 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/tenantcluster"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/giantswarm/versionbundle"
   branch = "master"
 
 [[constraint]]
