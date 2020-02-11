@@ -9,6 +9,7 @@ import (
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/clusterclient/service/release/searcher"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -18,11 +19,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	awskey "github.com/giantswarm/cluster-operator/service/controller/aws/key"
-	azurekey "github.com/giantswarm/cluster-operator/service/controller/azure/key"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	kvmkey "github.com/giantswarm/cluster-operator/service/controller/kvm/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
@@ -90,8 +88,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	var apps []*g8sv1alpha1.App
+	appSpecs, err := r.newAppSpecs(ctx, clusterConfig)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	for _, appSpec := range r.newAppSpecs() {
+	for _, appSpec := range appSpecs {
 		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, tenantConfigMaps, secrets)
 		if IsNotMigratedError(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q user values not migrated yet, continuing", appSpec.App))
@@ -203,17 +205,48 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 	}
 }
 
-func (r *Resource) newAppSpecs() []key.AppSpec {
-	switch r.provider {
-	case "aws":
-		return append(key.CommonAppSpecs(), awskey.AppSpecs()...)
-	case "azure":
-		return append(key.CommonAppSpecs(), azurekey.AppSpecs()...)
-	case "kvm":
-		return append(key.CommonAppSpecs(), kvmkey.AppSpecs()...)
-	default:
-		return key.CommonAppSpecs()
+func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConfig) ([]key.AppSpec, error) {
+	req := searcher.Request{
+		ReleaseVersion: cr.ReleaseVersion,
 	}
+
+	res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	if len(res.Apps) == 0 {
+		return nil, microerror.Maskf(executionFailedError, "no apps in release %#q", req.ReleaseVersion)
+	}
+
+	var specs []key.AppSpec
+
+	for _, app := range res.Apps {
+		spec := key.AppSpec{
+			App:             app.App,
+			Catalog:         r.defaultConfig.Catalog,
+			Chart:           fmt.Sprintf("%s-app", app.App),
+			Namespace:       r.defaultConfig.Namespace,
+			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
+			Version:         app.Version,
+		}
+		// For some apps we can't use default settings. We check ConfigExceptions map
+		// for these differences.
+		// We are looking into ConfigException map to see if this chart is the case.
+		if val, ok := r.overrideConfig[app.App]; ok {
+			if val.Chart != "" {
+				spec.Chart = val.Chart
+			}
+			if val.Namespace != "" {
+				spec.Namespace = val.Namespace
+			}
+			if val.UseUpgradeForce != nil {
+				spec.UseUpgradeForce = *val.UseUpgradeForce
+			}
+		}
+
+		specs = append(specs, spec)
+	}
+	return specs, nil
 }
 
 func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps, tenantConfigMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) (g8sv1alpha1.AppSpecUserConfig, error) {
