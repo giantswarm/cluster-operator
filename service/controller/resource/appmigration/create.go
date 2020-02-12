@@ -3,7 +3,6 @@ package appmigration
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -68,12 +67,34 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
+	ch := make(chan struct{})
 
-	chartConfigs, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+	var chartConfigs *v1alpha1.ChartConfigList
+
+	go func() {
+		chartConfigs, err = cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+		close(ch)
+	}()
+
+	select {
+	case <-ch:
+		// Fall through.
+	case <-time.After(3 * time.Second):
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig crs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available yet")
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
 	} else if pkgerrors.IsChartConfigNotAvailable(err) {
@@ -86,11 +107,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
-	}
-	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
 	}
 
 	for _, chartSpec := range chartSpecsToMigrate {

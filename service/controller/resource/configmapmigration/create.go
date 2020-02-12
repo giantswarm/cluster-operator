@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -37,6 +36,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	}
 
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if cc.Status.TenantCluster.IsUnavailable {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
+	}
+
 	chartSpecsToMigrate := r.newChartSpecsToMigrate()
 
 	if len(chartSpecsToMigrate) == 0 {
@@ -56,11 +66,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	if cc.Client.TenantCluster.G8s == nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
@@ -70,9 +75,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	listOptions := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
-
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
 
 	// Get all chartconfig CRs in the tenant cluster. The migration needs to
 	// complete before we create app CRs. So we cancel the entire loop on error.
@@ -91,11 +93,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
-	}
-	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig CRs")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
 	}
 
 	// Get all configmaps in kube-system in the tenant cluster. The migration needs to
