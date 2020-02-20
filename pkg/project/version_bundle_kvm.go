@@ -8,10 +8,10 @@ var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "cluster-operator",
-			Description: "TODO",
+			Description: "Linking a custom configMaps for default apps",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"",
+				"https://github.com/giantswarm/cluster-operator/pull/924",
 			},
 		},
 	},
