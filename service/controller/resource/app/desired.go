@@ -240,6 +240,11 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 			}
 		}
 
+		// Nginx Ingress Controller uses its own configmap that includes the number of workers.
+		if app.App == "nginx-ingress-controller" {
+			spec.ConfigMapName = key.IngressControllerConfigMapName
+		}
+
 		specs = append(specs, spec)
 	}
 	return specs, nil
