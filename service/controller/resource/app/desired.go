@@ -242,7 +242,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 
 		// legacy cluster requires to link nginx with a custom configmap.
 		if app.App == "nginx-ingress-controller" {
-			spec.ConfigMapName = "ingress-controller-values"
+			spec.ConfigMapName = key.IngressControllerConfigMapName
 		}
 
 		specs = append(specs, spec)
