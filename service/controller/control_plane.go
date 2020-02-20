@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 )
@@ -49,7 +48,7 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 				resourceSet,
 			},
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha2.Cluster)
+				return new(infrastructurev1alpha2.G8sControlPlane)
 			},
 
 			// Name is used to compute finalizer names. This here results in something
