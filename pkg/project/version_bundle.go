@@ -19,6 +19,6 @@ func VersionBundle(p string) versionbundle.Bundle {
 		Components: []versionbundle.Component{},
 		Name:       "cluster-operator",
 		Provider:   p,
-		Version:    BundleVersion(),
+		Version:    Version(),
 	}
 }
