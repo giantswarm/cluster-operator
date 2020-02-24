@@ -21,8 +21,8 @@
 
 
 
-[[override]]
-  branch = "fix-cp-schema"
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/apiextensions"
 
 [[constraint]]
