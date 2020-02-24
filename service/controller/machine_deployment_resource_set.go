@@ -20,6 +20,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
@@ -48,6 +49,21 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		}
 
 		baseDomainResource, err = basedomain.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var keepForInfraRefsResource resource.Interface
+	{
+		c := keepforinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toMachineDeploymentObjRef,
+		}
+
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -132,7 +148,11 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		tenantClientsResource,
 		workerCountResource,
 
-		// Following resources manage CR status information.
+		// Following resources manage CR status information. Note that
+		// keepForInfraRefsResource needs to run before
+		// machineDeploymentStatusResource because keepForInfraRefsResource keeps
+		// finalizers where machineDeploymentStatusResource does not.
+		keepForInfraRefsResource,
 		machineDeploymentStatusResource,
 
 		// Following resources manage resources in the control plane.

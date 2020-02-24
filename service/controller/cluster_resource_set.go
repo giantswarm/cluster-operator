@@ -34,6 +34,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
@@ -280,6 +281,21 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	var keepForInfraRefsResource resource.Interface
+	{
+		c := keepforinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toClusterObjRef,
+		}
+
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var kubeConfigGetter secretresource.StateGetter
 	{
 		c := kubeconfig.Config{
@@ -407,6 +423,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		appResource,
 		updateMachineDeploymentsResource,
 		updateInfraRefsResource,
+		keepForInfraRefsResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,

@@ -10,11 +10,12 @@ import (
 	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 )
 
 // controlPlaneResourceSetConfig contains necessary dependencies and settings for
@@ -29,24 +30,23 @@ type controlPlaneResourceSetConfig struct {
 func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
-	// TODO this resource must be replaced with some real resource. This is just a
-	// stub for now.
-	var workerCountResource resource.Interface
+	var keepForInfraRefsResource resource.Interface
 	{
-		c := workercount.Config{
-			Logger: config.Logger,
+		c := keepforinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 
-			ToClusterFunc: toClusterFunc,
+			ToObjRef: toG8sControlPlaneObjRef,
 		}
 
-		workerCountResource, err = workercount.New(c)
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []resource.Interface{
-		workerCountResource,
+		keepForInfraRefsResource,
 	}
 
 	// Wrap resources with retry and metrics.
@@ -103,4 +103,13 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 	}
 
 	return resourceSet, nil
+}
+
+func toG8sControlPlaneObjRef(obj interface{}) (corev1.ObjectReference, error) {
+	cr, err := key.ToG8sControlPlane(obj)
+	if err != nil {
+		return corev1.ObjectReference{}, microerror.Mask(err)
+	}
+
+	return key.ObjRefFromG8sControlPlane(cr), nil
 }
