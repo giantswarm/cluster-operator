@@ -281,7 +281,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var keepForInfraRegsResource resource.Interface
+	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
 			K8sClient: config.K8sClient,
@@ -290,7 +290,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			ToObjRef: toClusterObjRef,
 		}
 
-		keepForInfraRegsResource, err = keepforinfrarefs.New(c)
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -423,7 +423,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		appResource,
 		updateMachineDeploymentsResource,
 		updateInfraRefsResource,
-		keepForInfraRegsResource,
+		keepForInfraRefsResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,

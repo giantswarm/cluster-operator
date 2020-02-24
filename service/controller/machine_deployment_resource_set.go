@@ -54,7 +54,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		}
 	}
 
-	var keepForInfraRegsResource resource.Interface
+	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
 			K8sClient: config.K8sClient,
@@ -63,7 +63,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 			ToObjRef: toMachineDeploymentObjRef,
 		}
 
-		keepForInfraRegsResource, err = keepforinfrarefs.New(c)
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -150,7 +150,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 
 		// Following resources manage CR status information.
 		machineDeploymentStatusResource,
-		keepForInfraRegsResource,
+		keepForInfraRefsResource,
 
 		// Following resources manage resources in the control plane.
 		updateInfraRefsResource,

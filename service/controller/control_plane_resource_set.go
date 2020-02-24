@@ -30,7 +30,7 @@ type controlPlaneResourceSetConfig struct {
 func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
 
-	var keepForInfraRegsResource resource.Interface
+	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
 			K8sClient: config.K8sClient,
@@ -39,14 +39,14 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 			ToObjRef: toG8sControlPlaneObjRef,
 		}
 
-		keepForInfraRegsResource, err = keepforinfrarefs.New(c)
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
 	resources := []resource.Interface{
-		keepForInfraRegsResource,
+		keepForInfraRefsResource,
 	}
 
 	// Wrap resources with retry and metrics.
