@@ -148,9 +148,12 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 		tenantClientsResource,
 		workerCountResource,
 
-		// Following resources manage CR status information.
-		machineDeploymentStatusResource,
+		// Following resources manage CR status information. Note that
+		// keepForInfraRefsResource needs to run before
+		// machineDeploymentStatusResource because keepForInfraRefsResource keeps
+		// finalizers where machineDeploymentStatusResource does not.
 		keepForInfraRefsResource,
+		machineDeploymentStatusResource,
 
 		// Following resources manage resources in the control plane.
 		updateInfraRefsResource,
