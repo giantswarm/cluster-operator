@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "fix-cp-schema"
-  digest = "1:7127c8ca735956e4633767ac5ac0c80817861ffe508cfd0904f1589d3969cbaf"
+  digest = "1:114800a68b6cbcc0b7a3d22adb7b6f6652d12085bf367cef4f392c3ae27eacdf"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "a9e5b90a124dde85b9414353573d2e389380c071"
+  revision = "b9a3c4ab1705296f2fcaeeca1a2a1dc99818f2ee"
 
 [[projects]]
   branch = "master"

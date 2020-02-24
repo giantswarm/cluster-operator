@@ -35,10 +35,6 @@ spec:
         properties:
           spec:
             properties:
-              availabilityZones:
-                items:
-                  type: string
-                type: array
               instanceType:
                 type: string
             type: object

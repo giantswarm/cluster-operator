@@ -36,17 +36,6 @@ spec:
             properties:
               replicas:
                 type: int
-              infrastructureRef:
-                properties:
-                  kind:
-                    type: string
-                  namespace:
-                    type: string
-                  name:
-                    type: string
-                  apiVersion:
-                    type: string
-                type: object
             type: object
   - name: v1alpha2
     served: true
