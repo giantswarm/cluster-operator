@@ -58,8 +58,8 @@
   revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
-  branch = "master"
-  digest = "1:c1897e8476d8c81feef6d5f77948b4a258958cec2afb0d14bc5461ef751b7b48"
+  branch = "fix-cp-schema"
+  digest = "1:7127c8ca735956e4633767ac5ac0c80817861ffe508cfd0904f1589d3969cbaf"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "d6884ee11480721e3a6f6a2449a130c3f1de9ba7"
+  revision = "a9e5b90a124dde85b9414353573d2e389380c071"
 
 [[projects]]
   branch = "master"
@@ -653,11 +653,11 @@
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "1ad67e1f0ef495d4014b6ffd8f2cf80f91fffbce"
+  revision = "2aa609cf4a9d7d1126360de73b55b6002f9e052a"
 
 [[projects]]
   branch = "master"
-  digest = "1:1cabaa095275883d57d45ead4b10b3e45473e2e14e6bb38406ca21d6c6fd50d2"
+  digest = "1:2ae1445cff31b9c820b7183be7d4e26e38069c7a9337204e31cd16b14106c794"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -669,7 +669,7 @@
     "publicsuffix",
   ]
   pruneopts = "UT"
-  revision = "46282727080fcf56da5781d0a9ef2fda184be5e6"
+  revision = "5a598a2470a0279bd28bab287167dc1ef0813153"
 
 [[projects]]
   branch = "master"
@@ -692,14 +692,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f5cc4214d190756c642b2b78503edeb58ea5c9e426986d68ff63a393325f9c97"
+  digest = "1:e6f3eca022d18ff28112534a46d8bad7400b1523724061dff2d1bfc737bee376"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "cb0a6d8edb6c3528b01a0be84a5fe513dbf880a6"
+  revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
