@@ -1,4 +1,4 @@
-package updateinfrarefs
+package keepforinfrarefs
 
 import (
 	"github.com/giantswarm/k8sclient"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "updateinfrarefs"
+	Name = "keepforinfrarefs"
 )
 
 type Config struct {
@@ -16,27 +16,18 @@ type Config struct {
 	Logger    micrologger.Logger
 
 	ToObjRef func(v interface{}) (corev1.ObjectReference, error)
-	Provider string
 }
 
 // Resource implements the operatorkit resource interface to ensure the
-// following version labels in our infrastructure CRs, e.g. AWSCluster
-// AWSMachineDeployments.
-//
-//     $PROVIDER-operator.giantswarm.io/version
-//     release.giantswarm.io/version
-//
-// The release version label is taken from the Cluster CR and propagated. The
-// provider operator version label is set with the value taken from the
-// controller context versions as defined for the current release. This process
-// ensures to distribute the right version labels among Giant Swarm
-// infrastructure CRs during Tenant Cluster upgrades.
+// reconciled runtime objects are kept until the runtime objects linked in their
+// infrastructure references are deleted. For instance the Cluster CR links to
+// an AWSCluster CR in its infrastructure reference. When a cluster is deleted
+// the Cluster CR must not be deleted as long as the AWSCluster CR exists.
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
 	toObjRef func(v interface{}) (corev1.ObjectReference, error)
-	provider string
 }
 
 func New(config Config) (*Resource, error) {
@@ -50,16 +41,12 @@ func New(config Config) (*Resource, error) {
 	if config.ToObjRef == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToObjRef must not be empty", config)
 	}
-	if config.Provider == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
-	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		toObjRef: config.ToObjRef,
-		provider: config.Provider,
 	}
 
 	return r, nil
