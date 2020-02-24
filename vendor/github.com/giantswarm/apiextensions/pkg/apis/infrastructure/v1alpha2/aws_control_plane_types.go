@@ -27,10 +27,21 @@ spec:
   subresources:
     status: {}
   versions:
-    - name: v1alpha2
-      served: true
-      storage: true
-      schema :
+  - name: v1alpha1
+    served: false
+    storage: false
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              instanceType:
+                type: string
+            type: object
+  - name: v1alpha2
+    served: true
+    storage: true
+    schema:
       openAPIV3Schema:
         properties:
           spec:
