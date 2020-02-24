@@ -223,7 +223,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		}
 
 		if val, ok := userOverrideConfigs[app.App]; ok {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding user app Config for %#q, applying it", app.App))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found an user app Config for %#q, applying it", app.App))
 			if val.Catalog != "" {
 				spec.Catalog = val.Catalog
 			}
