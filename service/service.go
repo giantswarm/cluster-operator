@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
-	"gopkg.in/resty.v1"
 	"net"
 	"sync"
 	"time"
+
+	"gopkg.in/resty.v1"
 
 	corev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
@@ -68,6 +69,7 @@ func New(config Config) (*Service, error) {
 	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
+	kubernetesDomain := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.Domain)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
 	resourceNamespace := config.Viper.GetString(config.Flag.Service.KubeConfig.Secret.Namespace)
 	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
@@ -198,6 +200,7 @@ func New(config Config) (*Service, error) {
 			CalicoAddress:        calicoAddress,
 			CalicoPrefixLength:   calicoPrefixLength,
 			ClusterIPRange:       clusterIPRange,
+			KubernetesDomain:     kubernetesDomain,
 			ProjectName:          project.Name(),
 			RegistryDomain:       registryDomain,
 			Provider:             provider,
@@ -232,6 +235,7 @@ func New(config Config) (*Service, error) {
 			CalicoAddress:        calicoAddress,
 			CalicoPrefixLength:   calicoPrefixLength,
 			ClusterIPRange:       clusterIPRange,
+			KubernetesDomain:     kubernetesDomain,
 			ProjectName:          project.Name(),
 			Provider:             provider,
 			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
@@ -266,6 +270,7 @@ func New(config Config) (*Service, error) {
 			CalicoAddress:        calicoAddress,
 			CalicoPrefixLength:   calicoPrefixLength,
 			ClusterIPRange:       clusterIPRange,
+			KubernetesDomain:     kubernetesDomain,
 			ProjectName:          project.Name(),
 			Provider:             provider,
 			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),

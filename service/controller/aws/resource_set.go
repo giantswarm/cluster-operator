@@ -52,6 +52,7 @@ type resourceSetConfig struct {
 	CalicoPrefixLength    string
 	ClusterIPRange        string
 	HandledVersionBundles []string
+	KubernetesDomain      string
 	ProjectName           string
 	Provider              string
 	RawAppDefaultConfig   string

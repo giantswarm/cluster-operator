@@ -156,6 +156,11 @@ func DNSIP(clusterIPRange string) (string, error) {
 	return ip.String(), nil
 }
 
+// DNSInternalZone returns internal domain for guest cluster.
+func DNSInternalZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
+	return clusterGuestConfig.DNSInternalZone
+}
+
 // DNSZone returns common domain for guest cluster.
 func DNSZone(clusterGuestConfig v1alpha1.ClusterGuestConfig) string {
 	return clusterGuestConfig.DNSZone

@@ -20,6 +20,7 @@ type Domain struct {
 	Etcd               string
 	FlanneldEtcdClient string
 	InternalAPI        string
+	InternalKubernetes string
 	NodeOperator       string
 	Prometheus         string
 	ServiceAccount     string

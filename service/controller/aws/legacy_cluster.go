@@ -33,6 +33,7 @@ type LegacyClusterConfig struct {
 	CalicoAddress        string
 	CalicoPrefixLength   string
 	ClusterIPRange       string
+	KubernetesDomain     string
 	ProjectName          string
 	Provider             string
 	RawAppDefaultConfig  string
@@ -64,6 +65,7 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			CalicoAddress:        config.CalicoAddress,
 			CalicoPrefixLength:   config.CalicoPrefixLength,
 			ClusterIPRange:       config.ClusterIPRange,
+			KubernetesDomain:     config.KubernetesDomain,
 			ProjectName:          config.ProjectName,
 			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
