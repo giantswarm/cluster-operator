@@ -63,6 +63,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			CertTTL:                    config.CertTTL,
 			ClusterIPRange:             config.ClusterIPRange,
 			DNSIP:                      config.DNSIP,
+			Domain:                     config.Domain,
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
 			RawAppDefaultConfig:        config.RawAppDefaultConfig,
