@@ -8,10 +8,10 @@ var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "cluster-operator",
-			Description: "Linking a custom configMaps for default apps",
+			Description: "Fix cluster deletion by gracefully handling Tenant Cluster API errors.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/924",
+				"https://github.com/giantswarm/cluster-operator/pull/936",
 			},
 		},
 	},
