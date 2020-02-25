@@ -28,6 +28,7 @@ type Config struct {
 
 	APIIP    string
 	CertTTL  string
+	Domain   string
 	Provider string
 }
 
@@ -38,6 +39,7 @@ type Resource struct {
 
 	apiIP    string
 	certTTL  string
+	domain   string
 	provider string
 }
 
@@ -56,6 +58,9 @@ func New(config Config) (*Resource, error) {
 	if config.CertTTL == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertTTL must not be empty", config)
 	}
+	if config.Domain == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Domain must not be empty", config)
+	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
@@ -66,6 +71,7 @@ func New(config Config) (*Resource, error) {
 
 		apiIP:    config.APIIP,
 		certTTL:  config.CertTTL,
+		domain:   config.Domain,
 		provider: config.Provider,
 	}
 

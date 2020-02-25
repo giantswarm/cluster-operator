@@ -19,6 +19,7 @@ data:
         kubernetes:
           api:
             clusterIPRange: '{{ .Values.Installation.V1.Guest.Kubernetes.API.ClusterIPRange }}'
+            domain: '{{ .Values.Installation.V1.Guest.Kubernetes.API.Domain }}'
         vault:
           certificate:
             ttl: '{{ .Values.Installation.V1.Auth.Vault.Certificate.TTL }}'

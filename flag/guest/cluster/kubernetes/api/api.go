@@ -5,6 +5,7 @@ package api
 type API struct {
 	AltNames       string
 	ClusterIPRange string
+	Domain         string
 	InsecurePort   string
 	SecurePort     string
 }

@@ -32,6 +32,7 @@ type ClusterConfig struct {
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
+	Domain                     string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string

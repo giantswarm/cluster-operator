@@ -59,6 +59,7 @@ type clusterResourceSetConfig struct {
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
+	Domain                     string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string
@@ -132,6 +133,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 			APIIP:    config.APIIP,
 			CertTTL:  config.CertTTL,
+			Domain:   config.Domain,
 			Provider: config.Provider,
 		}
 
