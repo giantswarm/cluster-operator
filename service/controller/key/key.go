@@ -7,7 +7,6 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -36,73 +35,6 @@ func CertConfigCertOperatorVersion(cr v1alpha1.CertConfig) string {
 	}
 
 	return cr.Labels[label.CertOperatorVersion]
-}
-
-// CommonAppSpecs returns apps installed for all providers.
-func CommonAppSpecs() []AppSpec {
-	return []AppSpec{
-		{
-			// chart-operator must be installed first so the chart CRD is
-			// created in the tenant cluster.
-			App:             "chart-operator",
-			Catalog:         "default",
-			Chart:           "chart-operator",
-			Namespace:       "giantswarm",
-			UseUpgradeForce: true,
-			Version:         "0.11.3",
-		},
-		{
-			// coredns must be installed second as its a requirement for other
-			// apps.
-			App:       "coredns",
-			Catalog:   "default",
-			Chart:     "coredns-app",
-			Namespace: metav1.NamespaceSystem,
-			// Upgrade force is disabled to avoid affecting customer workloads.
-			UseUpgradeForce: false,
-			Version:         "1.1.3",
-		},
-		{
-			App:             "cert-exporter",
-			Catalog:         "default",
-			Chart:           "cert-exporter",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.2.1",
-		},
-		{
-			App:             "kube-state-metrics",
-			Catalog:         "default",
-			Chart:           "kube-state-metrics-app",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.0.2",
-		},
-		{
-			App:             "metrics-server",
-			Catalog:         "default",
-			Chart:           "metrics-server-app",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.0.0",
-		},
-		{
-			App:             "net-exporter",
-			Catalog:         "default",
-			Chart:           "net-exporter",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.6.0",
-		},
-		{
-			App:             "node-exporter",
-			Catalog:         "default",
-			Chart:           "node-exporter-app",
-			Namespace:       metav1.NamespaceSystem,
-			UseUpgradeForce: true,
-			Version:         "1.2.0",
-		},
-	}
 }
 
 // DNSIP returns the IP of the DNS service given a cluster IP range.

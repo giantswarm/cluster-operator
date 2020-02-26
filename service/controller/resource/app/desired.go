@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
@@ -17,6 +19,13 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
+
+type appConfig struct {
+	Catalog string `json:"catalog"`
+	Version string `json:"version"`
+}
+
+type userOverrideConfig map[string]appConfig
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
 	cr, err := key.ToCluster(obj)
@@ -94,6 +103,32 @@ func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[
 	return secrets, nil
 }
 
+func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Cluster) (userOverrideConfig, error) {
+	userConfig, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get("user-override-apps", metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// fall through
+		return nil, nil
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	u := userOverrideConfig{}
+
+	appConfigs, ok := userConfig.Data[key.ReleaseVersion(&cr)]
+	if !ok {
+		// no release override configs, fall through
+		return nil, nil
+	}
+
+	err = yaml.Unmarshal([]byte(appConfigs), &u)
+	if err != nil {
+		r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.Stack(err))
+		return nil, nil
+	}
+
+	return u, nil
+}
+
 func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
@@ -156,6 +191,11 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		return nil, microerror.Mask(err)
 	}
 
+	userOverrideConfigs, err := r.getUserOverrideConfig(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	var specs []key.AppSpec
 
 	for _, app := range cc.Status.Apps {
@@ -179,6 +219,18 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 			}
 			if val.UseUpgradeForce != nil {
 				spec.UseUpgradeForce = *val.UseUpgradeForce
+			}
+		}
+
+		// To test apps in the testing catalog, users can override default app properties with
+		// a user-override-apps configmap.
+		if val, ok := userOverrideConfigs[app.App]; ok {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", app.App))
+			if val.Catalog != "" {
+				spec.Catalog = val.Catalog
+			}
+			if val.Version != "" {
+				spec.Version = val.Version
 			}
 		}
 
