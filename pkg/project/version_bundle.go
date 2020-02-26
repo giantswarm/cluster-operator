@@ -9,18 +9,10 @@ func VersionBundle(p string) versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "User app override rules applied",
+				Description: "TODO",
 				Kind:        versionbundle.KindChanged,
 				URLs: []string{
-					"https://github.com/giantswarm/cluster-operator/pull/930",
-				},
-			},
-			{
-				Component:   "cluster-operator",
-				Description: "Make internal Kubernetes domain configurable.",
-				Kind:        versionbundle.KindChanged,
-				URLs: []string{
-					"https://github.com/giantswarm/cluster-operator/pull/937",
+					"",
 				},
 			},
 		},
