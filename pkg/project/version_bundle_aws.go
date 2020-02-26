@@ -14,6 +14,14 @@ var versionBundleAWS = versionbundle.Bundle{
 				"https://github.com/giantswarm/cluster-operator/pull/936",
 			},
 		},
+		{
+			Component:   "cluster-operator",
+			Description: "User app override rules applied",
+			Kind:        versionbundle.KindChanged,
+			URLs: []string{
+				"https://github.com/giantswarm/cluster-operator/pull/939",
+			},
+		},
 	},
 	Components: []versionbundle.Component{},
 	Name:       "cluster-operator",

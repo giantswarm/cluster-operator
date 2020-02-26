@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/clusterclient/service/release/searcher"
@@ -12,6 +13,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
@@ -20,6 +22,13 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
+
+type appConfig struct {
+	Catalog string `json:"catalog"`
+	Version string `json:"version"`
+}
+
+type userOverrideConfig map[string]appConfig
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
 	clusterConfig, err := r.getClusterConfigFunc(obj)
@@ -144,6 +153,32 @@ func (r *Resource) getSecrets(ctx context.Context, clusterConfig v1alpha1.Cluste
 	return secrets, nil
 }
 
+func (r *Resource) getUserOverrideConfig(ctx context.Context, clusterConfig v1alpha1.ClusterGuestConfig) (userOverrideConfig, error) {
+	userConfig, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(clusterConfig)).Get("user-override-apps", metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// fall through
+		return nil, nil
+	} else if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	u := userOverrideConfig{}
+
+	appConfigs, ok := userConfig.Data[clusterConfig.ReleaseVersion]
+	if !ok {
+		// no release override configs, fall through
+		return nil, nil
+	}
+
+	err = yaml.Unmarshal([]byte(appConfigs), &u)
+	if err != nil {
+		r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.Stack(err))
+		return nil, nil
+	}
+
+	return u, nil
+}
+
 func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(clusterConfig)
 
@@ -214,6 +249,11 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 		return nil, microerror.Maskf(executionFailedError, "no apps in release %#q", req.ReleaseVersion)
 	}
 
+	userOverrideConfigs, err := r.getUserOverrideConfig(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	var specs []key.AppSpec
 
 	for _, app := range res.Apps {
@@ -243,6 +283,18 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 		// Nginx Ingress Controller uses its own configmap that includes the number of workers.
 		if app.App == "nginx-ingress-controller" {
 			spec.ConfigMapName = key.IngressControllerConfigMapName
+		}
+
+		// To test apps in the testing catalog, users can override default app properties with
+		// a user-override-apps configmap.
+		if val, ok := userOverrideConfigs[app.App]; ok {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", app.App))
+			if val.Catalog != "" {
+				spec.Catalog = val.Catalog
+			}
+			if val.Version != "" {
+				spec.Version = val.Version
+			}
 		}
 
 		specs = append(specs, spec)
