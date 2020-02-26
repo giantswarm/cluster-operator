@@ -222,6 +222,8 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 			}
 		}
 
+		// To test apps in the testing catalog, users can override default app properties with
+		// a user-override-apps configmap.
 		if val, ok := userOverrideConfigs[app.App]; ok {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", app.App))
 			if val.Catalog != "" {
