@@ -9,12 +9,12 @@ const (
 )
 
 // CertDefaultAltNames returns default alt names for Kubernetes API certs.
-func CertDefaultAltNames(internalDomain string) []string {
+func CertDefaultAltNames(clusterDomain string) []string {
 	return []string{
 		"kubernetes",
 		"kubernetes.default",
 		"kubernetes.default.svc",
-		fmt.Sprintf("kubernetes.default.svc.%s", internalDomain),
+		fmt.Sprintf("kubernetes.default.svc.%s", clusterDomain),
 	}
 }
 

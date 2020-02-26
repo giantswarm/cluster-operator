@@ -59,7 +59,7 @@ type clusterResourceSetConfig struct {
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
-	Domain                     string
+	ClusterDomain              string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string
@@ -131,10 +131,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			G8sClient: config.K8sClient.G8sClient(),
 			Logger:    config.Logger,
 
-			APIIP:    config.APIIP,
-			CertTTL:  config.CertTTL,
-			Domain:   config.Domain,
-			Provider: config.Provider,
+			APIIP:         config.APIIP,
+			CertTTL:       config.CertTTL,
+			ClusterDomain: config.ClusterDomain,
+			Provider:      config.Provider,
 		}
 
 		ops, err := certconfig.New(c)

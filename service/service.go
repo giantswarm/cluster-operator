@@ -210,7 +210,7 @@ func New(config Config) (*Service, error) {
 			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
 			ClusterIPRange:             clusterIPRange,
 			DNSIP:                      dnsIP,
-			Domain:                     config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.Domain),
+			ClusterDomain:              config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
 			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 			Provider:                   provider,
 			RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),

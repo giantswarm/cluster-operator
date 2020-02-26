@@ -13,7 +13,7 @@ import (
 // configuration flags.
 type Kubernetes struct {
 	API               api.API
-	Domain            string
+	ClusterDomain     string
 	Hyperkube         hyperkube.Hyperkube
 	IngressController ingresscontroller.IngressController
 	Kubelet           kubelet.Kubelet

@@ -26,10 +26,10 @@ type Config struct {
 	G8sClient versioned.Interface
 	Logger    micrologger.Logger
 
-	APIIP    string
-	CertTTL  string
-	Domain   string
-	Provider string
+	APIIP         string
+	CertTTL       string
+	ClusterDomain string
+	Provider      string
 }
 
 // Resource implements the cloud config resource.
@@ -37,10 +37,10 @@ type Resource struct {
 	g8sClient versioned.Interface
 	logger    micrologger.Logger
 
-	apiIP    string
-	certTTL  string
-	domain   string
-	provider string
+	apiIP         string
+	certTTL       string
+	clusterDomain string
+	provider      string
 }
 
 // New creates a new configured cloud config resource.
@@ -58,8 +58,8 @@ func New(config Config) (*Resource, error) {
 	if config.CertTTL == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CertTTL must not be empty", config)
 	}
-	if config.Domain == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Domain must not be empty", config)
+	if config.ClusterDomain == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterDomain must not be empty", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -69,10 +69,10 @@ func New(config Config) (*Resource, error) {
 		g8sClient: config.G8sClient,
 		logger:    config.Logger,
 
-		apiIP:    config.APIIP,
-		certTTL:  config.CertTTL,
-		domain:   config.Domain,
-		provider: config.Provider,
+		apiIP:         config.APIIP,
+		certTTL:       config.CertTTL,
+		clusterDomain: config.ClusterDomain,
+		provider:      config.Provider,
 	}
 
 	return newService, nil

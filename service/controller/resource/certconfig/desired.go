@@ -88,7 +88,7 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 }
 
 func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
-	defaultAltNames := key.CertDefaultAltNames(r.domain)
+	defaultAltNames := key.CertDefaultAltNames(r.clusterDomain)
 	desiredAltNames := append(defaultAltNames,
 		fmt.Sprintf("master.%s", key.ClusterID(&cr)),
 		fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
@@ -210,7 +210,7 @@ func (r *Resource) newSpecForServiceAccount(cc controllercontext.Context, cr api
 func (r *Resource) newSpecForWorker(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
-		AltNames:         key.CertDefaultAltNames(r.domain),
+		AltNames:         key.CertDefaultAltNames(r.clusterDomain),
 		ClusterComponent: certs.WorkerCert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("worker.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
