@@ -15,6 +15,14 @@ func VersionBundle(p string) versionbundle.Bundle {
 					"https://github.com/giantswarm/cluster-operator/pull/889",
 				},
 			},
+			{
+				Component:   "cluster-operator",
+				Description: "Make internal Kubernetes domain configurable.",
+				Kind:        versionbundle.KindChanged,
+				URLs: []string{
+					"https://github.com/giantswarm/cluster-operator/pull/937",
+				},
+			},
 		},
 		Components: []versionbundle.Component{},
 		Name:       "cluster-operator",

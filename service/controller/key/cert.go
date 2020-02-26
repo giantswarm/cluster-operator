@@ -8,16 +8,14 @@ const (
 	LocalhostIP = "127.0.0.1"
 )
 
-// CertAltNames returns the alt names for the Kubernetes API certs.
-func CertAltNames(altNames ...string) []string {
-	list := []string{
+// CertDefaultAltNames returns default alt names for Kubernetes API certs.
+func CertDefaultAltNames(clusterDomain string) []string {
+	return []string{
 		"kubernetes",
 		"kubernetes.default",
 		"kubernetes.default.svc",
-		"kubernetes.default.svc.cluster.local",
+		fmt.Sprintf("kubernetes.default.svc.%s", clusterDomain),
 	}
-
-	return append(list, altNames...)
 }
 
 // CertConfigName constructs a name for CertConfig CRs using the clusterI D and

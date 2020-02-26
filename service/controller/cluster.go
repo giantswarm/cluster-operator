@@ -32,6 +32,7 @@ type ClusterConfig struct {
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
+	ClusterDomain              string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string
@@ -62,6 +63,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			CertTTL:                    config.CertTTL,
 			ClusterIPRange:             config.ClusterIPRange,
 			DNSIP:                      config.DNSIP,
+			ClusterDomain:              config.ClusterDomain,
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
 			RawAppDefaultConfig:        config.RawAppDefaultConfig,
