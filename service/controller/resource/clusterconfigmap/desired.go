@@ -2,6 +2,7 @@ package clusterconfigmap
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -115,10 +116,8 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 						"enabled": controllerServiceEnabled,
 					},
 				},
-				"global": map[string]interface{}{
-					"controller": map[string]interface{}{
-						"useProxyProtocol": useProxyProtocol,
-					},
+				"configmap": map[string]string{
+					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
 				},
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by
