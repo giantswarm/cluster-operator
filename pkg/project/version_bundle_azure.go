@@ -8,10 +8,10 @@ var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "cluster-operator",
-			Description: "Migrate setting use-proxy-protocol from global to NGINX configmap",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/944",
+				"",
 			},
 		},
 	},
