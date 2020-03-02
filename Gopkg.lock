@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:114800a68b6cbcc0b7a3d22adb7b6f6652d12085bf367cef4f392c3ae27eacdf"
+  digest = "1:bb524a49970e30bddd1e7d1fb6447dbb1531b76f5ab73d7aa0e280c94b89be06"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "acdbf019d0f8cf6d839bda21fa93440fe9faad16"
+  revision = "fc9bd5be7e7cbfa6c024c91e71cb5ce7c1d44215"
 
 [[projects]]
   branch = "master"
@@ -232,7 +232,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e2dc8a54bcf321d010fadd18592db80c2e409db853defee2422460ea1037cc2c"
+  digest = "1:8fceb7978b083c0ec090770a2dd0c1ac210a2dcbb43f81332b936761abc000a4"
   name = "github.com/giantswarm/micrologger"
   packages = [
     ".",
@@ -240,7 +240,7 @@
     "microloggertest",
   ]
   pruneopts = "UT"
-  revision = "9743faecb1ef47792e2add0cf766ff1a4e9ca78a"
+  revision = "b2b3caef2ec8711ac7b25055f14128dd5d317d2e"
 
 [[projects]]
   branch = "master"
@@ -293,11 +293,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:73acd15f735e3b1a0230dd9ccb25e95357b8414c22919225e08858e467140824"
+  digest = "1:c0c70d482acf839bd341d58ec62a5531495ab9fe05a8b2b63b1654d133843678"
   name = "github.com/giantswarm/versionbundle"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cd94540b7d5a064d0b106387f85078c0031271d9"
+  revision = "e7da6616fbba3fd9e42941eadc1fa386e099fc9e"
 
 [[projects]]
   digest = "1:83a37f3bd4ccd13469775ef771e943e6c7cfaba6926decff6c83135e56512f08"
@@ -355,7 +355,7 @@
   revision = "8c9f03a8e57eb486e42badaed3fb287da51807ba"
 
 [[projects]]
-  digest = "1:0314772c6631bb25d46f0b6a46bed7145e359cbb7411db99682a3b0d1d0cd00f"
+  digest = "1:ecd73c8c5c5e48f9079e042ae733c3f3ab021218d6c4da3411d82727fd5a412a"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -365,8 +365,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "d23c5127dc24889085f8ccea5c9d560a57a879d8"
-  version = "v1.3.3"
+  revision = "5d5b4c10bd43f85e63bd9e4a3fa9b1ea2ef88af2"
+  version = "v1.3.4"
 
 [[projects]]
   digest = "1:0aeda02073125667ac6c9df50c7921cb22c08a4accdc54589c697a7e76be65c2"
@@ -657,7 +657,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2ae1445cff31b9c820b7183be7d4e26e38069c7a9337204e31cd16b14106c794"
+  digest = "1:3945272c291bf5c528ee2ac04661793f57ac2b36de8053e33419d3e5ac8ae77e"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -669,7 +669,7 @@
     "publicsuffix",
   ]
   pruneopts = "UT"
-  revision = "5a598a2470a0279bd28bab287167dc1ef0813153"
+  revision = "244492dfa37ae2ce87222fd06250a03160745faa"
 
 [[projects]]
   branch = "master"
@@ -692,14 +692,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e6f3eca022d18ff28112534a46d8bad7400b1523724061dff2d1bfc737bee376"
+  digest = "1:e32edd8d81fe0447cb6855e2d2b0549b63717539513e09b3a1e4bb20d48f46c6"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
+  revision = "5c8b2ff67527cb88b770f693cebf3799036d8bc0"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -746,12 +746,12 @@
   revision = "9bdfabe68543c54f90421aeb9a60ef8061b5b544"
 
 [[projects]]
-  digest = "1:7d4fd782f2a710d08834b2c01742b3bba7fb0248383f9cc6c3dc95b3025689d7"
+  digest = "1:a4e6161ffbea6b872a122961fff978f81af9c064f1757c559e21d2d322f13958"
   name = "gomodules.xyz/jsonpatch"
   packages = ["v2"]
   pruneopts = "UT"
-  revision = "e8422f09d27ee2c8cfb2c7f8089eb9eeb0764849"
-  version = "v2.0.1"
+  revision = "1c2a0262323edc27502942d9727c95646b1c3cbe"
+  version = "v2.1.0"
 
 [[projects]]
   digest = "1:e0a1881f9e0564bebdeac98c75e59f07acdde6ed3a5396e0e613eaad31194866"
@@ -1035,7 +1035,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "861946025e3491219eaccb1bf693e23df70c2fa8"
+  revision = "0a110f9eb7ab662220ed640640f50c4be9b6b485"
 
 [[projects]]
   digest = "1:091322e5af94d021a181fb37b29e85889430697aa9ee49532c043b898c6568b3"
