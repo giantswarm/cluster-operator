@@ -171,6 +171,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			CalicoPrefixLength: config.CalicoPrefixLength,
 			ClusterIPRange:     config.ClusterIPRange,
 			DNSIP:              config.DNSIP,
+			Provider:           config.Provider,
 		}
 
 		clusterConfigMapGetter, err = clusterconfigmap.New(c)
