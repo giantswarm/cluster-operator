@@ -34,6 +34,7 @@ type CoreV1alpha1Interface interface {
 	DrainerConfigsGetter
 	DraughtsmanConfigsGetter
 	FlannelConfigsGetter
+	IgnitionsGetter
 	IngressConfigsGetter
 	KVMClusterConfigsGetter
 	NodeConfigsGetter
@@ -75,6 +76,10 @@ func (c *CoreV1alpha1Client) DraughtsmanConfigs(namespace string) DraughtsmanCon
 
 func (c *CoreV1alpha1Client) FlannelConfigs(namespace string) FlannelConfigInterface {
 	return newFlannelConfigs(c, namespace)
+}
+
+func (c *CoreV1alpha1Client) Ignitions(namespace string) IgnitionInterface {
+	return newIgnitions(c, namespace)
 }
 
 func (c *CoreV1alpha1Client) IngressConfigs(namespace string) IngressConfigInterface {
