@@ -3,6 +3,7 @@ package clusterconfigmap
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
@@ -91,7 +92,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
 				"clusterID":  key.ClusterID(&cr),
 				"configmap": map[string]interface{}{
-					"use-proxy-protocol": useProxyProtocol,
+					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
 				},
 				"ingressController": map[string]interface{}{
 					"replicas": ingressControllerReplicas,
