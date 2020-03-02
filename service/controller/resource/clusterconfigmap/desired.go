@@ -115,10 +115,8 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 						"enabled": controllerServiceEnabled,
 					},
 				},
-				"global": map[string]interface{}{
-					"controller": map[string]interface{}{
-						"useProxyProtocol": useProxyProtocol,
-					},
+				"configmap": map[string]interface{}{
+					"use-proxy-protocol": useProxyProtocol,
 				},
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by
