@@ -3,6 +3,7 @@ package clusterconfigmap
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
@@ -53,6 +54,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ingressControllerReplicas = 20
 	}
 
+	// useProxyProtocol is only enabled by default for AWS clusters.
+	var useProxyProtocol bool
+	{
+		if r.provider == "aws" {
+			useProxyProtocol = true
+		}
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(&cr),
@@ -82,6 +91,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Values: map[string]interface{}{
 				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
 				"clusterID":  key.ClusterID(&cr),
+				"configmap": map[string]interface{}{
+					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
+				},
 				"ingressController": map[string]interface{}{
 					"replicas": ingressControllerReplicas,
 				},
