@@ -9,10 +9,10 @@ func VersionBundle(p string) versionbundle.Bundle {
 		Changelogs: []versionbundle.Changelog{
 			{
 				Component:   "cluster-operator",
-				Description: "Re-enable proxy protocol by default for AWS clusters",
+				Description: "TODO",
 				Kind:        versionbundle.KindChanged,
 				URLs: []string{
-					"https://github.com/giantswarm/cluster-operator/pull/945",
+					"",
 				},
 			},
 		},
