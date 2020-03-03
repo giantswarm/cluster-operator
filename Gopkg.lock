@@ -159,16 +159,17 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:af6e94d6164e1f08498a666f3cfa1ab0934d91d48142b450342c0e240bfa9084"
+  branch = "update-validation"
+  digest = "1:5c613ed519abc36fb1fc9c74ca2713a2f306f407492f99eb8f2f159f5cda6a61"
   name = "github.com/giantswarm/k8sclient"
   packages = [
     ".",
     "k8scrdclient",
     "k8srestconfig",
+    "k8sversion",
   ]
   pruneopts = "UT"
-  revision = "1542917096d6cb2f12745ab24850a930a89dca6c"
+  revision = "cc7d819356b3b232c64a3c9203bb21256bedecee"
 
 [[projects]]
   branch = "master"

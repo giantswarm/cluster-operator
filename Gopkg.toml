@@ -37,8 +37,8 @@
   branch = "master"
   name = "github.com/giantswarm/errors"
 
-[[constraint]]
-  branch = "master"
+[[override]]
+  branch = "update-validation"
   name = "github.com/giantswarm/k8sclient"
 
 [[constraint]]
