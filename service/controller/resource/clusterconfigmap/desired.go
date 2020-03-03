@@ -12,17 +12,11 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	clusterConfig, err := r.getClusterConfigFunc(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -34,30 +28,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	clusterDNSIP, err := key.DNSIP(r.clusterIPRange)
 	if err != nil {
 		return nil, microerror.Mask(err)
-	}
-
-	// We set the number of replicas to the number of worker nodes. This is set
-	// by the workercount resource using the current number of nodes from the
-	// tenant cluster.
-	ingressControllerReplicas := cc.Status.Worker.Nodes
-	if ingressControllerReplicas == 0 {
-		// If the current number of workers is not set we fallback to using the
-		// desired worker count.
-		ingressControllerReplicas, err = r.getWorkerCountFunc(obj)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	// We limit the number of replicas to 20 as running more than this does
-	// not make sense.
-	//
-	// TODO: Remove Ingress Controller configmap once HPA is enabled by default.
-	//
-	//	https://github.com/giantswarm/giantswarm/issues/8080
-	//
-	if ingressControllerReplicas > 20 {
-		ingressControllerReplicas = 20
 	}
 
 	// controllerServiceEnabled is true for Azure legacy clusters. For AWS and
@@ -122,8 +92,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by
 					// legacy provider operators are not created.
-					"legacy":   true,
-					"replicas": ingressControllerReplicas,
+					"legacy": true,
 				},
 			},
 		},
