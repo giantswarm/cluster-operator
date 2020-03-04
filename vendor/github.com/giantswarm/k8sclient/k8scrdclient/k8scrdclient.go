@@ -134,11 +134,13 @@ func (c *CRDClient) ensureUpdated(ctx context.Context, desired *apiextensionsv1b
 			return microerror.Mask(err)
 		}
 
+		equal := desired.Spec.String() == current.Spec.String()
 		latest, err := crdVersionLatest(desired, current)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		if latest {
+
+		if latest && !equal {
 			desired.SetResourceVersion(current.ResourceVersion)
 
 			_, err = c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Update(desired)

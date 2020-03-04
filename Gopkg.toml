@@ -57,9 +57,9 @@
   branch = "master"
   name = "github.com/giantswarm/microkit"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/micrologger"
+  version = "=v0.1.0"
 
 [[constraint]]
   branch = "master"

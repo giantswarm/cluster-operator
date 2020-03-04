@@ -160,7 +160,7 @@
 
 [[projects]]
   branch = "update-validation"
-  digest = "1:5c613ed519abc36fb1fc9c74ca2713a2f306f407492f99eb8f2f159f5cda6a61"
+  digest = "1:11d08106f383722f30809d0121394ad2e0f4b74f5be4bf734a4ab0a9c0f49097"
   name = "github.com/giantswarm/k8sclient"
   packages = [
     ".",
@@ -169,7 +169,7 @@
     "k8sversion",
   ]
   pruneopts = "UT"
-  revision = "cc7d819356b3b232c64a3c9203bb21256bedecee"
+  revision = "ed9a7dd486e002b2e1389b1db8fb7adf044dce00"
 
 [[projects]]
   branch = "master"
@@ -232,8 +232,7 @@
   revision = "866ec4bc8b6e16bfd5765d143e5b2fec260a60fd"
 
 [[projects]]
-  branch = "master"
-  digest = "1:8fceb7978b083c0ec090770a2dd0c1ac210a2dcbb43f81332b936761abc000a4"
+  digest = "1:c497795cf3848ef5a655d53f24dfc670c72f9b2fc41eeda495d66542ae6bd017"
   name = "github.com/giantswarm/micrologger"
   packages = [
     ".",
@@ -241,7 +240,8 @@
     "microloggertest",
   ]
   pruneopts = "UT"
-  revision = "b2b3caef2ec8711ac7b25055f14128dd5d317d2e"
+  revision = "c87486c7d20d7878ad57a09d379d7d59328b472e"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
