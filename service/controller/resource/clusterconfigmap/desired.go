@@ -33,27 +33,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		calicoCIDRBlock = cidrBlock(r.calicoAddress, r.calicoPrefixLength)
 	}
 
-	var ingressControllerReplicas int32
-	{
-		// We set the number of replicas to the number of worker nodes. This is
-		// set by the workercount resource which returns a map with each node
-		// pool and its current number of nodes.
-		for _, v := range cc.Status.Worker {
-			ingressControllerReplicas += v.Nodes
-		}
-	}
-
-	// We limit the number of replicas to 20 as running more than this does
-	// not make sense.
-	//
-	// TODO: Remove Ingress Controller configmap once HPA is enabled by default.
-	//
-	//	https://github.com/giantswarm/giantswarm/issues/8080
-	//
-	if ingressControllerReplicas > 20 {
-		ingressControllerReplicas = 20
-	}
-
 	// useProxyProtocol is only enabled by default for AWS clusters.
 	var useProxyProtocol bool
 	{
@@ -93,9 +72,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"clusterID":  key.ClusterID(&cr),
 				"configmap": map[string]interface{}{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
-				},
-				"ingressController": map[string]interface{}{
-					"replicas": ingressControllerReplicas,
 				},
 			},
 		},
