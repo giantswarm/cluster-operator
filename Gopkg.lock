@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bb524a49970e30bddd1e7d1fb6447dbb1531b76f5ab73d7aa0e280c94b89be06"
+  digest = "1:e3e72649f0ad441d1527834d6fcd32e3ed63e5d28c35abb33275b459f3cd1f2a"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
@@ -78,7 +78,7 @@
     "pkg/clientset/versioned/typed/release/v1alpha1",
   ]
   pruneopts = "UT"
-  revision = "fc9bd5be7e7cbfa6c024c91e71cb5ce7c1d44215"
+  revision = "a89648ee9f3b14066e23e6ea8d1b89b2696a3cbc"
 
 [[projects]]
   branch = "master"
@@ -160,15 +160,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:af6e94d6164e1f08498a666f3cfa1ab0934d91d48142b450342c0e240bfa9084"
+  digest = "1:be8ba3ce8724d182e4dca70d185cdf879dde34d1ff8ba0d8dd51ddbdfc5a526a"
   name = "github.com/giantswarm/k8sclient"
   packages = [
     ".",
     "k8scrdclient",
     "k8srestconfig",
+    "k8sversion",
   ]
   pruneopts = "UT"
-  revision = "1542917096d6cb2f12745ab24850a930a89dca6c"
+  revision = "8d7dfa9a434ba3c5cc08c22b6739a829c8e82e38"
 
 [[projects]]
   branch = "master"
