@@ -15,6 +15,13 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
+type clusterProfile string
+
+const (
+	unknown clusterProfile = "UNK"
+	xs      clusterProfile = "XS"
+)
+
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
@@ -52,6 +59,28 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	clusterProfile := unknown
+	{
+		// this is desired, not the current number of tenant cluster worker nodes
+		workerCount, err := r.getWorkerCountFunc(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if workerCount == 1 {
+			clusterProfile = xs
+		}
+
+		workerMaxCPUCores, workerMaxCPUCoresKnown, err := r.getWorkerMaxCPUCoresFunc(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if workerMaxCPUCoresKnown && workerMaxCPUCores <= 2 {
+			clusterProfile = xs
+		}
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(clusterConfig),
@@ -70,6 +99,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 							"IP": clusterDNSIP,
 						},
 					},
+					"profile": clusterProfile,
 				},
 				"clusterDNSIP": clusterDNSIP,
 				"clusterID":    key.ClusterID(clusterConfig),
@@ -88,6 +118,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				},
 				"configmap": map[string]string{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
+				},
+				"cluster": map[string]interface{}{
+					"profile": clusterProfile,
 				},
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by

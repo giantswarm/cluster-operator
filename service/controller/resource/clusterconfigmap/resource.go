@@ -22,6 +22,7 @@ type Config struct {
 	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	GetWorkerCountFunc       func(obj interface{}) (int, error)
+	GetWorkerMaxCPUCoresFunc func(obj interface{}) (int, bool, error)
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 
@@ -38,6 +39,7 @@ type StateGetter struct {
 	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	getWorkerCountFunc       func(obj interface{}) (int, error)
+	getWorkerMaxCPUCoresFunc func(obj interface{}) (int, bool, error)
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 
@@ -60,6 +62,9 @@ func New(config Config) (*StateGetter, error) {
 	if config.GetWorkerCountFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.GetWorkerCountFunc must not be empty", config)
 	}
+	if config.GetWorkerMaxCPUCoresFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.GetWorkerMaxCPUCoresFunc must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -80,6 +85,7 @@ func New(config Config) (*StateGetter, error) {
 		getClusterConfigFunc:     config.GetClusterConfigFunc,
 		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
 		getWorkerCountFunc:       config.GetWorkerCountFunc,
+		getWorkerMaxCPUCoresFunc: config.GetWorkerMaxCPUCoresFunc,
 		k8sClient:                config.K8sClient,
 		logger:                   config.Logger,
 
