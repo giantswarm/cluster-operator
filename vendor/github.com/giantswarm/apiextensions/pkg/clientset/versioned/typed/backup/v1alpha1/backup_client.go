@@ -21,36 +21,26 @@ package v1alpha1
 import (
 	rest "k8s.io/client-go/rest"
 
-	v1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
+	v1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/backup/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned/scheme"
 )
 
-type ApplicationV1alpha1Interface interface {
+type BackupV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	AppsGetter
-	AppCatalogsGetter
-	ChartsGetter
+	ETCDBackupsGetter
 }
 
-// ApplicationV1alpha1Client is used to interact with features provided by the application.giantswarm.io group.
-type ApplicationV1alpha1Client struct {
+// BackupV1alpha1Client is used to interact with features provided by the backup.giantswarm.io group.
+type BackupV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ApplicationV1alpha1Client) Apps(namespace string) AppInterface {
-	return newApps(c, namespace)
+func (c *BackupV1alpha1Client) ETCDBackups() ETCDBackupInterface {
+	return newETCDBackups(c)
 }
 
-func (c *ApplicationV1alpha1Client) AppCatalogs() AppCatalogInterface {
-	return newAppCatalogs(c)
-}
-
-func (c *ApplicationV1alpha1Client) Charts(namespace string) ChartInterface {
-	return newCharts(c, namespace)
-}
-
-// NewForConfig creates a new ApplicationV1alpha1Client for the given config.
-func NewForConfig(c *rest.Config) (*ApplicationV1alpha1Client, error) {
+// NewForConfig creates a new BackupV1alpha1Client for the given config.
+func NewForConfig(c *rest.Config) (*BackupV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -59,12 +49,12 @@ func NewForConfig(c *rest.Config) (*ApplicationV1alpha1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ApplicationV1alpha1Client{client}, nil
+	return &BackupV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new ApplicationV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new BackupV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *ApplicationV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *BackupV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -72,9 +62,9 @@ func NewForConfigOrDie(c *rest.Config) *ApplicationV1alpha1Client {
 	return client
 }
 
-// New creates a new ApplicationV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *ApplicationV1alpha1Client {
-	return &ApplicationV1alpha1Client{c}
+// New creates a new BackupV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *BackupV1alpha1Client {
+	return &BackupV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -92,7 +82,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *ApplicationV1alpha1Client) RESTClient() rest.Interface {
+func (c *BackupV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}
