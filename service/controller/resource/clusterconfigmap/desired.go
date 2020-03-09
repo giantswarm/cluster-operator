@@ -127,10 +127,10 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	for _, configMapSpec := range configMapSpecs {
-		cluster, ok := configMapSpec["cluster"]
+		cluster, ok := configMapSpec.Values["cluster"]
 		if !ok {
 			cluster = make(map[string]interface{})
-			configMapSpec["cluster"] = cluster
+			configMapSpec.Values["cluster"] = cluster
 		}
 
 		if clusterProfile >= xs {
