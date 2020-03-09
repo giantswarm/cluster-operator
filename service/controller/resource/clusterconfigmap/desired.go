@@ -18,8 +18,7 @@ import (
 type clusterProfile string
 
 const (
-	unknown clusterProfile = "UNK"
-	xs      clusterProfile = "XS"
+	xs clusterProfile = "XS"
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
@@ -59,7 +58,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
-	clusterProfile := unknown
+	var clusterProfile clusterProfile
 	{
 		// this is desired, not the current number of tenant cluster worker nodes
 		workerCount, err := r.getWorkerCountFunc(obj)
