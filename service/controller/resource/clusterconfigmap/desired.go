@@ -15,10 +15,11 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-type clusterProfile string
+type clusterProfile int
 
 const (
-	xs clusterProfile = "XS"
+	unknown clusterProfile = iota
+	xs
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
@@ -58,7 +59,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
-	var clusterProfile clusterProfile
+	clusterProfile := unknown
 	{
 		// this is desired, not the current number of tenant cluster worker nodes
 		workerCount, err := r.getWorkerCountFunc(obj)
