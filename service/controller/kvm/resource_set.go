@@ -202,7 +202,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			GetClusterConfigFunc:     getClusterConfig,
 			GetClusterObjectMetaFunc: getClusterObjectMeta,
 			GetWorkerCountFunc:       getWorkerCount,
-			GetWorkerMaxCPUCoresFunc: getWorkerMaxCPUCores,
 			K8sClient:                config.K8sClient.K8sClient(),
 			Logger:                   config.Logger,
 
@@ -397,17 +396,6 @@ func getWorkerCount(obj interface{}) (int, error) {
 	}
 
 	return key.WorkerCount(cr), nil
-}
-
-func getWorkerMaxCPUCores(obj interface{}) (int, bool, error) {
-	cr, err := key.ToCustomObject(obj)
-	if err != nil {
-		return 0, false, microerror.Mask(err)
-	}
-
-	workerMaxCPUCores, known := key.WorkerMaxCPUCores(cr)
-
-	return workerMaxCPUCores, known, nil
 }
 
 func toClusterGuestConfig(obj interface{}) (v1alpha1.ClusterGuestConfig, error) {

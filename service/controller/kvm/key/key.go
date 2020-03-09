@@ -52,19 +52,3 @@ func VersionBundleVersion(kvmClusterConfig v1alpha1.KVMClusterConfig) string {
 func WorkerCount(kvmClusterConfig v1alpha1.KVMClusterConfig) int {
 	return len(kvmClusterConfig.Spec.Guest.Workers)
 }
-
-func WorkerMaxCPUCores(kvmClusterConfig v1alpha1.KVMClusterConfig) (int, bool) {
-	if WorkerCount(kvmClusterConfig) == 0 {
-		return 0, false
-	}
-
-	maxCPUCores := 0
-	for _, w := range kvmClusterConfig.Spec.Guest.Workers {
-		workerCPUCores := w.KVMClusterConfigSpecGuestNode.CPUCores
-		if workerCPUCores > maxCPUCores {
-			maxCPUCores = workerCPUCores
-		}
-	}
-
-	return maxCPUCores, true
-}

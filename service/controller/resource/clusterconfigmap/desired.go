@@ -69,15 +69,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		if workerCount == 1 {
 			clusterProfile = xs
 		}
-
-		workerMaxCPUCores, workerMaxCPUCoresKnown, err := r.getWorkerMaxCPUCoresFunc(obj)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		if workerMaxCPUCoresKnown && workerMaxCPUCores <= 2 {
-			clusterProfile = xs
-		}
 	}
 
 	configMapSpecs := []configMapSpec{
