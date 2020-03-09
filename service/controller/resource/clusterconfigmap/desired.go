@@ -18,8 +18,7 @@ import (
 type clusterProfile int
 
 const (
-	unknown clusterProfile = iota
-	xs
+	xs clusterProfile = iota + 1
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
@@ -59,7 +58,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
-	clusterProfile := unknown
+	var clusterProfile clusterProfile
 	{
 		// this is desired, not the current number of tenant cluster worker nodes
 		workerCount, err := r.getWorkerCountFunc(obj)
@@ -99,7 +98,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 							"IP": clusterDNSIP,
 						},
 					},
-					"profile": clusterProfile,
 				},
 				"clusterDNSIP": clusterDNSIP,
 				"clusterID":    key.ClusterID(clusterConfig),
@@ -119,9 +117,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"configmap": map[string]string{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
 				},
-				"cluster": map[string]interface{}{
-					"profile": clusterProfile,
-				},
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by
 					// legacy provider operators are not created.
@@ -129,6 +124,20 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				},
 			},
 		},
+	}
+
+	for _, configMapSpec := range configMapSpecs {
+		cluster, ok := configMapSpec["cluster"]
+		if !ok {
+			cluster = make(map[string]interface{})
+			configMapSpec["cluster"] = cluster
+		}
+
+		if clusterProfile >= xs {
+			cluster["profile"] = clusterProfile
+		} else {
+			cluster["profile"] = nil
+		}
 	}
 
 	var configMaps []*corev1.ConfigMap
