@@ -15,6 +15,12 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
+type clusterProfile int
+
+const (
+	xs clusterProfile = iota + 1
+)
+
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	clusterConfig, err := r.getClusterConfigFunc(obj)
 	if err != nil {
@@ -49,6 +55,19 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	{
 		if r.provider == "aws" {
 			useProxyProtocol = true
+		}
+	}
+
+	var clusterProfile clusterProfile
+	{
+		// this is desired, not the current number of tenant cluster worker nodes
+		workerCount, err := r.getWorkerCountFunc(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if workerCount == 1 {
+			clusterProfile = xs
 		}
 	}
 
@@ -96,6 +115,18 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				},
 			},
 		},
+	}
+
+	if clusterProfile >= xs {
+		for _, configMapSpec := range configMapSpecs {
+			_, ok := configMapSpec.Values["cluster"]
+			if !ok {
+				configMapSpec.Values["cluster"] = make(map[string]interface{})
+			}
+
+			clusterMap := configMapSpec.Values["cluster"].(map[string]interface{})
+			clusterMap["profile"] = clusterProfile
+		}
 	}
 
 	var configMaps []*corev1.ConfigMap

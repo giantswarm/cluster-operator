@@ -8,10 +8,10 @@ var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "cluster-operator",
-			Description: "TODO",
+			Description: "Support extra small cluster profile detection",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"",
+				"https://github.com/giantswarm/cluster-operator/pull/956",
 			},
 		},
 	},
