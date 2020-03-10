@@ -58,7 +58,6 @@
   revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
-  branch = "master"
   digest = "1:2e5292ca7e290a14dac63dd9456678796cbfc0a9b2c393f727e817f8166972c2"
   name = "github.com/giantswarm/apiextensions"
   packages = [
@@ -81,6 +80,7 @@
   ]
   pruneopts = "UT"
   revision = "4fafaaae7e2eb887a8a268213f28a518a1618c3d"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
@@ -161,8 +161,8 @@
   revision = "9749deade60f7624620aa7158a4f38c87ea23795"
 
 [[projects]]
-  branch = "master"
-  digest = "1:be8ba3ce8724d182e4dca70d185cdf879dde34d1ff8ba0d8dd51ddbdfc5a526a"
+  branch = "prevent-nonstructural-schema"
+  digest = "1:9231052e4934508c0aa86b373f852f4bef48f3fa4d90036c215f4efc4cfde429"
   name = "github.com/giantswarm/k8sclient"
   packages = [
     ".",
@@ -171,7 +171,7 @@
     "k8sversion",
   ]
   pruneopts = "UT"
-  revision = "8d7dfa9a434ba3c5cc08c22b6739a829c8e82e38"
+  revision = "4f6646701c4c66b02383090ed2ff5e9935e044ff"
 
 [[projects]]
   branch = "master"
