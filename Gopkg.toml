@@ -37,8 +37,8 @@
   branch = "master"
   name = "github.com/giantswarm/errors"
 
-[[override]]
-  branch = "prevent-nonstructural-schema"
+[[constraint]]
+  branch = "master"
   name = "github.com/giantswarm/k8sclient"
 
 [[constraint]]
