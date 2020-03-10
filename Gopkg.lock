@@ -162,7 +162,7 @@
 
 [[projects]]
   branch = "prevent-nonstructural-schema"
-  digest = "1:9231052e4934508c0aa86b373f852f4bef48f3fa4d90036c215f4efc4cfde429"
+  digest = "1:ffc0a7cb5bba5cef1812278dba3c0b43fdfca42e219cf6a3670b7c03ecfcdaec"
   name = "github.com/giantswarm/k8sclient"
   packages = [
     ".",
@@ -171,7 +171,7 @@
     "k8sversion",
   ]
   pruneopts = "UT"
-  revision = "4f6646701c4c66b02383090ed2ff5e9935e044ff"
+  revision = "abd868a8a65b430fd081cf830d72e348ef0b5b03"
 
 [[projects]]
   branch = "master"

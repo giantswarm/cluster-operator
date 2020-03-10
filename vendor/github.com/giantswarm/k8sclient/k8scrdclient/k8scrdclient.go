@@ -33,12 +33,12 @@ func New(config Config) (*CRDClient, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	crdClient := &CRDClient{
+	c := &CRDClient{
 		k8sExtClient: config.K8sExtClient,
 		logger:       config.Logger,
 	}
 
-	return crdClient, nil
+	return c, nil
 }
 
 // EnsureCreated ensures the given CRD exists, is active (aka. established) and
@@ -52,6 +52,11 @@ func (c *CRDClient) EnsureCreated(ctx context.Context, crd *apiextensionsv1beta1
 	}
 
 	err = c.ensureUpdated(ctx, crd, b)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = c.validateStatus(ctx, crd, b)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -81,68 +86,18 @@ func (c *CRDClient) EnsureDeleted(ctx context.Context, crd *apiextensionsv1beta1
 }
 
 func (c *CRDClient) ensureCreated(ctx context.Context, crd *apiextensionsv1beta1.CustomResourceDefinition, b backoff.Interface) error {
-	var err error
+	c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating CRD %#q", crd.Name))
 
-	{
-		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating CRD %#q", crd.Name))
-
-		_, err := c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Create(crd)
-		if errors.IsAlreadyExists(err) {
-			// Fall through. We need to check CRD status.
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRD %#q", crd.Name))
-			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CRD %#q already created", crd.Name))
-		} else if err != nil {
-			return microerror.Mask(err)
-		}
-
-		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created CRD %#q", crd.Name))
-	}
-
-	o := func() error {
-		manifest, err := c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Get(crd.Name, metav1.GetOptions{})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		// In case the CRDs names are not accepted we have to stop processing here
-		// and return the reason of the failing condition. Therefore we stop retries
-		// permanently.
-		{
-			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.NamesAccepted)
-			if ok && statusConditionFalse(con) {
-				return backoff.Permanent(microerror.Maskf(nameConflictError, con.Reason))
-			}
-		}
-		// In case the CRD is non-structural we have to stop processing here and
-		// return the reason of the failing condition. Therefore we stop retries
-		// permanently.
-		{
-			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.NonStructuralSchema)
-			if ok && statusConditionTrue(con) {
-				return backoff.Permanent(microerror.Maskf(notEstablishedError, con.Reason))
-			}
-		}
-		// In case the CRD is not yet established we have to retry and only return a
-		// normal error so that the backoff can do its job.
-		{
-			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.Established)
-			if ok && statusConditionFalse(con) {
-				return microerror.Maskf(notEstablishedError, con.Reason)
-			}
-		}
-
-		return nil
-	}
-
-	err = backoff.Retry(o, b)
-	if err != nil {
-		deleteErr := c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(crd.Name, nil)
-		if deleteErr != nil {
-			return microerror.Mask(deleteErr)
-		}
-
+	_, err := c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Create(crd)
+	if errors.IsAlreadyExists(err) {
+		// Fall through. We need to check CRD status.
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not creating CRD %#q", crd.Name))
+		c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("CRD %#q already created", crd.Name))
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
+	c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created CRD %#q", crd.Name))
 
 	return nil
 }
@@ -192,22 +147,51 @@ func (c *CRDClient) ensureUpdated(ctx context.Context, desired *apiextensionsv1b
 	return nil
 }
 
-func statusCondition(conditions []apiextensionsv1beta1.CustomResourceDefinitionCondition, t apiextensionsv1beta1.CustomResourceDefinitionConditionType) (apiextensionsv1beta1.CustomResourceDefinitionCondition, bool) {
-	for _, con := range conditions {
-		if con.Type == t {
-			return con, true
+func (c *CRDClient) validateStatus(ctx context.Context, crd *apiextensionsv1beta1.CustomResourceDefinition, b backoff.Interface) error {
+	var err error
+
+	o := func() error {
+		manifest, err := c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Get(crd.Name, metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
 		}
+
+		// In case the CRDs names are not accepted we have to stop processing here
+		// and return the reason of the failing condition. Therefore we stop retries
+		// permanently.
+		{
+			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.NamesAccepted)
+			if ok && statusConditionFalse(con) {
+				return backoff.Permanent(microerror.Maskf(nameConflictError, con.Reason))
+			}
+		}
+		// In case the CRD is non-structural we have to stop processing here and
+		// return the reason of the failing condition. Therefore we stop retries
+		// permanently.
+		{
+			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.NonStructuralSchema)
+			if ok && statusConditionTrue(con) {
+				return backoff.Permanent(microerror.Maskf(notEstablishedError, con.Reason))
+			}
+		}
+		// In case the CRD is not yet established we have to retry and only return a
+		// normal error so that the backoff can do its job.
+		{
+			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.Established)
+			if ok && statusConditionFalse(con) {
+				return microerror.Maskf(notEstablishedError, con.Reason)
+			}
+		}
+
+		return nil
 	}
 
-	return apiextensionsv1beta1.CustomResourceDefinitionCondition{}, false
-}
+	err = backoff.Retry(o, b)
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
-func statusConditionFalse(con apiextensionsv1beta1.CustomResourceDefinitionCondition) bool {
-	return con.Status == apiextensionsv1beta1.ConditionFalse
-}
-
-func statusConditionTrue(con apiextensionsv1beta1.CustomResourceDefinitionCondition) bool {
-	return con.Status == apiextensionsv1beta1.ConditionTrue
+	return nil
 }
 
 // crdVersionLatest returns true when the desired version of the given CRD
@@ -298,4 +282,22 @@ func crdVersions(crd *apiextensionsv1beta1.CustomResourceDefinition) []string {
 	}
 
 	return versions
+}
+
+func statusCondition(conditions []apiextensionsv1beta1.CustomResourceDefinitionCondition, t apiextensionsv1beta1.CustomResourceDefinitionConditionType) (apiextensionsv1beta1.CustomResourceDefinitionCondition, bool) {
+	for _, con := range conditions {
+		if con.Type == t {
+			return con, true
+		}
+	}
+
+	return apiextensionsv1beta1.CustomResourceDefinitionCondition{}, false
+}
+
+func statusConditionFalse(con apiextensionsv1beta1.CustomResourceDefinitionCondition) bool {
+	return con.Status == apiextensionsv1beta1.ConditionFalse
+}
+
+func statusConditionTrue(con apiextensionsv1beta1.CustomResourceDefinitionCondition) bool {
+	return con.Status == apiextensionsv1beta1.ConditionTrue
 }
