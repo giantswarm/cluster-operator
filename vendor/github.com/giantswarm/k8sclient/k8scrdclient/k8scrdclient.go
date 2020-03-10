@@ -123,9 +123,13 @@ func (c *CRDClient) ensureUpdated(ctx context.Context, desired *apiextensionsv1b
 		if latest && !equal {
 			c.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating CRD %#q", desired.Name))
 
-			desired.SetResourceVersion(current.ResourceVersion)
+			// Since we get a pointer of the desired CRD we do not want to mess around
+			// with it. Thus we take a copy of desired and use that instead for the
+			// update.
+			copy := desired.DeepCopy()
+			copy.SetResourceVersion(current.ResourceVersion)
 
-			_, err = c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Update(desired)
+			_, err = c.k8sExtClient.ApiextensionsV1beta1().CustomResourceDefinitions().Update(copy)
 			if err != nil {
 				return microerror.Mask(err)
 			}
@@ -162,7 +166,7 @@ func (c *CRDClient) validateStatus(ctx context.Context, crd *apiextensionsv1beta
 		{
 			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.NamesAccepted)
 			if ok && statusConditionFalse(con) {
-				return backoff.Permanent(microerror.Maskf(nameConflictError, con.Reason))
+				return backoff.Permanent(microerror.Maskf(nameConflictError, con.Message))
 			}
 		}
 		// In case the CRD is non-structural we have to stop processing here and
@@ -171,7 +175,7 @@ func (c *CRDClient) validateStatus(ctx context.Context, crd *apiextensionsv1beta
 		{
 			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.NonStructuralSchema)
 			if ok && statusConditionTrue(con) {
-				return backoff.Permanent(microerror.Maskf(notEstablishedError, con.Reason))
+				return backoff.Permanent(microerror.Maskf(notEstablishedError, con.Message))
 			}
 		}
 		// In case the CRD is not yet established we have to retry and only return a
@@ -179,7 +183,7 @@ func (c *CRDClient) validateStatus(ctx context.Context, crd *apiextensionsv1beta
 		{
 			con, ok := statusCondition(manifest.Status.Conditions, apiextensionsv1beta1.Established)
 			if ok && statusConditionFalse(con) {
-				return microerror.Maskf(notEstablishedError, con.Reason)
+				return microerror.Maskf(notEstablishedError, con.Message)
 			}
 		}
 
