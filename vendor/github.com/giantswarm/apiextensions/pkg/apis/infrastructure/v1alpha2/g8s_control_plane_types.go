@@ -36,10 +36,8 @@ spec:
       storage: true
       schema:
         openAPIV3Schema:
-          type: object
           properties:
             spec:
-              type: object
               properties:
                 infrastructureRef:
                   type: object
