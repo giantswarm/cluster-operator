@@ -21,9 +21,9 @@
 
 
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/apiextensions"
+  version = "~0.1.0"
 
 [[constraint]]
   branch = "master"
