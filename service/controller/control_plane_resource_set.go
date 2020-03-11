@@ -54,7 +54,7 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
-			ToObjRef: toClusterObjRef,
+			ToObjRef: toG8sControlPlaneObjRef,
 			Provider: config.Provider,
 		}
 
