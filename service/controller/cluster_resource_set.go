@@ -38,6 +38,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
@@ -363,6 +364,19 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
+	var updateG8sControlPlanesResource resource.Interface
+	{
+		c := updateg8scontrolplanes.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		updateG8sControlPlanesResource, err = updateg8scontrolplanes.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
@@ -424,6 +438,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
+		updateG8sControlPlanesResource,
 		updateMachineDeploymentsResource,
 		updateInfraRefsResource,
 		keepForInfraRefsResource,
