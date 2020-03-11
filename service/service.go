@@ -186,6 +186,8 @@ func New(config Config) (*Service, error) {
 		c := controller.ControlPlaneConfig{
 			K8sClient: k8sClient,
 			Logger:    config.Logger,
+
+			Provider: provider,
 		}
 
 		controlPlaneController, err = controller.NewControlPlane(c)

@@ -16,6 +16,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 )
 
 // controlPlaneResourceSetConfig contains necessary dependencies and settings for
@@ -23,6 +24,8 @@ import (
 type controlPlaneResourceSetConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	Provider string
 }
 
 // newControlPlaneResourceSet returns a configured Control Plane Controller
@@ -45,8 +48,25 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 		}
 	}
 
+	var updateInfraRefsResource resource.Interface
+	{
+		c := updateinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toG8sControlPlaneObjRef,
+			Provider: config.Provider,
+		}
+
+		updateInfraRefsResource, err = updateinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		keepForInfraRefsResource,
+		updateInfraRefsResource,
 	}
 
 	// Wrap resources with retry and metrics.
