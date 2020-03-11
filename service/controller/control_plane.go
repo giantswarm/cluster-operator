@@ -16,6 +16,8 @@ import (
 type ControlPlaneConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+
+	Provider string
 }
 
 type ControlPlane struct {
@@ -30,6 +32,8 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 		c := controlPlaneResourceSetConfig{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+
+			Provider: config.Provider,
 		}
 
 		resourceSet, err = newControlPlaneResourceSet(c)
