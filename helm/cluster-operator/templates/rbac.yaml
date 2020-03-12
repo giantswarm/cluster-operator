@@ -2,6 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ tpl .Values.resource.default.name  . }}
+  labels:
+    {{- include "cluster-operator.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ""
@@ -89,6 +91,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ tpl .Values.resource.default.name  . }}
+  labels:
+    {{- include "cluster-operator.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ tpl .Values.resource.default.name  . }}
@@ -102,6 +106,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ tpl .Values.resource.psp.name . }}
+  labels:
+    {{- include "cluster-operator.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - extensions
@@ -116,6 +122,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ tpl .Values.resource.psp.name . }}
+  labels:
+    {{- include "cluster-operator.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ tpl .Values.resource.default.name  . }}
