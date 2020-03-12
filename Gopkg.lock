@@ -89,11 +89,11 @@
   revision = "25d852aebe32c875e9c044af3eef9c7dc6bc777f"
 
 [[projects]]
-  branch = "master"
-  digest = "1:1bcf68bcca088ac6ffa7a8834dc7ae61b7679d2bca6e60a370526d834077c949"
+  digest = "1:520f23cf3864e25b4caa486502c80a7af1041985674074543ffbda3715d32970"
   name = "github.com/giantswarm/apiextensions"
   packages = [
     "pkg/apis/application/v1alpha1",
+    "pkg/apis/backup/v1alpha1",
     "pkg/apis/core/v1alpha1",
     "pkg/apis/example/v1alpha1",
     "pkg/apis/infrastructure/v1alpha2",
@@ -104,6 +104,8 @@
     "pkg/clientset/versioned/scheme",
     "pkg/clientset/versioned/typed/application/v1alpha1",
     "pkg/clientset/versioned/typed/application/v1alpha1/fake",
+    "pkg/clientset/versioned/typed/backup/v1alpha1",
+    "pkg/clientset/versioned/typed/backup/v1alpha1/fake",
     "pkg/clientset/versioned/typed/core/v1alpha1",
     "pkg/clientset/versioned/typed/core/v1alpha1/fake",
     "pkg/clientset/versioned/typed/example/v1alpha1",
@@ -116,7 +118,8 @@
     "pkg/clientset/versioned/typed/release/v1alpha1/fake",
   ]
   pruneopts = "UT"
-  revision = "5bd95e0af5b6b99187b0009d124bf8a232f920f8"
+  revision = "9552ed6bec737d139a14042569f7f96bc32d5a00"
+  version = "v0.1.1"
 
 [[projects]]
   branch = "master"
@@ -1133,14 +1136,6 @@
   packages = ["pkg/util/proto"]
   pruneopts = "UT"
   revision = "addea2498afe5a6d58f8bdcd9ae51363d12f12ef"
-
-[[projects]]
-  digest = "1:54428549fab97a5d289d373b5f2419b996e56f1b02d3f4e01753de808bb2854f"
-  name = "k8s.io/kubernetes"
-  packages = ["pkg/apis/core"]
-  pruneopts = "UT"
-  revision = "59603c6e503c87169aea6106f57b9f242f64df89"
-  version = "v1.17.2"
 
 [[projects]]
   branch = "master"
