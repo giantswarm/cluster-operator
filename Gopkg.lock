@@ -249,12 +249,12 @@
   revision = "e991deac265373d9347b96ecc56b13f228be144f"
 
 [[projects]]
-  branch = "master"
   digest = "1:701a5f5a7297ced0c7b9aeeba6a40ef47663b956d56e7acd09fe0d1c31eb1e4b"
   name = "github.com/giantswarm/microerror"
   packages = ["."]
   pruneopts = "UT"
   revision = "e8fe0fa9c0097ca80d8b773e1d728843447f9233"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
@@ -280,8 +280,7 @@
   revision = "429e22e73d3e1ccfbc9311baa3ea9526423debdf"
 
 [[projects]]
-  branch = "master"
-  digest = "1:c313924ca7110c452a83502384552f4dd2ed25dd0f3ab8aa8a34707315243561"
+  digest = "1:4e616fe01d486048e77342e2c5e638f8744ec6da802335633740aafb057f50d8"
   name = "github.com/giantswarm/micrologger"
   packages = [
     ".",
@@ -289,7 +288,8 @@
     "microloggertest",
   ]
   pruneopts = "UT"
-  revision = "d866337f739365a54de5924b8a7b29df17693ef8"
+  revision = "c4d217562e3d493e3ff571707346a5a2653475cb"
+  version = "v0.1.1"
 
 [[projects]]
   branch = "master"
@@ -314,7 +314,7 @@
     "resource/wrapper/retryresource",
   ]
   pruneopts = "UT"
-  revision = "aa7ed959916171a1bc18c4f5ecf4b680c7e4af9e"
+  revision = "748c399a1bba09ef0227617d1e313c2723e16c5f"
 
 [[projects]]
   branch = "master"
