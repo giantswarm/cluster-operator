@@ -11,7 +11,7 @@ var versionBundleAzure = versionbundle.Bundle{
 			Description: "Support small cluster profile detection.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/960",
+				"https://github.com/giantswarm/cluster-operator/pull/963",
 			},
 		},
 	},
