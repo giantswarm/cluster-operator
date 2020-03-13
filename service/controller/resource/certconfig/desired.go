@@ -45,6 +45,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	{
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAppOperator(*cc, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAWSOperator(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(*cc, cr)))
@@ -112,6 +113,21 @@ func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1a
 		ClusterComponent: certs.AppOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
+		//
+		//     https://github.com/giantswarm/giantswarm/issues/6822
+		//
+		Organizations: []string{"system:masters"},
+		TTL:           r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForAWSOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	return corev1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.AWSOperatorAPICert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("aws-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
