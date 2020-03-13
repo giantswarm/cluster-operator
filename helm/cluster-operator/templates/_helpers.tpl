@@ -23,6 +23,7 @@ app.giantswarm.io/branch: {{ .Values.project.branch }}
 app.giantswarm.io/commit: {{ .Values.project.commit }}
 app.kubernetes.io/name: {{ include "cluster-operator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- include "cluster-operator.name" . }}.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
