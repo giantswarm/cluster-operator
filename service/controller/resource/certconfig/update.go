@@ -19,17 +19,17 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 	if len(certConfigs) > 0 {
 		for _, certConfig := range certConfigs {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
 			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Update(certConfig)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not update certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not update CertConfig CRs")
 	}
 
 	return nil
