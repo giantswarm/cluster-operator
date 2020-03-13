@@ -74,7 +74,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 		if workerCount == 1 {
 			determinedTCProfile = xs
-		} else if (workerCount <= 3) || (workerMaxCPUCoresKnown && workerMaxCPUCores <= 2) {
+		} else if (workerCount < 4) || (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) {
 			determinedTCProfile = s
 		}
 	}
