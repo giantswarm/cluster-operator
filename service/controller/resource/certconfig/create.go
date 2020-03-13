@@ -20,7 +20,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 
 	if len(certConfigs) > 0 {
 		for _, certConfig := range certConfigs {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
 			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Create(certConfig)
 			if apierrors.IsAlreadyExists(err) {
@@ -29,10 +29,10 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not create certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not create CertConfig CRs")
 	}
 
 	return nil

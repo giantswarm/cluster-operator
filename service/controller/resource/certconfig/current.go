@@ -15,8 +15,8 @@ import (
 )
 
 // GetCurrentState takes observed custom object as an input and based on that
-// information looks for current state of cluster certconfigs and returns them.
-// Return value is of type []*v1alpha1.CertConfig.
+// information looks for current state of cluster CertConfig CRs and returns
+// them. Return value is of type []*v1alpha1.CertConfig.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
@@ -27,7 +27,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	if cc.Status.Endpoint.Base == "" {
+	// We need the endpoint base to compute the desired state so we can create the
+	// CertConfig CRs and keep them up to date througout their lifecycle. In case
+	// of delete events we do not need the endpoint base anymore, so we must not
+	// cancel here, but fetch the current state and use that to delete the
+	// CertConfig CRs properly.
+	if cc.Status.Endpoint.Base == "" && !key.IsDeleted(&cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
@@ -36,7 +41,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	var certConfigs []*v1alpha1.CertConfig
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding certconfigs in namespace %#q", cr.Namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding CertConfig CRs in namespace %#q", cr.Namespace))
 
 		o := metav1.ListOptions{
 			Continue:      "",
@@ -61,7 +66,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d certconfigs in namespace %#q", len(certConfigs), cr.Namespace))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d CertConfig CRs in namespace %#q", len(certConfigs), cr.Namespace))
 
 	return certConfigs, nil
 }

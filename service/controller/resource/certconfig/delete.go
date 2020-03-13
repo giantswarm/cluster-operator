@@ -19,7 +19,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 	if len(certConfigs) != 0 {
 		for _, certConfig := range certConfigs {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
 			err := r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Delete(certConfig.Name, &metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
@@ -28,10 +28,10 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted certconfig %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete certconfigs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete CertConfig CRs")
 	}
 
 	return nil

@@ -37,7 +37,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	// Cluster deletion should not be affected only because some releases are
 	// missing or broken when fetching them from cluster-service.
 	if key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state of cert config crs due to delete event")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state of CertConfig CRs due to delete event")
 		return nil, nil
 	}
 
