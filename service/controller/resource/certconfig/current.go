@@ -27,7 +27,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	if cc.Status.Endpoint.Base == "" {
+	// We need the endpoint base to compute the desired state so we can create the
+	// CertConfig CRs and keep them up to date througout their lifecycle. In case
+	// of delete events we do not need the endpoint base anymore, so we must not
+	// cancel here, but fetch the current state and use that to delete the
+	// CertConfig CRs properly.
+	if cc.Status.Endpoint.Base == "" && !key.IsDeleted(&cr) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
