@@ -8,7 +8,7 @@ var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   "cluster-operator",
-			Description: "Support small cluster profile detection.",
+			Description: "Support xxs, xs, and small cluster profile detection.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
 				"https://github.com/giantswarm/cluster-operator/pull/963",
