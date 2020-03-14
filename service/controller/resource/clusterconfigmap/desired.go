@@ -18,7 +18,8 @@ import (
 type clusterProfile int
 
 const (
-	xs clusterProfile = iota + 1
+	xxs clusterProfile = iota + 1
+	xs
 	s
 )
 
@@ -73,7 +74,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 
 		if workerCount == 1 {
-			determinedTCProfile = xs
+			determinedTCProfile = xxs
 		} else if (workerCount < 4) && (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) {
 			determinedTCProfile = xs
 		} else if (workerCount >= 4) && (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) {
