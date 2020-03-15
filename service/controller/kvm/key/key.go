@@ -58,7 +58,7 @@ func WorkerMaxCPUCores(kvmClusterConfig v1alpha1.KVMClusterConfig) (maxCPUCores 
 		return 0, false
 	}
 
-	maxCPUCores := 0
+	maxCPUCores = 0
 	for _, w := range kvmClusterConfig.Spec.Guest.Workers {
 		workerCPUCores := w.KVMClusterConfigSpecGuestNode.CPUCores
 		if workerCPUCores > maxCPUCores {
