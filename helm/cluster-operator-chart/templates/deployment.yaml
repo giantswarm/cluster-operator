@@ -8,6 +8,9 @@ metadata:
     version: {{ .Chart.Version }}
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: cluster-operator
   strategy:
     type: Recreate
   template:
