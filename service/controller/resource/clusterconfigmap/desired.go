@@ -21,9 +21,9 @@ const (
 	// Here we declare supported cluster profile constants.
 	// They are encoded as ordered incrementing numbers so they can be compared
 	// with relational operators for equality and ineqality.
-	xxs clusterProfile = iota + 1
-	xs
-	s
+	xxs clusterProfile = iota + 1 // worker count == 1
+	xs                            // worker count [2-3], max CPU cores < 4
+	s                             // worker count > 3, max CPU cores < 4
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
