@@ -22,7 +22,7 @@ type Config struct {
 	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	GetWorkerCountFunc       func(obj interface{}) (int, error)
-	GetWorkerMaxCPUCoresFunc func(obj interface{}) (int, bool, error)
+	GetWorkerMaxCPUCoresFunc func(obj interface{}) (maxCPUCores int, known bool, err error)
 	K8sClient                kubernetes.Interface
 	Logger                   micrologger.Logger
 
@@ -39,7 +39,7 @@ type StateGetter struct {
 	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
 	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
 	getWorkerCountFunc       func(obj interface{}) (int, error)
-	getWorkerMaxCPUCoresFunc func(obj interface{}) (int, bool, error)
+	getWorkerMaxCPUCoresFunc func(obj interface{}) (naxCPUCores int, known bool, err error)
 	k8sClient                kubernetes.Interface
 	logger                   micrologger.Logger
 

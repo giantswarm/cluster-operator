@@ -407,7 +407,7 @@ func getWorkerCount(obj interface{}) (int, error) {
 	return key.WorkerCount(cr), nil
 }
 
-func getWorkerMaxCPUCores(obj interface{}) (int, bool, error) {
+func getWorkerMaxCPUCores(obj interface{}) (maxCPUCores int, known bool, err error) {
 	return 0, false, nil
 }
 

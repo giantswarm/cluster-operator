@@ -53,7 +53,7 @@ func WorkerCount(kvmClusterConfig v1alpha1.KVMClusterConfig) int {
 	return len(kvmClusterConfig.Spec.Guest.Workers)
 }
 
-func WorkerMaxCPUCores(kvmClusterConfig v1alpha1.KVMClusterConfig) (int, bool) {
+func WorkerMaxCPUCores(kvmClusterConfig v1alpha1.KVMClusterConfig) (maxCPUCores int, known bool) {
 	if WorkerCount(kvmClusterConfig) == 0 {
 		return 0, false
 	}
