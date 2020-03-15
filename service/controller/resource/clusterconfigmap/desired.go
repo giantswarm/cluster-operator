@@ -18,6 +18,9 @@ import (
 type clusterProfile int
 
 const (
+	// Here we declare supported cluster profile constants.
+	// They are encoded as ordered incrementing numbers so they can be compared
+	// with relational operators for equality and ineqality.
 	xxs clusterProfile = iota + 1
 	xs
 	s
