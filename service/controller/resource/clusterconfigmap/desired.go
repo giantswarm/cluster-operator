@@ -131,7 +131,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		},
 	}
 
-	if determinedTCProfile >= xxs {
+	if determinedTCProfile > 0 {
 		for _, configMapSpec := range configMapSpecs {
 			_, ok := configMapSpec.Values["cluster"]
 			if !ok {
