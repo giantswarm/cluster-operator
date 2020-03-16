@@ -18,7 +18,12 @@ import (
 type clusterProfile int
 
 const (
-	xs clusterProfile = iota + 1
+	// Here we declare supported cluster profile constants.
+	// They are encoded as ordered incrementing numbers so they can be compared
+	// with relational operators for equality and ineqality.
+	xxs clusterProfile = iota + 1 // worker count == 1
+	xs                            // worker count [2-3], max CPU cores < 4
+	s                             // worker count > 3, max CPU cores < 4
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
@@ -58,7 +63,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
-	var clusterProfile clusterProfile
+	var determinedTCProfile clusterProfile
 	{
 		// this is desired, not the current number of tenant cluster worker nodes
 		workerCount, err := r.getWorkerCountFunc(obj)
@@ -66,8 +71,17 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			return nil, microerror.Mask(err)
 		}
 
+		workerMaxCPUCores, workerMaxCPUCoresKnown, err := r.getWorkerMaxCPUCoresFunc(obj)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		if workerCount == 1 {
-			clusterProfile = xs
+			determinedTCProfile = xxs
+		} else if (workerCount < 4) && (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) {
+			determinedTCProfile = xs
+		} else if (workerCount >= 4) && (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) {
+			determinedTCProfile = s
 		}
 	}
 
@@ -117,7 +131,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		},
 	}
 
-	if clusterProfile >= xs {
+	if determinedTCProfile > 0 {
 		for _, configMapSpec := range configMapSpecs {
 			_, ok := configMapSpec.Values["cluster"]
 			if !ok {
@@ -125,7 +139,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 			}
 
 			clusterMap := configMapSpec.Values["cluster"].(map[string]interface{})
-			clusterMap["profile"] = clusterProfile
+			clusterMap["profile"] = determinedTCProfile
 		}
 	}
 
