@@ -203,12 +203,13 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 	var clusterConfigMapResource resource.Interface
 	{
 		c := clusterconfigmap.Config{
-			GetClusterConfigFunc:     getClusterConfig,
-			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			GetWorkerCountFunc:       getWorkerCount,
-			GetWorkerMaxCPUCoresFunc: getWorkerMaxCPUCores,
-			K8sClient:                config.K8sClient.K8sClient(),
-			Logger:                   config.Logger,
+			GetClusterConfigFunc:         getClusterConfig,
+			GetClusterObjectMetaFunc:     getClusterObjectMeta,
+			GetWorkerCountFunc:           getWorkerCount,
+			GetWorkerMaxCPUCoresFunc:     getWorkerMaxCPUCores,
+			GetWorkerMaxMemorySizeGBFunc: getWorkerMaxMemorySizeGB,
+			K8sClient:                    config.K8sClient.K8sClient(),
+			Logger:                       config.Logger,
 
 			CalicoAddress:      config.CalicoAddress,
 			CalicoPrefixLength: config.CalicoPrefixLength,
@@ -408,6 +409,10 @@ func getWorkerCount(obj interface{}) (int, error) {
 }
 
 func getWorkerMaxCPUCores(obj interface{}) (maxCPUCores int, known bool, err error) {
+	return 0, false, nil
+}
+
+func getWorkerMaxMemorySizeGB(obj interface{}) (maxMemorySizeGB float64, known bool, err error) {
 	return 0, false, nil
 }
 

@@ -68,3 +68,19 @@ func WorkerMaxCPUCores(kvmClusterConfig v1alpha1.KVMClusterConfig) (maxCPUCores 
 
 	return maxCPUCores, true
 }
+
+func WorkerMaxMemorySizeGB(kvmClusterConfig v1alpha1.KVMClusterConfig) (maxMemorySizeGB float64, known bool) {
+	if WorkerCount(kvmClusterConfig) == 0 {
+		return 0, false
+	}
+
+	maxMemorySizeGB = 0
+	for _, w := range kvmClusterConfig.Spec.Guest.Workers {
+		workerMemorySizeGB := w.KVMClusterConfigSpecGuestNode.MemorySizeGB
+		if workerMemorySizeGB > maxMemorySizeGB {
+			maxMemorySizeGB = workerMemorySizeGB
+		}
+	}
+
+	return maxMemorySizeGB, true
+}
