@@ -22,8 +22,8 @@ const (
 	// They are encoded as ordered incrementing numbers so they can be compared
 	// with relational operators for equality and ineqality.
 	xxs clusterProfile = iota + 1 // worker count == 1
-	xs                            // worker count [2-3], max CPU cores < 4 or max memory < 6 GB
-	s                             // worker count > 3, max CPU cores < 4 or max memory < 6 GB
+	xs                            // worker count [2-3], max worker CPU cores < 4 or max worker memory < 6 GB
+	s                             // worker count > 3, max worker CPU cores < 4 or max worker memory < 6 GB; worker count [2-3], unknown CPU & memory
 )
 
 func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
@@ -83,6 +83,8 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 		if workerCount == 1 {
 			determinedTCProfile = xxs
+		} else if workerCount < 4 && !workerMaxCPUCoresKnown && !workerMaxMemorySizeGBKnown {
+			determinedTCProfile = s
 		} else if (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) || (workerMaxMemorySizeGBKnown && workerMaxMemorySizeGB < 6) {
 			if workerCount < 4 {
 				determinedTCProfile = xs
