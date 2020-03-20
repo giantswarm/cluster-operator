@@ -18,6 +18,7 @@ Common labels
 */}}
 {{- define "cluster-operator.labels" -}}
 helm.sh/chart: {{ include "cluster-operator.chart" . | quote }}
+app: {{ include "cluster-operator.name" . | quote }}
 {{ include "cluster-operator.selectorLabels" . }}
 app.giantswarm.io/branch: {{ .Values.project.branch | quote }}
 app.giantswarm.io/commit: {{ .Values.project.commit | quote }}
