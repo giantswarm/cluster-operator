@@ -20,9 +20,10 @@
 #  version = "2.4.0"
 
 
+
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/microerror"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "gopkg.in/resty.v1"
@@ -31,6 +32,8 @@
 [[constraint]]
   name = "github.com/prometheus/client_golang"
   version = "0.9.3"
+
+
 
 [prune]
   go-tests = true

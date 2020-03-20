@@ -25,57 +25,57 @@
   name = "github.com/giantswarm/apiextensions"
   version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/certs"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/clusterclient"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/errors"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/k8sclient"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/kubeconfig"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/microendpoint"
+  version = "~0.1.0"
 
 [[override]]
   name = "github.com/giantswarm/microerror"
   version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/microkit"
+  version = "~0.1.0"
 
 [[override]]
-  version = "~0.1.0"
   name = "github.com/giantswarm/micrologger"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/operatorkit"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/resource"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/tenantcluster"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/versionbundle"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "github.com/prometheus/client_golang"

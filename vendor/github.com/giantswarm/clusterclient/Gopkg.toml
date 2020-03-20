@@ -20,25 +20,28 @@
 #  version = "2.4.0"
 
 
+
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/microclient"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/microerror"
+  version = "~0.1.0"
 
-[[constraint]]
-  branch = "master"
+[[override]]
   name = "github.com/giantswarm/micrologger"
+  version = "~0.1.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/giantswarm/versionbundle"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "gopkg.in/resty.v1"
   version = "1.0.0"
+
+
 
 [prune]
   go-tests = true

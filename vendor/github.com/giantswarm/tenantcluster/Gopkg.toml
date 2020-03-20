@@ -28,19 +28,19 @@
 
 [[constraint]]
   name = "github.com/giantswarm/certs"
-  branch = "master"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "github.com/giantswarm/k8sclient"
-  branch = "master"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "github.com/giantswarm/microerror"
-  branch = "master"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "github.com/giantswarm/micrologger"
-  branch = "master"
+  version = "~0.1.0"
 
 [[constraint]]
   name = "k8s.io/client-go"
