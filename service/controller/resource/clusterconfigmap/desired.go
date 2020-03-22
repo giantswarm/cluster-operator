@@ -83,14 +83,14 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 		if workerCount == 1 {
 			determinedTCProfile = xxs
-		} else if workerCount < 4 && !workerMaxCPUCoresKnown && !workerMaxMemorySizeGBKnown {
-			determinedTCProfile = s
-		} else if (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) || (workerMaxMemorySizeGBKnown && workerMaxMemorySizeGB < 6) {
-			if workerCount < 4 {
+		} else if workerCount < 4 {
+			if (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) || (workerMaxMemorySizeGBKnown && workerMaxMemorySizeGB < 6) {
 				determinedTCProfile = xs
 			} else {
 				determinedTCProfile = s
 			}
+		} else if (workerMaxCPUCoresKnown && workerMaxCPUCores < 4) || (workerMaxMemorySizeGBKnown && workerMaxMemorySizeGB < 6) {
+			determinedTCProfile = s
 		}
 	}
 
