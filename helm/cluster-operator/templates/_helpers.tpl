@@ -20,10 +20,10 @@ Common labels
 app: {{ include "cluster-operator.name" . | quote }}
 app.giantswarm.io/branch: {{ .Values.project.branch | quote }}
 app.giantswarm.io/commit: {{ .Values.project.commit | quote }}
-{{ include "cluster-operator.selectorLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 helm.sh/chart: {{ include "cluster-operator.chart" . | quote }}
+{{ include "cluster-operator.selectorLabels" . }}
 {{- end -}}
 
 {{/*
