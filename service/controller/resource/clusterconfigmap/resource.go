@@ -19,12 +19,13 @@ const (
 // Config represents the configuration used to create a new clusterConfigMap resource.
 type Config struct {
 	// Dependencies.
-	GetClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
-	GetClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
-	GetWorkerCountFunc       func(obj interface{}) (int, error)
-	GetWorkerMaxCPUCoresFunc func(obj interface{}) (maxCPUCores int, known bool, err error)
-	K8sClient                kubernetes.Interface
-	Logger                   micrologger.Logger
+	GetClusterConfigFunc         func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	GetClusterObjectMetaFunc     func(obj interface{}) (metav1.ObjectMeta, error)
+	GetWorkerCountFunc           func(obj interface{}) (int, error)
+	GetWorkerMaxCPUCoresFunc     func(obj interface{}) (maxCPUCores int, known bool, err error)
+	GetWorkerMaxMemorySizeGBFunc func(obj interface{}) (maxMemorySizeGB float64, known bool, err error)
+	K8sClient                    kubernetes.Interface
+	Logger                       micrologger.Logger
 
 	// Settings.
 	CalicoAddress      string
@@ -36,12 +37,13 @@ type Config struct {
 // Resource implements the clusterConfigMap resource.
 type StateGetter struct {
 	// Dependencies.
-	getClusterConfigFunc     func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
-	getClusterObjectMetaFunc func(obj interface{}) (metav1.ObjectMeta, error)
-	getWorkerCountFunc       func(obj interface{}) (int, error)
-	getWorkerMaxCPUCoresFunc func(obj interface{}) (naxCPUCores int, known bool, err error)
-	k8sClient                kubernetes.Interface
-	logger                   micrologger.Logger
+	getClusterConfigFunc         func(obj interface{}) (v1alpha1.ClusterGuestConfig, error)
+	getClusterObjectMetaFunc     func(obj interface{}) (metav1.ObjectMeta, error)
+	getWorkerCountFunc           func(obj interface{}) (int, error)
+	getWorkerMaxCPUCoresFunc     func(obj interface{}) (maxCPUCores int, known bool, err error)
+	getWorkerMaxMemorySizeGBFunc func(obj interface{}) (maxMemorySizeGB float64, known bool, err error)
+	k8sClient                    kubernetes.Interface
+	logger                       micrologger.Logger
 
 	// Settings.
 	calicoAddress      string
@@ -65,6 +67,9 @@ func New(config Config) (*StateGetter, error) {
 	if config.GetWorkerMaxCPUCoresFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.GetWorkerMaxCPUCoresFunc must not be empty", config)
 	}
+	if config.GetWorkerMaxMemorySizeGBFunc == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.GetWorkerMaxMemorySizeGBFunc must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -82,12 +87,13 @@ func New(config Config) (*StateGetter, error) {
 
 	r := &StateGetter{
 		// Dependencies.
-		getClusterConfigFunc:     config.GetClusterConfigFunc,
-		getClusterObjectMetaFunc: config.GetClusterObjectMetaFunc,
-		getWorkerCountFunc:       config.GetWorkerCountFunc,
-		getWorkerMaxCPUCoresFunc: config.GetWorkerMaxCPUCoresFunc,
-		k8sClient:                config.K8sClient,
-		logger:                   config.Logger,
+		getClusterConfigFunc:         config.GetClusterConfigFunc,
+		getClusterObjectMetaFunc:     config.GetClusterObjectMetaFunc,
+		getWorkerCountFunc:           config.GetWorkerCountFunc,
+		getWorkerMaxCPUCoresFunc:     config.GetWorkerMaxCPUCoresFunc,
+		getWorkerMaxMemorySizeGBFunc: config.GetWorkerMaxMemorySizeGBFunc,
+		k8sClient:                    config.K8sClient,
+		logger:                       config.Logger,
 
 		// Settings
 		calicoAddress:      config.CalicoAddress,
