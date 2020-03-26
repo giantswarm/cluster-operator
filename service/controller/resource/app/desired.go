@@ -122,7 +122,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Clu
 
 	err = yaml.Unmarshal([]byte(appConfigs), &u)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.Stack(err))
+		r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.JSON(err))
 		return nil, nil
 	}
 
