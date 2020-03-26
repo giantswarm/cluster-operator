@@ -27,14 +27,10 @@ import (
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
 const (
 	apiServerIPLastOctet = 1
-
-	defaultCNRAddress      = "https://quay.io"
-	defaultCNROrganization = "giantswarm"
 )
 
 // Config represents the configuration used to create a new service.
@@ -292,30 +288,18 @@ func New(config Config) (*Service, error) {
 // Boot starts top level service implementation.
 func (s *Service) Boot(ctx context.Context) {
 	s.bootOnce.Do(func() {
-		go s.operatorCollector.Boot(ctx)
+		go func() {
+			err := s.operatorCollector.Boot(ctx)
+			if err != nil {
+				panic(microerror.JSON(err))
+			}
+		}()
 
 		// Start the controllers.
 		go s.controlPlaneController.Boot(ctx)
 		go s.clusterController.Boot(ctx)
 		go s.machineDeploymentController.Boot(ctx)
 	})
-}
-
-func newBaseClusterConfig(f *flag.Flag, v *viper.Viper) (*cluster.Config, error) {
-	networkIP, apiServerIP, err := parseClusterIPRange(v.GetString(f.Guest.Cluster.Kubernetes.API.ClusterIPRange))
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	clusterConfig := &cluster.Config{
-		CertTTL: v.GetString(f.Guest.Cluster.Vault.Certificate.TTL),
-		IP: cluster.IP{
-			API:   apiServerIP,
-			Range: networkIP,
-		},
-	}
-
-	return clusterConfig, nil
 }
 
 func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {

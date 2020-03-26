@@ -32,14 +32,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 
 	var resourceSet *controller.ResourceSet
 	{
-		c := machineDeploymentResourceSetConfig{
-			ClusterClient: config.ClusterClient,
-			K8sClient:     config.K8sClient,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-
-			Provider: config.Provider,
-		}
+		c := machineDeploymentResourceSetConfig(config)
 
 		resourceSet, err = newMachineDeploymentResourceSet(c)
 		if err != nil {

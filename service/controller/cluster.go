@@ -49,27 +49,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 	var resourceSet *controller.ResourceSet
 	{
-		c := clusterResourceSetConfig{
-			CertsSearcher: config.CertsSearcher,
-			ClusterClient: config.ClusterClient,
-			FileSystem:    config.FileSystem,
-			K8sClient:     config.K8sClient,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-
-			APIIP:                      config.APIIP,
-			CalicoAddress:              config.CalicoAddress,
-			CalicoPrefixLength:         config.CalicoPrefixLength,
-			CertTTL:                    config.CertTTL,
-			ClusterIPRange:             config.ClusterIPRange,
-			DNSIP:                      config.DNSIP,
-			ClusterDomain:              config.ClusterDomain,
-			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
-			Provider:                   config.Provider,
-			RawAppDefaultConfig:        config.RawAppDefaultConfig,
-			RawAppOverrideConfig:       config.RawAppOverrideConfig,
-			RegistryDomain:             config.RegistryDomain,
-		}
+		c := clusterResourceSetConfig(config)
 
 		resourceSet, err = newClusterResourceSet(c)
 		if err != nil {

@@ -130,7 +130,10 @@ func mainE() error {
 	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Default, "", "Default properties for app.")
 	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Override, "", "Overriding properties for app.")
 
-	newCommand.CobraCommand().Execute()
+	err = newCommand.CobraCommand().Execute()
+	if err != nil {
+		return microerror.Mask(err)
+	}
 
 	return nil
 }
