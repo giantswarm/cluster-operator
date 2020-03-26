@@ -5,8 +5,9 @@ import (
 	"net"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/microerror"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
 )
 
 const (
