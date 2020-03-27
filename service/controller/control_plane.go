@@ -29,12 +29,7 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 
 	var resourceSet *controller.ResourceSet
 	{
-		c := controlPlaneResourceSetConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			Provider: config.Provider,
-		}
+		c := controlPlaneResourceSetConfig(config)
 
 		resourceSet, err = newControlPlaneResourceSet(c)
 		if err != nil {
