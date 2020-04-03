@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+## [2.1.6] 2020-04-03
+
 - Switch from dep to Go modules.
 - Use architect orb.
 
@@ -22,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.1.5...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.1.6...HEAD
+
+[2.1.6]: https://github.com/giantswarm/cluster-operator/compare/v2.1.5...v2.1.6
 
 [2.1.5]: https://github.com/giantswarm/cluster-operator/releases/tag/v2.1.5
