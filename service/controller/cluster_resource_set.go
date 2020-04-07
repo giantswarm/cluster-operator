@@ -427,10 +427,6 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		tenantClientsResource,
 		workerCountResource,
 
-		// Following resources manage CR status information.
-		clusterIDResource,
-		clusterStatusResource,
-
 		// Following resources manage resources in the control plane.
 		cpNamespaceResource,
 		encryptionKeyResource,
@@ -441,10 +437,14 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		updateG8sControlPlanesResource,
 		updateMachineDeploymentsResource,
 		updateInfraRefsResource,
-		keepForInfraRefsResource,
+
+		// Following resources manage CR status information.
+		clusterIDResource,
+		clusterStatusResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,
+		keepForInfraRefsResource,
 	}
 
 	// Wrap resources with retry and metrics.
