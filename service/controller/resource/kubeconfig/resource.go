@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"github.com/giantswarm/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -17,6 +18,7 @@ type Config struct {
 	CertsSearcher certs.Interface
 	K8sClient     kubernetes.Interface
 	Logger        micrologger.Logger
+	Tenant        tenantcluster.Interface
 }
 
 // Resource implements the kubeconfig resource.
@@ -24,6 +26,7 @@ type Resource struct {
 	certsSearcher certs.Interface
 	k8sClient     kubernetes.Interface
 	logger        micrologger.Logger
+	tenant        tenantcluster.Interface
 }
 
 // New creates a new configured secret state getter resource managing kube
@@ -41,11 +44,15 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.Tenant == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
+	}
 
 	r := &Resource{
 		certsSearcher: config.CertsSearcher,
 		k8sClient:     config.K8sClient,
 		logger:        config.Logger,
+		tenant:        config.Tenant,
 	}
 
 	return r, nil

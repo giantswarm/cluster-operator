@@ -2,13 +2,10 @@ package kubeconfig
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/giantswarm/certs"
-	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
@@ -29,40 +26,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, microerror.Mask(err)
 	}
 
-	// TODO we should rather use github.com/giantswarm/tenantcluster to generate
-	// the rest config.
-	var appOperator certs.AppOperator
-	{
-		appOperator, err = r.certsSearcher.SearchAppOperator(key.ClusterID(&cr))
-		if certs.IsTimeout(err) {
-			// We can't continue without the app-operator api certs. We will retry
-			// during the next execution.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
-			reconciliationcanceledcontext.SetCanceled(ctx)
-			return nil, nil
-
-		} else if err != nil {
-			return nil, microerror.Mask(err)
-		}
+	if cc.Status.Endpoint.Base == "" {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil, nil
 	}
 
 	var restConfig *rest.Config
 	{
-		c := k8srestconfig.Config{
-			Logger: r.logger,
+		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(&cr), key.APIEndpoint(cr, cc.Status.Endpoint.Base))
+		if tenantcluster.IsTimeout(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil, nil
 
-			Address:   fmt.Sprintf("https://%s", key.APIEndpoint(cr, cc.Status.Endpoint.Base)),
-			InCluster: false,
-			TLS: k8srestconfig.ConfigTLS{
-				CAData:  appOperator.APIServer.CA,
-				CrtData: appOperator.APIServer.Crt,
-				KeyData: appOperator.APIServer.Key,
-			},
-		}
-
-		restConfig, err = k8srestconfig.New(c)
-		if err != nil {
+		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}

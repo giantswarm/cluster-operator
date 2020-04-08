@@ -302,10 +302,26 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 	var kubeConfigGetter secretresource.StateGetter
 	{
+		var tenantCluster tenantcluster.Interface
+		{
+			c := tenantcluster.Config{
+				CertsSearcher: config.CertsSearcher,
+				Logger:        config.Logger,
+
+				CertID: certs.AppOperatorAPICert,
+			}
+
+			tenantCluster, err = tenantcluster.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
 		c := kubeconfig.Config{
 			CertsSearcher: config.CertsSearcher,
 			K8sClient:     config.K8sClient.K8sClient(),
 			Logger:        config.Logger,
+			Tenant:        tenantCluster,
 		}
 
 		kubeConfigGetter, err = kubeconfig.New(c)
