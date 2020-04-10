@@ -19,6 +19,7 @@ var (
 		"Latest cluster status conditions as provided by the Cluster CR status.",
 		[]string{
 			"cluster_id",
+			"release_version",
 			"status",
 		},
 		nil,
@@ -85,6 +86,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreating),
 				key.ClusterID(&cl),
+				key.ReleaseVersion(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionCreating,
 			)
 			ch <- prometheus.MustNewConstMetric(
@@ -92,6 +94,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreated),
 				key.ClusterID(&cl),
+				key.ReleaseVersion(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionCreated,
 			)
 			ch <- prometheus.MustNewConstMetric(
@@ -99,6 +102,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdating),
 				key.ClusterID(&cl),
+				key.ReleaseVersion(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionUpdating,
 			)
 			ch <- prometheus.MustNewConstMetric(
@@ -106,6 +110,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdated),
 				key.ClusterID(&cl),
+				key.ReleaseVersion(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionUpdated,
 			)
 			ch <- prometheus.MustNewConstMetric(
@@ -113,6 +118,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				prometheus.GaugeValue,
 				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionDeleting),
 				key.ClusterID(&cl),
+				key.ReleaseVersion(&cl),
 				infrastructurev1alpha2.ClusterStatusConditionDeleting,
 			)
 		}
