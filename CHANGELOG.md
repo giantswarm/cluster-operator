@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add Giant Swarm release version to cluster status metrics collector.
+
 ### Changed
 
 - Change resource order for more efficient reconciliation.
