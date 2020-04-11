@@ -9,7 +9,10 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -64,18 +67,30 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 
 func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
-	list := &apiv1alpha2.ClusterList{}
 
-	err := c.k8sClient.CtrlClient().List(ctx, list)
-	if err != nil {
-		return microerror.Mask(err)
+	var list apiv1alpha2.ClusterList
+	{
+		err := c.k8sClient.CtrlClient().List(
+			ctx,
+			&list,
+			client.MatchingLabels{label.OperatorVersion: project.Version()},
+		)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 	}
 
 	for _, cl := range list.Items {
 		cr := c.newCommonClusterObjectFunc()
-		err := c.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)), cr)
-		if err != nil {
-			return microerror.Mask(err)
+		{
+			err := c.k8sClient.CtrlClient().Get(
+				ctx,
+				key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)),
+				cr,
+			)
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
 
 		{
