@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change resource order for more efficient reconciliation.
+- Emit metrics for reconciled runtime objects only.
 
 
 
