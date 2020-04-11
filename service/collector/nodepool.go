@@ -2,19 +2,21 @@ package collector
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 var (
-	nodePools *prometheus.Desc = prometheus.NewDesc(
+	nodePoolCount *prometheus.Desc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystemNodePool, "count"),
 		"Number of Node Pools in a cluster as provided by the MachineDeployment CRs associated with a given cluster ID.",
 		[]string{
@@ -73,66 +75,62 @@ func NewNodePool(config NodePoolConfig) (*NodePool, error) {
 func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	list := &apiv1alpha2.MachineDeploymentList{}
+	var list apiv1alpha2.MachineDeploymentList
 	{
-		np.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
-
-		err := np.k8sClient.CtrlClient().List(ctx, list)
+		err := np.k8sClient.CtrlClient().List(
+			ctx,
+			&list,
+			client.MatchingLabels{label.OperatorVersion: project.Version()},
+		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-
-		np.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(list.Items)))
 	}
 
-	type nodes struct {
-		nodePoolID string
-		desired    int
-		ready      int
+	type nodePool struct {
+		id      string
+		desired int
+		ready   int
 	}
 
-	clusterNodePools := make(map[string][]nodes)
+	nodePoolMap := make(map[string][]nodePool)
 
 	for _, md := range list.Items {
-		clusterID := md.GetLabels()[label.Cluster]
-
-		n := nodes{
-			nodePoolID: md.GetLabels()[label.MachineDeployment],
-			desired:    int(md.Status.Replicas),
-			ready:      int(md.Status.ReadyReplicas),
+		np := nodePool{
+			id:      key.MachineDeployment(&md),
+			desired: int(md.Status.Replicas),
+			ready:   int(md.Status.ReadyReplicas),
 		}
 
-		clusterNodePools[clusterID] = append(clusterNodePools[clusterID], n)
+		nodePoolMap[key.ClusterID(&md)] = append(nodePoolMap[key.ClusterID(&md)], np)
 	}
 
-	for clusterID, nps := range clusterNodePools {
+	for cid, nps := range nodePoolMap {
 		{
 			ch <- prometheus.MustNewConstMetric(
-				nodePools,
+				nodePoolCount,
 				prometheus.GaugeValue,
 				float64(len(nps)),
-				clusterID,
+				cid,
 			)
 		}
 
-		for _, n := range nps {
-			{
-				ch <- prometheus.MustNewConstMetric(
-					nodePoolDesiredWorkers,
-					prometheus.GaugeValue,
-					float64(n.desired),
-					clusterID,
-					n.nodePoolID,
-				)
+		for _, np := range nps {
+			ch <- prometheus.MustNewConstMetric(
+				nodePoolDesiredWorkers,
+				prometheus.GaugeValue,
+				float64(np.desired),
+				cid,
+				np.id,
+			)
 
-				ch <- prometheus.MustNewConstMetric(
-					nodePoolReadyWorkers,
-					prometheus.GaugeValue,
-					float64(n.ready),
-					clusterID,
-					n.nodePoolID,
-				)
-			}
+			ch <- prometheus.MustNewConstMetric(
+				nodePoolReadyWorkers,
+				prometheus.GaugeValue,
+				float64(np.ready),
+				cid,
+				np.id,
+			)
 		}
 	}
 
@@ -140,7 +138,7 @@ func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 }
 
 func (np *NodePool) Describe(ch chan<- *prometheus.Desc) error {
-	ch <- nodePools
+	ch <- nodePoolCount
 	ch <- nodePoolDesiredWorkers
 	ch <- nodePoolReadyWorkers
 
