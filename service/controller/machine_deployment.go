@@ -1,7 +1,6 @@
 package controller
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -43,7 +42,6 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       infrastructurev1alpha2.NewMachineDeploymentCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{

@@ -40,7 +40,6 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 	var controlPlaneController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       infrastructurev1alpha2.NewG8sControlPlaneCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
