@@ -95,7 +95,7 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 	}
 
 	handlesFunc := func(obj interface{}) bool {
-		cr, err := key.ToCluster(obj)
+		cr, err := key.ToG8sControlPlane(obj)
 		if err != nil {
 			return false
 		}

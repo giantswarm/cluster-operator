@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Emit metrics for reconciled runtime objects only.
 - Drop CRD management to not ensure CRDs in operators anymore.
 
+### Fixed
+
+- Fix Control Plane CR reconciliation.
+
 
 
 ## [2.1.7] 2020-04-06
