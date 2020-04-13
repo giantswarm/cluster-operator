@@ -60,7 +60,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       infrastructurev1alpha2.NewClusterCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
