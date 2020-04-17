@@ -2,34 +2,34 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "cluster-operator.name" -}}
+{{- define "name" -}}
 {{- .Chart.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "cluster-operator.chart" -}}
+{{- define "chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "cluster-operator.labels" -}}
-app: {{ include "cluster-operator.name" . | quote }}
+{{- define "labels.common" -}}
+app: {{ include "name" . | quote }}
+{{ include "labels.selector" . }}
 app.giantswarm.io/branch: {{ .Values.project.branch | quote }}
 app.giantswarm.io/commit: {{ .Values.project.commit | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-helm.sh/chart: {{ include "cluster-operator.chart" . | quote }}
-{{ include "cluster-operator.selectorLabels" . }}
+helm.sh/chart: {{ include "chart" . | quote }}
 {{- end -}}
 
 {{/*
 Selector labels
 */}}
-{{- define "cluster-operator.selectorLabels" -}}
+{{- define "labels.selector" -}}
+app.kubernetes.io/name: {{ include "name" . | quote }}
 app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.kubernetes.io/name: {{ include "cluster-operator.name" . | quote }}
 {{- end -}}
