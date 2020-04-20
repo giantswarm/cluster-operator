@@ -1,4 +1,4 @@
-package clusterinfrarefstatus
+package statuscondition
 
 import (
 	"github.com/giantswarm/microerror"

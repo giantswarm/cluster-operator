@@ -31,12 +31,12 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterinfrarefstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
@@ -217,9 +217,9 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var clusterInfraRefStatusResource resource.Interface
+	var statusConditionResource resource.Interface
 	{
-		c := clusterinfrarefstatus.Config{
+		c := statuscondition.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -227,7 +227,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 			Provider:                   config.Provider,
 		}
 
-		clusterInfraRefStatusResource, err = clusterinfrarefstatus.New(c)
+		statusConditionResource, err = statuscondition.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -456,7 +456,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 		// Following resources manage CR status information.
 		clusterIDResource,
-		clusterInfraRefStatusResource,
+		statusConditionResource,
 
 		// Following resources manage tenant cluster deletion events.
 		cleanupMachineDeployments,
