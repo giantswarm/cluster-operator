@@ -31,6 +31,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
@@ -212,6 +213,21 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 
 		clusterIDResource, err = clusterid.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterStatusResource resource.Interface
+	{
+		c := clusterstatus.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		}
+
+		clusterStatusResource, err = clusterstatus.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -456,6 +472,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 		// Following resources manage CR status information.
 		clusterIDResource,
+		clusterStatusResource,
 		statusConditionResource,
 
 		// Following resources manage tenant cluster deletion events.
@@ -484,8 +501,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
-		ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
-		return ctx, nil
+		return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
 	}
 
 	handlesFunc := func(obj interface{}) bool {

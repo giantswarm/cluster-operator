@@ -90,8 +90,7 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 	}
 
 	initCtxFunc := func(ctx context.Context, obj interface{}) (context.Context, error) {
-		ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
-		return ctx, nil
+		return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
 	}
 
 	handlesFunc := func(obj interface{}) bool {
