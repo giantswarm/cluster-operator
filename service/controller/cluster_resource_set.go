@@ -233,22 +233,6 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var statusConditionResource resource.Interface
-	{
-		c := statuscondition.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
-			Provider:                   config.Provider,
-		}
-
-		statusConditionResource, err = statuscondition.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var cpNamespaceResource resource.Interface
 	{
 		c := cpnamespace.Config{
@@ -377,6 +361,22 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 
 		releaseVersionsResource, err = releaseversions.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var statusConditionResource resource.Interface
+	{
+		c := statuscondition.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
+		}
+
+		statusConditionResource, err = statuscondition.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
