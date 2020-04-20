@@ -66,10 +66,12 @@ rules:
     resources:
       - awsclusters
       - awsclusters/status
-      - awsmachinedeployments
-      - awsmachinedeployments/status
       - g8scontrolplanes
       - g8scontrolplanes/status
+      - awscontrolplanes
+      - awscontrolplanes/status
+      - awsmachinedeployments
+      - awsmachinedeployments/status
     verbs:
       - "*"
   - apiGroups:
