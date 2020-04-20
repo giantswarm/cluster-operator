@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Set `Cluster.Status.InfrastructureReady=true` on common status condition `Created`.
+
 ### Fixed
 
 - Fix RBAC rules for Control Plane CR reconciliation.
