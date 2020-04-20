@@ -1,4 +1,4 @@
-package clusterstatus
+package clusterinfrarefstatus
 
 import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "clusterstatus"
+	Name = "clusterinfrarefstatus"
 )
 
 type Config struct {
