@@ -15,8 +15,8 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	ToObjRef func(v interface{}) (corev1.ObjectReference, error)
 	Provider string
+	ToObjRef func(v interface{}) (corev1.ObjectReference, error)
 }
 
 // Resource implements the operatorkit resource interface to ensure the
@@ -35,8 +35,8 @@ type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	toObjRef func(v interface{}) (corev1.ObjectReference, error)
 	provider string
+	toObjRef func(v interface{}) (corev1.ObjectReference, error)
 }
 
 func New(config Config) (*Resource, error) {
@@ -47,19 +47,19 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
-	if config.ToObjRef == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ToObjRef must not be empty", config)
-	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
+	if config.ToObjRef == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ToObjRef must not be empty", config)
 	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
-		toObjRef: config.ToObjRef,
 		provider: config.Provider,
+		toObjRef: config.ToObjRef,
 	}
 
 	return r, nil
