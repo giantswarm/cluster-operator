@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions v0.2.0
+	github.com/giantswarm/apiextensions v0.3.0
 	github.com/giantswarm/certs v0.2.0
 	github.com/giantswarm/clusterclient v0.2.0
 	github.com/giantswarm/errors v0.2.2
@@ -13,7 +13,7 @@ require (
 	github.com/giantswarm/kubeconfig v0.2.0
 	github.com/giantswarm/microendpoint v0.2.0
 	github.com/giantswarm/microerror v0.2.0
-	github.com/giantswarm/microkit v0.2.0
+	github.com/giantswarm/microkit v0.2.1
 	github.com/giantswarm/micrologger v0.3.1
 	github.com/giantswarm/operatorkit v0.2.0
 	github.com/giantswarm/resource v0.2.0
@@ -21,12 +21,12 @@ require (
 	github.com/giantswarm/versionbundle v0.2.0
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
-	github.com/spf13/viper v1.6.2
+	github.com/spf13/viper v1.6.3
 	gopkg.in/resty.v1 v1.12.0
 	gopkg.in/yaml.v2 v2.2.8
 	k8s.io/api v0.17.2
 	k8s.io/apimachinery v0.17.2
 	k8s.io/client-go v0.17.2
 	sigs.k8s.io/cluster-api v0.3.2
-	sigs.k8s.io/controller-runtime v0.5.1
+	sigs.k8s.io/controller-runtime v0.5.2
 )

@@ -11,6 +11,10 @@ func APIEndpoint(cluster apiv1alpha2.Cluster, base string) string {
 	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(&cluster), base)
 }
 
+func KubeConfigEndpoint(cluster apiv1alpha2.Cluster, base string) string {
+	return fmt.Sprintf("https://%s", APIEndpoint(cluster, base))
+}
+
 func TenantEndpoint(cluster apiv1alpha2.Cluster, base string) string {
 	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), base)
 }

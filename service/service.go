@@ -52,8 +52,8 @@ type Service struct {
 	Version *version.Service
 
 	bootOnce                    sync.Once
-	controlPlaneController      *controller.ControlPlane
 	clusterController           *controller.Cluster
+	controlPlaneController      *controller.ControlPlane
 	machineDeploymentController *controller.MachineDeployment
 	operatorCollector           *collector.Set
 }
@@ -177,21 +177,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var controlPlaneController *controller.ControlPlane
-	{
-		c := controller.ControlPlaneConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
-
-			Provider: provider,
-		}
-
-		controlPlaneController, err = controller.NewControlPlane(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
@@ -217,6 +202,21 @@ func New(config Config) (*Service, error) {
 		}
 
 		clusterController, err = controller.NewCluster(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var controlPlaneController *controller.ControlPlane
+	{
+		c := controller.ControlPlaneConfig{
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+
+			Provider: provider,
+		}
+
+		controlPlaneController, err = controller.NewControlPlane(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -276,8 +276,8 @@ func New(config Config) (*Service, error) {
 		Version: versionService,
 
 		bootOnce:                    sync.Once{},
-		controlPlaneController:      controlPlaneController,
 		clusterController:           clusterController,
+		controlPlaneController:      controlPlaneController,
 		machineDeploymentController: machineDeploymentController,
 		operatorCollector:           operatorCollector,
 	}
@@ -296,8 +296,8 @@ func (s *Service) Boot(ctx context.Context) {
 		}()
 
 		// Start the controllers.
-		go s.controlPlaneController.Boot(ctx)
 		go s.clusterController.Boot(ctx)
+		go s.controlPlaneController.Boot(ctx)
 		go s.machineDeploymentController.Boot(ctx)
 	})
 }

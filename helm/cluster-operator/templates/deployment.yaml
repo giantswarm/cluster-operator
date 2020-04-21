@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ tpl .Values.resource.default.name  . }}
-  namespace: {{ tpl .Values.resource.default.namespace  . }}
+  name: {{ include "resource.default.name"  . }}
+  namespace: {{ include "resource.default.namespace"  . }}
   labels:
-    {{- include "cluster-operator.labels" . | nindent 4 }}
+    {{- include "labels.common" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "cluster-operator.selectorLabels" . | nindent 6 }}
+      {{- include "labels.selector" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{- include "cluster-operator.selectorLabels" . | nindent 8 }}
+        {{- include "labels.selector" . | nindent 8 }}
       annotations:
         releaseRevision: {{ $.Release.Revision | quote }}
     spec:
@@ -25,17 +25,17 @@ spec:
           - podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  {{- include "cluster-operator.selectorLabels" . | nindent 18 }}
+                  {{- include "labels.selector" . | nindent 18 }}
               topologyKey: kubernetes.io/hostname
             weight: 100
       volumes:
       - name: {{ .Chart.Name }}-configmap
         configMap:
-          name: {{ tpl .Values.resource.default.name  . }}
+          name: {{ include "resource.default.name"  . }}
           items:
           - key: config.yml
             path: config.yml
-      serviceAccountName: {{ tpl .Values.resource.default.name  . }}
+      serviceAccountName: {{ include "resource.default.name"  . }}
       securityContext:
         runAsUser: {{ .Values.pod.user.id }}
         runAsGroup: {{ .Values.pod.group.id }}
@@ -63,4 +63,4 @@ spec:
             cpu: 100m
             memory: 220Mi
       imagePullSecrets:
-      - name: {{ tpl .Values.resource.pullSecret.name . }}
+      - name: {{ include "resource.pullSecret.name" . }}
