@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Set `Cluster.Status.InfrastructureReady=true` on common status condition `Created`.
+
+### Changed
+
+- Use release.Revision in Helm chart for Helm 3 support.
+
 ### Fixed
 
 - Fix RBAC rules for Control Plane CR reconciliation.
@@ -27,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change resource order for more efficient reconciliation.
 - Emit metrics for reconciled runtime objects only.
 - Drop CRD management to not ensure CRDs in operators anymore.
+- Use release.Revision in Helm chart for Helm 3 support.
 
 ### Fixed
 
