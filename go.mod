@@ -7,7 +7,7 @@ require (
 	github.com/giantswarm/apiextensions v0.3.0
 	github.com/giantswarm/certs v0.2.0
 	github.com/giantswarm/clusterclient v0.2.0
-	github.com/giantswarm/errors v0.2.2
+	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
 	github.com/giantswarm/k8sclient v0.2.0
 	github.com/giantswarm/kubeconfig v0.2.0
