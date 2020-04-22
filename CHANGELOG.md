@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Set `Cluster.Status.InfrastructureReady=true` on common status condition `Created`.
+
 ### Changed
 
 - Use release.Revision in Helm chart for Helm 3 support.
-
 
 ### Fixed
 
