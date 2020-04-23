@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+## [2.1.9] 2020-04-23
+
 ### Added
 
 - Set `Cluster.Status.InfrastructureReady=true` on common status condition `Created`.
@@ -66,8 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.1.8...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.1.9...HEAD
 
+[2.1.9]: https://github.com/giantswarm/cluster-operator/compare/v2.1.8...v2.1.9
 [2.1.8]: https://github.com/giantswarm/cluster-operator/compare/v2.1.7...v2.1.8
 [2.1.7]: https://github.com/giantswarm/cluster-operator/compare/v2.1.6...v2.1.7
 [2.1.6]: https://github.com/giantswarm/cluster-operator/compare/v2.1.5...v2.1.6
