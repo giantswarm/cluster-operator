@@ -7,11 +7,11 @@ import (
 var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
-			Component:   "cluster-operator",
-			Description: "TODO",
+			Component:   Name(),
+			Description: "Use Release.Revision in annotation for Helm 3 compatibility.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"",
+				"https://github.com/giantswarm/cluster-operator/pull/1007",
 			},
 		},
 	},
