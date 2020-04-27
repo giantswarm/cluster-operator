@@ -24,6 +24,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
@@ -73,6 +74,20 @@ type clusterResourceSetConfig struct {
 // ResourceSet.
 func newClusterResourceSet(config clusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
+
+	var haMaster hamaster.Interface
+	{
+		c := hamaster.Config{
+			K8sClient: config.K8sClient,
+
+			Provider: config.Provider,
+		}
+
+		haMaster, err = hamaster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var appGetter appresource.StateGetter
 	{
@@ -131,6 +146,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	{
 		c := certconfig.Config{
 			G8sClient: config.K8sClient.G8sClient(),
+			HAMaster:  haMaster,
 			Logger:    config.Logger,
 
 			APIIP:         config.APIIP,

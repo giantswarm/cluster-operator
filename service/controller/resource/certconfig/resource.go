@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
+	"github.com/giantswarm/cluster-operator/service/controller/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -24,6 +25,7 @@ const (
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
 	G8sClient versioned.Interface
+	HAMaster  hamaster.Interface
 	Logger    micrologger.Logger
 
 	APIIP         string
@@ -35,6 +37,7 @@ type Config struct {
 // Resource implements the cloud config resource.
 type Resource struct {
 	g8sClient versioned.Interface
+	haMaster  hamaster.Interface
 	logger    micrologger.Logger
 
 	apiIP         string
@@ -47,6 +50,9 @@ type Resource struct {
 func New(config Config) (*Resource, error) {
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
+	if config.HAMaster == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.HAMaster must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -65,8 +71,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
 	}
 
-	newService := &Resource{
+	r := &Resource{
 		g8sClient: config.G8sClient,
+		haMaster:  config.HAMaster,
 		logger:    config.Logger,
 
 		apiIP:         config.APIIP,
@@ -75,7 +82,7 @@ func New(config Config) (*Resource, error) {
 		provider:      config.Provider,
 	}
 
-	return newService, nil
+	return r, nil
 }
 
 // Name returns name of the Resource.

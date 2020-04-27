@@ -13,6 +13,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -37,8 +38,22 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	// Cluster deletion should not be affected only because some releases are
 	// missing or broken when fetching them from cluster-service.
 	if key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state of CertConfig CRs due to delete event")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state", "reason", "the current state is used for deletion")
 		return nil, nil
+	}
+
+	// We need to determine if we want to generate certificates for a Tenant
+	// Cluster with a HA Master setup.
+	var haMasterEnabled bool
+	{
+		haMasterEnabled, err = r.haMaster.Enabled(ctx, key.ClusterID(&cr))
+		if hamaster.IsNotFound(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state", "reason", "control plane CR not available yet")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil, nil
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	var certConfigs []*corev1alpha1.CertConfig
@@ -48,15 +63,22 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAWSOperator(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForNodeOperator(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForPrometheus(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForServiceAccount(*cc, cr)))
 		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForWorker(*cc, cr)))
-	}
 
-	if r.provider == label.ProviderKVM {
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForFlanneldEtcdClient(*cc, cr)))
+		if haMasterEnabled {
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd1(*cc, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd2(*cc, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd3(*cc, cr)))
+		} else {
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(*cc, cr)))
+		}
+
+		if r.provider == label.ProviderKVM {
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForFlanneldEtcdClient(*cc, cr)))
+		}
 	}
 
 	return certConfigs, nil
@@ -170,6 +192,48 @@ func (r *Resource) newSpecForEtcd(cc controllercontext.Context, cr apiv1alpha2.C
 		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
 		IPSANs:           []string{"127.0.0.1"},
 		TTL:              r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForEtcd1(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	return corev1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.Etcd1Cert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		AltNames: []string{
+			fmt.Sprintf("etcd1.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		},
+		IPSANs: []string{"127.0.0.1"},
+		TTL:    r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForEtcd2(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	return corev1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.Etcd2Cert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		AltNames: []string{
+			fmt.Sprintf("etcd2.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		},
+		IPSANs: []string{"127.0.0.1"},
+		TTL:    r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForEtcd3(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	return corev1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.Etcd3Cert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		AltNames: []string{
+			fmt.Sprintf("etcd3.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		},
+		IPSANs: []string{"127.0.0.1"},
+		TTL:    r.certTTL,
 	}
 }
 

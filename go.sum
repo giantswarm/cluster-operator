@@ -146,6 +146,8 @@ github.com/giantswarm/backoff v0.2.0 h1:kdfAf83pZ/l8X0KiA2dJ2Wq19nS9hISijVn7ZRdF
 github.com/giantswarm/backoff v0.2.0/go.mod h1:Z3WRsFilSJ5H5VlFa4XhraoPr+9pmZgYasoY2OSfNOk=
 github.com/giantswarm/certs v0.2.0 h1:IWxNmheSV1hg2H5AZJast25IM01XOXRGA9wkUT7PLg8=
 github.com/giantswarm/certs v0.2.0/go.mod h1:Axozt4pVBuaLKDzH8TwMEDGil4y2c4/2XvUnsGNeYg8=
+github.com/giantswarm/certs v0.2.1-0.20200427183231-7d88d71baa73 h1:og6Urz7M8BdwyT2FVx98XPk/j8rHTb0hZSJONEIoicY=
+github.com/giantswarm/certs v0.2.1-0.20200427183231-7d88d71baa73/go.mod h1:Axozt4pVBuaLKDzH8TwMEDGil4y2c4/2XvUnsGNeYg8=
 github.com/giantswarm/clusterclient v0.2.0 h1:CLMKmZmrIfIQaOZ1nidBAe4DB2SHxetipDNnty3RFtM=
 github.com/giantswarm/clusterclient v0.2.0/go.mod h1:t9szHSFmFIJDHf4k5ZF6BmJwRNJujbwjigORuqQzwcw=
 github.com/giantswarm/errors v0.2.2 h1:O7shm0kFukHgzuX3iVZvxleu1RZXHFVEro/e8Ge3CgI=
