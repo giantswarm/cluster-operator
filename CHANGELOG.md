@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix cluster upgrade by fetching release versions in Control Plane controller.
+
 
 
 ## [2.1.9] 2020-04-23
