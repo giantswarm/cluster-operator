@@ -19,7 +19,7 @@ require (
 	github.com/giantswarm/resource v0.2.0
 	github.com/giantswarm/tenantcluster v0.2.0
 	github.com/giantswarm/versionbundle v0.2.0
-	github.com/prometheus/client_golang v1.5.1
+	github.com/prometheus/client_golang v1.6.0
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/viper v1.6.3
 	gopkg.in/resty.v1 v1.12.0
