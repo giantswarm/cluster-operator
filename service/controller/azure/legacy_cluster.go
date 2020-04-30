@@ -72,7 +72,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAzureClusterConfigCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
