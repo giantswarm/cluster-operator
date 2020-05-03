@@ -59,6 +59,17 @@ func (r *Resource) Name() string {
 	return Name
 }
 
+//    var re releasev1alpha1.Release
+//    {
+//      err := k8sClient.CtrlClient().Get(
+//        ctx,
+//        types.NamespacedName{Name: "v11.2.1"},
+//        &re,
+//      )
+//      if err != nil {
+//        return microerror.Mask(err)
+//      }
+//    }
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	cr, err := r.toClusterFunc(ctx, obj)
 	if err != nil {
