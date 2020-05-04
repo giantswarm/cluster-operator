@@ -99,6 +99,16 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		for _, c := range re.Spec.Components {
 			cc.Status.Versions[fmt.Sprintf("%s.giantswarm.io/version", c.Name)] = c.Version
 		}
+
+		fmt.Printf("\n")
+		fmt.Printf("\n")
+		fmt.Printf("\n")
+		for k, v := range cc.Status.Versions {
+			fmt.Printf("%#v, %#v\n", k, v)
+		}
+		fmt.Printf("\n")
+		fmt.Printf("\n")
+		fmt.Printf("\n")
 	}
 
 	return nil
