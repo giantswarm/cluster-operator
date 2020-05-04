@@ -7,6 +7,7 @@ import (
 	"time"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
+	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
 	"github.com/giantswarm/certs"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/k8sclient/k8srestconfig"
@@ -98,8 +99,9 @@ func New(config Config) (*Service, error) {
 	{
 		c := k8sclient.ClientsConfig{
 			SchemeBuilder: k8sclient.SchemeBuilder{
-				infrastructurev1alpha2.AddToScheme,
 				apiv1alpha2.AddToScheme,
+				infrastructurev1alpha2.AddToScheme,
+				releasev1alpha1.AddToScheme,
 			},
 			Logger: config.Logger,
 
