@@ -73,7 +73,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		err := r.k8sClient.CtrlClient().Get(
 			ctx,
-			types.NamespacedName{Name: key.ReleaseVersion(&cr)},
+			types.NamespacedName{Name: key.ReleaseName(key.ReleaseVersion(&cr))},
 			&re,
 		)
 		if err != nil {

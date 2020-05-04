@@ -40,6 +40,10 @@ func OrganizationID(getter LabelsGetter) string {
 	return getter.GetLabels()[label.Organization]
 }
 
+func ReleaseName(releaseVersion string) string {
+	return fmt.Sprintf("v%s", releaseVersion)
+}
+
 func ReleaseVersion(getter LabelsGetter) string {
 	return getter.GetLabels()[label.ReleaseVersion]
 }
