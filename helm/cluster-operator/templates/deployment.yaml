@@ -17,7 +17,7 @@ spec:
       labels:
         {{- include "labels.selector" . | nindent 8 }}
       annotations:
-        releasetime: {{ $.Release.Time }}
+        releaseRevision: {{ .Release.Revision | quote }}
     spec:
       affinity:
         podAntiAffinity:

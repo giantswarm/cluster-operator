@@ -3,4 +3,4 @@ name: cluster-operator
 description: The cluster-operator manages Kubernetes tenant cluster resources.
 home: https://github.com/giantswarm/cluster-operator
 version: [[ .Version ]]
-appVersion: [[ .AppVersion ]]
+appVersion: 2.1.8-1
