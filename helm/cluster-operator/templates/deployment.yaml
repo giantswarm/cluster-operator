@@ -17,7 +17,7 @@ spec:
       labels:
         {{- include "cluster-operator.selectorLabels" . | nindent 8 }}
       annotations:
-        releasetime: {{ $.Release.Time }}
+        releaseRevision: {{ .Release.Revision | quote }}
     spec:
       affinity:
         podAntiAffinity:
