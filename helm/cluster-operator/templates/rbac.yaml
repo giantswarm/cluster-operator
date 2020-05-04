@@ -5,6 +5,15 @@ metadata:
   labels:
     {{- include "labels.common" . | nindent 4 }}
 rules:
+  # The cluster-operator needs read access to our Release CRs in order to fetch
+  # and further propagate certain version information.
+  - apiGroups:
+      - release.giantswarm.io
+    resources:
+      - releases
+    verbs:
+      - get
+
   - apiGroups:
       - ""
     resources:

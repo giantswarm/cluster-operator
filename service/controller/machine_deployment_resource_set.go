@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -29,10 +28,9 @@ import (
 )
 
 type machineDeploymentResourceSetConfig struct {
-	ClusterClient *clusterclient.Client
-	K8sClient     k8sclient.Interface
-	Logger        micrologger.Logger
-	Tenant        tenantcluster.Interface
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+	Tenant    tenantcluster.Interface
 
 	Provider string
 }
@@ -85,8 +83,8 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	var releaseVersionResource resource.Interface
 	{
 		c := releaseversions.Config{
-			ClusterClient: config.ClusterClient,
-			Logger:        config.Logger,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 
 			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
 		}
