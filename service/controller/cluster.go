@@ -3,7 +3,6 @@ package controller
 import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -20,7 +19,6 @@ import (
 // CRD controller implementation.
 type ClusterConfig struct {
 	CertsSearcher certs.Interface
-	ClusterClient *clusterclient.Client
 	FileSystem    afero.Fs
 	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger

@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/clusterclient"
-	"github.com/giantswarm/clusterclient/service/release/searcher"
+	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
+	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/versionbundle"
+	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -20,22 +20,22 @@ const (
 )
 
 type Config struct {
-	ClusterClient *clusterclient.Client
-	Logger        micrologger.Logger
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
 
 	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 type Resource struct {
-	clusterClient *clusterclient.Client
-	logger        micrologger.Logger
+	k8sClient k8sclient.Interface
+	logger    micrologger.Logger
 
 	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {
-	if config.ClusterClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ClusterClient must not be empty", config)
+	if config.K8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
@@ -46,8 +46,8 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		clusterClient: config.ClusterClient,
-		logger:        config.Logger,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
 
 		toClusterFunc: config.ToClusterFunc,
 	}
@@ -59,17 +59,6 @@ func (r *Resource) Name() string {
 	return Name
 }
 
-//    var re releasev1alpha1.Release
-//    {
-//      err := k8sClient.CtrlClient().Get(
-//        ctx,
-//        types.NamespacedName{Name: "v11.2.1"},
-//        &re,
-//      )
-//      if err != nil {
-//        return microerror.Mask(err)
-//      }
-//    }
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	cr, err := r.toClusterFunc(ctx, obj)
 	if err != nil {
@@ -80,32 +69,22 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	var versionBundles []versionbundle.Bundle
-	var apps []versionbundle.App
+	var re releasev1alpha1.Release
 	{
-		req := searcher.Request{
-			ReleaseVersion: key.ReleaseVersion(&cr),
-		}
-
-		res, err := r.clusterClient.Release.Searcher.Search(ctx, req)
+		err := r.k8sClient.CtrlClient().Get(
+			ctx,
+			types.NamespacedName{Name: key.ReleaseVersion(&cr)},
+			&re,
+		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-		if len(res.Apps) == 0 {
-			return microerror.Maskf(executionFailedError, "no apps found for release %#q", req.ReleaseVersion)
-		}
-
-		apps = res.Apps
-		versionBundles = res.VersionBundles
 	}
 
 	{
-		if cc.Status.Apps == nil {
-			cc.Status.Apps = make([]controllercontext.App, 0)
-		}
-		for _, app := range apps {
+		for _, app := range re.Spec.Apps {
 			a := controllercontext.App{
-				App:              app.App,
+				App:              app.Name,
 				ComponentVersion: app.ComponentVersion,
 				Version:          app.Version,
 			}
@@ -117,8 +96,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		if cc.Status.Versions == nil {
 			cc.Status.Versions = map[string]string{}
 		}
-		for _, b := range versionBundles {
-			cc.Status.Versions[fmt.Sprintf("%s.giantswarm.io/version", b.Name)] = b.Version
+		for _, c := range re.Spec.Components {
+			cc.Status.Versions[fmt.Sprintf("%s.giantswarm.io/version", c.Name)] = c.Version
 		}
 	}
 

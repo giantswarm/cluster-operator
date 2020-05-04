@@ -5,7 +5,6 @@ import (
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -49,7 +48,6 @@ import (
 // Cluster API's Cluster controller ResourceSet configuration.
 type clusterResourceSetConfig struct {
 	CertsSearcher certs.Interface
-	ClusterClient *clusterclient.Client
 	FileSystem    afero.Fs
 	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
@@ -354,8 +352,8 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var releaseVersionsResource resource.Interface
 	{
 		c := releaseversions.Config{
-			ClusterClient: config.ClusterClient,
-			Logger:        config.Logger,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
 
 			ToClusterFunc: toClusterFunc,
 		}

@@ -8,7 +8,6 @@ import (
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs"
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
@@ -18,7 +17,6 @@ import (
 	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	resty "gopkg.in/resty.v1"
 	"k8s.io/client-go/rest"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
@@ -131,22 +129,6 @@ func New(config Config) (*Service, error) {
 		apiIP = ip.String()
 	}
 
-	var clusterClient *clusterclient.Client
-	{
-		c := clusterclient.Config{
-			Address: config.Viper.GetString(config.Flag.Service.ClusterService.Address),
-			Logger:  config.Logger,
-
-			// Timeout & RetryCount are straight from `api/service/service.go`.
-			RestClient: resty.New().SetTimeout(15 * time.Second).SetRetryCount(5),
-		}
-
-		clusterClient, err = clusterclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var certsSearcher certs.Interface
 	{
 		c := certs.Config{
@@ -181,7 +163,6 @@ func New(config Config) (*Service, error) {
 	{
 		c := controller.ClusterConfig{
 			CertsSearcher: certsSearcher,
-			ClusterClient: clusterClient,
 			FileSystem:    afero.NewOsFs(),
 			K8sClient:     k8sClient,
 			Logger:        config.Logger,
@@ -210,9 +191,8 @@ func New(config Config) (*Service, error) {
 	var controlPlaneController *controller.ControlPlane
 	{
 		c := controller.ControlPlaneConfig{
-			ClusterClient: clusterClient,
-			K8sClient:     k8sClient,
-			Logger:        config.Logger,
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
 
 			Provider: provider,
 		}
@@ -226,10 +206,9 @@ func New(config Config) (*Service, error) {
 	var machineDeploymentController *controller.MachineDeployment
 	{
 		c := controller.MachineDeploymentConfig{
-			ClusterClient: clusterClient,
-			K8sClient:     k8sClient,
-			Logger:        config.Logger,
-			Tenant:        tenantCluster,
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
+			Tenant:    tenantCluster,
 
 			Provider: provider,
 		}
