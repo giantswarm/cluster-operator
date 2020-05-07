@@ -41,20 +41,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	// controllerServiceEnabled is true for Azure legacy clusters. For AWS and
-	// KVM legacy clusters this service is disabled and it is created via
-	// ignition.
-	var controllerServiceEnabled bool
-	{
-		if r.provider == "azure" {
-			controllerServiceEnabled = true
-		} else if r.provider == "aws" || r.provider == "kvm" {
-			controllerServiceEnabled = false
-		} else {
-			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
-		}
-	}
-
 	// useProxyProtocol is only enabled by default for AWS clusters.
 	var useProxyProtocol bool
 	{
@@ -125,7 +111,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"clusterID":  key.ClusterID(clusterConfig),
 				"controller": map[string]interface{}{
 					"service": map[string]interface{}{
-						"enabled": controllerServiceEnabled,
+						"enabled":               false,
+						"externalTrafficPolicy": "Local",
+						"type":                  "internal",
 					},
 				},
 				"configmap": map[string]string{
