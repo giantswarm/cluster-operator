@@ -106,22 +106,25 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	} else if pkgerrors.IsChartConfigNotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRs are not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	} else if pkgerrors.IsChartConfigNotInstalled(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil, nil
+		// chartconfig CRD is not installed. So this cluster does not need
+		// any CRs to be migrated.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD not installed")
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	chartConfigs := map[string]v1alpha1.ChartConfig{}
 
-	for _, cr := range chartConfigList.Items {
-		// Chartconfig and app CRs have the same app label. So we use this as
-		// the key for the map.
-		appName := cr.Labels[label.App]
-		chartConfigs[appName] = cr
+	if err == nil {
+		for _, cr := range chartConfigList.Items {
+			// Chartconfig and app CRs have the same app label. So we use this as
+			// the key for the map.
+			appName := cr.Labels[label.App]
+			chartConfigs[appName] = cr
+		}
 	}
 
 	// Get all configmaps in kube-system in the tenant cluster to ensure user
