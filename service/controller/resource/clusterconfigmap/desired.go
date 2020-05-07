@@ -111,7 +111,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"clusterID":  key.ClusterID(clusterConfig),
 				"controller": map[string]interface{}{
 					"service": map[string]interface{}{
-						"enabled":               false,
 						"externalTrafficPolicy": "Local",
 						"type":                  "internal",
 					},
