@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
@@ -20,6 +21,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	pkgerrors "github.com/giantswarm/cluster-operator/service/controller/internal/errors"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -74,13 +76,40 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 	}
 
-	// Get all chartconfig CRs in the tenant cluster to ensure user
-	// configmaps have been migrated.
-	chartConfigList, err := cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+	ch := make(chan struct{})
+
+	var chartConfigList *v1alpha1.ChartConfigList
+
+	go func() {
+		chartConfigList, err = cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
+		close(ch)
+	}()
+
+	select {
+	case <-ch:
+		// Fall through.
+	case <-time.After(3 * time.Second):
+		// Set status so we don't try to connect to the tenant cluster
+		// again in this reconciliation loop.
+		cc.Status.TenantCluster.IsUnavailable = true
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig crs")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil, nil
+	}
+
 	if tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
+		return nil, nil
+	} else if pkgerrors.IsChartConfigNotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRs are not available")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil, nil
+	} else if pkgerrors.IsChartConfigNotInstalled(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD does not exist")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
