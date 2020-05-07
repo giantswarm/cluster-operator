@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions v0.3.0
+	github.com/giantswarm/apiextensions v0.3.5
 	github.com/giantswarm/certs v0.2.0
 	github.com/giantswarm/errors v0.2.2
 	github.com/giantswarm/exporterkit v0.2.0
