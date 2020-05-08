@@ -63,8 +63,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	var ingressControllerLegacy bool
 	{
-		if r.provider == "kvm" {
-			ingressControllerLegacy = true
+		ingressControllerLegacy = true
+		if r.provider == "azure" {
+			ingressControllerLegacy = false
 		}
 	}
 
