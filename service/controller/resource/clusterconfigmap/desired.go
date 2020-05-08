@@ -61,6 +61,13 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	var ingressControllerLegacy bool
+	{
+		if r.provider == "kvm" {
+			ingressControllerLegacy = true
+		}
+	}
+
 	var determinedTCProfile clusterProfile
 	{
 		// this is desired, not the current number of tenant cluster worker nodes
@@ -132,7 +139,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by
 					// legacy provider operators are not created.
-					"legacy": true,
+					"legacy": ingressControllerLegacy,
 				},
 				"provider": r.provider,
 			},
