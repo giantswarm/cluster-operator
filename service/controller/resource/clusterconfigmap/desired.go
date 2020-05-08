@@ -134,6 +134,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 					// legacy provider operators are not created.
 					"legacy": true,
 				},
+				"provider": r.provider,
 			},
 		},
 	}
