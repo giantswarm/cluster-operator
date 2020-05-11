@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+### Added
+
+- Add support for HA Masters certificates.
+
 ### Changed
 
 - Refactor release access and drop cluster-service dependency.
