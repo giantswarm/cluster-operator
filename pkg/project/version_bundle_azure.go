@@ -8,19 +8,9 @@ var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "Fix bug in user values migration logic for apps.",
-			Kind:        versionbundle.KindFixed,
-			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1030",
-			},
-		},
-		{
-			Component:   Name(),
-			Description: "Changes to support making nginx-ingress-controller an optional app.",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1050",
-			},
+			URLs:        []string{},
 		},
 	},
 	Components: []versionbundle.Component{},
