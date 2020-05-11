@@ -61,6 +61,10 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	// The legacy flag is used by the Nginx Ingress Controller app to avoid creating a LoadBalancer service.
+	// This was needed on Azure clusters because the azure operator used to manage the load balancer.
+	// Since NGINX Ingress Controller 1.6.10, the LB is created by the managed app, hence the need of setting
+	// the legacy flag to false for Azure clusters.
 	var ingressControllerLegacy bool
 	{
 		ingressControllerLegacy = true
