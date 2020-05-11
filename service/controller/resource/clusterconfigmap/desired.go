@@ -46,9 +46,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	// ignition.
 	var controllerServiceEnabled bool
 	{
-		if r.provider == "azure" {
-			controllerServiceEnabled = true
-		} else if r.provider == "aws" || r.provider == "kvm" {
+		if r.provider == "aws" || r.provider == "kvm" || r.provider == "azure" {
 			controllerServiceEnabled = false
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
@@ -60,6 +58,18 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	{
 		if r.provider == "aws" {
 			useProxyProtocol = true
+		}
+	}
+
+	// The legacy flag is used by the Nginx Ingress Controller app to avoid creating a LoadBalancer service.
+	// This was needed on Azure clusters because the azure operator used to manage the load balancer.
+	// Since NGINX Ingress Controller 1.6.10, the LB is created by the managed app, hence the need of setting
+	// the legacy flag to false for Azure clusters.
+	var ingressControllerLegacy bool
+	{
+		ingressControllerLegacy = true
+		if r.provider == "azure" {
+			ingressControllerLegacy = false
 		}
 	}
 
@@ -134,8 +144,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"ingressController": map[string]interface{}{
 					// Legacy flag is set to true so resources created by
 					// legacy provider operators are not created.
-					"legacy": true,
+					"legacy": ingressControllerLegacy,
 				},
+				"provider": r.provider,
 			},
 		},
 	}
