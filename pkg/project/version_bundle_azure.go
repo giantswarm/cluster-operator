@@ -8,10 +8,18 @@ var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "Use Release.Revision in annotation for Helm 3 compatibility.",
+			Description: "Fix bug in user values migration logic for apps.",
+			Kind:        versionbundle.KindFixed,
+			URLs: []string{
+				"https://github.com/giantswarm/cluster-operator/pull/1030",
+			},
+		},
+		{
+			Component:   Name(),
+			Description: "Changes to support making nginx-ingress-controller an optional app.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1007",
+				"https://github.com/giantswarm/cluster-operator/pull/1050",
 			},
 		},
 	},
