@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -26,6 +27,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
 const (
@@ -68,8 +70,8 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
-	calicoAddress := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
-	calicoPrefixLength := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
+	calicoSubnet := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
+	calicoCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
@@ -161,6 +163,20 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var pc podcidr.Interface
+	{
+		c := podcidr.Config{
+			K8sClient: k8sClient,
+
+			InstallationCIDR: fmt.Sprintf("%s/%s", calicoSubnet, calicoCIDR),
+		}
+
+		pc, err = podcidr.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
@@ -168,11 +184,10 @@ func New(config Config) (*Service, error) {
 			FileSystem:    afero.NewOsFs(),
 			K8sClient:     k8sClient,
 			Logger:        config.Logger,
+			PodCIDR:       pc,
 			Tenant:        tenantCluster,
 
 			APIIP:                      apiIP,
-			CalicoAddress:              calicoAddress,
-			CalicoPrefixLength:         calicoPrefixLength,
 			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
 			ClusterIPRange:             clusterIPRange,
 			DNSIP:                      dnsIP,

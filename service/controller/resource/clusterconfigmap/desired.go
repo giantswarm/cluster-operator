@@ -2,7 +2,6 @@ package clusterconfigmap
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/giantswarm/microerror"
@@ -27,10 +26,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, microerror.Mask(err)
 	}
 
-	// calicoCIDRBlock is used by the coredns app.
-	var calicoCIDRBlock string
+	var podCIDR string
 	{
-		calicoCIDRBlock = cidrBlock(r.calicoAddress, r.calicoPrefixLength)
+		podCIDR, err = r.podCIDR.PodCIDR(ctx, &cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 	}
 
 	// useProxyProtocol is only enabled by default for AWS clusters.
@@ -49,7 +50,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
-						"CIDR": calicoCIDRBlock,
+						"CIDR": podCIDR,
 					},
 					"kubernetes": map[string]interface{}{
 						"API": map[string]interface{}{
@@ -114,12 +115,4 @@ func newConfigMap(cr apiv1alpha2.Cluster, configMapSpec configMapSpec) (*corev1.
 	}
 
 	return cm, nil
-}
-
-// cidrBlock returns a CIDR block for the given address and prefix.
-func cidrBlock(address, prefix string) string {
-	if address == "" && prefix == "" {
-		return ""
-	}
-	return fmt.Sprintf("%s/%s", address, prefix)
 }

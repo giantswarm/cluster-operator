@@ -13,6 +13,7 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
@@ -22,11 +23,10 @@ type ClusterConfig struct {
 	FileSystem    afero.Fs
 	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
+	PodCIDR       podcidr.Interface
 	Tenant        tenantcluster.Interface
 
 	APIIP                      string
-	CalicoAddress              string
-	CalicoPrefixLength         string
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
