@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
