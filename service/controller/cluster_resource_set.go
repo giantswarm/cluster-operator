@@ -4,7 +4,7 @@ import (
 	"context"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/v2/pkg/certs"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -16,13 +16,14 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/resource/appresource"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
@@ -71,6 +72,20 @@ type clusterResourceSetConfig struct {
 // ResourceSet.
 func newClusterResourceSet(config clusterResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
+
+	var haMaster hamaster.Interface
+	{
+		c := hamaster.Config{
+			K8sClient: config.K8sClient,
+
+			Provider: config.Provider,
+		}
+
+		haMaster, err = hamaster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
 
 	var appGetter appresource.StateGetter
 	{
@@ -129,6 +144,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	{
 		c := certconfig.Config{
 			G8sClient: config.K8sClient.G8sClient(),
+			HAMaster:  haMaster,
 			Logger:    config.Logger,
 
 			APIIP:         config.APIIP,

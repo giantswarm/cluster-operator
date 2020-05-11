@@ -2,12 +2,12 @@ package controller
 
 import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/v2/pkg/certs"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"

@@ -1,10 +1,10 @@
 package kubeconfig
 
 import (
-	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/v2/pkg/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 )
 

@@ -5,6 +5,10 @@ import (
 	"github.com/giantswarm/microerror"
 )
 
+func G8sControlPlaneReplicas(cr infrastructurev1alpha2.G8sControlPlane) int {
+	return cr.Spec.Replicas
+}
+
 func ToG8sControlPlane(v interface{}) (infrastructurev1alpha2.G8sControlPlane, error) {
 	if v == nil {
 		return infrastructurev1alpha2.G8sControlPlane{}, microerror.Maskf(wrongTypeError, "expected '%T', got '%T'", &infrastructurev1alpha2.G8sControlPlane{}, v)

@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
 ### Added
 
+- Add support for HA Masters certificates.
 - Add pod CIDR service implementation using local caching.
 
 ### Changed
