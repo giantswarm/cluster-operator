@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add pod CIDR service implementation using local caching.
+
 ### Changed
 
 - Refactor release access and drop cluster-service dependency.
