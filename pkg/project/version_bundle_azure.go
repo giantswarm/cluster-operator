@@ -8,10 +8,10 @@ var versionBundleAzure = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "Use Release.Revision in annotation for Helm 3 compatibility.",
-			Kind:        versionbundle.KindChanged,
+			Description: "Fix bug in user values migration logic for apps.",
+			Kind:        versionbundle.KindFixed,
 			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1007",
+				"https://github.com/giantswarm/cluster-operator/pull/1030",
 			},
 		},
 	},
