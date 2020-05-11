@@ -2,7 +2,6 @@ package controller
 
 import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -15,9 +14,8 @@ import (
 // ControlPlaneConfig contains necessary dependencies and settings for the
 // ControlPlane controller implementation.
 type ControlPlaneConfig struct {
-	ClusterClient *clusterclient.Client
-	K8sClient     k8sclient.Interface
-	Logger        micrologger.Logger
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
 
 	Provider string
 }

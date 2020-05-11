@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Refactor release access and drop cluster-service dependency.
+- Remove pull secret from Helm chart.
+
 
 
 ## [2.1.10] 2020-04-28

@@ -24,7 +24,3 @@ Installation:
       Kind: ""
     Registry:
       Domain: ""
-    Secret:
-      Registry:
-        PullSecret:
-          DockerConfigJSON: ""
