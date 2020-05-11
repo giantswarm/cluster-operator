@@ -16,7 +16,7 @@ var versionBundleAzure = versionbundle.Bundle{
 		},
 		{
 			Component:   Name(),
-			Description: "Make Nginx Ingress Controller optional.",
+			Description: "Changes to support making nginx-ingress-controller an optional app.",
 			Kind:        versionbundle.KindChanged,
 			URLs: []string{
 				"https://github.com/giantswarm/cluster-operator/pull/1050",
