@@ -43,6 +43,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
 // clusterResourceSetConfig contains necessary dependencies and settings for
@@ -52,11 +53,10 @@ type clusterResourceSetConfig struct {
 	FileSystem    afero.Fs
 	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
+	PodCIDR       podcidr.Interface
 	Tenant        tenantcluster.Interface
 
 	APIIP                      string
-	CalicoAddress              string
-	CalicoPrefixLength         string
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
@@ -182,12 +182,11 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		c := clusterconfigmap.Config{
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
+			PodCIDR:   config.PodCIDR,
 
-			CalicoAddress:      config.CalicoAddress,
-			CalicoPrefixLength: config.CalicoPrefixLength,
-			ClusterIPRange:     config.ClusterIPRange,
-			DNSIP:              config.DNSIP,
-			Provider:           config.Provider,
+			ClusterIPRange: config.ClusterIPRange,
+			DNSIP:          config.DNSIP,
+			Provider:       config.Provider,
 		}
 
 		clusterConfigMapGetter, err = clusterconfigmap.New(c)

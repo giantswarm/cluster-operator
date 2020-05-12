@@ -4,6 +4,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
 const (
@@ -16,24 +18,22 @@ const (
 type Config struct {
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
+	PodCIDR   podcidr.Interface
 
-	CalicoAddress      string
-	CalicoPrefixLength string
-	ClusterIPRange     string
-	DNSIP              string
-	Provider           string
+	ClusterIPRange string
+	DNSIP          string
+	Provider       string
 }
 
 // Resource implements the clusterConfigMap resource.
 type Resource struct {
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
+	podCIDR   podcidr.Interface
 
-	calicoAddress      string
-	calicoPrefixLength string
-	clusterIPRange     string
-	dnsIP              string
-	provider           string
+	clusterIPRange string
+	dnsIP          string
+	provider       string
 }
 
 // New creates a new configured config map state getter resource managing
@@ -47,6 +47,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+	}
+	if config.PodCIDR == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.PodCIDR must not be empty", config)
 	}
 
 	if config.ClusterIPRange == "" {
@@ -62,12 +65,11 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+		podCIDR:   config.PodCIDR,
 
-		calicoAddress:      config.CalicoAddress,
-		calicoPrefixLength: config.CalicoPrefixLength,
-		clusterIPRange:     config.ClusterIPRange,
-		dnsIP:              config.DNSIP,
-		provider:           config.Provider,
+		clusterIPRange: config.ClusterIPRange,
+		dnsIP:          config.DNSIP,
+		provider:       config.Provider,
 	}
 
 	return r, nil

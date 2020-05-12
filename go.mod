@@ -18,11 +18,13 @@ require (
 	github.com/giantswarm/resource v0.2.0
 	github.com/giantswarm/tenantcluster/v2 v2.0.0
 	github.com/giantswarm/versionbundle v0.2.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/viper v1.6.3
 	gopkg.in/yaml.v2 v2.2.8
 	k8s.io/api v0.17.2
+	k8s.io/apiextensions-apiserver v0.17.2
 	k8s.io/apimachinery v0.17.2
 	k8s.io/client-go v0.17.2
 	sigs.k8s.io/cluster-api v0.3.2

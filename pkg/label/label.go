@@ -15,4 +15,6 @@ const (
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.
 	Organization = "giantswarm.io/organization"
+	// Release conveys the Giant Swarm release version.
+	Release = "release.giantswarm.io/version"
 )
