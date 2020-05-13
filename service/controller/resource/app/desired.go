@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Masterminds/semver"
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -163,7 +164,28 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		}
 
 		if !appSpec.ClusterAPIOnly {
-			apps = append(apps, r.newApp(clusterConfig, appSpec, userConfig))
+			app := r.newApp(clusterConfig, appSpec, userConfig)
+
+			// For chart-operator only we need to set the Helm major version
+			// label. This is so the correct instance of app-operator processes
+			// the CR.
+			if appSpec.App == chartOperatorAppName {
+				helmMajorVersion := "2"
+
+				version, err := semver.NewVersion(appSpec.Version)
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+
+				// For chart-operator 1.0.0 and greater we use Helm 3.
+				if version.Major() >= 1 {
+					helmMajorVersion = "3"
+				}
+
+				app.Labels[label.AppOperatorHelmMajorVersion] = helmMajorVersion
+			}
+
+			apps = append(apps, app)
 		}
 	}
 
