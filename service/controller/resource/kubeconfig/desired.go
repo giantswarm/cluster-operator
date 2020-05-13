@@ -12,7 +12,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -21,20 +20,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	cc, err := controllercontext.FromContext(ctx)
+	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-
-	if cc.Status.Endpoint.Base == "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil, nil
-	}
-
 	var restConfig *rest.Config
 	{
-		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(&cr), key.KubeConfigEndpoint(cr, cc.Status.Endpoint.Base))
+		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(&cr), key.KubeConfigEndpoint(cr, bd))
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")

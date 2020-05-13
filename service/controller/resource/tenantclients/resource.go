@@ -3,6 +3,7 @@ package tenantclients
 import (
 	"context"
 
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
@@ -14,18 +15,23 @@ const (
 )
 
 type Config struct {
+	BaseDomain    basedomain.Interface
 	Logger        micrologger.Logger
 	Tenant        tenantcluster.Interface
 	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 type Resource struct {
+	baseDomain    basedomain.Interface
 	logger        micrologger.Logger
 	tenant        tenantcluster.Interface
 	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
 }
 
 func New(config Config) (*Resource, error) {
+	if config.BaseDomain == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
+	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
@@ -37,6 +43,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
+		baseDomain:    config.BaseDomain,
 		logger:        config.Logger,
 		tenant:        config.Tenant,
 		toClusterFunc: config.ToClusterFunc,

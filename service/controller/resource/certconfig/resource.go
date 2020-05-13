@@ -6,9 +6,9 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/cluster-operator/service/controller/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 const (

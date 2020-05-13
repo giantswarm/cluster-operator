@@ -11,21 +11,21 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
+// TODO Does it make sense to check if baseDomain is empty?
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1alpha1.App, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	cc, err := controllercontext.FromContext(ctx)
+	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	if cc.Status.Endpoint.Base == "" {
+	if bd == "" {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)

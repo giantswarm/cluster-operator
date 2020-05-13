@@ -19,33 +19,33 @@ type Config struct {
 	K8sClient k8sclient.Interface
 }
 
-type PodCIDR struct {
+type BaseDomain struct {
 	k8sClient k8sclient.Interface
 
 	clusterCache *cache.Cluster
 }
 
-func New(c Config) (*PodCIDR, error) {
+func New(c Config) (*BaseDomain, error) {
 	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
 
-	p := &PodCIDR{
+	bd := &BaseDomain{
 		k8sClient: c.K8sClient,
 
 		clusterCache: cache.NewCluster(),
 	}
 
-	return p, nil
+	return bd, nil
 }
 
-func (p *PodCIDR) BaseDomain(ctx context.Context, obj interface{}) (string, error) {
+func (bd *BaseDomain) BaseDomain(ctx context.Context, obj interface{}) (string, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
 
-	cl, err := p.cachedCluster(ctx, cr)
+	cl, err := bd.cachedCluster(ctx, cr)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
@@ -53,28 +53,28 @@ func (p *PodCIDR) BaseDomain(ctx context.Context, obj interface{}) (string, erro
 	return cl.Spec.Cluster.DNS.Domain, nil
 }
 
-func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
+func (bd *BaseDomain) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
 	var err error
 	var ok bool
 
 	var cluster infrastructurev1alpha2.AWSCluster
 	{
-		ck := p.clusterCache.Key(ctx, cr)
+		ck := bd.clusterCache.Key(ctx, cr)
 
 		if ck == "" {
-			cluster, err = p.lookupCluster(ctx, cr)
+			cluster, err = bd.lookupCluster(ctx, cr)
 			if err != nil {
 				return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
 			}
 		} else {
-			cluster, ok = p.clusterCache.Get(ctx, ck)
+			cluster, ok = bd.clusterCache.Get(ctx, ck)
 			if !ok {
-				cluster, err = p.lookupCluster(ctx, cr)
+				cluster, err = bd.lookupCluster(ctx, cr)
 				if err != nil {
 					return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
 				}
 
-				p.clusterCache.Set(ctx, ck, cluster)
+				bd.clusterCache.Set(ctx, ck, cluster)
 			}
 		}
 	}
@@ -82,10 +82,10 @@ func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastr
 	return cluster, nil
 }
 
-func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
+func (bd *BaseDomain) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
 	var list infrastructurev1alpha2.AWSClusterList
 
-	err := p.k8sClient.CtrlClient().List(
+	err := bd.k8sClient.CtrlClient().List(
 		ctx,
 		&list,
 		client.InNamespace(cr.GetNamespace()),

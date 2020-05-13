@@ -9,7 +9,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -18,10 +17,6 @@ import (
 // them. Return value is of type []*v1alpha1.CertConfig.
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
