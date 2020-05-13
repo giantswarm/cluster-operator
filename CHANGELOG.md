@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support for HA Masters certificates.
 - Add pod CIDR service implementation using local caching.
+- Add Helm major version label to chart-operator app CRs for Helm 3 upgrade.
 
 ### Changed
 
