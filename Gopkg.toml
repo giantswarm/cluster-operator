@@ -36,6 +36,10 @@ required = [
   version = "9.1.0"
 
 [[constraint]]
+  name = "github.com/Masterminds/semver"
+  version = "1.5.0"
+
+[[constraint]]
   name = "github.com/docker/distribution"
   branch = "master"
 

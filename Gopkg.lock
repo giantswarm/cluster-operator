@@ -14,6 +14,14 @@
   version = "v9.10.0"
 
 [[projects]]
+  digest = "1:087d103f14f737c68b30386831252e96564a8a7e5e8c157227dd57154cd050d6"
+  name = "github.com/Masterminds/semver"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "805c489aa98f412e79eb308a37996bf9d8b1c91e"
+  version = "v1.5.0"
+
+[[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
@@ -1201,6 +1209,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Azure/go-autorest/autorest",
+    "github.com/Masterminds/semver",
     "github.com/docker/distribution/reference",
     "github.com/ghodss/yaml",
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
