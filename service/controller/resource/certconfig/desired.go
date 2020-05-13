@@ -111,10 +111,15 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 }
 
 func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	defaultAltNames := key.CertDefaultAltNames(r.clusterDomain)
 	desiredAltNames := append(defaultAltNames,
 		fmt.Sprintf("master.%s", key.ClusterID(&cr)),
-		fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), bd),
 	)
 
 	return corev1alpha1.CertConfigSpecCert{
@@ -122,7 +127,7 @@ func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cl
 		AltNames:         desiredAltNames,
 		ClusterComponent: certs.APICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		IPSANs:           []string{r.apiIP, key.LocalhostIP},
 		Organizations:    []string{"system:masters"},
 		TTL:              r.certTTL,
@@ -130,11 +135,16 @@ func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cl
 }
 
 func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.AppOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), bd),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -149,7 +159,7 @@ func (r *Resource) newSpecForAWSOperator(cc controllercontext.Context, cr apiv1a
 		AllowBareDomains: true,
 		ClusterComponent: certs.AWSOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("aws-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("aws-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -164,7 +174,7 @@ func (r *Resource) newSpecForCalico(cc controllercontext.Context, cr apiv1alpha2
 		AllowBareDomains: true,
 		ClusterComponent: certs.CalicoEtcdClientCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("calico.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("calico.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		TTL:              r.certTTL,
 	}
 }
@@ -174,7 +184,7 @@ func (r *Resource) newSpecForClusterOperator(cc controllercontext.Context, cr ap
 		AllowBareDomains: true,
 		ClusterComponent: certs.ClusterOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -189,7 +199,7 @@ func (r *Resource) newSpecForEtcd(cc controllercontext.Context, cr apiv1alpha2.C
 		AllowBareDomains: true,
 		ClusterComponent: certs.EtcdCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		IPSANs:           []string{"127.0.0.1"},
 		TTL:              r.certTTL,
 	}
@@ -200,9 +210,9 @@ func (r *Resource) newSpecForEtcd1(cc controllercontext.Context, cr apiv1alpha2.
 		AllowBareDomains: true,
 		ClusterComponent: certs.Etcd1Cert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		AltNames: []string{
-			fmt.Sprintf("etcd1.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+			fmt.Sprintf("etcd1.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		},
 		IPSANs: []string{"127.0.0.1"},
 		TTL:    r.certTTL,
@@ -214,9 +224,9 @@ func (r *Resource) newSpecForEtcd2(cc controllercontext.Context, cr apiv1alpha2.
 		AllowBareDomains: true,
 		ClusterComponent: certs.Etcd2Cert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		AltNames: []string{
-			fmt.Sprintf("etcd2.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+			fmt.Sprintf("etcd2.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		},
 		IPSANs: []string{"127.0.0.1"},
 		TTL:    r.certTTL,
@@ -228,9 +238,9 @@ func (r *Resource) newSpecForEtcd3(cc controllercontext.Context, cr apiv1alpha2.
 		AllowBareDomains: true,
 		ClusterComponent: certs.Etcd3Cert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		AltNames: []string{
-			fmt.Sprintf("etcd3.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+			fmt.Sprintf("etcd3.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		},
 		IPSANs: []string{"127.0.0.1"},
 		TTL:    r.certTTL,
@@ -242,7 +252,7 @@ func (r *Resource) newSpecForFlanneldEtcdClient(cc controllercontext.Context, cr
 		AllowBareDomains: true,
 		ClusterComponent: certs.FlanneldEtcdClientCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("flanneld-etcd-client.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("flanneld-etcd-client.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		TTL:              r.certTTL,
 	}
 }
@@ -252,7 +262,7 @@ func (r *Resource) newSpecForNodeOperator(cc controllercontext.Context, cr apiv1
 		AllowBareDomains: true,
 		ClusterComponent: certs.NodeOperatorCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("node-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("node-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -267,7 +277,7 @@ func (r *Resource) newSpecForPrometheus(cc controllercontext.Context, cr apiv1al
 		AllowBareDomains: true,
 		ClusterComponent: certs.PrometheusCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("prometheus.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("prometheus.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -282,7 +292,7 @@ func (r *Resource) newSpecForServiceAccount(cc controllercontext.Context, cr api
 		AllowBareDomains: true,
 		ClusterComponent: certs.ServiceAccountCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("service-account.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("service-account.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		TTL:              r.certTTL,
 	}
 }
@@ -293,7 +303,7 @@ func (r *Resource) newSpecForWorker(cc controllercontext.Context, cr apiv1alpha2
 		AltNames:         key.CertDefaultAltNames(r.clusterDomain),
 		ClusterComponent: certs.WorkerCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("worker.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("worker.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base), // TODO
 		TTL:              r.certTTL,
 	}
 }
