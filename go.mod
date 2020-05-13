@@ -3,6 +3,7 @@ module github.com/giantswarm/cluster-operator
 go 1.13
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions v0.3.0
 	github.com/giantswarm/certs/v2 v2.0.0
