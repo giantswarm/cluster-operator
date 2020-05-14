@@ -13,7 +13,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
-	"github.com/giantswarm/cluster-operator/service/controller/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
