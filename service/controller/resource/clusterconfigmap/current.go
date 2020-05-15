@@ -19,10 +19,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	_, err = r.baseDomain.BaseDomain(ctx, &cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 
 	// The config maps are deleted when the namespace is deleted.
 	if key.IsDeleted(&cr) {

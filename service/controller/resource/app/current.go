@@ -14,22 +14,10 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-// TODO Does it make sense to check if baseDomain is empty?
 func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1alpha1.App, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
-	}
-	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	if bd == "" {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no endpoint base in controller context yet")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
 	}
 
 	// The app custom resources are deleted when the namespace is deleted.
