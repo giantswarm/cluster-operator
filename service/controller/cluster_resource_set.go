@@ -91,10 +91,9 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			BaseDomain: config.BaseDomain,
-			G8sClient:  config.K8sClient.G8sClient(),
-			K8sClient:  config.K8sClient.K8sClient(),
-			Logger:     config.Logger,
+			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
 
 			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
