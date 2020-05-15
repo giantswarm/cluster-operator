@@ -24,12 +24,14 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 type machineDeploymentResourceSetConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Tenant    tenantcluster.Interface
+	BaseDomain basedomain.Interface
+	K8sClient  k8sclient.Interface
+	Logger     micrologger.Logger
+	Tenant     tenantcluster.Interface
 
 	Provider string
 }
@@ -83,6 +85,7 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
+			BaseDomain:    config.BaseDomain,
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),

@@ -10,12 +10,14 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 type MachineDeploymentConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-	Tenant    tenantcluster.Interface
+	BaseDomain basedomain.Interface
+	K8sClient  k8sclient.Interface
+	Logger     micrologger.Logger
+	Tenant     tenantcluster.Interface
 
 	Provider string
 }
