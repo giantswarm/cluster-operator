@@ -21,32 +21,32 @@ func Test_BaseDomain_Cache(t *testing.T) {
 		{
 			name:             "case 0",
 			ctx:              cachekeycontext.NewContext(context.Background(), "1"),
-			baseDomain:       "",
+			baseDomain:       "domain.company.com",
 			expectCaching:    true,
-			expectBaseDomain: "",
+			expectBaseDomain: "domain.company.com",
 		},
 		// This is the case where we modify the AWSCluster CR in order to change the
 		// baseDomain value, while the operatorkit caching mechanism is disabled.
 		{
 			name:             "case 1",
 			ctx:              context.Background(),
-			baseDomain:       "",
+			baseDomain:       "olddomain.company.com",
 			expectCaching:    false,
-			expectBaseDomain: "changed",
+			expectBaseDomain: "newdomain.company.com",
 		},
 		{
 			name:             "case 2",
 			ctx:              cachekeycontext.NewContext(context.Background(), "1"),
-			baseDomain:       "",
+			baseDomain:       "domain.company.com",
 			expectCaching:    true,
-			expectBaseDomain: "",
+			expectBaseDomain: "domain.company.com",
 		},
 		{
 			name:             "case 3",
 			ctx:              context.Background(),
-			baseDomain:       "",
+			baseDomain:       "olddomain.company.com",
 			expectCaching:    false,
-			expectBaseDomain: "changed",
+			expectBaseDomain: "newdomain.company.com",
 		},
 	}
 
@@ -87,7 +87,7 @@ func Test_BaseDomain_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				cl.Spec.Cluster.DNS.Domain = "changed"
+				cl.Spec.Cluster.DNS.Domain = "newdomain.company.com"
 				err = bd.k8sClient.CtrlClient().Update(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
