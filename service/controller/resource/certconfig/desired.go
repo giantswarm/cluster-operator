@@ -115,7 +115,6 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 }
 
 func (r *Resource) newSpecForAPI(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
-
 	defaultAltNames := key.CertDefaultAltNames(r.clusterDomain)
 	desiredAltNames := append(defaultAltNames,
 		fmt.Sprintf("master.%s", key.ClusterID(&cr)),

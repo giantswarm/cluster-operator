@@ -42,12 +42,14 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
 // clusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
 type clusterResourceSetConfig struct {
+	BaseDomain    basedomain.Interface
 	CertsSearcher certs.Interface
 	FileSystem    afero.Fs
 	K8sClient     k8sclient.Interface
@@ -89,9 +91,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			BaseDomain: config.BaseDomain,
+			G8sClient:  config.K8sClient.G8sClient(),
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
 
 			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
@@ -128,9 +131,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			HAMaster:  haMaster,
-			Logger:    config.Logger,
+			BaseDomain: config.BaseDomain,
+			G8sClient:  config.K8sClient.G8sClient(),
+			HAMaster:   haMaster,
+			Logger:     config.Logger,
 
 			APIIP:         config.APIIP,
 			CertTTL:       config.CertTTL,
@@ -165,9 +169,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var clusterConfigMapGetter configmapresource.StateGetter
 	{
 		c := clusterconfigmap.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-			PodCIDR:   config.PodCIDR,
+			BaseDomain: config.BaseDomain,
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
+			PodCIDR:    config.PodCIDR,
 
 			ClusterIPRange: config.ClusterIPRange,
 			DNSIP:          config.DNSIP,
@@ -316,6 +321,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 
 		c := kubeconfig.Config{
+			BaseDomain:    config.BaseDomain,
 			CertsSearcher: config.CertsSearcher,
 			K8sClient:     config.K8sClient.K8sClient(),
 			Logger:        config.Logger,
@@ -383,6 +389,7 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
+			BaseDomain:    config.BaseDomain,
 			Logger:        config.Logger,
 			Tenant:        config.Tenant,
 			ToClusterFunc: toClusterFunc,

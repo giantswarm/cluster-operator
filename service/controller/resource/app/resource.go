@@ -28,10 +28,9 @@ type Config struct {
 
 // Resource provides shared functionality for managing chartconfigs.
 type Resource struct {
-	baseDomain basedomain.Interface
-	g8sClient  versioned.Interface
-	k8sClient  kubernetes.Interface
-	logger     micrologger.Logger
+	g8sClient versioned.Interface
+	k8sClient kubernetes.Interface
+	logger    micrologger.Logger
 
 	defaultConfig  defaultConfig
 	overrideConfig overrideConfig
@@ -54,9 +53,6 @@ type overrideConfig map[string]overrideProperties
 
 // New creates a new chartconfig service.
 func New(config Config) (*Resource, error) {
-	if config.BaseDomain == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
-	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -90,10 +86,9 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		baseDomain: config.BaseDomain,
-		g8sClient:  config.G8sClient,
-		k8sClient:  config.K8sClient,
-		logger:     config.Logger,
+		g8sClient: config.G8sClient,
+		k8sClient: config.K8sClient,
+		logger:    config.Logger,
 
 		defaultConfig:  defaultConfig,
 		overrideConfig: overrideConfig,
