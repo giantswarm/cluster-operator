@@ -2,11 +2,12 @@ package kubeconfig
 
 import (
 	"github.com/giantswarm/certs/v2/pkg/certs"
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 const (

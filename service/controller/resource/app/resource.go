@@ -3,10 +3,11 @@ package app
 import (
 	"github.com/ghodss/yaml"
 	"github.com/giantswarm/apiextensions/pkg/clientset/versioned"
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 const (

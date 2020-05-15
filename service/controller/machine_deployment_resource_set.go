@@ -18,7 +18,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/basedomain"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
@@ -37,20 +36,6 @@ type machineDeploymentResourceSetConfig struct {
 
 func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) (*controller.ResourceSet, error) {
 	var err error
-
-	var baseDomainResource resource.Interface
-	{
-		c := basedomain.Config{
-			Logger: config.Logger,
-
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
-		}
-
-		baseDomainResource, err = basedomain.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
 
 	var keepForInfraRefsResource resource.Interface
 	{
@@ -141,7 +126,6 @@ func newMachineDeploymentResourceSet(config machineDeploymentResourceSetConfig) 
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		baseDomainResource,
 		releaseVersionResource,
 		tenantClientsResource,
 		workerCountResource,
