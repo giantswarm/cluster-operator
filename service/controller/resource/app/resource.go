@@ -6,8 +6,6 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
-
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 const (
@@ -16,10 +14,9 @@ const (
 
 // Config represents the configuration used to create a new chartconfig service.
 type Config struct {
-	BaseDomain basedomain.Interface
-	G8sClient  versioned.Interface
-	K8sClient  kubernetes.Interface
-	Logger     micrologger.Logger
+	G8sClient versioned.Interface
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
 
 	Provider             string
 	RawAppDefaultConfig  string
