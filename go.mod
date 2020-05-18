@@ -3,6 +3,7 @@ module github.com/giantswarm/cluster-operator
 go 1.13
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions v0.3.0
 	github.com/giantswarm/certs/v2 v2.0.0
@@ -22,7 +23,7 @@ require (
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/viper v1.6.3
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.17.2
 	k8s.io/apiextensions-apiserver v0.17.2
 	k8s.io/apimachinery v0.17.2
