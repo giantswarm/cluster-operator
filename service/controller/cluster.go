@@ -1,19 +1,49 @@
 package controller
 
 import (
+	"context"
+
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs/v2/pkg/certs"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller"
+	"github.com/giantswarm/operatorkit/resource"
+	"github.com/giantswarm/operatorkit/resource/crud"
+	"github.com/giantswarm/operatorkit/resource/k8s/configmapresource"
+	"github.com/giantswarm/operatorkit/resource/k8s/secretresource"
+	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	"github.com/giantswarm/resource/appresource"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"github.com/spf13/afero"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
@@ -47,11 +77,9 @@ type Cluster struct {
 func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var err error
 
-	var resourceSet *controller.ResourceSet
+	var resources []resource.Interface
 	{
-		c := clusterResourceSetConfig(config)
-
-		resourceSet, err = newClusterResourceSet(c)
+		resources, err = newClusterResources(config)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -60,14 +88,15 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
+			InitCtx: func(ctx context.Context, obj interface{}) (context.Context, error) {
+				return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
+			},
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			ResourceSets: []*controller.ResourceSet{
-				resourceSet,
-			},
 			NewRuntimeObjectFunc: func() runtime.Object {
 				return new(apiv1alpha2.Cluster)
 			},
+			Resources: resources,
 
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.
@@ -85,4 +114,471 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	}
 
 	return c, nil
+}
+
+func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
+	var err error
+
+	var haMaster hamaster.Interface
+	{
+		c := hamaster.Config{
+			K8sClient: config.K8sClient,
+
+			Provider: config.Provider,
+		}
+
+		haMaster, err = hamaster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appGetter appresource.StateGetter
+	{
+		c := app.Config{
+			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			Provider:             config.Provider,
+			RawAppDefaultConfig:  config.RawAppDefaultConfig,
+			RawAppOverrideConfig: config.RawAppOverrideConfig,
+		}
+
+		appGetter, err = app.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appResource resource.Interface
+	{
+		c := appresource.Config{
+			G8sClient: config.K8sClient.G8sClient(),
+			Logger:    config.Logger,
+
+			Name:        app.Name,
+			StateGetter: appGetter,
+		}
+
+		ops, err := appresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var certConfigResource resource.Interface
+	{
+		c := certconfig.Config{
+			BaseDomain: config.BaseDomain,
+			G8sClient:  config.K8sClient.G8sClient(),
+			HAMaster:   haMaster,
+			Logger:     config.Logger,
+
+			APIIP:         config.APIIP,
+			CertTTL:       config.CertTTL,
+			ClusterDomain: config.ClusterDomain,
+			Provider:      config.Provider,
+		}
+
+		ops, err := certconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		certConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var cleanupMachineDeployments resource.Interface
+	{
+		c := cleanupmachinedeployments.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		cleanupMachineDeployments, err = cleanupmachinedeployments.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapGetter configmapresource.StateGetter
+	{
+		c := clusterconfigmap.Config{
+			BaseDomain: config.BaseDomain,
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
+			PodCIDR:    config.PodCIDR,
+
+			ClusterIPRange: config.ClusterIPRange,
+			DNSIP:          config.DNSIP,
+			Provider:       config.Provider,
+		}
+
+		clusterConfigMapGetter, err = clusterconfigmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapResource resource.Interface
+	{
+		c := configmapresource.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			Name:        clusterconfigmap.Name,
+			StateGetter: clusterConfigMapGetter,
+		}
+
+		ops, err := configmapresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterIDResource resource.Interface
+	{
+		c := clusterid.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		}
+
+		clusterIDResource, err = clusterid.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterStatusResource resource.Interface
+	{
+		c := clusterstatus.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		}
+
+		clusterStatusResource, err = clusterstatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var cpNamespaceResource resource.Interface
+	{
+		c := cpnamespace.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+		}
+
+		ops, err := cpnamespace.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		cpNamespaceResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var encryptionKeyGetter secretresource.StateGetter
+	{
+		c := encryptionkey.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+		}
+
+		encryptionKeyGetter, err = encryptionkey.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var encryptionKeyResource resource.Interface
+	{
+		c := secretresource.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			Name:        encryptionkey.Name,
+			StateGetter: encryptionKeyGetter,
+		}
+
+		ops, err := secretresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var keepForInfraRefsResource resource.Interface
+	{
+		c := keepforinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toClusterObjRef,
+		}
+
+		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var kubeConfigGetter secretresource.StateGetter
+	{
+		var tenantCluster tenantcluster.Interface
+		{
+			c := tenantcluster.Config{
+				CertsSearcher: config.CertsSearcher,
+				Logger:        config.Logger,
+
+				CertID: certs.AppOperatorAPICert,
+			}
+
+			tenantCluster, err = tenantcluster.New(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
+		c := kubeconfig.Config{
+			BaseDomain:    config.BaseDomain,
+			CertsSearcher: config.CertsSearcher,
+			K8sClient:     config.K8sClient.K8sClient(),
+			Logger:        config.Logger,
+			Tenant:        tenantCluster,
+		}
+
+		kubeConfigGetter, err = kubeconfig.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var kubeConfigResource resource.Interface
+	{
+		c := secretresource.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			Name:        kubeconfig.Name,
+			StateGetter: kubeConfigGetter,
+		}
+
+		ops, err := secretresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		kubeConfigResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var releaseVersionsResource resource.Interface
+	{
+		c := releaseversions.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToClusterFunc: toClusterFunc,
+		}
+
+		releaseVersionsResource, err = releaseversions.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var statusConditionResource resource.Interface
+	{
+		c := statuscondition.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
+		}
+
+		statusConditionResource, err = statuscondition.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var tenantClientsResource resource.Interface
+	{
+		c := tenantclients.Config{
+			BaseDomain:    config.BaseDomain,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
+			ToClusterFunc: toClusterFunc,
+		}
+
+		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var updateG8sControlPlanesResource resource.Interface
+	{
+		c := updateg8scontrolplanes.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		updateG8sControlPlanesResource, err = updateg8scontrolplanes.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var updateInfraRefsResource resource.Interface
+	{
+		c := updateinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toClusterObjRef,
+			Provider: config.Provider,
+		}
+
+		updateInfraRefsResource, err = updateinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var updateMachineDeploymentsResource resource.Interface
+	{
+		c := updatemachinedeployments.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		updateMachineDeploymentsResource, err = updatemachinedeployments.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var workerCountResource resource.Interface
+	{
+		c := workercount.Config{
+			Logger: config.Logger,
+
+			ToClusterFunc: toClusterFunc,
+		}
+
+		workerCountResource, err = workercount.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	resources := []resource.Interface{
+		// Following resources manage controller context information.
+		releaseVersionsResource,
+		tenantClientsResource,
+		workerCountResource,
+
+		// Following resources manage resources in the control plane.
+		cpNamespaceResource,
+		encryptionKeyResource,
+		certConfigResource,
+		clusterConfigMapResource,
+		kubeConfigResource,
+		appResource,
+		updateG8sControlPlanesResource,
+		updateMachineDeploymentsResource,
+		updateInfraRefsResource,
+
+		// Following resources manage CR status information.
+		clusterIDResource,
+		clusterStatusResource,
+		statusConditionResource,
+
+		// Following resources manage tenant cluster deletion events.
+		cleanupMachineDeployments,
+		keepForInfraRefsResource,
+	}
+
+	// Wrap resources with retry and metrics.
+	{
+		c := retryresource.WrapConfig{
+			Logger: config.Logger,
+		}
+
+		resources, err = retryresource.Wrap(resources, c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	{
+		c := metricsresource.WrapConfig{}
+		resources, err = metricsresource.Wrap(resources, c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	return resources, nil
+}
+
+func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return apiv1alpha2.Cluster{}, microerror.Mask(err)
+	}
+
+	return cr, nil
+}
+
+func toClusterObjRef(obj interface{}) (corev1.ObjectReference, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return corev1.ObjectReference{}, microerror.Mask(err)
+	}
+
+	return key.ObjRefFromCluster(cr), nil
+}
+
+func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {
+	c := crud.ResourceConfig{
+		CRUD:   v,
+		Logger: logger,
+	}
+
+	r, err := crud.NewResource(c)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return r, nil
 }
