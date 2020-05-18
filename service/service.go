@@ -10,20 +10,18 @@ import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
 	"github.com/giantswarm/certs/v2/pkg/certs"
-	"github.com/giantswarm/k8sclient"
-	"github.com/giantswarm/k8sclient/k8srestconfig"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
-	"github.com/giantswarm/versionbundle"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/flag"
-	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/collector"
 	"github.com/giantswarm/cluster-operator/service/controller"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -270,12 +268,11 @@ func New(config Config) (*Service, error) {
 	var versionService *version.Service
 	{
 		versionConfig := version.Config{
-			Description:    config.Description,
-			GitCommit:      config.GitCommit,
-			Name:           config.ProjectName,
-			Source:         config.Source,
-			Version:        config.Version,
-			VersionBundles: []versionbundle.Bundle{project.VersionBundle(provider)},
+			Description: config.Description,
+			GitCommit:   config.GitCommit,
+			Name:        config.ProjectName,
+			Source:      config.Source,
+			Version:     config.Version,
 		}
 
 		versionService, err = version.New(versionConfig)
