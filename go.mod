@@ -18,7 +18,6 @@ require (
 	github.com/giantswarm/operatorkit v1.0.0
 	github.com/giantswarm/resource v0.2.0
 	github.com/giantswarm/tenantcluster/v2 v2.0.0
-	github.com/giantswarm/versionbundle v0.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.5.1
 	github.com/spf13/afero v1.2.2
