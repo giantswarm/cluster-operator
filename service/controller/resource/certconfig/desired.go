@@ -55,29 +55,33 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 			return nil, microerror.Mask(err)
 		}
 	}
+	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
 	var certConfigs []*corev1alpha1.CertConfig
 	{
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAppOperator(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAWSOperator(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForNodeOperator(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForPrometheus(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForServiceAccount(*cc, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForWorker(*cc, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAppOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAWSOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForNodeOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForPrometheus(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForServiceActxount(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForWorker(ctx, bd, cr)))
 
 		if haMasterEnabled {
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd1(*cc, cr)))
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd2(*cc, cr)))
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd3(*cc, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd1(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd2(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd3(ctx, bd, cr)))
 		} else {
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(*cc, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(ctx, bd, cr)))
 		}
 
 		if r.provider == label.ProviderKVM {
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForFlanneldEtcdClient(*cc, cr)))
+			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForFlanneldEtcdClient(ctx, bd, cr)))
 		}
 	}
 
@@ -110,11 +114,11 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 	}
 }
 
-func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForAPI(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	defaultAltNames := key.CertDefaultAltNames(r.clusterDomain)
 	desiredAltNames := append(defaultAltNames,
 		fmt.Sprintf("master.%s", key.ClusterID(&cr)),
-		fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		fmt.Sprintf("internal-api.%s.k8s.%s", key.ClusterID(&cr), bd),
 	)
 
 	return corev1alpha1.CertConfigSpecCert{
@@ -122,19 +126,19 @@ func (r *Resource) newSpecForAPI(cc controllercontext.Context, cr apiv1alpha2.Cl
 		AltNames:         desiredAltNames,
 		ClusterComponent: certs.APICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(&cr), bd),
 		IPSANs:           []string{r.apiIP, key.LocalhostIP},
 		Organizations:    []string{"system:masters"},
 		TTL:              r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForAppOperator(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.AppOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("app-operator.%s.k8s.%s", key.ClusterID(&cr), bd),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -144,12 +148,12 @@ func (r *Resource) newSpecForAppOperator(cc controllercontext.Context, cr apiv1a
 	}
 }
 
-func (r *Resource) newSpecForAWSOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForAWSOperator(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.AWSOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("aws-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("aws-operator.%s.k8s.%s", key.ClusterID(&cr), bd),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -159,22 +163,22 @@ func (r *Resource) newSpecForAWSOperator(cc controllercontext.Context, cr apiv1a
 	}
 }
 
-func (r *Resource) newSpecForCalico(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForCalico(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.CalicoEtcdClientCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("calico.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("calico.%s.k8s.%s", key.ClusterID(&cr), bd),
 		TTL:              r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForClusterOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForClusterOperator(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.ClusterOperatorAPICert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("cluster-operator.%s.k8s.%s", key.ClusterID(&cr), bd),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -184,75 +188,75 @@ func (r *Resource) newSpecForClusterOperator(cc controllercontext.Context, cr ap
 	}
 }
 
-func (r *Resource) newSpecForEtcd(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForEtcd(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.EtcdCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), bd),
 		IPSANs:           []string{"127.0.0.1"},
 		TTL:              r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForEtcd1(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForEtcd1(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.Etcd1Cert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), bd),
 		AltNames: []string{
-			fmt.Sprintf("etcd1.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+			fmt.Sprintf("etcd1.%s.k8s.%s", key.ClusterID(&cr), bd),
 		},
 		IPSANs: []string{"127.0.0.1"},
 		TTL:    r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForEtcd2(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForEtcd2(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.Etcd2Cert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), bd),
 		AltNames: []string{
-			fmt.Sprintf("etcd2.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+			fmt.Sprintf("etcd2.%s.k8s.%s", key.ClusterID(&cr), bd),
 		},
 		IPSANs: []string{"127.0.0.1"},
 		TTL:    r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForEtcd3(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForEtcd3(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.Etcd3Cert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("etcd.%s.k8s.%s", key.ClusterID(&cr), bd),
 		AltNames: []string{
-			fmt.Sprintf("etcd3.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+			fmt.Sprintf("etcd3.%s.k8s.%s", key.ClusterID(&cr), bd),
 		},
 		IPSANs: []string{"127.0.0.1"},
 		TTL:    r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForFlanneldEtcdClient(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForFlanneldEtcdClient(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.FlanneldEtcdClientCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("flanneld-etcd-client.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("flanneld-etcd-client.%s.k8s.%s", key.ClusterID(&cr), bd),
 		TTL:              r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForNodeOperator(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForNodeOperator(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.NodeOperatorCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("node-operator.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("node-operator.%s.k8s.%s", key.ClusterID(&cr), bd),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -262,12 +266,12 @@ func (r *Resource) newSpecForNodeOperator(cc controllercontext.Context, cr apiv1
 	}
 }
 
-func (r *Resource) newSpecForPrometheus(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForPrometheus(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.PrometheusCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("prometheus.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("prometheus.%s.k8s.%s", key.ClusterID(&cr), bd),
 		// TODO drop system:masters once RBAC rules are in place in tenant clusters.
 		//
 		//     https://github.com/giantswarm/giantswarm/issues/6822
@@ -277,23 +281,23 @@ func (r *Resource) newSpecForPrometheus(cc controllercontext.Context, cr apiv1al
 	}
 }
 
-func (r *Resource) newSpecForServiceAccount(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForServiceActxount(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.ServiceAccountCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("service-account.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("service-actxount.%s.k8s.%s", key.ClusterID(&cr), bd),
 		TTL:              r.certTTL,
 	}
 }
 
-func (r *Resource) newSpecForWorker(cc controllercontext.Context, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForWorker(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		AltNames:         key.CertDefaultAltNames(r.clusterDomain),
 		ClusterComponent: certs.WorkerCert.String(),
 		ClusterID:        key.ClusterID(&cr),
-		CommonName:       fmt.Sprintf("worker.%s.k8s.%s", key.ClusterID(&cr), cc.Status.Endpoint.Base),
+		CommonName:       fmt.Sprintf("worker.%s.k8s.%s", key.ClusterID(&cr), bd),
 		TTL:              r.certTTL,
 	}
 }

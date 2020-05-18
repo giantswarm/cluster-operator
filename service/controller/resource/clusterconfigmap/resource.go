@@ -5,6 +5,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
@@ -16,9 +17,10 @@ const (
 // Config represents the configuration used to create a new clusterConfigMap
 // resource.
 type Config struct {
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
-	PodCIDR   podcidr.Interface
+	BaseDomain basedomain.Interface
+	K8sClient  kubernetes.Interface
+	Logger     micrologger.Logger
+	PodCIDR    podcidr.Interface
 
 	ClusterIPRange string
 	DNSIP          string
@@ -27,9 +29,10 @@ type Config struct {
 
 // Resource implements the clusterConfigMap resource.
 type Resource struct {
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
-	podCIDR   podcidr.Interface
+	baseDomain basedomain.Interface
+	k8sClient  kubernetes.Interface
+	logger     micrologger.Logger
+	podCIDR    podcidr.Interface
 
 	clusterIPRange string
 	dnsIP          string
@@ -42,6 +45,9 @@ type Resource struct {
 //     https://godoc.org/github.com/giantswarm/operatorkit/resource/k8s/secretresource#StateGetter
 //
 func New(config Config) (*Resource, error) {
+	if config.BaseDomain == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -63,9 +69,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
-		podCIDR:   config.PodCIDR,
+		baseDomain: config.BaseDomain,
+		k8sClient:  config.K8sClient,
+		logger:     config.Logger,
+		podCIDR:    config.PodCIDR,
 
 		clusterIPRange: config.ClusterIPRange,
 		dnsIP:          config.DNSIP,

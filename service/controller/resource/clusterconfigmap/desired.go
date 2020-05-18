@@ -12,7 +12,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -21,7 +20,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	cc, err := controllercontext.FromContext(ctx)
+	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -47,7 +46,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
+				"baseDomain": key.TenantEndpoint(cr, bd),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
 						"CIDR": podCIDR,
@@ -69,7 +68,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      "ingress-controller-values",
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(cr, cc.Status.Endpoint.Base),
+				"baseDomain": key.TenantEndpoint(cr, bd),
 				"clusterID":  key.ClusterID(&cr),
 				"configmap": map[string]interface{}{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),

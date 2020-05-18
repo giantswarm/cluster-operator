@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/micrologger"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 )
 
@@ -24,9 +25,10 @@ const (
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
-	G8sClient versioned.Interface
-	HAMaster  hamaster.Interface
-	Logger    micrologger.Logger
+	BaseDomain basedomain.Interface
+	G8sClient  versioned.Interface
+	HAMaster   hamaster.Interface
+	Logger     micrologger.Logger
 
 	APIIP         string
 	CertTTL       string
@@ -36,9 +38,10 @@ type Config struct {
 
 // Resource implements the cloud config resource.
 type Resource struct {
-	g8sClient versioned.Interface
-	haMaster  hamaster.Interface
-	logger    micrologger.Logger
+	baseDomain basedomain.Interface
+	g8sClient  versioned.Interface
+	haMaster   hamaster.Interface
+	logger     micrologger.Logger
 
 	apiIP         string
 	certTTL       string
@@ -48,6 +51,9 @@ type Resource struct {
 
 // New creates a new configured cloud config resource.
 func New(config Config) (*Resource, error) {
+	if config.BaseDomain == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
+	}
 	if config.G8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
 	}
@@ -72,9 +78,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient: config.G8sClient,
-		haMaster:  config.HAMaster,
-		logger:    config.Logger,
+		baseDomain: config.BaseDomain,
+		g8sClient:  config.G8sClient,
+		haMaster:   config.HAMaster,
+		logger:     config.Logger,
 
 		apiIP:         config.APIIP,
 		certTTL:       config.CertTTL,

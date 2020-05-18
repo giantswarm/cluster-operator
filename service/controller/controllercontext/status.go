@@ -6,8 +6,7 @@ type ContextStatus struct {
 	//
 	//     - coredns: 1.15.0
 	//
-	Apps     []App
-	Endpoint ContextStatusEndpoint
+	Apps []App
 	// Versions is a map of key value pairs where the map key is a version label
 	// of a given operator. The map value is the version of the corresponding
 	// operator. See also the releaseversions resource.
@@ -25,10 +24,6 @@ type App struct {
 	App              string
 	ComponentVersion string
 	Version          string
-}
-
-type ContextStatusEndpoint struct {
-	Base string
 }
 
 type ContextStatusWorker struct {

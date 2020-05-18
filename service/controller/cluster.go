@@ -13,12 +13,14 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
 // CRD controller implementation.
 type ClusterConfig struct {
+	BaseDomain    basedomain.Interface
 	CertsSearcher certs.Interface
 	FileSystem    afero.Fs
 	K8sClient     k8sclient.Interface
