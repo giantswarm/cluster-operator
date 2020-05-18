@@ -5,6 +5,7 @@ import (
 )
 
 type Interface interface {
-	// BaseDomain TODO
+	// BaseDomain provides the base domain from all tenant clusters.
+	// It is used in all component certificates.
 	BaseDomain(ctx context.Context, obj interface{}) (string, error)
 }

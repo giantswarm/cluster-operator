@@ -34,20 +34,6 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			expectCaching:    false,
 			expectBaseDomain: "newdomain.company.com",
 		},
-		{
-			name:             "case 2",
-			ctx:              cachekeycontext.NewContext(context.Background(), "1"),
-			baseDomain:       "domain.company.com",
-			expectCaching:    true,
-			expectBaseDomain: "domain.company.com",
-		},
-		{
-			name:             "case 3",
-			ctx:              context.Background(),
-			baseDomain:       "olddomain.company.com",
-			expectCaching:    false,
-			expectBaseDomain: "newdomain.company.com",
-		},
 	}
 
 	for i, tc := range testCases {
