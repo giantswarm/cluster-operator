@@ -12,10 +12,12 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -64,6 +66,9 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/cluster-operator-control-plane-controller.
 			Name: project.Name() + "-control-plane-controller",
+			Selector: labels.SelectorFromSet(map[string]string{
+				label.OperatorVersion: project.Version(),
+			}),
 		}
 
 		controlPlaneController, err = controller.New(c)

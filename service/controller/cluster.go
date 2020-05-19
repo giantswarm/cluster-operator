@@ -19,9 +19,11 @@ import (
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -101,6 +103,9 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			// Name is used to compute finalizer names. This here results in something
 			// like operatorkit.giantswarm.io/cluster-operator-cluster-controller.
 			Name: project.Name() + "-cluster-controller",
+			Selector: labels.SelectorFromSet(map[string]string{
+				label.OperatorVersion: project.Version(),
+			}),
 		}
 
 		clusterController, err = controller.New(c)
