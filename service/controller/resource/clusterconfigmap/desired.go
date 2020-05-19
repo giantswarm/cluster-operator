@@ -43,13 +43,14 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		return nil, microerror.Mask(err)
 	}
 
-	// controllerServiceEnabled is true for Azure legacy clusters. For AWS and
-	// KVM legacy clusters this service is disabled and it is created via
-	// ignition.
+	// The controllerServiceEnabled flag is used by the NGINX IC app to avoid creating a Service.
+	// For legacy AWS and KVM clusters this Service is disabled as it gets created via Ignition.
 	var controllerServiceEnabled bool
 	{
-		if r.provider == "aws" || r.provider == "kvm" || r.provider == "azure" {
+		if r.provider == "aws" || r.provider == "kvm" {
 			controllerServiceEnabled = false
+		} else if r.provider == "azure" {
+			controllerServiceEnabled = true
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
 		}
@@ -60,18 +61,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	{
 		if r.provider == "aws" {
 			useProxyProtocol = true
-		}
-	}
-
-	// The legacy flag is used by the Nginx Ingress Controller app to avoid creating a LoadBalancer service.
-	// This was needed on Azure clusters because the azure operator used to manage the load balancer.
-	// Since NGINX Ingress Controller 1.6.10, the LB is created by the managed app, hence the need of setting
-	// the legacy flag to false for Azure clusters.
-	var ingressControllerLegacy bool
-	{
-		ingressControllerLegacy = true
-		if r.provider == "azure" {
-			ingressControllerLegacy = false
 		}
 	}
 
@@ -142,11 +131,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				},
 				"configmap": map[string]string{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
-				},
-				"ingressController": map[string]interface{}{
-					// Legacy flag is set to true so resources created by
-					// legacy provider operators are not created.
-					"legacy": ingressControllerLegacy,
 				},
 				"provider": r.provider,
 			},
