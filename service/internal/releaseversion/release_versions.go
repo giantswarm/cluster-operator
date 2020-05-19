@@ -4,14 +4,13 @@ import (
 	"context"
 
 	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion/internal/cache"
 )
 
@@ -39,17 +38,17 @@ func New(c Config) (*ReleaseVersion, error) {
 	return rv, nil
 }
 
-func (rv *ReleaseVersion) ReleaseVersioner(ctx context.Context, obj interface{}) (string, error) {
-	r, err := meta.Accessor(obj)
+func (rv *ReleaseVersion) ReleaseVersioner(ctx context.Context, obj interface{}) (releasev1alpha1.Release, error) {
+	cr, err := meta.Accessor(obj)
 	if err != nil {
-		return "", microerror.Mask(err)
+		return releasev1alpha1.Release{}, microerror.Mask(err)
 	}
 
-	r, err := rv.cachedRelease(ctx, r)
+	release, err := rv.cachedRelease(ctx, cr)
 	if err != nil {
-		return "", microerror.Mask(err)
+		return releasev1alpha1.Release{}, microerror.Mask(err)
 	}
-	return "", nil
+	return release, nil
 }
 
 func (rv *ReleaseVersion) cachedRelease(ctx context.Context, cr metav1.Object) (releasev1alpha1.Release, error) {
@@ -81,25 +80,16 @@ func (rv *ReleaseVersion) cachedRelease(ctx context.Context, cr metav1.Object) (
 	return release, nil
 }
 
-func (rv *ReleaseVersion) lookupReleaseVersions(ctx context.Context, r metav1.Object) (releasev1alpha1.Release, error) {
-	var list releasev1alpha1.ReleaseList
-
-	err := rv.k8sClient.CtrlClient().List(
+func (rv *ReleaseVersion) lookupReleaseVersions(ctx context.Context, cr metav1.Object) (releasev1alpha1.Release, error) {
+	var re releasev1alpha1.Release
+	err := rv.k8sClient.CtrlClient().Get(
 		ctx,
-		&list,
-		client.InNamespace(r.GetNamespace()),
-		client.MatchingLabels{label.Cluster: key.ClusterID(r)},
+		types.NamespacedName{Name: key.ReleaseName(key.ReleaseVersion(cr))},
+		&re,
 	)
 	if err != nil {
 		return releasev1alpha1.Release{}, microerror.Mask(err)
 	}
 
-	if len(list.Items) == 0 {
-		return releasev1alpha1.Release{}, microerror.Mask(notFoundError)
-	}
-	if len(list.Items) > 1 {
-		return releasev1alpha1.Release{}, microerror.Mask(tooManyCRsError)
-	}
-
-	return list.Items[0], nil
+	return re, nil
 }
