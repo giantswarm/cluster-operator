@@ -22,7 +22,7 @@ func IsNotFound(err error) bool {
 
 var tooManyCRsError = &microerror.Error{
 	Kind: "tooManyCRsError",
-	Desc: "There is only a single AWSCluster CR allowed with the current implementation.",
+	Desc: "There is only a single Release CR allowed with the current implementation.",
 }
 
 // IsTooManyCRsError asserts tooManyCRsError.
