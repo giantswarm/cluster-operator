@@ -11,8 +11,6 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -124,29 +122,6 @@ func newControlPlaneResourceSet(config controlPlaneResourceSetConfig) (*controll
 	}
 
 	return resourceSet, nil
-}
-
-func newG8sControlPlaneToClusterFunc(k8sClient k8sclient.Interface) func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-	return func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-		cr := &apiv1alpha2.Cluster{}
-		{
-			cp, err := key.ToG8sControlPlane(obj)
-			if err != nil {
-				return apiv1alpha2.Cluster{}, microerror.Mask(err)
-			}
-
-			// Note that we cannot use a key function here because we do not need to
-			// fetch the Control Plane again. We need to lookup the Cluster CR based
-			// on the G8sControlPlane CR. This is why we use types.NamespacedName here
-			// explicitly.
-			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&cp), Namespace: cp.Namespace}, cr)
-			if err != nil {
-				return apiv1alpha2.Cluster{}, microerror.Mask(err)
-			}
-		}
-
-		return *cr, nil
-	}
 }
 
 func toG8sControlPlaneObjRef(obj interface{}) (corev1.ObjectReference, error) {
