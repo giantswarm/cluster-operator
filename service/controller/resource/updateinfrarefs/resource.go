@@ -1,11 +1,12 @@
 package updateinfrarefs
 
 import (
-	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 const (
