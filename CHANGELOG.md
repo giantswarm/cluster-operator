@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [2.2.0] 2020-05-20
+
 ### Added
 
 - Add support for HA Masters certificates.
@@ -92,8 +94,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.1.10...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.2.0...HEAD
 
+[2.2.0]: https://github.com/giantswarm/cluster-operator/compare/v2.1.10...v2.2.0
 [2.1.10]: https://github.com/giantswarm/cluster-operator/compare/v2.1.9...v2.1.10
 [2.1.9]: https://github.com/giantswarm/cluster-operator/compare/v2.1.8...v2.1.9
 [2.1.8]: https://github.com/giantswarm/cluster-operator/compare/v2.1.7...v2.1.8
