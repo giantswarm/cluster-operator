@@ -4,12 +4,13 @@ import (
 	"context"
 
 	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion/internal/cache"
 )
