@@ -1,6 +1,7 @@
 package updateinfrarefs
 
 import (
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -12,8 +13,9 @@ const (
 )
 
 type Config struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	ReleaseVersion releaseversion.Interface
 
 	Provider string
 	ToObjRef func(v interface{}) (corev1.ObjectReference, error)
@@ -32,8 +34,9 @@ type Config struct {
 // ensures to distribute the right version labels among Giant Swarm
 // infrastructure CRs during Tenant Cluster upgrades.
 type Resource struct {
-	k8sClient k8sclient.Interface
-	logger    micrologger.Logger
+	k8sClient      k8sclient.Interface
+	logger         micrologger.Logger
+	releaseVersion releaseversion.Interface
 
 	provider string
 	toObjRef func(v interface{}) (corev1.ObjectReference, error)
@@ -46,6 +49,9 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.ReleaseVersion == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ReleaseVersion must not be empty", config)
+	}
 
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -55,8 +61,9 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		k8sClient:      config.K8sClient,
+		logger:         config.Logger,
+		releaseVersion: config.ReleaseVersion,
 
 		provider: config.Provider,
 		toObjRef: config.ToObjRef,

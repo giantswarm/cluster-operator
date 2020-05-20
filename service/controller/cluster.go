@@ -15,18 +15,20 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
 // CRD controller implementation.
 type ClusterConfig struct {
-	BaseDomain    basedomain.Interface
-	CertsSearcher certs.Interface
-	FileSystem    afero.Fs
-	K8sClient     k8sclient.Interface
-	Logger        micrologger.Logger
-	PodCIDR       podcidr.Interface
-	Tenant        tenantcluster.Interface
+	BaseDomain     basedomain.Interface
+	CertsSearcher  certs.Interface
+	FileSystem     afero.Fs
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	PodCIDR        podcidr.Interface
+	Tenant         tenantcluster.Interface
+	ReleaseVersion releaseversion.Interface
 
 	APIIP                      string
 	CertTTL                    string

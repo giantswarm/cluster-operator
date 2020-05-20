@@ -12,7 +12,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 )
@@ -20,10 +19,6 @@ import (
 // GetDesiredState returns all desired CertConfigs for managed certificates.
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
 	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -59,36 +54,41 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
+	certOperatorVersion := componentVersions[label.CertOperator]
 	var certConfigs []*corev1alpha1.CertConfig
 	{
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAPI(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAppOperator(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForAWSOperator(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForCalico(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForClusterOperator(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForNodeOperator(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForPrometheus(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForServiceActxount(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForWorker(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForAPI(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForAppOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForAWSOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForCalico(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForClusterOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForNodeOperator(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForPrometheus(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForServiceActxount(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForWorker(ctx, bd, cr)))
 
 		if haMasterEnabled {
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd1(ctx, bd, cr)))
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd2(ctx, bd, cr)))
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd3(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForEtcd1(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForEtcd2(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForEtcd3(ctx, bd, cr)))
 		} else {
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForEtcd(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForEtcd(ctx, bd, cr)))
 		}
 
 		if r.provider == label.ProviderKVM {
-			certConfigs = append(certConfigs, newCertConfig(*cc, cr, r.newSpecForFlanneldEtcdClient(ctx, bd, cr)))
+			certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForFlanneldEtcdClient(ctx, bd, cr)))
 		}
 	}
 
 	return certConfigs, nil
 }
 
-func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert corev1alpha1.CertConfigSpecCert) *corev1alpha1.CertConfig {
+func newCertConfig(certOperatorVersion string, cr apiv1alpha2.Cluster, cert corev1alpha1.CertConfigSpecCert) *corev1alpha1.CertConfig {
 	return &corev1alpha1.CertConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "CertConfig",
@@ -99,7 +99,7 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 			Namespace: cr.Namespace,
 			Labels: map[string]string{
 				label.Certificate:         cert.ClusterComponent,
-				label.CertOperatorVersion: cc.Status.Versions[label.CertOperatorVersion],
+				label.CertOperatorVersion: certOperatorVersion,
 				label.Cluster:             key.ClusterID(&cr),
 				label.ManagedBy:           project.Name(),
 				label.Organization:        key.OrganizationID(&cr),
@@ -108,7 +108,7 @@ func newCertConfig(cc controllercontext.Context, cr apiv1alpha2.Cluster, cert co
 		Spec: corev1alpha1.CertConfigSpec{
 			Cert: cert,
 			VersionBundle: corev1alpha1.CertConfigSpecVersionBundle{
-				Version: cc.Status.Versions[label.CertOperatorVersion],
+				Version: certOperatorVersion,
 			},
 		},
 	}

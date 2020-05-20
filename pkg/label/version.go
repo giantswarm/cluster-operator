@@ -1,9 +1,13 @@
 package label
 
 const (
+	// AppOperator defines the short name for the app-operator
+	AppOperator = "app-operator"
 	// AppOperatorVersion sets the version label for app custom resources managed
 	// by the operator.
 	AppOperatorVersion = "app-operator.giantswarm.io/version"
+	// CertOperator defines the short name for the cert-operator
+	CertOperator = "cert-operator"
 	// CertOperatorVersion sets the version label for CertConfig CRs managed by
 	// cert-operator.
 	CertOperatorVersion = "cert-operator.giantswarm.io/version"

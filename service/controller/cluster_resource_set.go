@@ -34,7 +34,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
@@ -44,18 +43,20 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 // clusterResourceSetConfig contains necessary dependencies and settings for
 // Cluster API's Cluster controller ResourceSet configuration.
 type clusterResourceSetConfig struct {
-	BaseDomain    basedomain.Interface
-	CertsSearcher certs.Interface
-	FileSystem    afero.Fs
-	K8sClient     k8sclient.Interface
-	Logger        micrologger.Logger
-	PodCIDR       podcidr.Interface
-	Tenant        tenantcluster.Interface
+	BaseDomain     basedomain.Interface
+	CertsSearcher  certs.Interface
+	FileSystem     afero.Fs
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	PodCIDR        podcidr.Interface
+	Tenant         tenantcluster.Interface
+	ReleaseVersion releaseversion.Interface
 
 	APIIP                      string
 	CertTTL                    string
@@ -91,9 +92,10 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			G8sClient:      config.K8sClient.G8sClient(),
+			K8sClient:      config.K8sClient.K8sClient(),
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
@@ -130,10 +132,11 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
-			BaseDomain: config.BaseDomain,
-			G8sClient:  config.K8sClient.G8sClient(),
-			HAMaster:   haMaster,
-			Logger:     config.Logger,
+			BaseDomain:     config.BaseDomain,
+			G8sClient:      config.K8sClient.G8sClient(),
+			HAMaster:       haMaster,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			APIIP:         config.APIIP,
 			CertTTL:       config.CertTTL,
@@ -354,21 +357,6 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 		}
 	}
 
-	var releaseVersionsResource resource.Interface
-	{
-		c := releaseversions.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ToClusterFunc: toClusterFunc,
-		}
-
-		releaseVersionsResource, err = releaseversions.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var statusConditionResource resource.Interface
 	{
 		c := statuscondition.Config{
@@ -458,7 +446,6 @@ func newClusterResourceSet(config clusterResourceSetConfig) (*controller.Resourc
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		releaseVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 

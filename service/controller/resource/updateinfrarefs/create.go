@@ -9,7 +9,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -22,12 +21,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	cc, err := controllercontext.FromContext(ctx)
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	if len(cc.Status.Versions) == 0 {
+	if len(componentVersions) == 0 {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "no release versions in controller context yet")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		return nil
@@ -57,8 +56,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Syncing the provider operator version label, e.g. for aws-operator,
 	// kvm-operator or the like.
 	{
-		l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
-		d := cc.Status.Versions[l]
+		l := fmt.Sprintf("%s-operator", r.provider)
+		d := componentVersions[l]
 		c, ok := ir.GetLabels()[l]
 		if ok && d != "" && d != c {
 			labels := ir.GetLabels()

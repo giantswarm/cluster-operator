@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 const (
@@ -25,10 +26,11 @@ const (
 
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
-	BaseDomain basedomain.Interface
-	G8sClient  versioned.Interface
-	HAMaster   hamaster.Interface
-	Logger     micrologger.Logger
+	BaseDomain     basedomain.Interface
+	G8sClient      versioned.Interface
+	HAMaster       hamaster.Interface
+	Logger         micrologger.Logger
+	ReleaseVersion releaseversion.Interface
 
 	APIIP         string
 	CertTTL       string
@@ -38,10 +40,11 @@ type Config struct {
 
 // Resource implements the cloud config resource.
 type Resource struct {
-	baseDomain basedomain.Interface
-	g8sClient  versioned.Interface
-	haMaster   hamaster.Interface
-	logger     micrologger.Logger
+	baseDomain     basedomain.Interface
+	g8sClient      versioned.Interface
+	haMaster       hamaster.Interface
+	logger         micrologger.Logger
+	releaseVersion releaseversion.Interface
 
 	apiIP         string
 	certTTL       string
@@ -63,6 +66,9 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.ReleaseVersion == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ReleaseVersion must not be empty", config)
+	}
 
 	if config.APIIP == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.APIIP must not be empty", config)
@@ -78,10 +84,11 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		baseDomain: config.BaseDomain,
-		g8sClient:  config.G8sClient,
-		haMaster:   config.HAMaster,
-		logger:     config.Logger,
+		baseDomain:     config.BaseDomain,
+		g8sClient:      config.G8sClient,
+		haMaster:       config.HAMaster,
+		logger:         config.Logger,
+		releaseVersion: config.ReleaseVersion,
 
 		apiIP:         config.APIIP,
 		certTTL:       config.CertTTL,

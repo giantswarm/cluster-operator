@@ -6,6 +6,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 const (
@@ -16,9 +18,10 @@ const (
 
 // Config represents the configuration used to create a new chartconfig service.
 type Config struct {
-	G8sClient versioned.Interface
-	K8sClient kubernetes.Interface
-	Logger    micrologger.Logger
+	G8sClient      versioned.Interface
+	K8sClient      kubernetes.Interface
+	Logger         micrologger.Logger
+	ReleaseVersion releaseversion.Interface
 
 	Provider             string
 	RawAppDefaultConfig  string
@@ -27,9 +30,10 @@ type Config struct {
 
 // Resource provides shared functionality for managing chartconfigs.
 type Resource struct {
-	g8sClient versioned.Interface
-	k8sClient kubernetes.Interface
-	logger    micrologger.Logger
+	g8sClient      versioned.Interface
+	k8sClient      kubernetes.Interface
+	logger         micrologger.Logger
+	releaseVersion releaseversion.Interface
 
 	defaultConfig  defaultConfig
 	overrideConfig overrideConfig
@@ -61,6 +65,9 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.ReleaseVersion == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ReleaseVersion must not be empty", config)
+	}
 
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
@@ -85,9 +92,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient: config.G8sClient,
-		k8sClient: config.K8sClient,
-		logger:    config.Logger,
+		g8sClient:      config.G8sClient,
+		k8sClient:      config.K8sClient,
+		logger:         config.Logger,
+		releaseVersion: config.ReleaseVersion,
 
 		defaultConfig:  defaultConfig,
 		overrideConfig: overrideConfig,
