@@ -5,20 +5,11 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 
-	"github.com/giantswarm/cluster-operator/service/internal/releaseversion/internal/cache"
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
 )
 
-type MockReleaseVersion struct {
-	k8sClient k8sclient.Interface
-
-	releaseCache *cache.Release
-}
-
-// TODO
 func Test_Release_Cache(t *testing.T) {
 	testCases := []struct {
 		name             string
