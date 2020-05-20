@@ -11,7 +11,7 @@ import (
 func DefaultRelease() releasev1alpha1.Release {
 	r := releasev1alpha1.Release{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "v11.0.1",
+			Name: "v100.0.0",
 		},
 		Spec: releasev1alpha1.ReleaseSpec{
 			Apps: []releasev1alpha1.ReleaseSpecApp{

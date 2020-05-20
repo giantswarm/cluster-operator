@@ -38,17 +38,38 @@ func New(c Config) (*ReleaseVersion, error) {
 	return rv, nil
 }
 
-func (rv *ReleaseVersion) ReleaseVersioner(ctx context.Context, obj interface{}) (releasev1alpha1.Release, error) {
+func (rv *ReleaseVersion) AppVersion(ctx context.Context, obj interface{}) (map[string]string, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
-		return releasev1alpha1.Release{}, microerror.Mask(err)
+		return nil, microerror.Mask(err)
 	}
 
 	release, err := rv.cachedRelease(ctx, cr)
 	if err != nil {
-		return releasev1alpha1.Release{}, microerror.Mask(err)
+		return nil, microerror.Mask(err)
 	}
-	return release, nil
+	apps := make(map[string]string, len(release.Spec.Apps))
+	for _, v := range release.Spec.Apps {
+		apps[v.Name] = v.Version
+	}
+	return apps, nil
+}
+
+func (rv *ReleaseVersion) ComponentVersion(ctx context.Context, obj interface{}) (map[string]string, error) {
+	cr, err := meta.Accessor(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	release, err := rv.cachedRelease(ctx, cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	components := make(map[string]string, len(release.Spec.Components))
+	for _, v := range release.Spec.Components {
+		components[v.Name] = v.Version
+	}
+	return components, nil
 }
 
 func (rv *ReleaseVersion) cachedRelease(ctx context.Context, cr metav1.Object) (releasev1alpha1.Release, error) {

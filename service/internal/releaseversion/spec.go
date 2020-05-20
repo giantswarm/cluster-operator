@@ -5,6 +5,8 @@ import (
 )
 
 type Interface interface {
-	// ReleaseVersioner TODO
-	ReleaseVersioner(ctx context.Context, obj interface{}) (map[string]string, error)
+	// AppVersion TODO
+	AppVersion(ctx context.Context, obj interface{}) (map[string]string, error)
+	// ComponentVersion TODO
+	ComponentVersion(ctx context.Context, obj interface{}) (map[string]string, error)
 }
