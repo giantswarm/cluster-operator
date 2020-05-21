@@ -19,40 +19,26 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	mdList := &apiv1alpha2.MachineDeploymentList{}
+	list := &apiv1alpha2.MachineDeploymentList{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
-
 		err = r.k8sClient.CtrlClient().List(
 			ctx,
-			mdList,
+			list,
 			client.InNamespace(cr.Namespace),
 			client.MatchingLabels{label.Cluster: key.ClusterID(&cr)},
 		)
 		if err != nil {
 			return microerror.Mask(err)
 		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
 	}
 
 	// We do not want to delete the Cluster CR as long as there are any
 	// MachineDeployment CRs. This is because there cannot be any Node Pool
 	// without a Cluster.
-	if len(mdList.Items) != 0 {
+	if len(list.Items) != 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d objects of type %T for tenant cluster %#q", len(list.Items), list, key.ClusterID(&cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
 		finalizerskeptcontext.SetKept(ctx)
-	}
-
-	for _, md := range mdList.Items {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
-
-		err = r.k8sClient.CtrlClient().Delete(ctx, &md)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
 	}
 
 	return nil
