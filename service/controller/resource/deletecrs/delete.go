@@ -60,7 +60,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted object %#q of type %T for tenant cluster %#q", i.GetNamespace()+"/"+i.GetName(), r.newObjFunc(), key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted object %#q of type %T for tenant cluster %#q", fmt.Sprintf("%s/%s", i.GetNamespace(), i.GetName()), r.newObjFunc(), key.ClusterID(cr)))
 	}
 
 	return nil
