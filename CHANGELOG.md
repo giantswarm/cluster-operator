@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `deleteconfigured` handler for better CR cleanup.
+- Add `deletecrs` handler for better CR cleanup.
 
 
 
