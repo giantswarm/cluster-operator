@@ -1,4 +1,4 @@
-package deleteconfigured
+package deletecrs
 
 import (
 	"github.com/giantswarm/microerror"

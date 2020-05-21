@@ -1,4 +1,4 @@
-package deleteconfigured
+package deletecrs
 
 import (
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	Name = "deleteconfigured"
+	Name = "deletecrs"
 )
 
 type Config struct {

@@ -1,4 +1,4 @@
-package deleteconfigured
+package deletecrs
 
 import (
 	"context"

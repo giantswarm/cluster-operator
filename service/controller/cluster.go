@@ -34,7 +34,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteconfigured"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/deletecrs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
@@ -304,9 +304,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var deleteG8sControlPlanesResource resource.Interface
+	var deleteG8sControlPlaneCRsResource resource.Interface
 	{
-		c := deleteconfigured.Config{
+		c := deletecrs.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -315,15 +315,15 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			},
 		}
 
-		deleteG8sControlPlanesResource, err = deleteconfigured.New(c)
+		deleteG8sControlPlaneCRsResource, err = deletecrs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
 	}
 
-	var deleteMachineDeploymentsResource resource.Interface
+	var deleteMachineDeploymentCRsResource resource.Interface
 	{
-		c := deleteconfigured.Config{
+		c := deletecrs.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
@@ -332,7 +332,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			},
 		}
 
-		deleteMachineDeploymentsResource, err = deleteconfigured.New(c)
+		deleteMachineDeploymentCRsResource, err = deletecrs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -564,8 +564,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		statusConditionResource,
 
 		// Following resources manage tenant cluster deletion events.
-		deleteG8sControlPlanesResource,
-		deleteMachineDeploymentsResource,
+		deleteG8sControlPlaneCRsResource,
+		deleteMachineDeploymentCRsResource,
 		cleanupMachineDeployments,
 		keepForInfraRefsResource,
 	}
