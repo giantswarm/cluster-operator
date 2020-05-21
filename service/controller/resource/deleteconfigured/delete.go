@@ -35,7 +35,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding objects of type %T for tenant cluster %#q", list, key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding objects of type %T for tenant cluster %#q", r.newObjFunc(), key.ClusterID(cr)))
 
 		err = r.k8sClient.CtrlClient().List(
 			ctx,
@@ -47,20 +47,20 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d objects of type %T for tenant cluster %#q", len(list.Items), list, key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d object(s) of type %T for tenant cluster %#q", len(list.Items), r.newObjFunc(), key.ClusterID(cr)))
 	}
 
 	for _, i := range list.Items {
 		i := i // dereferencing pointer value into new scope
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting %#q for tenant cluster %#q", fmt.Sprintf("%s/%s", i.GetNamespace(), i.GetName()), key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting object %#q of type %#q for tenant cluster %#q", fmt.Sprintf("%s/%s", i.GetNamespace(), i.GetName()), r.newObjFunc(), key.ClusterID(cr)))
 
 		err = r.k8sClient.CtrlClient().Delete(ctx, &i)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted machine deployment %#q for tenant cluster %#q", i.GetNamespace()+"/"+i.GetName(), key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted object %#q of type %#q for tenant cluster %#q", i.GetNamespace()+"/"+i.GetName(), r.newObjFunc(), key.ClusterID(cr)))
 	}
 
 	return nil
