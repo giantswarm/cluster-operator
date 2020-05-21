@@ -27,10 +27,10 @@ type Config struct {
 // into and deletes the runtime object of the configured matching types. This is
 // to initialize deletion for the following CRs.
 //
-//     watch    |   delete
-//     ------------------------------
-//     Cluster  |   G8sControlPlane
-//     Cluster  |   MachineDeployment
+//     watch      |    delete
+//     ---------------------------------
+//     Cluster    |    G8sControlPlane
+//     Cluster    |    MachineDeployment
 //
 type Resource struct {
 	k8sClient  k8sclient.Interface
