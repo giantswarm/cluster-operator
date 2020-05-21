@@ -81,6 +81,8 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, cl := range list.Items {
+		cl := cl // dereferencing pointer value into new scope
+
 		cr := c.newCommonClusterObjectFunc()
 		{
 			err := c.k8sClient.CtrlClient().Get(

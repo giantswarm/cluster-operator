@@ -96,6 +96,8 @@ func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 	nodePoolMap := make(map[string][]nodePool)
 
 	for _, md := range list.Items {
+		md := md // dereferencing pointer value into new scope
+
 		np := nodePool{
 			id:      key.MachineDeployment(&md),
 			desired: int(md.Status.Replicas),

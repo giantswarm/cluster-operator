@@ -36,6 +36,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	for _, md := range mdList.Items {
+		md := md // dereferencing pointer value into new scope
+
 		var updated bool
 
 		// Syncing the cluster-operator version.
