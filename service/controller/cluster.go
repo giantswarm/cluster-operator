@@ -34,6 +34,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteconfigured"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
@@ -303,6 +304,40 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var deleteG8sControlPlanesResource resource.Interface
+	{
+		c := deleteconfigured.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewObjFunc: func() runtime.Object {
+				return &infrastructurev1alpha2.G8sControlPlane{}
+			},
+		}
+
+		deleteG8sControlPlanesResource, err = deleteconfigured.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var deleteMachineDeploymentsResource resource.Interface
+	{
+		c := deleteconfigured.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewObjFunc: func() runtime.Object {
+				return &apiv1alpha2.MachineDeployment{}
+			},
+		}
+
+		deleteMachineDeploymentsResource, err = deleteconfigured.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var encryptionKeyGetter secretresource.StateGetter
 	{
 		c := encryptionkey.Config{
@@ -529,6 +564,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		statusConditionResource,
 
 		// Following resources manage tenant cluster deletion events.
+		deleteG8sControlPlanesResource,
+		deleteMachineDeploymentsResource,
 		cleanupMachineDeployments,
 		keepForInfraRefsResource,
 	}
