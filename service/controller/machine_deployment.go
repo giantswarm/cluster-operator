@@ -138,8 +138,9 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			ToObjRef: toMachineDeploymentObjRef,
 			Provider: config.Provider,

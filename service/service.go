@@ -250,10 +250,11 @@ func New(config Config) (*Service, error) {
 	var machineDeploymentController *controller.MachineDeployment
 	{
 		c := controller.MachineDeploymentConfig{
-			BaseDomain: bd,
-			K8sClient:  k8sClient,
-			Logger:     config.Logger,
-			Tenant:     tenantCluster,
+			BaseDomain:     bd,
+			K8sClient:      k8sClient,
+			Logger:         config.Logger,
+			Tenant:         tenantCluster,
+			ReleaseVersion: rv,
 
 			Provider: provider,
 		}
