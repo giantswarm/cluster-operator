@@ -4,7 +4,7 @@ import (
 	"context"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
@@ -81,6 +81,8 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, cl := range list.Items {
+		cl := cl // dereferencing pointer value into new scope
+
 		cr := c.newCommonClusterObjectFunc()
 		{
 			err := c.k8sClient.CtrlClient().Get(

@@ -3,7 +3,7 @@ package collector
 import (
 	"context"
 
-	"github.com/giantswarm/k8sclient"
+	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
@@ -96,6 +96,8 @@ func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 	nodePoolMap := make(map[string][]nodePool)
 
 	for _, md := range list.Items {
+		md := md // dereferencing pointer value into new scope
+
 		np := nodePool{
 			id:      key.MachineDeployment(&md),
 			desired: int(md.Status.Replicas),
