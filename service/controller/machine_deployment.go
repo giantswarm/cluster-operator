@@ -23,18 +23,19 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 type MachineDeploymentConfig struct {
-	BaseDomain basedomain.Interface
-	K8sClient  k8sclient.Interface
-	Logger     micrologger.Logger
-	Tenant     tenantcluster.Interface
+	BaseDomain     basedomain.Interface
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	Tenant         tenantcluster.Interface
+	ReleaseVersion releaseversion.Interface
 
 	Provider string
 }
@@ -119,21 +120,6 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		}
 	}
 
-	var releaseVersionResource resource.Interface
-	{
-		c := releaseversions.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
-		}
-
-		releaseVersionResource, err = releaseversions.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
@@ -181,7 +167,6 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		releaseVersionResource,
 		tenantClientsResource,
 		workerCountResource,
 

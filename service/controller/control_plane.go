@@ -22,15 +22,16 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 // ControlPlaneConfig contains necessary dependencies and settings for the
 // ControlPlane controller implementation.
 type ControlPlaneConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	ReleaseVersion releaseversion.Interface
 
 	Provider string
 }
@@ -105,8 +106,9 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			ToObjRef: toG8sControlPlaneObjRef,
 			Provider: config.Provider,
@@ -118,23 +120,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 	}
 
-	var releaseVersionResource resource.Interface
-	{
-		c := releaseversions.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ToClusterFunc: newG8sControlPlaneToClusterFunc(config.K8sClient),
-		}
-
-		releaseVersionResource, err = releaseversions.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []resource.Interface{
-		releaseVersionResource,
 		keepForInfraRefsResource,
 		updateInfraRefsResource,
 	}

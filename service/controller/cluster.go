@@ -38,7 +38,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
@@ -441,21 +440,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var releaseVersionsResource resource.Interface
-	{
-		c := releaseversions.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ToClusterFunc: toClusterFunc,
-		}
-
-		releaseVersionsResource, err = releaseversions.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var statusConditionResource resource.Interface
 	{
 		c := statuscondition.Config{
@@ -545,7 +529,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		releaseVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 
