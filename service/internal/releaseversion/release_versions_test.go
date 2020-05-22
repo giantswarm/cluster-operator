@@ -15,6 +15,7 @@ func Test_Release_Cache(t *testing.T) {
 		name             string
 		ctx              context.Context
 		appName          string
+		appVersion       string
 		expectCaching    bool
 		expectAppVersion string
 	}{
@@ -22,6 +23,7 @@ func Test_Release_Cache(t *testing.T) {
 			name:             "case 0",
 			ctx:              cachekeycontext.NewContext(context.Background(), "1"),
 			appName:          "cert-operator",
+			appVersion:       "1.2.1",
 			expectCaching:    true,
 			expectAppVersion: "1.2.1",
 		},
@@ -31,6 +33,7 @@ func Test_Release_Cache(t *testing.T) {
 			name:             "case 1",
 			ctx:              context.Background(),
 			appName:          "cert-operator",
+			appVersion:       "1.2.1",
 			expectCaching:    false,
 			expectAppVersion: "1.2.2",
 		},
@@ -55,6 +58,8 @@ func Test_Release_Cache(t *testing.T) {
 
 			{
 				release := unittest.DefaultRelease()
+				// Specify the version of the app we want for our tests.
+				release.Spec.Apps[0].Version = tc.appVersion
 				err = rv.k8sClient.CtrlClient().Create(tc.ctx, &release)
 				if err != nil {
 					t.Fatal(err)
@@ -70,6 +75,8 @@ func Test_Release_Cache(t *testing.T) {
 			}
 			{
 				release := unittest.DefaultRelease()
+				// Specify the updated version of the cert-operator we want for our tests.
+				// The version should not change when caching is enabled.
 				release.Spec.Apps[0].Version = "1.2.2"
 				err = rv.k8sClient.CtrlClient().Update(tc.ctx, &release)
 				if err != nil {
