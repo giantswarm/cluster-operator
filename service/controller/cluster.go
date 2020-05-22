@@ -143,9 +143,10 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			G8sClient:      config.K8sClient.G8sClient(),
+			K8sClient:      config.K8sClient.K8sClient(),
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
@@ -182,10 +183,11 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
-			BaseDomain: config.BaseDomain,
-			G8sClient:  config.K8sClient.G8sClient(),
-			HAMaster:   haMaster,
-			Logger:     config.Logger,
+			BaseDomain:     config.BaseDomain,
+			G8sClient:      config.K8sClient.G8sClient(),
+			HAMaster:       haMaster,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			APIIP:         config.APIIP,
 			CertTTL:       config.CertTTL,
@@ -487,8 +489,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			ToObjRef: toClusterObjRef,
 			Provider: config.Provider,
