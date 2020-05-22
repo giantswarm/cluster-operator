@@ -445,8 +445,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var statusConditionResource resource.Interface
 	{
 		c := statuscondition.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:     config.K8sClient,
+			Logger:        config.Logger,
+			ReleasVersion: config.ReleaseVersion,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
