@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 // GetDesiredState returns all desired CertConfigs for managed certificates.
@@ -59,7 +60,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	certOperatorVersion := componentVersions[CertOperator]
+	certOperatorVersion := componentVersions[releaseversion.CertOperator]
 	var certConfigs []*corev1alpha1.CertConfig
 	{
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForAPI(ctx, bd, cr)))

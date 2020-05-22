@@ -18,6 +18,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 type appConfig struct {
@@ -54,7 +55,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	appOperatorVersion := componentVersions[AppOperator]
+	appOperatorVersion := componentVersions[releaseversion.AppOperator]
 
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
