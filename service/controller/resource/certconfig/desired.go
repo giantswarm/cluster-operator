@@ -59,7 +59,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	certOperatorVersion := componentVersions[label.CertOperator]
+	certOperatorVersion := componentVersions[CertOperator]
 	var certConfigs []*corev1alpha1.CertConfig
 	{
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForAPI(ctx, bd, cr)))

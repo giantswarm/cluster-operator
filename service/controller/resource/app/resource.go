@@ -11,9 +11,11 @@ import (
 )
 
 const (
-	Name = "app"
-
+	// Name is the identifier of the resource.
+	Name                 = "app"
 	chartOperatorAppName = "chart-operator"
+	// AppOperator defines the name of the operator.
+	AppOperator = "app-operator"
 )
 
 // Config represents the configuration used to create a new chartconfig service.

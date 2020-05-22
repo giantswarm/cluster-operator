@@ -15,6 +15,8 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "certconfig"
+	// CertOperator defines the name of the operator.
+	CertOperator = "cert-operator"
 )
 
 const (
