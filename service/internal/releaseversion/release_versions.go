@@ -11,7 +11,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion/internal/cache"
 )
 
