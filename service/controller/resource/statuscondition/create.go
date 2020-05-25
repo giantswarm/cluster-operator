@@ -106,7 +106,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) error {
-	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
