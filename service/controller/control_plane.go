@@ -96,7 +96,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 			Logger:    config.Logger,
 		}
 
-		cntrolPlaneStatusResource, err = controlplanestatus.New(c)
+		controlPlaneStatusResource, err = controlplanestatus.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
