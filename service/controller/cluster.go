@@ -29,7 +29,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
@@ -199,19 +198,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		certConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var cleanupMachineDeployments resource.Interface
-	{
-		c := cleanupmachinedeployments.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		cleanupMachineDeployments, err = cleanupmachinedeployments.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
