@@ -26,12 +26,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	if len(componentVersions) == 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no release versions in controller context yet")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil
-	}
-
 	// Here we fetch the provider specific CR defined as infrastructure reference
 	// in the CAPI type. We use an unstructured object and therefore need to set
 	// the api version and kind accordingly. If we would not do that the
