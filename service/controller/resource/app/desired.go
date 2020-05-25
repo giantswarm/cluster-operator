@@ -17,8 +17,8 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 type appConfig struct {
@@ -30,10 +30,6 @@ type userOverrideConfig map[string]appConfig
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8sv1alpha1.App, error) {
 	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -55,11 +51,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	appOperatorVersion := componentVersions[releaseversion.AppOperator]
+
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
-			app := r.newApp(*cc, cr, appSpec, userConfig)
+			app := r.newApp(appOperatorVersion, cr, appSpec, userConfig)
 
 			// For chart-operator only we need to set the Helm major version
 			// label. This is so the correct instance of app-operator processes
@@ -151,7 +153,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Clu
 	return u, nil
 }
 
-func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
 	// Override config map name when specified.
@@ -170,7 +172,7 @@ func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, 
 			},
 			Labels: map[string]string{
 				label.App:                appSpec.App,
-				label.AppOperatorVersion: cc.Status.Versions[label.AppOperatorVersion],
+				label.AppOperatorVersion: appOperatorVersion,
 				label.Cluster:            key.ClusterID(&cr),
 				label.ManagedBy:          project.Name(),
 				label.Organization:       key.OrganizationID(&cr),
@@ -208,31 +210,30 @@ func (r *Resource) newApp(cc controllercontext.Context, cr apiv1alpha2.Cluster, 
 }
 
 func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	userOverrideConfigs, err := r.getUserOverrideConfig(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	var specs []key.AppSpec
+	apps, err := r.releaseVersion.AppVersion(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-	for _, app := range cc.Status.Apps {
+	var specs []key.AppSpec
+	for appName, appVersion := range apps {
 		spec := key.AppSpec{
-			App:             app.App,
+			App:             appName,
 			Catalog:         r.defaultConfig.Catalog,
-			Chart:           fmt.Sprintf("%s-app", app.App),
+			Chart:           fmt.Sprintf("%s-app", appName),
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
-			Version:         app.Version,
+			Version:         appVersion,
 		}
 		// For some apps we can't use default settings. We check ConfigExceptions map
 		// for these differences.
 		// We are looking into ConfigException map to see if this chart is the case.
-		if val, ok := r.overrideConfig[app.App]; ok {
+		if val, ok := r.overrideConfig[appName]; ok {
 			if val.Chart != "" {
 				spec.Chart = val.Chart
 			}
@@ -246,8 +247,8 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 
 		// To test apps in the testing catalog, users can override default app properties with
 		// a user-override-apps configmap.
-		if val, ok := userOverrideConfigs[app.App]; ok {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", app.App))
+		if val, ok := userOverrideConfigs[appName]; ok {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", appName))
 			if val.Catalog != "" {
 				spec.Catalog = val.Catalog
 			}
