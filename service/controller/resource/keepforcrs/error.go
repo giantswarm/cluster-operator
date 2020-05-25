@@ -1,4 +1,4 @@
-package cleanupmachinedeployments
+package keepforcrs
 
 import (
 	"github.com/giantswarm/microerror"
