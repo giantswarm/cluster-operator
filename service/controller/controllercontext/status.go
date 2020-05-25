@@ -18,6 +18,10 @@ type ContextStatus struct {
 	// ID. The map value is a structure holding node information for the
 	// corresponding machine deployment.
 	Worker map[string]ContextStatusWorker
+	// Master is a map of key value pairs where the key is the control plane
+	// ID. The map value is a structure holding node information for the
+	// corresponding control plane.
+	Master map[string]ContextStatusMaster
 }
 
 type App struct {
@@ -27,6 +31,11 @@ type App struct {
 }
 
 type ContextStatusWorker struct {
+	Nodes int32
+	Ready int32
+}
+
+type ContextStatusMaster struct {
 	Nodes int32
 	Ready int32
 }

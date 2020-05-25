@@ -21,7 +21,9 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/controlplanestatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/mastercount"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 )
@@ -87,6 +89,19 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, error) {
 	var err error
 
+	var controlPlaneStatusResource resource.Interface
+	{
+		c := controlplanestatus.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+		}
+
+		cntrolPlaneStatusResource, err = controlplanestatus.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
@@ -97,6 +112,20 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 
 		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var masterCountResource resource.Interface
+	{
+		c := mastercount.Config{
+			Logger: config.Logger,
+
+			ToClusterFunc: newG8sControlPlaneToClusterFunc(config.K8sClient),
+		}
+
+		masterCountResource, err = mastercount.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -134,8 +163,18 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	}
 
 	resources := []resource.Interface{
+		// Following resources manage controller context information.
+		masterCountResource,
 		releaseVersionResource,
+
+		// Following resources manage CR status information. Note that
+		// keepForInfraRefsResource needs to run before
+		// controlPlaneStatusResource because keepForInfraRefsResource keeps
+		// finalizers where contrplPlaneStatusResource does not.
 		keepForInfraRefsResource,
+		controlPlaneStatusResource,
+
+		// Following resources manage resources in the control plane.
 		updateInfraRefsResource,
 	}
 
