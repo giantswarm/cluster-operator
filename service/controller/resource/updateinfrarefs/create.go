@@ -21,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}

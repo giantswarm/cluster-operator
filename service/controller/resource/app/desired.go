@@ -51,7 +51,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
-	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
