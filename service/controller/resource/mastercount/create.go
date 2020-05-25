@@ -38,10 +38,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		o := metav1.ListOptions{
 			// This label selector excludes the non master nodes from node list.
-			//
-			// Constructing this LabelSelector is not currently possible with
-			// k8s types and functions. Therefore it's hardcoded here.
-			LabelSelector: fmt.Sprintf("%s", label.MasterNodeRole),
+			LabelSelector: label.MasterNodeRole,
 		}
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(o)
