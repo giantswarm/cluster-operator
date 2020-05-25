@@ -215,7 +215,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		return nil, microerror.Mask(err)
 	}
 
-	apps, err := r.releaseVersion.AppVersion(ctx, cr)
+	apps, err := r.releaseVersion.AppVersion(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
