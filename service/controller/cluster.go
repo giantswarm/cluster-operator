@@ -29,13 +29,13 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/deletecrs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforcrs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
@@ -206,19 +206,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var cleanupMachineDeployments resource.Interface
-	{
-		c := cleanupmachinedeployments.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		cleanupMachineDeployments, err = cleanupmachinedeployments.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var clusterConfigMapGetter configmapresource.StateGetter
 	{
 		c := clusterconfigmap.Config{
@@ -370,6 +357,40 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var keepForG8sControlPlaneCRsResource resource.Interface
+	{
+		c := keepforcrs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewObjFunc: func() runtime.Object {
+				return &infrastructurev1alpha2.G8sControlPlane{}
+			},
+		}
+
+		keepForG8sControlPlaneCRsResource, err = keepforcrs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var keepForMachineDeploymentCRsResource resource.Interface
+	{
+		c := keepforcrs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewObjFunc: func() runtime.Object {
+				return &apiv1alpha2.MachineDeployment{}
+			},
+		}
+
+		keepForMachineDeploymentCRsResource, err = keepforcrs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -555,7 +576,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		// Following resources manage tenant cluster deletion events.
 		deleteG8sControlPlaneCRsResource,
 		deleteMachineDeploymentCRsResource,
-		cleanupMachineDeployments,
+		keepForG8sControlPlaneCRsResource,
+		keepForMachineDeploymentCRsResource,
 		keepForInfraRefsResource,
 	}
 

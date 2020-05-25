@@ -1,4 +1,4 @@
-package cleanupmachinedeployments
+package keepforcrs
 
 import (
 	"context"
