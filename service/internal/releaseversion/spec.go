@@ -12,8 +12,8 @@ const (
 )
 
 type Interface interface {
-	// AppVersion TODO
+	// AppVersion provides the version of each app in a release.
 	AppVersion(ctx context.Context, obj interface{}) (map[string]string, error)
-	// ComponentVersion TODO
+	// ComponentVersion provides the version of each component in a release.
 	ComponentVersion(ctx context.Context, obj interface{}) (map[string]string, error)
 }
