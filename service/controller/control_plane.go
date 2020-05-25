@@ -31,10 +31,10 @@ import (
 // ControlPlaneConfig contains necessary dependencies and settings for the
 // ControlPlane controller implementation.
 type ControlPlaneConfig struct {
-	K8sClient k8sclient.Interface
-	Logger    micrologger.Logger
-
-	Provider string
+	K8sClient   k8sclient.Interface
+	Logger      micrologger.Logger
+	MasterCount mastercount.Interface
+	Provider    string
 }
 
 type ControlPlane struct {
@@ -92,8 +92,9 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	var controlPlaneStatusResource resource.Interface
 	{
 		c := controlplanestatus.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:   config.K8sClient,
+			Logger:      config.Logger,
+			MasterCount: config.MasterCount,
 		}
 
 		controlPlaneStatusResource, err = controlplanestatus.New(c)
@@ -112,20 +113,6 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 
 		keepForInfraRefsResource, err = keepforinfrarefs.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var masterCountResource resource.Interface
-	{
-		c := mastercount.Config{
-			Logger: config.Logger,
-
-			ToClusterFunc: newG8sControlPlaneToClusterFunc(config.K8sClient),
-		}
-
-		masterCountResource, err = mastercount.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -164,7 +151,6 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		masterCountResource,
 		releaseVersionResource,
 
 		// Following resources manage CR status information. Note that
