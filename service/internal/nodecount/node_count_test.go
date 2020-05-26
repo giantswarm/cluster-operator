@@ -1,4 +1,4 @@
-package mastercount
+package nodecount
 
 import (
 	"context"
