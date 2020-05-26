@@ -4,36 +4,36 @@ import (
 	"context"
 	"fmt"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 	gocache "github.com/patrickmn/go-cache"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-type Cluster struct {
+type Nodes struct {
 	cache *gocache.Cache
 }
 
-func NewCluster() *Cluster {
-	r := &Cluster{
+func NewNodes() *Nodes {
+	r := &Nodes{
 		cache: gocache.New(expiration, expiration/2),
 	}
 
 	return r
 }
 
-func (r *Cluster) Get(ctx context.Context, key string) (infrastructurev1alpha2.AWSCluster, bool) {
+func (r *Nodes) Get(ctx context.Context, key string) (corev1.NodeList, bool) {
 	val, ok := r.cache.Get(key)
 	if ok {
-		return val.(infrastructurev1alpha2.AWSCluster), true
+		return val.(corev1.NodeList), true
 	}
 
-	return infrastructurev1alpha2.AWSCluster{}, false
+	return corev1.NodeList{}, false
 }
 
-func (r *Cluster) Key(ctx context.Context, obj metav1.Object) string {
+func (r *Nodes) Key(ctx context.Context, obj metav1.Object) string {
 	ck, ok := cachekeycontext.FromContext(ctx)
 	if ok {
 		return fmt.Sprintf("%s/%s", ck, key.ClusterID(obj))
@@ -42,6 +42,6 @@ func (r *Cluster) Key(ctx context.Context, obj metav1.Object) string {
 	return ""
 }
 
-func (r *Cluster) Set(ctx context.Context, key string, val infrastructurev1alpha2.AWSCluster) {
+func (r *Nodes) Set(ctx context.Context, key string, val corev1.NodeList) {
 	r.cache.SetDefault(key, val)
 }

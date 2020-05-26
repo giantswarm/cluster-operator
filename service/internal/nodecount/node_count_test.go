@@ -5,9 +5,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
-
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
+	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 )
 
 func Test_NodeCount_Cache(t *testing.T) {
