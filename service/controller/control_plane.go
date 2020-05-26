@@ -14,8 +14,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
@@ -24,17 +22,19 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/controlplanestatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/mastercount"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 // ControlPlaneConfig contains necessary dependencies and settings for the
 // ControlPlane controller implementation.
 type ControlPlaneConfig struct {
-	K8sClient   k8sclient.Interface
-	Logger      micrologger.Logger
-	MasterCount mastercount.Interface
-	Provider    string
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	MasterCount    mastercount.Interface
+	ReleaseVersion releaseversion.Interface
+
+	Provider string
 }
 
 type ControlPlane struct {
@@ -121,8 +121,9 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			ToObjRef: toG8sControlPlaneObjRef,
 			Provider: config.Provider,
@@ -134,25 +135,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 	}
 
-	var releaseVersionResource resource.Interface
-	{
-		c := releaseversions.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ToClusterFunc: newG8sControlPlaneToClusterFunc(config.K8sClient),
-		}
-
-		releaseVersionResource, err = releaseversions.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []resource.Interface{
-		// Following resources manage controller context information.
-		releaseVersionResource,
-
 		// Following resources manage CR status information. Note that
 		// keepForInfraRefsResource needs to run before
 		// controlPlaneStatusResource because keepForInfraRefsResource keeps
@@ -185,29 +168,6 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	}
 
 	return resources, nil
-}
-
-func newG8sControlPlaneToClusterFunc(k8sClient k8sclient.Interface) func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-	return func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-		cr := &apiv1alpha2.Cluster{}
-		{
-			cp, err := key.ToG8sControlPlane(obj)
-			if err != nil {
-				return apiv1alpha2.Cluster{}, microerror.Mask(err)
-			}
-
-			// Note that we cannot use a key function here because we do not need to
-			// fetch the Control Plane again. We need to lookup the Cluster CR based
-			// on the G8sControlPlane CR. This is why we use types.NamespacedName here
-			// explicitly.
-			err = k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: key.ClusterID(&cp), Namespace: cp.Namespace}, cr)
-			if err != nil {
-				return apiv1alpha2.Cluster{}, microerror.Mask(err)
-			}
-		}
-
-		return *cr, nil
-	}
 }
 
 func toG8sControlPlaneObjRef(obj interface{}) (corev1.ObjectReference, error) {

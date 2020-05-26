@@ -27,6 +27,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 const (
@@ -188,16 +189,29 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var rv releaseversion.Interface
+	{
+		c := releaseversion.Config{
+			K8sClient: k8sClient,
+		}
+
+		rv, err = releaseversion.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
-			BaseDomain:    bd,
-			CertsSearcher: certsSearcher,
-			FileSystem:    afero.NewOsFs(),
-			K8sClient:     k8sClient,
-			Logger:        config.Logger,
-			PodCIDR:       pc,
-			Tenant:        tenantCluster,
+			BaseDomain:     bd,
+			CertsSearcher:  certsSearcher,
+			FileSystem:     afero.NewOsFs(),
+			K8sClient:      k8sClient,
+			Logger:         config.Logger,
+			PodCIDR:        pc,
+			Tenant:         tenantCluster,
+			ReleaseVersion: rv,
 
 			APIIP:                      apiIP,
 			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
@@ -220,8 +234,9 @@ func New(config Config) (*Service, error) {
 	var controlPlaneController *controller.ControlPlane
 	{
 		c := controller.ControlPlaneConfig{
-			K8sClient: k8sClient,
-			Logger:    config.Logger,
+			K8sClient:      k8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: rv,
 
 			Provider: provider,
 		}
@@ -235,10 +250,11 @@ func New(config Config) (*Service, error) {
 	var machineDeploymentController *controller.MachineDeployment
 	{
 		c := controller.MachineDeploymentConfig{
-			BaseDomain: bd,
-			K8sClient:  k8sClient,
-			Logger:     config.Logger,
-			Tenant:     tenantCluster,
+			BaseDomain:     bd,
+			K8sClient:      k8sClient,
+			Logger:         config.Logger,
+			Tenant:         tenantCluster,
+			ReleaseVersion: rv,
 
 			Provider: provider,
 		}

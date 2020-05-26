@@ -29,16 +29,15 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/cleanupmachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterid"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/deletecrs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforcrs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/releaseversions"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
@@ -48,18 +47,20 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
 // CRD controller implementation.
 type ClusterConfig struct {
-	BaseDomain    basedomain.Interface
-	CertsSearcher certs.Interface
-	FileSystem    afero.Fs
-	K8sClient     k8sclient.Interface
-	Logger        micrologger.Logger
-	PodCIDR       podcidr.Interface
-	Tenant        tenantcluster.Interface
+	BaseDomain     basedomain.Interface
+	CertsSearcher  certs.Interface
+	FileSystem     afero.Fs
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	PodCIDR        podcidr.Interface
+	Tenant         tenantcluster.Interface
+	ReleaseVersion releaseversion.Interface
 
 	APIIP                      string
 	CertTTL                    string
@@ -142,9 +143,10 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
+			G8sClient:      config.K8sClient.G8sClient(),
+			K8sClient:      config.K8sClient.K8sClient(),
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
@@ -181,10 +183,11 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
-			BaseDomain: config.BaseDomain,
-			G8sClient:  config.K8sClient.G8sClient(),
-			HAMaster:   haMaster,
-			Logger:     config.Logger,
+			BaseDomain:     config.BaseDomain,
+			G8sClient:      config.K8sClient.G8sClient(),
+			HAMaster:       haMaster,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			APIIP:         config.APIIP,
 			CertTTL:       config.CertTTL,
@@ -198,19 +201,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		certConfigResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var cleanupMachineDeployments resource.Interface
-	{
-		c := cleanupmachinedeployments.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		cleanupMachineDeployments, err = cleanupmachinedeployments.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -372,6 +362,40 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var keepForG8sControlPlaneCRsResource resource.Interface
+	{
+		c := keepforcrs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewObjFunc: func() runtime.Object {
+				return &infrastructurev1alpha2.G8sControlPlane{}
+			},
+		}
+
+		keepForG8sControlPlaneCRsResource, err = keepforcrs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var keepForMachineDeploymentCRsResource resource.Interface
+	{
+		c := keepforcrs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewObjFunc: func() runtime.Object {
+				return &apiv1alpha2.MachineDeployment{}
+			},
+		}
+
+		keepForMachineDeploymentCRsResource, err = keepforcrs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
@@ -439,26 +463,12 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var releaseVersionsResource resource.Interface
-	{
-		c := releaseversions.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			ToClusterFunc: toClusterFunc,
-		}
-
-		releaseVersionsResource, err = releaseversions.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var statusConditionResource resource.Interface
 	{
 		c := statuscondition.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:     config.K8sClient,
+			Logger:        config.Logger,
+			ReleasVersion: config.ReleaseVersion,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
@@ -501,8 +511,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			ToObjRef: toClusterObjRef,
 			Provider: config.Provider,
@@ -543,7 +554,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
-		releaseVersionsResource,
 		tenantClientsResource,
 		workerCountResource,
 
@@ -566,7 +576,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		// Following resources manage tenant cluster deletion events.
 		deleteG8sControlPlaneCRsResource,
 		deleteMachineDeploymentCRsResource,
-		cleanupMachineDeployments,
+		keepForG8sControlPlaneCRsResource,
+		keepForMachineDeploymentCRsResource,
 		keepForInfraRefsResource,
 	}
 

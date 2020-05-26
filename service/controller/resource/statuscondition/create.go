@@ -106,11 +106,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 }
 
 func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) error {
-	cc, err := controllercontext.FromContext(ctx)
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
+	providerOperator := fmt.Sprintf("%s-operator", r.provider)
 	providerOperatorVersionLabel := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
 
 	status := cr.GetCommonClusterStatus()
@@ -119,7 +120,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 	var desiredVersion string
 	{
 		currentVersion = status.LatestVersion()
-		desiredVersion = cc.Status.Versions[providerOperatorVersionLabel]
+		desiredVersion = componentVersions[providerOperator]
 	}
 
 	// Count total number of all workers and number of Ready workers that

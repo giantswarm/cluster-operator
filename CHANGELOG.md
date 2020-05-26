@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `deletecrs` handler for better CR cleanup.
 
+### Changed
+
+- Remove release version logic from controller context and use local caching.
 
 
 ## [2.2.0] 2020-05-20
