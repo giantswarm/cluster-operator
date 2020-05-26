@@ -2,6 +2,7 @@ package clusterconfigmap
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -10,6 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -187,6 +189,9 @@ func newConfigMap(clusterConfig v1alpha1.ClusterGuestConfig, configMapSpec confi
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapSpec.Name,
 			Namespace: configMapSpec.Namespace,
+			Annotations: map[string]string{
+				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
+			},
 			Labels: map[string]string{
 				label.Cluster:      key.ClusterID(clusterConfig),
 				label.ManagedBy:    project.Name(),
