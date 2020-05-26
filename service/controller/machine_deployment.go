@@ -25,7 +25,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
@@ -152,24 +151,9 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		}
 	}
 
-	var workerCountResource resource.Interface
-	{
-		c := workercount.Config{
-			Logger: config.Logger,
-
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
-		}
-
-		workerCountResource, err = workercount.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		tenantClientsResource,
-		workerCountResource,
 
 		// Following resources manage CR status information. Note that
 		// keepForInfraRefsResource needs to run before

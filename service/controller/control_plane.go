@@ -21,8 +21,8 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/controlplanestatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/mastercount"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
@@ -31,7 +31,7 @@ import (
 type ControlPlaneConfig struct {
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
-	MasterCount    mastercount.Interface
+	NodeCount      nodecount.Interface
 	ReleaseVersion releaseversion.Interface
 
 	Provider string
@@ -92,9 +92,9 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	var controlPlaneStatusResource resource.Interface
 	{
 		c := controlplanestatus.Config{
-			K8sClient:   config.K8sClient,
-			Logger:      config.Logger,
-			MasterCount: config.MasterCount,
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+			NodeCount: config.NodeCount,
 		}
 
 		controlPlaneStatusResource, err = controlplanestatus.New(c)
