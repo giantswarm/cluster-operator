@@ -105,6 +105,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				// complete. So if its gone we should not copy the user values
 				// again.
 				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("user configmap %#q has already been migrated", chartSpec.UserConfigMapName))
+				continue
 			}
 
 			cm, err := getConfigMapByName(clusterConfigMaps.Items, chartSpec.UserConfigMapName)
