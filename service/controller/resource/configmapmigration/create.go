@@ -3,6 +3,7 @@ package configmapmigration
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/errors/tenant"
@@ -136,10 +137,22 @@ func (r *Resource) copyUserConfigMap(ctx context.Context, tenantK8sClient kubern
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating user configmap %#q in namespace %#q", chartSpec.UserConfigMapName, key.ClusterID(cr)))
 
+	userValues := map[string]string{}
+
+	for k, v := range currentCM.Data {
+		// This should not happen if the configmap is correct but is a failsafe
+		// to prevent nested configmap data being copied to the new location.
+		if strings.Contains(v, "apiVersion: v1") || strings.Contains(v, "kind: ConfigMap") {
+			return microerror.Maskf(executionFailedError, "user configmap %#q has invalid data %#q", chartSpec.UserConfigMapName, v)
+		}
+
+		userValues[k] = v
+	}
+
 	// User configmaps for chartconfig CRs only have keys and values under the
 	// configmap block. This needs to be converted to YAML for app CRs.
 	values := map[string]interface{}{
-		"configmap": currentCM.Data,
+		"configmap": userValues,
 	}
 
 	yamlValues, err := yaml.Marshal(values)
