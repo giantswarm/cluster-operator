@@ -11,7 +11,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/internal/mastercount"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 )
 
 const (
@@ -19,15 +19,15 @@ const (
 )
 
 type Config struct {
-	K8sClient   k8sclient.Interface
-	Logger      micrologger.Logger
-	MasterCount mastercount.Interface
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
+	NodeCount nodecount.Interface
 }
 
 type Resource struct {
-	k8sClient   k8sclient.Interface
-	logger      micrologger.Logger
-	masterCount mastercount.Interface
+	k8sClient k8sclient.Interface
+	logger    micrologger.Logger
+	nodeCount nodecount.Interface
 }
 
 func New(config Config) (*Resource, error) {
@@ -37,10 +37,14 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.NodeCount == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NodeCount must not be empty", config)
+	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+		nodeCount: config.NodeCount,
 	}
 
 	return r, nil
@@ -63,7 +67,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 	}
-	masterNodes, err := r.masterCount.MasterCount(ctx, &cr)
+	masterNodes, err := r.nodeCount.MasterCount(ctx, &cr)
 	if err != nil {
 		return microerror.Mask(err)
 	}
