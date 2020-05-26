@@ -12,40 +12,40 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain/internal/cache"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
 )
 
 type Config struct {
 	K8sClient k8sclient.Interface
 }
 
-type BaseDomain struct {
+type NodeCount struct {
 	k8sClient k8sclient.Interface
 
 	clusterCache *cache.Cluster
 }
 
-func New(c Config) (*BaseDomain, error) {
+func New(c Config) (*NodeCount, error) {
 	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
 
-	bd := &BaseDomain{
+	nc := &NodeCount{
 		k8sClient: c.K8sClient,
 
 		clusterCache: cache.NewCluster(),
 	}
 
-	return bd, nil
+	return nc, nil
 }
 
-func (bd *BaseDomain) BaseDomain(ctx context.Context, obj interface{}) (string, error) {
+func (nc *NodeCount) NodeCount(ctx context.Context, obj interface{}) (string, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
 
-	cl, err := bd.cachedCluster(ctx, cr)
+	cl, err := nc.cachedCluster(ctx, cr)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
@@ -53,28 +53,28 @@ func (bd *BaseDomain) BaseDomain(ctx context.Context, obj interface{}) (string, 
 	return cl.Spec.Cluster.DNS.Domain, nil
 }
 
-func (bd *BaseDomain) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
+func (nc *NodeCount) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
 	var err error
 	var ok bool
 
 	var cluster infrastructurev1alpha2.AWSCluster
 	{
-		ck := bd.clusterCache.Key(ctx, cr)
+		ck := nc.clusterCache.Key(ctx, cr)
 
 		if ck == "" {
-			cluster, err = bd.lookupCluster(ctx, cr)
+			cluster, err = nc.lookupCluster(ctx, cr)
 			if err != nil {
 				return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
 			}
 		} else {
-			cluster, ok = bd.clusterCache.Get(ctx, ck)
+			cluster, ok = nc.clusterCache.Get(ctx, ck)
 			if !ok {
-				cluster, err = bd.lookupCluster(ctx, cr)
+				cluster, err = nc.lookupCluster(ctx, cr)
 				if err != nil {
 					return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
 				}
 
-				bd.clusterCache.Set(ctx, ck, cluster)
+				nc.clusterCache.Set(ctx, ck, cluster)
 			}
 		}
 	}
@@ -82,10 +82,10 @@ func (bd *BaseDomain) cachedCluster(ctx context.Context, cr metav1.Object) (infr
 	return cluster, nil
 }
 
-func (bd *BaseDomain) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
+func (nc *NodeCount) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
 	var list infrastructurev1alpha2.AWSClusterList
 
-	err := bd.k8sClient.CtrlClient().List(
+	err := nc.k8sClient.CtrlClient().List(
 		ctx,
 		&list,
 		client.InNamespace(cr.GetNamespace()),

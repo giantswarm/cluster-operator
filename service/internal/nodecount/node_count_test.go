@@ -10,7 +10,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
 )
 
-func Test_BaseDomain_Cache(t *testing.T) {
+func Test_NodeCount_Cache(t *testing.T) {
 	testCases := []struct {
 		name             string
 		ctx              context.Context
@@ -42,13 +42,13 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			var baseDomain1 string
 			var baseDomain2 string
 
-			var bd *BaseDomain
+			var nc *NodeCount
 			{
 				c := Config{
 					K8sClient: unittest.FakeK8sClient(),
 				}
 
-				bd, err = New(c)
+				nc, err = New(c)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -57,7 +57,7 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			{
 				cl := unittest.DefaultCluster()
 				cl.Spec.Cluster.DNS.Domain = tc.baseDomain
-				err = bd.k8sClient.CtrlClient().Create(tc.ctx, &cl)
+				err = nc.k8sClient.CtrlClient().Create(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -65,7 +65,7 @@ func Test_BaseDomain_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				baseDomain1, err = bd.BaseDomain(tc.ctx, &cl)
+				baseDomain1, err = nc.NodeCount(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -74,7 +74,7 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			{
 				cl := unittest.DefaultCluster()
 				cl.Spec.Cluster.DNS.Domain = "newdomain.company.com"
-				err = bd.k8sClient.CtrlClient().Update(tc.ctx, &cl)
+				err = nc.k8sClient.CtrlClient().Update(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -82,7 +82,7 @@ func Test_BaseDomain_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				baseDomain2, err = bd.BaseDomain(tc.ctx, &cl)
+				baseDomain2, err = nc.NodeCount(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
