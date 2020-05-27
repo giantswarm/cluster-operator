@@ -163,6 +163,7 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	// This is the same as for the NodeCount service we want to use.
 	var pc podcidr.Interface
 	{
 		c := podcidr.Config{

@@ -30,6 +30,7 @@ import (
 )
 
 type MachineDeploymentConfig struct {
+	// We want to configure the NodeCount service here.
 	BaseDomain     basedomain.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
@@ -111,6 +112,7 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		c := machinedeploymentstatus.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			// We want to configure the NodeCount service here.
 		}
 
 		machineDeploymentStatusResource, err = machinedeploymentstatus.New(c)

@@ -9,6 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
@@ -51,6 +52,8 @@ func (nc *NodeCount) MasterCount(ctx context.Context, obj interface{}) (map[stri
 		return nil, microerror.Mask(err)
 	}
 
+	// Here we can filter for the master nodes.
+
 	masterCount := make(map[string]Node)
 	for _, node := range nodes.Items {
 		id := node.Labels[label.ControlPlane]
@@ -85,6 +88,8 @@ func (nc *NodeCount) WorkerCount(ctx context.Context, obj interface{}) (map[stri
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	// Here we can filter for the worker nodes.
 
 	workerCount := make(map[string]Node)
 	for _, node := range nodes.Items {
@@ -135,8 +140,19 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, o metav1.ListOptions, cr m
 	return nodes, nil
 }
 
-func (nc *NodeCount) lookupNodes(o metav1.ListOptions) (corev1.NodeList, error) {
-	nodes, err := nc.k8sClient.K8sClient().CoreV1().Nodes().List(o)
+func (nc *NodeCount) lookupNodes(cr runtime.Object) (corev1.NodeList, error) {
+	// Here is where we need to create the Tenant Cluster Kubernetes client
+	// using the CR.
+
+	// TODO get tenant client
+	//
+	//     1. take it from controller context
+	//     2. make it up ourselves the right way
+	//     3. copy some code over here
+	//
+
+	// We should make up the list options in here.
+	nodes, err := k8sClient.K8sClient().CoreV1().Nodes().List(o)
 	if err != nil {
 		return corev1.NodeList{}, microerror.Mask(err)
 	}

@@ -10,7 +10,6 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -49,7 +48,7 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cc, err := controllercontext.FromContext(ctx)
+	countMap, err := r.nodeCount.Masters(ctx, obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -70,8 +69,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
 
-		replicasChanged := cr.Status.Replicas != cc.Status.Worker[cr.Labels[label.MachineDeployment]].Nodes
-		readyReplicasChanged := cr.Status.ReadyReplicas != cc.Status.Worker[cr.Labels[label.MachineDeployment]].Ready
+		replicasChanged := cr.Status.Replicas != countMap[label].Node
+		readyReplicasChanged := cr.Status.ReadyReplicas != countMap[label].Ready
 
 		if !replicasChanged && !readyReplicasChanged {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment does not need to be updated")
