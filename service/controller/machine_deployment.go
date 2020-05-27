@@ -26,6 +26,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
@@ -34,6 +35,7 @@ type MachineDeploymentConfig struct {
 	BaseDomain     basedomain.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
+	NodeCount      nodecount.Interface
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
@@ -112,6 +114,7 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		c := machinedeploymentstatus.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			NodeCount: config.NodeCount,
 			// We want to configure the NodeCount service here.
 		}
 

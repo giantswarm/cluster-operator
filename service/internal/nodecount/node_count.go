@@ -9,9 +9,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
 )
 
@@ -39,34 +39,31 @@ func New(c Config) (*NodeCount, error) {
 	return nc, nil
 }
 
-func (nc *NodeCount) MasterCount(ctx context.Context, obj interface{}) (map[string]Node, error) {
+func (nc *NodeCount) MasterCount(ctx context.Context, cc controllercontext.Context, obj interface{}) (map[string]Node, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	o := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s", label.MasterNodeRole),
-	}
-	nodes, err := nc.cachedNodes(ctx, o, cr)
+	nodes, err := nc.cachedNodes(ctx, cc, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	// Here we can filter for the master nodes.
-
 	masterCount := make(map[string]Node)
 	for _, node := range nodes.Items {
-		id := node.Labels[label.ControlPlane]
-		{
-			val := masterCount[id]
-			val.Nodes++
-			masterCount[id] = val
-		}
-		for _, c := range node.Status.Conditions {
-			if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
+		if _, ok := node.Labels[label.MasterNodeRole]; ok {
+			id := node.Labels[label.ControlPlane]
+			{
 				val := masterCount[id]
-				val.Ready++
+				val.Nodes++
 				masterCount[id] = val
+			}
+			for _, c := range node.Status.Conditions {
+				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
+					val := masterCount[id]
+					val.Ready++
+					masterCount[id] = val
+				}
 			}
 		}
 	}
@@ -74,36 +71,32 @@ func (nc *NodeCount) MasterCount(ctx context.Context, obj interface{}) (map[stri
 	return masterCount, nil
 }
 
-func (nc *NodeCount) WorkerCount(ctx context.Context, obj interface{}) (map[string]Node, error) {
+func (nc *NodeCount) WorkerCount(ctx context.Context, cc controllercontext.Context, obj interface{}) (map[string]Node, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	o := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("!%s", label.MasterNodeRole),
-	}
-
-	nodes, err := nc.cachedNodes(ctx, o, cr)
+	nodes, err := nc.cachedNodes(ctx, cc, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	// Here we can filter for the worker nodes.
-
 	workerCount := make(map[string]Node)
 	for _, node := range nodes.Items {
-		id := node.Labels[label.MachineDeployment]
-		{
-			val := workerCount[id]
-			val.Nodes++
-			workerCount[id] = val
-		}
-		for _, c := range node.Status.Conditions {
-			if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
+		if _, ok := node.Labels[fmt.Sprintf("!%s", label.MasterNodeRole)]; ok {
+			id := node.Labels[label.MachineDeployment]
+			{
 				val := workerCount[id]
-				val.Ready++
+				val.Nodes++
 				workerCount[id] = val
+			}
+			for _, c := range node.Status.Conditions {
+				if c.Type == corev1.NodeReady && c.Status == corev1.ConditionTrue {
+					val := workerCount[id]
+					val.Ready++
+					workerCount[id] = val
+				}
 			}
 		}
 	}
@@ -111,7 +104,7 @@ func (nc *NodeCount) WorkerCount(ctx context.Context, obj interface{}) (map[stri
 	return workerCount, nil
 }
 
-func (nc *NodeCount) cachedNodes(ctx context.Context, o metav1.ListOptions, cr metav1.Object) (corev1.NodeList, error) {
+func (nc *NodeCount) cachedNodes(ctx context.Context, cc controllercontext.Context, cr metav1.Object) (corev1.NodeList, error) {
 	var err error
 	var ok bool
 
@@ -120,14 +113,14 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, o metav1.ListOptions, cr m
 		ck := nc.nodesCache.Key(ctx, cr)
 
 		if ck == "" {
-			nodes, err = nc.lookupNodes(o)
+			nodes, err = nc.lookupNodes(cc)
 			if err != nil {
 				return corev1.NodeList{}, microerror.Mask(err)
 			}
 		} else {
 			nodes, ok = nc.nodesCache.Get(ctx, ck)
 			if !ok {
-				nodes, err = nc.lookupNodes(o)
+				nodes, err = nc.lookupNodes(cc)
 				if err != nil {
 					return corev1.NodeList{}, microerror.Mask(err)
 				}
@@ -140,25 +133,18 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, o metav1.ListOptions, cr m
 	return nodes, nil
 }
 
-func (nc *NodeCount) lookupNodes(cr runtime.Object) (corev1.NodeList, error) {
-	// Here is where we need to create the Tenant Cluster Kubernetes client
-	// using the CR.
+func (nc *NodeCount) lookupNodes(cc controllercontext.Context) (corev1.NodeList, error) {
+	// TODO we need to get rid off the controllercontext.Context but for now it should be fine.
+	if cc.Client.TenantCluster.K8s != nil {
+		nodes, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
+		if err != nil {
+			return corev1.NodeList{}, microerror.Mask(err)
+		}
 
-	// TODO get tenant client
-	//
-	//     1. take it from controller context
-	//     2. make it up ourselves the right way
-	//     3. copy some code over here
-	//
-
-	// We should make up the list options in here.
-	nodes, err := k8sClient.K8sClient().CoreV1().Nodes().List(o)
-	if err != nil {
-		return corev1.NodeList{}, microerror.Mask(err)
+		if len(nodes.Items) == 0 {
+			return corev1.NodeList{}, microerror.Mask(notFoundError)
+		}
+		return *nodes, nil
 	}
-
-	if len(nodes.Items) == 0 {
-		return corev1.NodeList{}, microerror.Mask(notFoundError)
-	}
-	return *nodes, nil
+	return corev1.NodeList{}, microerror.Mask(invalidConfigError)
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 )
 
 const (
@@ -20,11 +21,13 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+	NodeCount nodecount.Interface
 }
 
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+	nodeCount nodecount.Interface
 }
 
 func New(config Config) (*Resource, error) {
@@ -34,10 +37,14 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.NodeCount == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.NodeCount must not be empty", config)
+	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+		nodeCount: config.NodeCount,
 	}
 
 	return r, nil
@@ -48,7 +55,7 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	countMap, err := r.nodeCount.Masters(ctx, obj)
+	workerCount, err := r.nodeCount.WorkerCount(ctx, obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -69,8 +76,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
 
-		replicasChanged := cr.Status.Replicas != countMap[label].Node
-		readyReplicasChanged := cr.Status.ReadyReplicas != countMap[label].Ready
+		replicasChanged := cr.Status.Replicas != workerCount[cr.Labels[label.MachineDeployment]].Nodes
+		readyReplicasChanged := cr.Status.ReadyReplicas != workerCount[cr.Labels[label.MachineDeployment]].Ready
 
 		if !replicasChanged && !readyReplicasChanged {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment does not need to be updated")
@@ -81,8 +88,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		cr.Status.Replicas = cc.Status.Worker[cr.Labels[label.MachineDeployment]].Nodes
-		cr.Status.ReadyReplicas = cc.Status.Worker[cr.Labels[label.MachineDeployment]].Ready
+		cr.Status.Replicas = workerCount[cr.Labels[label.MachineDeployment]].Nodes
+		cr.Status.ReadyReplicas = workerCount[cr.Labels[label.MachineDeployment]].Ready
 	}
 
 	{

@@ -7,6 +7,7 @@ import (
 
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 
+	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
 )
 
@@ -45,6 +46,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 			var controlPlaneKey = "giantswarm.io/control-plane"
 
 			var nc *NodeCount
+			var cc controllercontext.Context
 			{
 				c := Config{
 					K8sClient: unittest.FakeK8sClient(),
@@ -55,6 +57,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
+			cc.Client.TenantCluster.K8s = nc.k8sClient.K8sClient()
 
 			{
 				nodes := unittest.DefaultNodes()
@@ -73,7 +76,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				masterNodes1, err = nc.MasterCount(tc.ctx, &cl)
+				masterNodes1, err = nc.MasterCount(tc.ctx, cc, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -94,7 +97,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				masterNodes2, err = nc.MasterCount(tc.ctx, &cl)
+				masterNodes2, err = nc.MasterCount(tc.ctx, cc, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
