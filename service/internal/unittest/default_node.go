@@ -3,245 +3,192 @@ package unittest
 import (
 	//"time"
 
+	"time"
+
 	corev1 "k8s.io/api/core/v1"
-	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//TODO
-func DefaultMasterNode() corev1.Node {
-	//n := corev1.Node{
-	//	TypeMeta: metav1.TypeMeta{
-	//		Kind:       "",
-	//		APIVersion: "",
-	//	},
-	//	ObjectMeta: metav1.ObjectMeta{
-	//		Name:            "",
-	//		GenerateName:    "",
-	//		Namespace:       "",
-	//		SelfLink:        "",
-	//		UID:             "",
-	//		ResourceVersion: "",
-	//		Generation:      0,
-	//		CreationTimestamp: metav1.Time{
-	//			Time: time.Time{},
-	//		},
-	//		DeletionTimestamp: &metav1.Time{
-	//			Time: time.Time{},
-	//		},
-	//		DeletionGracePeriodSeconds: nil,
-	//		Labels: map[string]string{
-	//			"": "",
-	//		},
-	//		Annotations: map[string]string{
-	//			"": "",
-	//		},
-	//		OwnerReferences: nil,
-	//		Finalizers:      nil,
-	//		ClusterName:     "",
-	//		ManagedFields:   nil,
-	//	},
-	//	Spec: corev1.NodeSpec{
-	//		PodCIDR:       "",
-	//		PodCIDRs:      nil,
-	//		ProviderID:    "",
-	//		Unschedulable: false,
-	//		Taints:        nil,
-	//		ConfigSource: &corev1.NodeConfigSource{
-	//			ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//				Namespace:        "",
-	//				Name:             "",
-	//				UID:              "",
-	//				ResourceVersion:  "",
-	//				KubeletConfigKey: "",
-	//			},
-	//		},
-	//		DoNotUseExternalID: "",
-	//	},
-	//	Status: corev1.NodeStatus{
-	//		Capacity: map[corev1.ResourceName]resource.Quantity{
-	//			"": {
-	//				Format: "",
-	//			},
-	//		},
-	//		Allocatable: map[corev1.ResourceName]resource.Quantity{
-	//			"": {
-	//				Format: "",
-	//			},
-	//		},
-	//		Phase:      "",
-	//		Conditions: nil,
-	//		Addresses:  nil,
-	//		DaemonEndpoints: corev1.NodeDaemonEndpoints{
-	//			KubeletEndpoint: corev1.DaemonEndpoint{
-	//				Port: 0,
-	//			},
-	//		},
-	//		NodeInfo: corev1.NodeSystemInfo{
-	//			MachineID:               "",
-	//			SystemUUID:              "",
-	//			BootID:                  "",
-	//			KernelVersion:           "",
-	//			OSImage:                 "",
-	//			ContainerRuntimeVersion: "",
-	//			KubeletVersion:          "",
-	//			KubeProxyVersion:        "",
-	//			OperatingSystem:         "",
-	//			Architecture:            "",
-	//		},
-	//		Images:          nil,
-	//		VolumesInUse:    nil,
-	//		VolumesAttached: nil,
-	//		Config: &corev1.NodeConfigStatus{
-	//			Assigned: &corev1.NodeConfigSource{
-	//				ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//					Namespace:        "",
-	//					Name:             "",
-	//					UID:              "",
-	//					ResourceVersion:  "",
-	//					KubeletConfigKey: "",
-	//				},
-	//			},
-	//			Active: &corev1.NodeConfigSource{
-	//				ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//					Namespace:        "",
-	//					Name:             "",
-	//					UID:              "",
-	//					ResourceVersion:  "",
-	//					KubeletConfigKey: "",
-	//				},
-	//			},
-	//			LastKnownGood: &corev1.NodeConfigSource{
-	//				ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//					Namespace:        "",
-	//					Name:             "",
-	//					UID:              "",
-	//					ResourceVersion:  "",
-	//					KubeletConfigKey: "",
-	//				},
-	//			},
-	//			Error: "",
-	//		},
-	//	},
-	//}
-	//return n
-	return corev1.Node{}
+func DefaultNodes() corev1.NodeList {
+	nodes := corev1.NodeList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Nodes",
+			APIVersion: "v1",
+		},
+		ListMeta: metav1.ListMeta{
+			SelfLink:           "",
+			ResourceVersion:    "",
+			Continue:           "",
+			RemainingItemCount: nil,
+		},
+		Items: []corev1.Node{
+			{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Node",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "ip-10-0-5-124.eu-central-1.compute.internal",
+					Labels: map[string]string{
+						"node.kubernetes.io/master":      "",
+						"node-role.kubernetes.io/master": "",
+						"giantswarm.io/control-plane":    "",
+					},
+					ClusterName: "",
+				},
+				Spec: corev1.NodeSpec{
+					ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
+				},
+				Status: corev1.NodeStatus{
+					Conditions: []v1.NodeCondition{
+						{
+							Type:   "Ready",
+							Status: "True",
+							LastHeartbeatTime: metav1.Time{
+								Time: time.Now().Add(-5 * time.Minute),
+							},
+							LastTransitionTime: metav1.Time{
+								Time: time.Now(),
+							},
+							Reason:  "KubeletReady",
+							Message: "kubelet is posting ready status",
+						},
+					},
+				},
+			},
+			{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Node",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:        "ip-10-0-5-132.eu-central-1.compute.internal",
+					Labels:      map[string]string{},
+					ClusterName: "",
+				},
+				Spec: corev1.NodeSpec{
+					ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
+				},
+				Status: corev1.NodeStatus{
+					Conditions: []v1.NodeCondition{
+						{
+							Type:   "Ready",
+							Status: "True",
+							LastHeartbeatTime: metav1.Time{
+								Time: time.Now().Add(-5 * time.Minute),
+							},
+							LastTransitionTime: metav1.Time{
+								Time: time.Now(),
+							},
+							Reason:  "KubeletReady",
+							Message: "kubelet is posting ready status",
+						},
+					},
+				},
+			},
+			{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Node",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "ip-10-0-5-211.eu-central-1.compute.internal",
+					Labels: map[string]string{
+						"giantswarm.io/machine-deployment": "abc123",
+					},
+					ClusterName: "",
+				},
+				Spec: corev1.NodeSpec{
+					ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
+				},
+				Status: corev1.NodeStatus{
+					Conditions: []v1.NodeCondition{
+						{
+							Type:   "Ready",
+							Status: "True",
+							LastHeartbeatTime: metav1.Time{
+								Time: time.Now().Add(-5 * time.Minute),
+							},
+							LastTransitionTime: metav1.Time{
+								Time: time.Now(),
+							},
+							Reason:  "KubeletReady",
+							Message: "kubelet is posting ready status",
+						},
+					},
+				},
+			},
+			{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Node",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "ip-10-0-5-230.eu-central-1.compute.internal",
+					Labels: map[string]string{
+						"giantswarm.io/machine-deployment": "abc123",
+					},
+					ClusterName: "",
+				},
+				Spec: corev1.NodeSpec{
+					ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
+				},
+				Status: corev1.NodeStatus{
+					Conditions: []v1.NodeCondition{
+						{
+							Type:   "Unknown",
+							Status: "Unknown",
+							LastHeartbeatTime: metav1.Time{
+								Time: time.Now().Add(-5 * time.Minute),
+							},
+							LastTransitionTime: metav1.Time{
+								Time: time.Now(),
+							},
+							Reason:  "KubeletNotReady",
+							Message: "kubelet is posting unknown status",
+						},
+					},
+				},
+			},
+		},
+	}
+	return nodes
 }
 
-func DefaultWorkerNode() corev1.Node {
-	//n := corev1.Node{
-	//	TypeMeta: metav1.TypeMeta{
-	//		Kind:       "",
-	//		APIVersion: "",
-	//	},
-	//	ObjectMeta: metav1.ObjectMeta{
-	//		Name:            "",
-	//		GenerateName:    "",
-	//		Namespace:       "",
-	//		SelfLink:        "",
-	//		UID:             "",
-	//		ResourceVersion: "",
-	//		Generation:      0,
-	//		CreationTimestamp: metav1.Time{
-	//			Time: time.Time{},
-	//		},
-	//		DeletionTimestamp: &metav1.Time{
-	//			Time: time.Time{},
-	//		},
-	//		DeletionGracePeriodSeconds: nil,
-	//		Labels: map[string]string{
-	//			"": "",
-	//		},
-	//		Annotations: map[string]string{
-	//			"": "",
-	//		},
-	//		OwnerReferences: nil,
-	//		Finalizers:      nil,
-	//		ClusterName:     "",
-	//		ManagedFields:   nil,
-	//	},
-	//	Spec: corev1.NodeSpec{
-	//		PodCIDR:       "",
-	//		PodCIDRs:      nil,
-	//		ProviderID:    "",
-	//		Unschedulable: false,
-	//		Taints:        nil,
-	//		ConfigSource: &corev1.NodeConfigSource{
-	//			ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//				Namespace:        "",
-	//				Name:             "",
-	//				UID:              "",
-	//				ResourceVersion:  "",
-	//				KubeletConfigKey: "",
-	//			},
-	//		},
-	//		DoNotUseExternalID: "",
-	//	},
-	//	Status: corev1.NodeStatus{
-	//		Capacity: map[corev1.ResourceName]resource.Quantity{
-	//			"": {
-	//				Format: "",
-	//			},
-	//		},
-	//		Allocatable: map[corev1.ResourceName]resource.Quantity{
-	//			"": {
-	//				Format: "",
-	//			},
-	//		},
-	//		Phase:      "",
-	//		Conditions: nil,
-	//		Addresses:  nil,
-	//		DaemonEndpoints: corev1.NodeDaemonEndpoints{
-	//			KubeletEndpoint: corev1.DaemonEndpoint{
-	//				Port: 0,
-	//			},
-	//		},
-	//		NodeInfo: corev1.NodeSystemInfo{
-	//			MachineID:               "",
-	//			SystemUUID:              "",
-	//			BootID:                  "",
-	//			KernelVersion:           "",
-	//			OSImage:                 "",
-	//			ContainerRuntimeVersion: "",
-	//			KubeletVersion:          "",
-	//			KubeProxyVersion:        "",
-	//			OperatingSystem:         "",
-	//			Architecture:            "",
-	//		},
-	//		Images:          nil,
-	//		VolumesInUse:    nil,
-	//		VolumesAttached: nil,
-	//		Config: &corev1.NodeConfigStatus{
-	//			Assigned: &corev1.NodeConfigSource{
-	//				ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//					Namespace:        "",
-	//					Name:             "",
-	//					UID:              "",
-	//					ResourceVersion:  "",
-	//					KubeletConfigKey: "",
-	//				},
-	//			},
-	//			Active: &corev1.NodeConfigSource{
-	//				ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//					Namespace:        "",
-	//					Name:             "",
-	//					UID:              "",
-	//					ResourceVersion:  "",
-	//					KubeletConfigKey: "",
-	//				},
-	//			},
-	//			LastKnownGood: &corev1.NodeConfigSource{
-	//				ConfigMap: &corev1.ConfigMapNodeConfigSource{
-	//					Namespace:        "",
-	//					Name:             "",
-	//					UID:              "",
-	//					ResourceVersion:  "",
-	//					KubeletConfigKey: "",
-	//				},
-	//			},
-	//			Error: "",
-	//		},
-	//	},
-	//}
-	//return n
-	return corev1.Node{}
+func NewNode() corev1.Node {
+	n := corev1.Node{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Node",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "ip-10-0-5-28.eu-central-1.compute.internal",
+			Labels: map[string]string{
+				"node-role.kubernetes.io/master": "",
+				"giantswarm.io/control-plane":    "",
+			},
+			ClusterName: "",
+		},
+		Spec: corev1.NodeSpec{
+			ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
+		},
+		Status: corev1.NodeStatus{
+			Conditions: []v1.NodeCondition{
+				{
+					Type:   "Ready",
+					Status: "True",
+					LastHeartbeatTime: metav1.Time{
+						Time: time.Now().Add(-5 * time.Minute),
+					},
+					LastTransitionTime: metav1.Time{
+						Time: time.Now(),
+					},
+					Reason:  "KubeletReady",
+					Message: "kubelet is posting ready status",
+				},
+			},
+		},
+	}
+	return n
 }
