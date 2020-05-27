@@ -135,7 +135,10 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cr metav1.Object) (corev1.
 
 func (nc *NodeCount) lookupNodes(ctx context.Context) (corev1.NodeList, error) {
 	// TODO we need to get rid off the controllercontext.Context but for now it should be fine.
-	controllercontext.FromContext(ctx)
+	cc, err := controllercontext.FromContext(ctx)
+	if err != nil {
+		return corev1.NodeList{}, microerror.Mask(err)
+	}
 	if cc.Client.TenantCluster.K8s != nil {
 		nodes, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
 		if err != nil {

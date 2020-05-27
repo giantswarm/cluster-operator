@@ -37,6 +37,9 @@ func Test_NodeCount_Cache(t *testing.T) {
 		},
 	}
 
+	//			func NewContext(ctx context.Context, c Context) context.Context {
+	// return context.WithValue(ctx, contextKey, &c)
+	//}/
 	for i, tc := range testCases {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var err error
@@ -46,7 +49,6 @@ func Test_NodeCount_Cache(t *testing.T) {
 			var controlPlaneKey = "giantswarm.io/control-plane"
 
 			var nc *NodeCount
-			var cc controllercontext.Context
 			{
 				c := Config{
 					K8sClient: unittest.FakeK8sClient(),
@@ -57,7 +59,15 @@ func Test_NodeCount_Cache(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			cc.Client.TenantCluster.K8s = nc.k8sClient.K8sClient()
+			ctrlctx := controllercontext.Context{
+				Client: controllercontext.ContextClient{
+					TenantCluster: controllercontext.ContextClientTenantCluster{
+						K8s: nc.k8sClient.K8sClient(),
+					},
+				},
+			}
+
+			fakeCtx := controllercontext.NewContext(tc.ctx, ctrlctx)
 
 			{
 				nodes := unittest.DefaultNodes()
@@ -76,7 +86,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				masterNodes1, err = nc.MasterCount(tc.ctx, cc, &cl)
+				masterNodes1, err = nc.MasterCount(fakeCtx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -97,7 +107,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				masterNodes2, err = nc.MasterCount(tc.ctx, cc, &cl)
+				masterNodes2, err = nc.MasterCount(fakeCtx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
