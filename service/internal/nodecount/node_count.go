@@ -39,12 +39,12 @@ func New(c Config) (*NodeCount, error) {
 	return nc, nil
 }
 
-func (nc *NodeCount) MasterCount(ctx context.Context, cc controllercontext.Context, obj interface{}) (map[string]Node, error) {
+func (nc *NodeCount) MasterCount(ctx context.Context, obj interface{}) (map[string]Node, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	nodes, err := nc.cachedNodes(ctx, cc, cr)
+	nodes, err := nc.cachedNodes(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -71,13 +71,13 @@ func (nc *NodeCount) MasterCount(ctx context.Context, cc controllercontext.Conte
 	return masterCount, nil
 }
 
-func (nc *NodeCount) WorkerCount(ctx context.Context, cc controllercontext.Context, obj interface{}) (map[string]Node, error) {
+func (nc *NodeCount) WorkerCount(ctx context.Context, obj interface{}) (map[string]Node, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	nodes, err := nc.cachedNodes(ctx, cc, cr)
+	nodes, err := nc.cachedNodes(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -104,7 +104,7 @@ func (nc *NodeCount) WorkerCount(ctx context.Context, cc controllercontext.Conte
 	return workerCount, nil
 }
 
-func (nc *NodeCount) cachedNodes(ctx context.Context, cc controllercontext.Context, cr metav1.Object) (corev1.NodeList, error) {
+func (nc *NodeCount) cachedNodes(ctx context.Context, cr metav1.Object) (corev1.NodeList, error) {
 	var err error
 	var ok bool
 
@@ -113,14 +113,14 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cc controllercontext.Conte
 		ck := nc.nodesCache.Key(ctx, cr)
 
 		if ck == "" {
-			nodes, err = nc.lookupNodes(cc)
+			nodes, err = nc.lookupNodes(ctx)
 			if err != nil {
 				return corev1.NodeList{}, microerror.Mask(err)
 			}
 		} else {
 			nodes, ok = nc.nodesCache.Get(ctx, ck)
 			if !ok {
-				nodes, err = nc.lookupNodes(cc)
+				nodes, err = nc.lookupNodes(ctx)
 				if err != nil {
 					return corev1.NodeList{}, microerror.Mask(err)
 				}
@@ -133,8 +133,9 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cc controllercontext.Conte
 	return nodes, nil
 }
 
-func (nc *NodeCount) lookupNodes(cc controllercontext.Context) (corev1.NodeList, error) {
+func (nc *NodeCount) lookupNodes(ctx context.Context) (corev1.NodeList, error) {
 	// TODO we need to get rid off the controllercontext.Context but for now it should be fine.
+	controllercontext.FromContext(ctx)
 	if cc.Client.TenantCluster.K8s != nil {
 		nodes, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
 		if err != nil {
