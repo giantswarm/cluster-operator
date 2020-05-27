@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
 )
 
 type Config struct {
