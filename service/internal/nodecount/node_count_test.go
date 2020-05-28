@@ -92,12 +92,13 @@ func Test_NodeCount_Cache(t *testing.T) {
 				}
 			}
 
-			newNode := unittest.NewAdditionalMasterNode()
+			newNode := unittest.NewMasterNode()
 			{
 				nodeLabels := newNode.GetLabels()
 				if _, ok := nodeLabels[controlPlaneKey]; ok {
 					nodeLabels[controlPlaneKey] = controlPlaneValue
 				}
+				newNode.ObjectMeta.Name = "ip-10-0-5-50.eu-central-1.compute.internal"
 				newNode.SetLabels(nodeLabels)
 				_, err = nc.k8sClient.K8sClient().CoreV1().Nodes().Create(&newNode)
 				if err != nil {

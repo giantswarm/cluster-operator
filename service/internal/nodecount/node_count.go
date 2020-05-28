@@ -149,5 +149,5 @@ func (nc *NodeCount) lookupNodes(ctx context.Context) (corev1.NodeList, error) {
 		}
 		return *nodes, nil
 	}
-	return corev1.NodeList{}, microerror.Mask(interfaceError)
+	return corev1.NodeList{}, microerror.Mask(tenantClusterNotInitializedError)
 }

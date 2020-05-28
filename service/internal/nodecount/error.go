@@ -20,21 +20,11 @@ func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
 
-var tooManyCRsError = &microerror.Error{
-	Kind: "tooManyCRsError",
-	Desc: "There is only a single AWSCluster CR allowed with the current implementation.",
+var tenantClusterNotInitializedError = &microerror.Error{
+	Kind: "tentantClusterNotInitializedError",
 }
 
-// IsTooManyCRsError asserts tooManyCRsError.
-func IsTooManyCRsError(err error) bool {
-	return microerror.Cause(err) == tooManyCRsError
-}
-
-var interfaceError = &microerror.Error{
-	Kind: "interfaceError",
-}
-
-// IsInterfaceError asserts interfaceError.
-func IsInterfaceError(err error) bool {
-	return microerror.Cause(err) == interfaceError
+// IsTenantClusterInitialized asserts tenantClusterNotInitializedError.
+func IsTenantClusterInitialized(err error) bool {
+	return microerror.Cause(err) == tenantClusterNotInitializedError
 }

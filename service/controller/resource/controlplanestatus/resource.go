@@ -70,12 +70,12 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		}
 	}
 	masterNodes, err := r.nodeCount.MasterCount(ctx, &cr)
-	if err != nil {
-		if nodecount.IsInterfaceError(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)))
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			resourcecanceledcontext.SetCanceled(ctx)
-		}
+	if nodecount.IsTenantClusterInitialized(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		resourcecanceledcontext.SetCanceled(ctx)
+		return microerror.Mask(err)
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
 	{
