@@ -213,6 +213,7 @@ func New(config Config) (*Service, error) {
 			FileSystem:     afero.NewOsFs(),
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
+			ObjectCache:    objectCache,
 			PodCIDR:        pc,
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
