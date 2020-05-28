@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
 	"k8s.io/apimachinery/pkg/types"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	expcapiv1alpha3 "sigs.k8s.io/cluster-api/exp/api/v1alpha3"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/object"
-	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/micrologger"
 )
 
 type accessor struct {
