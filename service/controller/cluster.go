@@ -46,6 +46,8 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/service/internal/object"
+	"github.com/giantswarm/cluster-operator/service/internal/object/v1alpha2cluster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
@@ -480,13 +482,24 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var v1alpha2clusterObjAccessor object.Accessor
+	{
+		c := v1alpha2cluster.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+		}
+		v1alpha2clusterObjAccessor, err = v1alpha2cluster.NewAccessor(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
-			BaseDomain:    config.BaseDomain,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-			ToClusterFunc: toClusterFunc,
+			Logger:         config.Logger,
+			Tenant:         config.Tenant,
+			ObjectAccessor: v1alpha2clusterObjAccessor,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)

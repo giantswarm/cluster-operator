@@ -1,14 +1,10 @@
 package tenantclients
 
 import (
-	"context"
-
+	"github.com/giantswarm/cluster-operator/service/internal/object"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
-
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 )
 
 const (
@@ -16,38 +12,32 @@ const (
 )
 
 type Config struct {
-	BaseDomain    basedomain.Interface
-	Logger        micrologger.Logger
-	Tenant        tenantcluster.Interface
-	ToClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
+	Logger         micrologger.Logger
+	Tenant         tenantcluster.Interface
+	ObjectAccessor object.Accessor
 }
 
 type Resource struct {
-	baseDomain    basedomain.Interface
-	logger        micrologger.Logger
-	tenant        tenantcluster.Interface
-	toClusterFunc func(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error)
+	logger         micrologger.Logger
+	tenant         tenantcluster.Interface
+	objectAccessor object.Accessor
 }
 
 func New(config Config) (*Resource, error) {
-	if config.BaseDomain == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
-	}
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 	if config.Tenant == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Tenant must not be empty", config)
 	}
-	if config.ToClusterFunc == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.ToClusterFunc must not be empty", config)
+	if config.ObjectAccessor == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.ObjectAccessor must not be empty", config)
 	}
 
 	r := &Resource{
-		baseDomain:    config.BaseDomain,
-		logger:        config.Logger,
-		tenant:        config.Tenant,
-		toClusterFunc: config.ToClusterFunc,
+		logger:         config.Logger,
+		tenant:         config.Tenant,
+		objectAccessor: config.ObjectAccessor,
 	}
 
 	return r, nil

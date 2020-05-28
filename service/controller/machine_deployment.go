@@ -28,6 +28,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/object"
+	"github.com/giantswarm/cluster-operator/service/internal/object/machinedeployment"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
@@ -111,6 +112,18 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		}
 	}
 
+	var machineDeploymentObjAccessor object.Accessor
+	{
+		c := machinedeployment.Config{
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
+		}
+		machineDeploymentObjAccessor, err = machinedeployment.NewAccessor(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var machineDeploymentStatusResource resource.Interface
 	{
 		c := machinedeploymentstatus.Config{
@@ -127,10 +140,9 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 	var tenantClientsResource resource.Interface
 	{
 		c := tenantclients.Config{
-			BaseDomain:    config.BaseDomain,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
+			Logger:         config.Logger,
+			Tenant:         config.Tenant,
+			ObjectAccessor: machineDeploymentObjAccessor,
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)

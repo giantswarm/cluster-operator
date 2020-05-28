@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
@@ -14,7 +15,7 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := r.toClusterFunc(ctx, obj)
+	m, err := meta.Accessor(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -22,14 +23,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	if err != nil {
 		return microerror.Mask(err)
 	}
-	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
-	if err != nil {
-		return microerror.Mask(err)
-	}
 
 	var restConfig *rest.Config
 	{
-		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(&cr), key.APIEndpoint(cr, bd))
+		apiEndpoint, err := r.objectAccessor.GetAPIEndpoint(ctx, obj)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(m), apiEndpoint)
 		if tenantcluster.IsTimeout(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
 			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
