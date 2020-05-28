@@ -2,12 +2,14 @@ package controlplanestatus
 
 import (
 	"context"
+	"fmt"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -57,18 +59,23 @@ func (r *Resource) Name() string {
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	cr := &infrastructurev1alpha2.G8sControlPlane{}
 	{
-		md, err := key.ToG8sControlPlane(obj)
+		cp, err := key.ToG8sControlPlane(obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromG8sControlPlane(md)), cr)
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromG8sControlPlane(cp)), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
 	masterNodes, err := r.nodeCount.MasterCount(ctx, &cr)
 	if err != nil {
+		if nodecount.IsInterfaceError(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+		}
 		return microerror.Mask(err)
 	}
 	{

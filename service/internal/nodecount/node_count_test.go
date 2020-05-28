@@ -92,7 +92,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 				}
 			}
 
-			newNode := unittest.NewNode()
+			newNode := unittest.NewAdditionalMasterNode()
 			{
 				nodeLabels := newNode.GetLabels()
 				if _, ok := nodeLabels[controlPlaneKey]; ok {

@@ -2,11 +2,13 @@ package machinedeploymentstatus
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -55,11 +57,6 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	workerCount, err := r.nodeCount.WorkerCount(ctx, obj)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	cr := &apiv1alpha2.MachineDeployment{}
 	{
 		md, err := key.ToMachineDeployment(obj)
@@ -72,7 +69,16 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 	}
+	workerCount, err := r.nodeCount.WorkerCount(ctx, obj)
+	if err != nil {
+		if nodecount.IsInterfaceError(err) {
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting worker nodes for tenant cluster %#q", key.ClusterID(cr)))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			resourcecanceledcontext.SetCanceled(ctx)
+		}
 
+		return microerror.Mask(err)
+	}
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
 

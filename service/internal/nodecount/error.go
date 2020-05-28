@@ -29,3 +29,12 @@ var tooManyCRsError = &microerror.Error{
 func IsTooManyCRsError(err error) bool {
 	return microerror.Cause(err) == tooManyCRsError
 }
+
+var interfaceError = &microerror.Error{
+	Kind: "interfaceError",
+}
+
+// IsInterfaceError asserts interfaceError.
+func IsInterfaceError(err error) bool {
+	return microerror.Cause(err) == interfaceError
+}

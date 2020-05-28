@@ -2,7 +2,6 @@ package nodecount
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -84,7 +83,7 @@ func (nc *NodeCount) WorkerCount(ctx context.Context, obj interface{}) (map[stri
 
 	workerCount := make(map[string]Node)
 	for _, node := range nodes.Items {
-		if _, ok := node.Labels[fmt.Sprintf("!%s", label.MasterNodeRole)]; ok {
+		if _, ok := node.Labels[label.WorkerNodeRole]; ok {
 			id := node.Labels[label.MachineDeployment]
 			{
 				val := workerCount[id]
@@ -150,5 +149,5 @@ func (nc *NodeCount) lookupNodes(ctx context.Context) (corev1.NodeList, error) {
 		}
 		return *nodes, nil
 	}
-	return corev1.NodeList{}, microerror.Mask(invalidConfigError)
+	return corev1.NodeList{}, microerror.Mask(interfaceError)
 }
