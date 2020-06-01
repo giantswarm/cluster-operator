@@ -139,7 +139,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		// Following resources manage CR status information. Note that
 		// keepForInfraRefsResource needs to run before
 		// controlPlaneStatusResource because keepForInfraRefsResource keeps
-		// finalizers where contrplPlaneStatusResource does not.
+		// finalizers where controlPlaneStatusResource does not.
 		keepForInfraRefsResource,
 		controlPlaneStatusResource,
 
