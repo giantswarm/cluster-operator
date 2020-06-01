@@ -247,9 +247,11 @@ func New(config Config) (*Service, error) {
 	var controlPlaneController *controller.ControlPlane
 	{
 		c := controller.ControlPlaneConfig{
+			BaseDomain:     bd,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
 			NodeCount:      nc,
+			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
 
 			Provider: provider,

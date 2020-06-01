@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
+	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -21,7 +22,9 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/controlplanestatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
@@ -29,9 +32,11 @@ import (
 // ControlPlaneConfig contains necessary dependencies and settings for the
 // ControlPlane controller implementation.
 type ControlPlaneConfig struct {
+	BaseDomain     basedomain.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	NodeCount      nodecount.Interface
+	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
 	Provider string
@@ -103,6 +108,21 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 	}
 
+	var tenantClientsResource resource.Interface
+	{
+		c := tenantclients.Config{
+			BaseDomain:    config.BaseDomain,
+			Logger:        config.Logger,
+			Tenant:        config.Tenant,
+			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
+		}
+
+		tenantClientsResource, err = tenantclients.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
@@ -136,6 +156,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	}
 
 	resources := []resource.Interface{
+		tenantClientsResource,
 		// Following resources manage CR status information. Note that
 		// keepForInfraRefsResource needs to run before
 		// controlPlaneStatusResource because keepForInfraRefsResource keeps
