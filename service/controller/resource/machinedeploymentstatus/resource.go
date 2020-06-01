@@ -97,7 +97,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of machine deployment")
 
-		if key.IsDeleted(&cr) {
+		if key.IsDeleted(cr) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
 			finalizerskeptcontext.SetKept(ctx)
 		}
