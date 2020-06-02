@@ -7,6 +7,8 @@ const (
 	Certificate = "giantswarm.io/certificate"
 	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
+	// ControlPlane label denotes which control plane corresponding resources belong to.
+	ControlPlane = "giantswarm.io/control-plane"
 	// MachineDeployment label denotes which node pool corresponding resources
 	// belongs.
 	MachineDeployment = "giantswarm.io/machine-deployment"

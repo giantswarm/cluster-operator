@@ -14,9 +14,9 @@ const (
 )
 
 type Config struct {
-	K8sClient     k8sclient.Interface
-	Logger        micrologger.Logger
-	ReleasVersion releaseversion.Interface
+	K8sClient      k8sclient.Interface
+	Logger         micrologger.Logger
+	ReleaseVersion releaseversion.Interface
 
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
@@ -38,7 +38,7 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
-	if config.ReleasVersion == nil {
+	if config.ReleaseVersion == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ReleaseVersion must not be empty", config)
 	}
 
@@ -52,7 +52,7 @@ func New(config Config) (*Resource, error) {
 	r := &Resource{
 		k8sClient:      config.K8sClient,
 		logger:         config.Logger,
-		releaseVersion: config.ReleasVersion,
+		releaseVersion: config.ReleaseVersion,
 
 		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 		provider:                   config.Provider,

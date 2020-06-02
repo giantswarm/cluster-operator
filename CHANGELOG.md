@@ -14,10 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `deletecrs` handler for better CR cleanup.
+- Add `controlPlaneStatus` handler for master nodes status.
 
 ### Changed
 
-- Remove release version logic from controller context and use local caching.
+- Remove controller context status and use local caching.
 
 
 ## [2.2.0] 2020-05-20

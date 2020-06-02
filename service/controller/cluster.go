@@ -44,7 +44,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
@@ -482,9 +481,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var statusConditionResource resource.Interface
 	{
 		c := statuscondition.Config{
-			K8sClient:     config.K8sClient,
-			Logger:        config.Logger,
-			ReleasVersion: config.ReleaseVersion,
+			K8sClient:      config.K8sClient,
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
@@ -554,24 +553,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var workerCountResource resource.Interface
-	{
-		c := workercount.Config{
-			Logger: config.Logger,
-
-			ToClusterFunc: toClusterFunc,
-		}
-
-		workerCountResource, err = workercount.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	resources := []resource.Interface{
 		// Following resources manage controller context information.
 		tenantClientsResource,
-		workerCountResource,
 
 		// Following resources manage resources in the control plane.
 		cpNamespaceResource,

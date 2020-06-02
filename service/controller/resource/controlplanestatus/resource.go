@@ -1,16 +1,15 @@
-package machinedeploymentstatus
+package controlplanestatus
 
 import (
 	"context"
 	"fmt"
 
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
@@ -18,7 +17,7 @@ import (
 )
 
 const (
-	Name = "machinedeploymentstatus"
+	Name = "controlplanestatus"
 )
 
 type Config struct {
@@ -58,21 +57,21 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cr := &apiv1alpha2.MachineDeployment{}
+	cr := &infrastructurev1alpha2.G8sControlPlane{}
 	{
-		md, err := key.ToMachineDeployment(obj)
+		cp, err := key.ToG8sControlPlane(obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromMachineDeployment(md)), cr)
+		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromG8sControlPlane(cp)), cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 	}
-	workerCount, err := r.nodeCount.WorkerCount(ctx, cr)
+	masterNodes, err := r.nodeCount.MasterCount(ctx, cr)
 	if nodecount.IsTenantClusterInitialized(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting worker nodes for tenant cluster %#q", key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
@@ -80,39 +79,33 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of control plane needs to be updated")
 
-		replicasChanged := cr.Status.Replicas != workerCount[cr.Labels[label.MachineDeployment]].Nodes
-		readyReplicasChanged := cr.Status.ReadyReplicas != workerCount[cr.Labels[label.MachineDeployment]].Ready
+		replicasChanged := cr.Status.Replicas != masterNodes[cr.Labels[label.ControlPlane]].Nodes
+		readyReplicasChanged := cr.Status.ReadyReplicas != masterNodes[cr.Labels[label.ControlPlane]].Ready
 
 		if !replicasChanged && !readyReplicasChanged {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment does not need to be updated")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "status of control plane does not need to be updated")
 			return nil
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment needs to be updated")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "status of control plane needs to be updated")
 	}
 
 	{
-		cr.Status.Replicas = workerCount[cr.Labels[label.MachineDeployment]].Nodes
-		cr.Status.ReadyReplicas = workerCount[cr.Labels[label.MachineDeployment]].Ready
+		cr.Status.Replicas = masterNodes[cr.Labels[label.ControlPlane]].Nodes
+		cr.Status.ReadyReplicas = masterNodes[cr.Labels[label.ControlPlane]].Ready
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of machine deployment")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of control plane")
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of machine deployment")
-
-		if key.IsDeleted(cr) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
-			finalizerskeptcontext.SetKept(ctx)
-		}
-
+		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of control plane")
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 	}

@@ -26,6 +26,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
@@ -163,6 +164,18 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var nc nodecount.Interface
+	{
+		c := nodecount.Config{
+			K8sClient: k8sClient,
+		}
+
+		nc, err = nodecount.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var pc podcidr.Interface
 	{
 		c := podcidr.Config{
@@ -234,8 +247,11 @@ func New(config Config) (*Service, error) {
 	var controlPlaneController *controller.ControlPlane
 	{
 		c := controller.ControlPlaneConfig{
+			BaseDomain:     bd,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
+			NodeCount:      nc,
+			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
 
 			Provider: provider,
@@ -253,6 +269,7 @@ func New(config Config) (*Service, error) {
 			BaseDomain:     bd,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
+			NodeCount:      nc,
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
 

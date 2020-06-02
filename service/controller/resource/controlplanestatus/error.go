@@ -1,4 +1,4 @@
-package workercount
+package controlplanestatus
 
 import (
 	"github.com/giantswarm/microerror"
