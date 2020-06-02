@@ -12,20 +12,26 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/cache"
 	"github.com/giantswarm/cluster-operator/service/internal/object"
 )
 
 type accessor struct {
+	cache      cache.Interface
 	ctrlClient client.Client
 	logger     micrologger.Logger
 }
 
 type Config struct {
+	Cache      cache.Interface
 	CtrlClient client.Client
 	Logger     micrologger.Logger
 }
 
 func NewAccessor(config Config) (object.Accessor, error) {
+	if config.Cache == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Cache must not be empty", config)
+	}
 	if config.CtrlClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
@@ -34,6 +40,7 @@ func NewAccessor(config Config) (object.Accessor, error) {
 	}
 
 	a := &accessor{
+		cache:      config.Cache,
 		ctrlClient: config.CtrlClient,
 		logger:     config.Logger,
 	}
@@ -55,11 +62,9 @@ func (a *accessor) getCluster(ctx context.Context, obj interface{}) (*capiv1alph
 		return nil, microerror.Mask(err)
 	}
 
-	cache := object.CacheFromContext(ctx)
-
 	var cluster *capiv1alpha3.Cluster
 	{
-		o, exists := cache.Get(clusterCacheKey(cr))
+		o, exists := a.cache.Get(clusterCacheKey(cr))
 		if exists {
 			cluster, err = toCluster(o)
 			if err != nil {
@@ -76,7 +81,7 @@ func (a *accessor) getCluster(ctx context.Context, obj interface{}) (*capiv1alph
 				return nil, microerror.Mask(err)
 			}
 
-			cache.Put(clusterCacheKey(cr), cluster)
+			a.cache.Put(clusterCacheKey(cr), cluster)
 		}
 	}
 
