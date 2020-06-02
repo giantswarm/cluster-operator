@@ -27,7 +27,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/service/internal/object"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
@@ -35,7 +34,6 @@ type MachineDeploymentConfig struct {
 	BaseDomain     basedomain.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
-	ObjectCache    object.Cache
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
@@ -61,9 +59,7 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 	{
 		c := controller.Config{
 			InitCtx: func(ctx context.Context, obj interface{}) (context.Context, error) {
-				ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
-				ctx = object.ContextWithCache(ctx, config.ObjectCache)
-				return ctx, nil
+				return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
 			},
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
