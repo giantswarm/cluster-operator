@@ -45,6 +45,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/workercount"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/service/internal/cache"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/object"
 	"github.com/giantswarm/cluster-operator/service/internal/object/v1alpha2cluster"
@@ -60,7 +61,6 @@ type ClusterConfig struct {
 	FileSystem     afero.Fs
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
-	ObjectCache    object.Cache
 	PodCIDR        podcidr.Interface
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
@@ -96,9 +96,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	{
 		c := controller.Config{
 			InitCtx: func(ctx context.Context, obj interface{}) (context.Context, error) {
-				ctx = controllercontext.NewContext(ctx, controllercontext.Context{})
-				ctx = object.ContextWithCache(ctx, config.ObjectCache)
-				return ctx, nil
+				return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
 			},
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
@@ -488,6 +486,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var v1alpha2clusterObjAccessor object.Accessor
 	{
 		c := v1alpha2cluster.Config{
+			Cache:      cache.Global,
 			CtrlClient: config.K8sClient.CtrlClient(),
 			Logger:     config.Logger,
 		}

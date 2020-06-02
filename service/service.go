@@ -26,7 +26,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/service/internal/object"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
@@ -202,9 +201,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	// Root instance for object cache.
-	objectCache := object.NewCache()
-
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
@@ -213,7 +209,6 @@ func New(config Config) (*Service, error) {
 			FileSystem:     afero.NewOsFs(),
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
-			ObjectCache:    objectCache,
 			PodCIDR:        pc,
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
@@ -258,7 +253,6 @@ func New(config Config) (*Service, error) {
 			BaseDomain:     bd,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
-			ObjectCache:    objectCache,
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
 
