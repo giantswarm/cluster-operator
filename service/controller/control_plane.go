@@ -121,7 +121,11 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
-  
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var deleteInfraRefsResource resource.Interface
 	{
 		c := deleteinfrarefs.Config{
