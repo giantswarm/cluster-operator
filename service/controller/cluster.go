@@ -34,6 +34,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/deletecrs"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforcrs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
@@ -327,6 +328,21 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var deleteInfraRefsResource resource.Interface
+	{
+		c := deleteinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toClusterObjRef,
+		}
+
+		deleteInfraRefsResource, err = deleteinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var encryptionKeyGetter secretresource.StateGetter
 	{
 		c := encryptionkey.Config{
@@ -560,6 +576,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		// Following resources manage tenant cluster deletion events.
 		deleteG8sControlPlaneCRsResource,
 		deleteMachineDeploymentCRsResource,
+		deleteInfraRefsResource,
 		keepForG8sControlPlaneCRsResource,
 		keepForMachineDeploymentCRsResource,
 		keepForInfraRefsResource,

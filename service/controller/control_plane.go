@@ -23,6 +23,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/controlplanestatus"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
@@ -120,6 +121,17 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		}
 
 		tenantClientsResource, err = tenantclients.New(c)
+  
+	var deleteInfraRefsResource resource.Interface
+	{
+		c := deleteinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toG8sControlPlaneObjRef,
+		}
+
+		deleteInfraRefsResource, err = deleteinfrarefs.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -163,6 +175,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 		// keepForInfraRefsResource needs to run before
 		// controlPlaneStatusResource because keepForInfraRefsResource keeps
 		// finalizers where controlPlaneStatusResource does not.
+		deleteInfraRefsResource,
 		keepForInfraRefsResource,
 		controlPlaneStatusResource,
 

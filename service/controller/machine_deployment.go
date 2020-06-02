@@ -21,6 +21,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
@@ -93,6 +94,21 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.Interface, error) {
 	var err error
 
+	var deleteInfraRefsResource resource.Interface
+	{
+		c := deleteinfrarefs.Config{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			ToObjRef: toMachineDeploymentObjRef,
+		}
+
+		deleteInfraRefsResource, err = deleteinfrarefs.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var keepForInfraRefsResource resource.Interface
 	{
 		c := keepforinfrarefs.Config{
@@ -162,10 +178,11 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		// keepForInfraRefsResource needs to run before
 		// machineDeploymentStatusResource because keepForInfraRefsResource keeps
 		// finalizers where machineDeploymentStatusResource does not.
-		keepForInfraRefsResource,
 		machineDeploymentStatusResource,
 
 		// Following resources manage resources in the control plane.
+		deleteInfraRefsResource,
+		keepForInfraRefsResource,
 		updateInfraRefsResource,
 	}
 
