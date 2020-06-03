@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/service/internal/k8sclient/internal/cache"
+	"github.com/giantswarm/cluster-operator/service/internal/client/internal/cache"
 )
 
 type Config struct {
@@ -22,28 +22,28 @@ type Client struct {
 }
 
 func New(c Config) (*Client, error) {
-	if c.K8sClient == nil {
+	if c.Client == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
 
-	c := &Client{
-		k8sClient: c.K8sClient,
+	client := &Client{
+		k8sClient: c.Client,
 
 		clusterCache: cache.NewCluster(),
 	}
 
-	return c, nil
+	return client, nil
 }
 
 func (c *Client) K8sClient(ctx context.Context, obj interface{}) (k8sclient.Interface, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
-		return "", microerror.Mask(err)
+		return nil, microerror.Mask(err)
 	}
 
 	client, err := c.cachedCluster(ctx, cr)
 	if err != nil {
-		return "", microerror.Mask(err)
+		return nil, microerror.Mask(err)
 	}
 
 	return client, nil
@@ -63,7 +63,8 @@ func (c *Client) cachedCluster(ctx context.Context, cr metav1.Object) (k8sclient
 				return nil, microerror.Mask(err)
 			}
 		} else {
-			client, ok = c.clusterCache.Get(ctx, ck)
+			// TODO
+			// client, ok = c.clusterCache.Get(ctx, ck)
 			if !ok {
 				client, err = c.lookupCluster(ctx, cr)
 				if err != nil {
