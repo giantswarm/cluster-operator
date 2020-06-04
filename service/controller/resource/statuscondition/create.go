@@ -15,16 +15,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cc, err := controllercontext.FromContext(ctx)
-	if err != nil {
-		return microerror.Mask(err)
-	}
-
 	cr := r.newCommonClusterObjectFunc()
 	var uc infrastructurev1alpha2.CommonClusterObject
 	{
@@ -45,11 +39,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
 
+	tenantClient, err := r.client.K8sClient(ctx, cr)
+	if err != nil {
+		//TODO
+		return microerror.Mask(err)
+	}
+
 	var nodes []corev1.Node
-	if cc.Client.TenantCluster.K8s != nil {
+	if tenantClient.K8sClient() != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 
-		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
+		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			// During cluster creation / upgrade the tenant API is naturally not
 			// available but this resource must still continue execution as that's

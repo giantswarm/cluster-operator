@@ -24,7 +24,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
@@ -138,21 +137,6 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 		}
 	}
 
-	var tenantClientsResource resource.Interface
-	{
-		c := tenantclients.Config{
-			BaseDomain:    config.BaseDomain,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-			ToClusterFunc: newMachineDeploymentToClusterFunc(config.K8sClient),
-		}
-
-		tenantClientsResource, err = tenantclients.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var updateInfraRefsResource resource.Interface
 	{
 		c := updateinfrarefs.Config{
@@ -171,9 +155,6 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 	}
 
 	resources := []resource.Interface{
-		// Following resources manage controller context information.
-		tenantClientsResource,
-
 		// Following resources manage CR status information. Note that
 		// keepForInfraRefsResource needs to run before
 		// machineDeploymentStatusResource because keepForInfraRefsResource keeps

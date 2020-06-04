@@ -40,11 +40,11 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/service/internal/client"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
@@ -59,6 +59,7 @@ type ClusterConfig struct {
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	PodCIDR        podcidr.Interface
+	Client         client.Interface
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
@@ -495,21 +496,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var tenantClientsResource resource.Interface
-	{
-		c := tenantclients.Config{
-			BaseDomain:    config.BaseDomain,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-			ToClusterFunc: toClusterFunc,
-		}
-
-		tenantClientsResource, err = tenantclients.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var updateG8sControlPlanesResource resource.Interface
 	{
 		c := updateg8scontrolplanes.Config{
@@ -554,9 +540,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	}
 
 	resources := []resource.Interface{
-		// Following resources manage controller context information.
-		tenantClientsResource,
-
 		// Following resources manage resources in the control plane.
 		cpNamespaceResource,
 		encryptionKeyResource,
@@ -603,15 +586,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	}
 
 	return resources, nil
-}
-
-func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return apiv1alpha2.Cluster{}, microerror.Mask(err)
-	}
-
-	return cr, nil
 }
 
 func toClusterObjRef(obj interface{}) (corev1.ObjectReference, error) {

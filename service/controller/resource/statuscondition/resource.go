@@ -6,6 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
+	"github.com/giantswarm/cluster-operator/service/internal/client"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
@@ -14,6 +15,7 @@ const (
 )
 
 type Config struct {
+	Client         client.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	ReleaseVersion releaseversion.Interface
@@ -23,6 +25,7 @@ type Config struct {
 }
 
 type Resource struct {
+	client         client.Interface
 	k8sClient      k8sclient.Interface
 	logger         micrologger.Logger
 	releaseVersion releaseversion.Interface
@@ -32,6 +35,9 @@ type Resource struct {
 }
 
 func New(config Config) (*Resource, error) {
+	if config.Client == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Client must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -50,6 +56,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
+		client:         config.Client,
 		k8sClient:      config.K8sClient,
 		logger:         config.Logger,
 		releaseVersion: config.ReleaseVersion,
