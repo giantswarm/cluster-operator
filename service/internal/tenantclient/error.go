@@ -1,4 +1,4 @@
-package client
+package tenantclient
 
 import "github.com/giantswarm/microerror"
 
@@ -20,12 +20,11 @@ func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
 
-var tooManyCRsError = &microerror.Error{
-	Kind: "tooManyCRsError",
-	Desc: "There is only a single AWSCluster CR allowed with the current implementation.",
+var notAvailableError = &microerror.Error{
+	Kind: "notAvailableError",
 }
 
-// IsTooManyCRsError asserts tooManyCRsError.
-func IsTooManyCRsError(err error) bool {
-	return microerror.Cause(err) == tooManyCRsError
+// IsNotAvailable asserts notAvailableError.
+func IsNotAvailable(err error) bool {
+	return microerror.Cause(err) == notAvailableError
 }

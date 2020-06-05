@@ -16,6 +16,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -40,28 +41,30 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	tenantClient, err := r.client.K8sClient(ctx, cr)
-	if err != nil {
-		//TODO
+	if tenantclient.IsNotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		reconciliationcanceledcontext.SetCanceled(ctx)
+	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	var nodes []corev1.Node
-	if tenantClient.K8sClient() != nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
+	r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 
-		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
-		if tenant.IsAPINotAvailable(err) {
-			// During cluster creation / upgrade the tenant API is naturally not
-			// available but this resource must still continue execution as that's
-			// when `Creating` and `Upgrading` conditions may need to be applied.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-		} else if err != nil {
-			return microerror.Mask(err)
-		} else {
-			nodes = l.Items
+	l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
+	if tenant.IsAPINotAvailable(err) {
+		// During cluster creation / upgrade the tenant API is naturally not
+		// available but this resource must still continue execution as that's
+		// when `Creating` and `Upgrading` conditions may need to be applied.
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
+	} else if err != nil {
+		return microerror.Mask(err)
+	} else {
+		nodes = l.Items
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes from tenant cluster", len(nodes)))
-		}
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes from tenant cluster", len(nodes)))
 	}
 
 	mdList := &apiv1alpha2.MachineDeploymentList{}

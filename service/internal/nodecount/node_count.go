@@ -10,18 +10,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/internal/client"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 type Config struct {
 	K8sClient    k8sclient.Interface
-	TenantClient client.Interface
+	TenantClient tenantclient.Interface
 }
 
 type NodeCount struct {
 	k8sClient    k8sclient.Interface
-	tenantClient client.Interface
+	tenantClient tenantclient.Interface
 
 	nodesCache *cache.Nodes
 }
@@ -140,7 +140,9 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cr metav1.Object) (corev1.
 
 func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.NodeList, error) {
 	client, err := nc.tenantClient.K8sClient(ctx, cr)
-	if err != nil {
+	if tenantclient.IsNotAvailable(err) {
+		return corev1.NodeList{}, microerror.Mask(tenantClusterNotInitializedError)
+	} else if err != nil {
 		return corev1.NodeList{}, microerror.Mask(err)
 	}
 	if client.K8sClient() != nil {

@@ -44,10 +44,10 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/service/internal/client"
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
@@ -59,7 +59,6 @@ type ClusterConfig struct {
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	PodCIDR        podcidr.Interface
-	Client         client.Interface
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
@@ -136,6 +135,20 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		haMaster, err = hamaster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var tenantClient tenantclient.Interface
+	{
+		c := tenantclient.Config{
+			K8sClient:     config.K8sClient,
+			BaseDomain:    config.BaseDomain,
+			TenantCluster: config.Tenant,
+		}
+
+		tenantClient, err = tenantclient.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -485,6 +498,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
+			TenantClient:   tenantClient,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,

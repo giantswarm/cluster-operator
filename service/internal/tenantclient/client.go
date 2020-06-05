@@ -1,4 +1,4 @@
-package client
+package tenantclient
 
 import (
 	"context"
@@ -15,38 +15,38 @@ import (
 )
 
 type Config struct {
-	Client        k8sclient.Interface
+	K8sClient     k8sclient.Interface
 	BaseDomain    basedomain.Interface
 	TenantCluster tenantcluster.Interface
 }
 
-type Client struct {
+type TenantClient struct {
 	k8sClient     k8sclient.Interface
 	baseDomain    basedomain.Interface
 	tenantCluster tenantcluster.Interface
 }
 
-func New(c Config) (*Client, error) {
+func New(c Config) (*TenantClient, error) {
 	if c.BaseDomain == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", c)
 	}
-	if c.Client == nil {
+	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
 	if c.TenantCluster == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.TenantCluster must not be empty", c)
 	}
 
-	client := &Client{
+	tenantClient := &TenantClient{
 		baseDomain:    c.BaseDomain,
-		k8sClient:     c.Client,
+		k8sClient:     c.K8sClient,
 		tenantCluster: c.TenantCluster,
 	}
 
-	return client, nil
+	return tenantClient, nil
 }
 
-func (c *Client) K8sClient(ctx context.Context, obj interface{}) (k8sclient.Interface, error) {
+func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclient.Interface, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -61,10 +61,7 @@ func (c *Client) K8sClient(ctx context.Context, obj interface{}) (k8sclient.Inte
 	{
 		restConfig, err = c.tenantCluster.NewRestConfig(ctx, key.ClusterID(cr), key.APIEndpoint(cr, bd))
 		if tenantcluster.IsTimeout(err) {
-			// TODO
-			//c.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-			//c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil, nil
+			return nil, microerror.Mask(notAvailableError)
 
 		} else if err != nil {
 			return nil, microerror.Mask(err)
@@ -79,10 +76,7 @@ func (c *Client) K8sClient(ctx context.Context, obj interface{}) (k8sclient.Inte
 
 		k8sClient, err = k8sclient.NewClients(c)
 		if tenant.IsAPINotAvailable(err) {
-			//TODO
-			//c.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-			//c.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-			return nil, nil
+			return nil, microerror.Mask(notAvailableError)
 
 		} else if err != nil {
 			return nil, microerror.Mask(err)

@@ -6,8 +6,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/cluster-operator/service/internal/client"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 const (
@@ -15,29 +15,26 @@ const (
 )
 
 type Config struct {
-	Client         client.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	ReleaseVersion releaseversion.Interface
+	TenantClient   tenantclient.Interface
 
 	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	Provider                   string
 }
 
 type Resource struct {
-	client         client.Interface
 	k8sClient      k8sclient.Interface
 	logger         micrologger.Logger
 	releaseVersion releaseversion.Interface
+	tenantClient   tenantclient.Interface
 
 	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 	provider                   string
 }
 
 func New(config Config) (*Resource, error) {
-	if config.Client == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Client must not be empty", config)
-	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -46,6 +43,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.ReleaseVersion == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ReleaseVersion must not be empty", config)
+	}
+	if config.TenantClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TenantClient must not be empty", config)
 	}
 
 	if config.NewCommonClusterObjectFunc == nil {
@@ -56,10 +56,10 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		client:         config.Client,
 		k8sClient:      config.K8sClient,
 		logger:         config.Logger,
 		releaseVersion: config.ReleaseVersion,
+		tenantClient:   config.TenantClient,
 
 		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 		provider:                   config.Provider,
