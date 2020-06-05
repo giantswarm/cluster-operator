@@ -54,7 +54,7 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 
 	bd, err := c.baseDomain.BaseDomain(ctx, cr)
 	if err != nil {
-		return nil, err
+		return nil, microerror.Mask(err)
 	}
 
 	var restConfig *rest.Config
