@@ -2,6 +2,7 @@ package tenantclient
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
@@ -59,7 +60,8 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 
 	var restConfig *rest.Config
 	{
-		restConfig, err = c.tenantCluster.NewRestConfig(ctx, key.ClusterID(cr), key.APIEndpoint(cr, bd))
+		restConfig, err = c.tenantCluster.NewRestConfig(ctx, key.ClusterID(cr),
+			fmt.Sprintf("api.%s.k8s.%s", key.ClusterID(cr), bd))
 		if tenantcluster.IsTimeout(err) {
 			return nil, microerror.Mask(notAvailableError)
 

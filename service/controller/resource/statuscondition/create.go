@@ -40,7 +40,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
 
-	tenantClient, err := r.client.K8sClient(ctx, cr)
+	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
 	if tenantclient.IsNotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
 
