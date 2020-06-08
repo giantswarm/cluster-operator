@@ -70,7 +70,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interf
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForClusterOperator(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForNodeOperator(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForPrometheus(ctx, bd, cr)))
-		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForServiceActxount(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForServiceAccount(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForWorker(ctx, bd, cr)))
 
 		if haMasterEnabled {
@@ -282,7 +282,7 @@ func (r *Resource) newSpecForPrometheus(ctx context.Context, bd string, cr apiv1
 	}
 }
 
-func (r *Resource) newSpecForServiceActxount(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+func (r *Resource) newSpecForServiceAccount(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
 		ClusterComponent: certs.ServiceAccountCert.String(),
