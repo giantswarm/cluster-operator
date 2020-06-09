@@ -3,8 +3,9 @@ package unittest
 import (
 	"context"
 
-	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 type fakeTenantClient struct {
