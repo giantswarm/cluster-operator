@@ -143,8 +143,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var tenantClient tenantclient.Interface
 	{
 		c := tenantclient.Config{
-			K8sClient:     config.K8sClient,
 			BaseDomain:    config.BaseDomain,
+			Logger:        config.Logger,
+			K8sClient:     config.K8sClient,
 			TenantCluster: config.Tenant,
 		}
 

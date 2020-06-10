@@ -197,6 +197,7 @@ func New(config Config) (*Service, error) {
 			K8sClient:     k8sClient,
 			BaseDomain:    bd,
 			TenantCluster: tenantCluster,
+			Logger:        config.Logger,
 		}
 
 		tenantClient, err = tenantclient.New(c)

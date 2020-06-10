@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
@@ -19,12 +20,14 @@ type Config struct {
 	K8sClient     k8sclient.Interface
 	BaseDomain    basedomain.Interface
 	TenantCluster tenantcluster.Interface
+	Logger        micrologger.Logger
 }
 
 type TenantClient struct {
 	k8sClient     k8sclient.Interface
 	baseDomain    basedomain.Interface
 	tenantCluster tenantcluster.Interface
+	logger        micrologger.Logger
 }
 
 func New(c Config) (*TenantClient, error) {
@@ -34,6 +37,9 @@ func New(c Config) (*TenantClient, error) {
 	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
+	if c.Logger == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", c)
+	}
 	if c.TenantCluster == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.TenantCluster must not be empty", c)
 	}
@@ -42,6 +48,7 @@ func New(c Config) (*TenantClient, error) {
 		baseDomain:    c.BaseDomain,
 		k8sClient:     c.K8sClient,
 		tenantCluster: c.TenantCluster,
+		logger:        c.Logger,
 	}
 
 	return tenantClient, nil
@@ -73,6 +80,7 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 	var k8sClient k8sclient.Interface
 	{
 		c := k8sclient.ClientsConfig{
+			Logger:     c.logger,
 			RestConfig: rest.CopyConfig(restConfig),
 		}
 
