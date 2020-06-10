@@ -29,6 +29,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 const (
@@ -164,18 +165,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var nc nodecount.Interface
-	{
-		c := nodecount.Config{
-			K8sClient: k8sClient,
-		}
-
-		nc, err = nodecount.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var pc podcidr.Interface
 	{
 		c := podcidr.Config{
@@ -197,6 +186,33 @@ func New(config Config) (*Service, error) {
 		}
 
 		bd, err = basedomain.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var tenantClient tenantclient.Interface
+	{
+		c := tenantclient.Config{
+			K8sClient:     k8sClient,
+			BaseDomain:    bd,
+			TenantCluster: tenantCluster,
+		}
+
+		tenantClient, err = tenantclient.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var nc nodecount.Interface
+	{
+		c := nodecount.Config{
+			K8sClient:    k8sClient,
+			TenantClient: tenantClient,
+		}
+
+		nc, err = nodecount.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
