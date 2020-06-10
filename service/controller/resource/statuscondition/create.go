@@ -41,7 +41,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
-	if tenantclient.IsNotAvailable(err) {
+	if tenantclient.IsNotAvailable(err) || tenant.IsAPINotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
