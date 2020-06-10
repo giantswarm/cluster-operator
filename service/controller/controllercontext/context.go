@@ -11,7 +11,6 @@ type key string
 const contextKey key = "controller"
 
 type Context struct {
-	Client ContextClient
 }
 
 func NewContext(ctx context.Context, c Context) context.Context {
