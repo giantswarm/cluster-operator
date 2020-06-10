@@ -7,6 +7,6 @@ import (
 )
 
 type Interface interface {
-	// K8sClient TODO
+	// K8sClient returns client interface of the corresponding cluster object
 	K8sClient(ctx context.Context, obj interface{}) (client.Interface, error)
 }
