@@ -161,8 +161,8 @@ github.com/giantswarm/microkit v0.2.1/go.mod h1:1vDHFUN+ZsUahZJ2hgZxcU7nG35Rj484
 github.com/giantswarm/micrologger v0.3.1 h1:HbYbQLobvfsLYzRiGTncaO61CCPd4BlT18xaaday+4o=
 github.com/giantswarm/micrologger v0.3.1/go.mod h1:PjAgtcJ922ZMX/Aa05IPi0bdYvOj2P7pZ7+6dBShMQs=
 github.com/giantswarm/operatorkit v0.2.0/go.mod h1:i/yHa01y+d67ZzZBOck56CcZLkbRIx89ZqAoK46+Bjs=
-github.com/giantswarm/operatorkit v1.0.0 h1:eJ0qg7eXucnyOZGyh/dCSaQmZteya6ugHibelgWAFws=
-github.com/giantswarm/operatorkit v1.0.0/go.mod h1:kPuokmqJCXJwd7KKrERDgs8EBhLFovDSokvWCRSZTvY=
+github.com/giantswarm/operatorkit v1.0.1 h1:8oKmOKBAy7se0wPGaq7XUo6FyipZASvHYktI0HJj+Mo=
+github.com/giantswarm/operatorkit v1.0.1/go.mod h1:kPuokmqJCXJwd7KKrERDgs8EBhLFovDSokvWCRSZTvY=
 github.com/giantswarm/resource v0.2.0 h1:pzVDUQxpjV5D+VPgHYqxSGwIvCz9jxz0DfOaYEvtNxk=
 github.com/giantswarm/resource v0.2.0/go.mod h1:wmIpt1IN/7CBwcYE5vGx+gmZsetWmcaqzvT9a17BFO8=
 github.com/giantswarm/tenantcluster/v2 v2.0.0 h1:4Nj4ARq753tYKjd2VWH7NR0akc/S2mVYHSGxUTFTfCs=
