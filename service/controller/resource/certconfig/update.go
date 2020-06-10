@@ -6,12 +6,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/resource/crud"
 )
 
-// ApplyUpdateChange takes observed custom object and update portion of the
-// Patch provided by NewUpdatePatch or NewDeletePatch.
-func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
+// applyUpdateChange takes observed custom object and update portion of the
+// patch provided by newUpdatePatch or newDeletePatch.
+func (r *Resource) applyUpdateChange(ctx context.Context, obj, updateChange interface{}) error {
 	certConfigs, err := toCertConfigs(updateChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -35,9 +34,9 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	return nil
 }
 
-// NewUpdatePatch computes appropriate Patch based on difference in current
+// newUpdatePatch computes appropriate patch based on difference in current
 // state and desired state.
-func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
+func (r *Resource) newUpdatePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*patch, error) {
 	create, err := r.newCreateChange(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -51,7 +50,7 @@ func (r *Resource) NewUpdatePatch(ctx context.Context, obj, currentState, desire
 		return nil, microerror.Mask(err)
 	}
 
-	patch := crud.NewPatch()
+	patch := newPatch()
 	patch.SetCreateChange(create)
 	patch.SetDeleteChange(delete)
 	patch.SetUpdateChange(update)

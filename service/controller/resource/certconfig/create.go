@@ -9,10 +9,10 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
-// ApplyCreateChange takes observed custom object and create portion of the
+// applyCreateChange takes observed custom object and create portion of the
 // Patch provided by NewUpdatePatch or NewDeletePatch. It creates CertConfig
 // objects when new cluster certificates are needed.
-func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
+func (r *Resource) applyCreateChange(ctx context.Context, obj, createChange interface{}) error {
 	certConfigs, err := toCertConfigs(createChange)
 	if err != nil {
 		return microerror.Mask(err)
