@@ -55,12 +55,21 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
+	var clusterTransitionCollector *ClusterTransition
+	{
+		clusterTransitionCollector, err = NewClusterTransition()
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
 				clusterCollector,
 				nodePoolCollector,
+				clusterTransitionCollector,
 			},
 			Logger: config.Logger,
 		}

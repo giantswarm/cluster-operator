@@ -51,18 +51,15 @@ var (
 	)
 )
 
-// ClusterTransitionCollect implements the ClusterTransitionCollector interface, exposing cluster transition information.
-type ClusterTransitionCollector struct {
-	clusterTransitionCreateHistogramVec  *histogramvec.HistogramVec
-	clusterTransitionUpdateHistogramVec  *histogramvec.HistogramVec
-	clusterTransitionDeleteHistogramVec  *histogramvec.HistogramVec
-	clusterTransitionCreateHistogramDesc *prometheus.Desc
-	clusterTransitionUpdateHistogramDesc *prometheus.Desc
-	clusterTransitionDeleteHistogramDesc *prometheus.Desc
+//ClusterTransition implements the ClusterTransition interface, exposing cluster transition information.
+type ClusterTransition struct {
+	clusterTransitionCreateHistogramVec *histogramvec.HistogramVec
+	clusterTransitionUpdateHistogramVec *histogramvec.HistogramVec
+	clusterTransitionDeleteHistogramVec *histogramvec.HistogramVec
 }
 
-//TODO
-func NewClusterTransition() (*ClusterTransitionCollector, error) {
+//NewClusterTransition initiates cluster transition metrics
+func NewClusterTransition() (*ClusterTransition, error) {
 	var clusterTransitionCreateHistogramVec *histogramvec.HistogramVec
 	var err error
 	{
@@ -106,13 +103,22 @@ func NewClusterTransition() (*ClusterTransitionCollector, error) {
 		}
 	}
 
-	collector := &ClusterTransitionCollector{
-		clusterTransitionCreateHistogramVec:  clusterTransitionCreateHistogramVec,
-		clusterTransitionCreateHistogramDesc: clusterTransitionCreateDesc,
-		clusterTransitionUpdateHistogramVec:  clusterTransitionUpdateHistogramVec,
-		clusterTransitionUpdateHistogramDesc: clusterTransitionUpdateDesc,
-		clusterTransitionDeleteHistogramVec:  clusterTransitionDeleteHistogramVec,
-		clusterTransitionDeleteHistogramDesc: clusterTransitionDeleteDesc,
+	collector := &ClusterTransition{
+		clusterTransitionCreateHistogramVec: clusterTransitionCreateHistogramVec,
+		clusterTransitionUpdateHistogramVec: clusterTransitionUpdateHistogramVec,
+		clusterTransitionDeleteHistogramVec: clusterTransitionDeleteHistogramVec,
 	}
 	return collector, nil
+}
+
+func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
+	return nil
+}
+
+func (ct *ClusterTransition) Describe(ch chan<- *prometheus.Desc) error {
+	ch <- clusterTransitionCreateDesc
+	ch <- clusterTransitionUpdateDesc
+	ch <- clusterTransitionDeleteDesc
+
+	return nil
 }
