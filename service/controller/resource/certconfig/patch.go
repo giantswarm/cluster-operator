@@ -1,5 +1,5 @@
 // NOTE this file is copied from operatorkit for migration purposes. The goal
-// here is to get rid of the crud primitive and move to the implementation to
+// here is to get rid of the crud primitive and move to the implementation of
 // the new handler interface eventually.
 package certconfig
 
