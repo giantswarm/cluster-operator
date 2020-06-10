@@ -37,9 +37,6 @@ func Test_NodeCount_Cache(t *testing.T) {
 		},
 	}
 
-	//			func NewContext(ctx context.Context, c Context) context.Context {
-	// return context.WithValue(ctx, contextKey, &c)
-	//}/
 	for i, tc := range testCases {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var err error
