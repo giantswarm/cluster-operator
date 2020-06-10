@@ -86,10 +86,10 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 
 		k8sClient, err = k8sclient.NewClients(c)
 		if tenant.IsAPINotAvailable(err) {
-			return nil, microerror.Mask(notAvailableError)
+			return nil, microerror.Mask(err)
 
 		} else if err != nil {
-			return nil, microerror.Mask(err)
+			return nil, microerror.Mask(notAvailableError)
 		}
 	}
 	return k8sClient, nil
