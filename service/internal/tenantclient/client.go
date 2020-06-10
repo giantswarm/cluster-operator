@@ -13,7 +13,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 type Config struct {
@@ -85,7 +84,7 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 		}
 
 		k8sClient, err = k8sclient.NewClients(c)
-		if tenantclient.IsInvalidConfig(err) {
+		if IsInvalidConfig(err) {
 			return nil, microerror.Mask(err)
 		} else if err != nil {
 			return nil, microerror.Mask(notAvailableError)
