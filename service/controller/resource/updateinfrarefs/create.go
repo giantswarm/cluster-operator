@@ -50,8 +50,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// Syncing the provider operator version label, e.g. for aws-operator,
 	// kvm-operator or the like.
 	{
-		l := fmt.Sprintf("%s-operator", r.provider)
-		d := componentVersions[l]
+		l := fmt.Sprintf("%s-operator.giantswarm.io/version", r.provider)
+		d := componentVersions[fmt.Sprintf("%s-operator", r.provider)]
 		c, ok := ir.GetLabels()[l]
 		if ok && d != "" && d != c {
 			labels := ir.GetLabels()
