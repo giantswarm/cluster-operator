@@ -210,12 +210,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Provider:      config.Provider,
 		}
 
-		ops, err := certconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		certConfigResource, err = toCRUDResource(config.Logger, ops)
+		certConfigResource, err = certconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

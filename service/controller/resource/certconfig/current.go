@@ -12,10 +12,10 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
-// GetCurrentState takes observed custom object as an input and based on that
+// getCurrentState takes observed custom object as an input and based on that
 // information looks for current state of cluster CertConfig CRs and returns
 // them. Return value is of type []*v1alpha1.CertConfig.
-func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
+func (r *Resource) getCurrentState(ctx context.Context, obj interface{}) (interface{}, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
