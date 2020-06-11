@@ -17,8 +17,8 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
 )
 
-// GetDesiredState returns all desired CertConfigs for managed certificates.
-func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
+// getDesiredState returns all desired CertConfigs for managed certificates.
+func (r *Resource) getDesiredState(ctx context.Context, obj interface{}) (interface{}, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
