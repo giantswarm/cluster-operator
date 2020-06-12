@@ -6,18 +6,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-const (
-	createTransitionBucketStart      = 0.001
-	createTransitionBucketFactor     = 2
-	createTransitionBucketNumBuckets = 5
-	updateTransitionBucketStart      = 0.001
-	updateTransitionBucketFactor     = 2
-	updateTransitionBucketNumBuckets = 5
-	deleteTransitionBucketStart      = 0.001
-	deleteTransitionBucketFactor     = 2
-	deleteTransitionBucketNumBuckets = 5
-)
-
 var (
 	createTransitionBuckets                      = []float64{600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800}
 	updateTransitionBuckets                      = []float64{3600, 3900, 4200, 4500, 4800, 5100, 5400, 5700, 6000, 6300, 6600, 6900, 7200}
@@ -64,11 +52,7 @@ func NewClusterTransition() (*ClusterTransition, error) {
 	var err error
 	{
 		c := histogramvec.Config{
-			BucketLimits: prometheus.ExponentialBuckets(
-				createTransitionBucketStart,
-				createTransitionBucketFactor,
-				createTransitionBucketNumBuckets,
-			),
+			BucketLimits: createTransitionBuckets,
 		}
 		clusterTransitionCreateHistogramVec, err = histogramvec.New(c)
 		if err != nil {
@@ -78,11 +62,7 @@ func NewClusterTransition() (*ClusterTransition, error) {
 	var clusterTransitionUpdateHistogramVec *histogramvec.HistogramVec
 	{
 		c := histogramvec.Config{
-			BucketLimits: prometheus.ExponentialBuckets(
-				updateTransitionBucketStart,
-				updateTransitionBucketFactor,
-				updateTransitionBucketNumBuckets,
-			),
+			BucketLimits: updateTransitionBuckets,
 		}
 		clusterTransitionUpdateHistogramVec, err = histogramvec.New(c)
 		if err != nil {
@@ -92,10 +72,7 @@ func NewClusterTransition() (*ClusterTransition, error) {
 	var clusterTransitionDeleteHistogramVec *histogramvec.HistogramVec
 	{
 		c := histogramvec.Config{
-			BucketLimits: prometheus.ExponentialBuckets(
-				deleteTransitionBucketStart,
-				deleteTransitionBucketFactor,
-				deleteTransitionBucketNumBuckets),
+			BucketLimits: deleteTransitionBuckets,
 		}
 		clusterTransitionDeleteHistogramVec, err = histogramvec.New(c)
 		if err != nil {
@@ -112,6 +89,17 @@ func NewClusterTransition() (*ClusterTransition, error) {
 }
 
 func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
+	// ct.clusterTransitionCreateHistogramVec.Add(clusterID, observedTime.Seconds())
+	// creation timestamp of metadata cluster?
+	// Status Control Plane Initialized: false Infrastructure Ready: false
+
+	//ct.clusterTransitionCreateHistogramVec.Ensure(clusters)
+	//for host, histogram := range ct.clusterTransitionCreateHistogramVec.Histograms() {
+	//ch <- prometheus.MustNewConstHistogram(
+	//	clusterTransitionCreateDesc,
+	//	histogram.Count(), histogram.Sum(), histogram.Buckets(),
+	//	clusterID,
+	//)
 	return nil
 }
 
