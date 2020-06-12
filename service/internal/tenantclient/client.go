@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -16,17 +17,17 @@ import (
 )
 
 type Config struct {
-	K8sClient     k8sclient.Interface
 	BaseDomain    basedomain.Interface
-	TenantCluster tenantcluster.Interface
+	K8sClient     k8sclient.Interface
 	Logger        micrologger.Logger
+	TenantCluster tenantcluster.Interface
 }
 
 type TenantClient struct {
-	k8sClient     k8sclient.Interface
 	baseDomain    basedomain.Interface
-	tenantCluster tenantcluster.Interface
+	k8sClient     k8sclient.Interface
 	logger        micrologger.Logger
+	tenantCluster tenantcluster.Interface
 }
 
 func New(c Config) (*TenantClient, error) {
@@ -46,8 +47,8 @@ func New(c Config) (*TenantClient, error) {
 	tenantClient := &TenantClient{
 		baseDomain:    c.BaseDomain,
 		k8sClient:     c.K8sClient,
-		tenantCluster: c.TenantCluster,
 		logger:        c.Logger,
+		tenantCluster: c.TenantCluster,
 	}
 
 	return tenantClient, nil
@@ -84,10 +85,10 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 		}
 
 		k8sClient, err = k8sclient.NewClients(c)
-		if IsInvalidConfig(err) {
-			return nil, microerror.Mask(err)
-		} else if err != nil {
+		if tenant.IsAPINotAvailable(err) {
 			return nil, microerror.Mask(notAvailableError)
+		} else if err != nil {
+			return nil, microerror.Mask(err)
 		}
 	}
 	return k8sClient, nil

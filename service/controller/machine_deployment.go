@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"context"
-
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -18,7 +16,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
@@ -58,9 +55,6 @@ func NewMachineDeployment(config MachineDeploymentConfig) (*MachineDeployment, e
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			InitCtx: func(ctx context.Context, obj interface{}) (context.Context, error) {
-				return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
-			},
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NewRuntimeObjectFunc: func() runtime.Object {

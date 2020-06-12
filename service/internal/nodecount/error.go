@@ -24,7 +24,7 @@ var tenantClusterNotInitializedError = &microerror.Error{
 	Kind: "tentantClusterNotInitializedError",
 }
 
-// IsTenantClusterInitialized asserts tenantClusterNotInitializedError.
-func IsTenantClusterInitialized(err error) bool {
+// IsNotTenantClusterInitialized asserts tenantClusterNotInitializedError.
+func IsNotTenantClusterInitialized(err error) bool {
 	return microerror.Cause(err) == tenantClusterNotInitializedError
 }
