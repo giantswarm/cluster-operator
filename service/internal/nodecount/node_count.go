@@ -140,9 +140,7 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cr metav1.Object) (corev1.
 
 func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.NodeList, error) {
 	client, err := nc.tenantClient.K8sClient(ctx, cr)
-	if tenantclient.IsNotAvailable(err) {
-		return corev1.NodeList{}, microerror.Mask(err)
-	} else if err != nil {
+	if err != nil {
 		return corev1.NodeList{}, microerror.Mask(err)
 	}
 	if client.K8sClient() != nil {
@@ -152,7 +150,7 @@ func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.
 		}
 
 		if len(nodes.Items) == 0 {
-			return corev1.NodeList{}, microerror.Mask(notFoundError)
+			return corev1.NodeList{}, nil
 		}
 		return *nodes, nil
 	}
