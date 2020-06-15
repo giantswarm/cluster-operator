@@ -66,12 +66,7 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 
 	var restConfig *rest.Config
 	{
-		cl, err := key.ToCluster(cr)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		restConfig, err = c.tenantCluster.NewRestConfig(ctx, key.ClusterID(cr), key.APIEndpoint(cl, bd))
+		restConfig, err = c.tenantCluster.NewRestConfig(ctx, key.ClusterID(cr), key.APIEndpoint(cr, bd))
 		if tenantcluster.IsTimeout(err) {
 			return nil, microerror.Mask(notAvailableError)
 
