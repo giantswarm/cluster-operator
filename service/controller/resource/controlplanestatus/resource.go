@@ -14,6 +14,7 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 const (
@@ -70,7 +71,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		}
 	}
 	masterNodes, err := r.nodeCount.MasterCount(ctx, cr)
-	if nodecount.IsNotTenantClusterInitialized(err) {
+	if tenantclient.IsNotAvailable(err) || nodecount.IsTenantClusterNotInitialized(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
