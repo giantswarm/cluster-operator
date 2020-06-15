@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Remove controller context status and use local caching.
+- Remove controller context.
 - Bump alpine version to 3.12
 
 
