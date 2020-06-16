@@ -48,7 +48,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(cr, bd),
+				"baseDomain": key.TenantEndpoint(&cr, bd),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
 						"CIDR": podCIDR,
@@ -70,7 +70,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      "ingress-controller-values",
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(cr, bd),
+				"baseDomain": key.TenantEndpoint(&cr, bd),
 				"clusterID":  key.ClusterID(&cr),
 				"configmap": map[string]interface{}{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),

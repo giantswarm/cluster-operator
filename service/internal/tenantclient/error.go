@@ -1,4 +1,4 @@
-package nodecount
+package tenantclient
 
 import "github.com/giantswarm/microerror"
 
@@ -20,11 +20,11 @@ func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
 
-var tenantClusterNotInitializedError = &microerror.Error{
-	Kind: "tentantClusterNotInitializedError",
+var notAvailableError = &microerror.Error{
+	Kind: "notAvailableError",
 }
 
-// IsTenantClusterNotInitialized asserts tenantClusterNotInitializedError.
-func IsTenantClusterNotInitialized(err error) bool {
-	return microerror.Cause(err) == tenantClusterNotInitializedError
+// IsNotAvailable asserts notAvailableError.
+func IsNotAvailable(err error) bool {
+	return microerror.Cause(err) == notAvailableError
 }

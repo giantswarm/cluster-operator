@@ -7,7 +7,7 @@ import (
 
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
+	tcunittest "github.com/giantswarm/cluster-operator/service/internal/tenantclient/unittest"
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
 )
 
@@ -37,9 +37,6 @@ func Test_NodeCount_Cache(t *testing.T) {
 		},
 	}
 
-	//			func NewContext(ctx context.Context, c Context) context.Context {
-	// return context.WithValue(ctx, contextKey, &c)
-	//}/
 	for i, tc := range testCases {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var err error
@@ -50,8 +47,10 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			var nc *NodeCount
 			{
+				fakeK8sClient := unittest.FakeK8sClient()
 				c := Config{
-					K8sClient: unittest.FakeK8sClient(),
+					K8sClient:    fakeK8sClient,
+					TenantClient: tcunittest.FakeTenantClient(fakeK8sClient),
 				}
 
 				nc, err = New(c)
@@ -59,15 +58,6 @@ func Test_NodeCount_Cache(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			ctrlctx := controllercontext.Context{
-				Client: controllercontext.ContextClient{
-					TenantCluster: controllercontext.ContextClientTenantCluster{
-						K8s: nc.k8sClient.K8sClient(),
-					},
-				},
-			}
-
-			fakeCtx := controllercontext.NewContext(tc.ctx, ctrlctx)
 
 			{
 				nodes := unittest.DefaultNodes()
@@ -86,7 +76,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				masterNodes1, err = nc.MasterCount(fakeCtx, &cl)
+				masterNodes1, err = nc.MasterCount(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -108,7 +98,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 
 			{
 				cl := unittest.DefaultCluster()
-				masterNodes2, err = nc.MasterCount(fakeCtx, &cl)
+				masterNodes2, err = nc.MasterCount(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}

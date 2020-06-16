@@ -7,16 +7,16 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 )
 
-func APIEndpoint(cluster apiv1alpha2.Cluster, base string) string {
-	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(&cluster), base)
+func APIEndpoint(getter LabelsGetter, base string) string {
+	return fmt.Sprintf("api.%s.k8s.%s", ClusterID(getter), base)
 }
 
-func KubeConfigEndpoint(cluster apiv1alpha2.Cluster, base string) string {
-	return fmt.Sprintf("https://%s", APIEndpoint(cluster, base))
+func KubeConfigEndpoint(getter LabelsGetter, base string) string {
+	return fmt.Sprintf("https://%s", APIEndpoint(getter, base))
 }
 
-func TenantEndpoint(cluster apiv1alpha2.Cluster, base string) string {
-	return fmt.Sprintf("%s.k8s.%s", ClusterID(&cluster), base)
+func TenantEndpoint(getter LabelsGetter, base string) string {
+	return fmt.Sprintf("%s.k8s.%s", ClusterID(getter), base)
 }
 
 func ToCluster(v interface{}) (apiv1alpha2.Cluster, error) {
