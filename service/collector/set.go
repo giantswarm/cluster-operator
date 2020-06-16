@@ -57,7 +57,14 @@ func NewSet(config SetConfig) (*Set, error) {
 
 	var clusterTransitionCollector *ClusterTransition
 	{
-		clusterTransitionCollector, err = NewClusterTransition()
+		c := ClusterTransitionConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		}
+
+		clusterTransitionCollector, err = NewClusterTransition(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
