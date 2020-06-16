@@ -67,7 +67,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 						nodeLabels[controlPlaneKey] = controlPlaneValue
 					}
 					node.SetLabels(nodeLabels)
-					_, err := nc.k8sClient.K8sClient().CoreV1().Nodes().Create(&node)
+					_, err := nc.k8sClient.K8sClient().CoreV1().Nodes().Create(node.DeepCopy())
 					if err != nil {
 						t.Fatal(err)
 					}
