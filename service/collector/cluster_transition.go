@@ -123,6 +123,10 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 		clusterTransitionCreateHistogramVec: clusterTransitionCreateHistogramVec,
 		clusterTransitionUpdateHistogramVec: clusterTransitionUpdateHistogramVec,
 		clusterTransitionDeleteHistogramVec: clusterTransitionDeleteHistogramVec,
+
+		k8sClient:                  config.K8sClient,
+		logger:                     config.Logger,
+		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 	}
 	return collector, nil
 }
@@ -174,7 +178,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 				maxUpdateInterval := clusterTransistionCreating.Add(2 * time.Hour)
 
 				if now.After(maxUpdateInterval) {
-					ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(999999999999))
+					ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(99999999999))
 				}
 
 			}
