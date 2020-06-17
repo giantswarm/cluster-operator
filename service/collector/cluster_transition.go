@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"time"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -156,16 +157,43 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 			}
 		}
 
+		now := time.Now()
 		{
-			clusterTransistionCreated := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Unix()
-			clusterTransitionCreating := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Unix()
-			deltaCreated := clusterTransistionCreated - clusterTransitionCreating
-			ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(deltaCreated))
+			if cr.GetCommonClusterStatus().HasCreatingCondition() && !cr.GetCommonClusterStatus().HasCreatedCondition() {
+				clusterTransistionCreating := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime
+				maxCreateInterval := clusterTransistionCreating.Add(30 * time.Minute)
 
-			clusterTransitionUpdating := cr.GetCommonClusterStatus().GetUpdatedCondition().LastTransitionTime.Unix()
-			clusterTransitionUpdated := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Unix()
-			deltaUpdated := clusterTransitionUpdated - clusterTransitionUpdating
-			ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(deltaUpdated))
+				if now.After(maxCreateInterval) {
+					ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(999999999999))
+				}
+
+			}
+
+			if cr.GetCommonClusterStatus().HasUpdatingCondition() && !cr.GetCommonClusterStatus().HasUpdatedCondition() {
+				clusterTransistionCreating := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime
+				maxUpdateInterval := clusterTransistionCreating.Add(2 * time.Hour)
+
+				if now.After(maxUpdateInterval) {
+					ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(999999999999))
+				}
+
+			}
+
+			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
+				clusterTransistionCreated := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Unix()
+				clusterTransitionCreating := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Unix()
+
+				deltaCreate := clusterTransistionCreated - clusterTransitionCreating
+				ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(deltaCreate))
+			}
+
+			if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() {
+				clusterTransitionUpdating := cr.GetCommonClusterStatus().GetUpdatedCondition().LastTransitionTime.Unix()
+				clusterTransitionUpdated := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Unix()
+
+				deltaUpdate := clusterTransitionUpdated - clusterTransitionUpdating
+				ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(deltaUpdate))
+			}
 
 			//deleting figure out howto get deleted
 
