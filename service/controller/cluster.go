@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"context"
-
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs/v2/pkg/certs"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
@@ -25,7 +23,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
@@ -40,7 +37,6 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/statuscondition"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateg8scontrolplanes"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/updatemachinedeployments"
@@ -48,6 +44,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
@@ -92,9 +89,6 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			InitCtx: func(ctx context.Context, obj interface{}) (context.Context, error) {
-				return controllercontext.NewContext(ctx, controllercontext.Context{}), nil
-			},
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NewRuntimeObjectFunc: func() runtime.Object {
@@ -135,6 +129,21 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		haMaster, err = hamaster.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var tenantClient tenantclient.Interface
+	{
+		c := tenantclient.Config{
+			BaseDomain:    config.BaseDomain,
+			Logger:        config.Logger,
+			K8sClient:     config.K8sClient,
+			TenantCluster: config.Tenant,
+		}
+
+		tenantClient, err = tenantclient.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -195,12 +204,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Provider:      config.Provider,
 		}
 
-		ops, err := certconfig.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		certConfigResource, err = toCRUDResource(config.Logger, ops)
+		certConfigResource, err = certconfig.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -484,27 +488,13 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
+			TenantClient:   tenantClient,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 			Provider:                   config.Provider,
 		}
 
 		statusConditionResource, err = statuscondition.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var tenantClientsResource resource.Interface
-	{
-		c := tenantclients.Config{
-			BaseDomain:    config.BaseDomain,
-			Logger:        config.Logger,
-			Tenant:        config.Tenant,
-			ToClusterFunc: toClusterFunc,
-		}
-
-		tenantClientsResource, err = tenantclients.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -554,9 +544,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	}
 
 	resources := []resource.Interface{
-		// Following resources manage controller context information.
-		tenantClientsResource,
-
 		// Following resources manage resources in the control plane.
 		cpNamespaceResource,
 		encryptionKeyResource,
@@ -603,15 +590,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	}
 
 	return resources, nil
-}
-
-func toClusterFunc(ctx context.Context, obj interface{}) (apiv1alpha2.Cluster, error) {
-	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return apiv1alpha2.Cluster{}, microerror.Mask(err)
-	}
-
-	return cr, nil
 }
 
 func toClusterObjRef(obj interface{}) (corev1.ObjectReference, error) {

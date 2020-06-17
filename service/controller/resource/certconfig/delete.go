@@ -6,12 +6,11 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
+func (r *Resource) applyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
 	certConfigs, err := toCertConfigs(deleteChange)
 	if err != nil {
 		return microerror.Mask(err)
@@ -37,18 +36,18 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	return nil
 }
 
-// NewDeletePatch is called upon observed custom object deletion. It receives
-// the deleted custom object, the current state as provided by GetCurrentState
-// and the desired state as provided by GetDesiredState. NewDeletePatch analyses
+// newDeletePatch is called upon observed custom object deletion. It receives
+// the deleted custom object, the current state as provided by getCurrentState
+// and the desired state as provided by getDesiredState. newDeletePatch analyses
 // the current and desired state and returns the patch to be applied by Create,
 // Update and Delete functions.
-func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*crud.Patch, error) {
+func (r *Resource) newDeletePatch(ctx context.Context, obj, currentState, desiredState interface{}) (*patch, error) {
 	delete, err := r.newDeleteChangeForDeletePatch(ctx, obj, currentState, desiredState)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	patch := crud.NewPatch()
+	patch := newPatch()
 	patch.SetDeleteChange(delete)
 
 	return patch, nil

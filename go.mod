@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions v0.4.6
+	github.com/giantswarm/apiextensions v0.4.7
 	github.com/giantswarm/certs/v2 v2.0.0
 	github.com/giantswarm/errors v0.2.2
 	github.com/giantswarm/exporterkit v0.2.0
@@ -15,7 +15,7 @@ require (
 	github.com/giantswarm/microerror v0.2.0
 	github.com/giantswarm/microkit v0.2.1
 	github.com/giantswarm/micrologger v0.3.1
-	github.com/giantswarm/operatorkit v1.0.0
+	github.com/giantswarm/operatorkit v1.0.1
 	github.com/giantswarm/resource v0.2.0
 	github.com/giantswarm/tenantcluster/v2 v2.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible

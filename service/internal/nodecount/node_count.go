@@ -10,16 +10,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
+	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
 )
 
 type Config struct {
-	K8sClient k8sclient.Interface
+	K8sClient    k8sclient.Interface
+	TenantClient tenantclient.Interface
 }
 
 type NodeCount struct {
-	k8sClient k8sclient.Interface
+	k8sClient    k8sclient.Interface
+	tenantClient tenantclient.Interface
 
 	nodesCache *cache.Nodes
 }
@@ -28,9 +30,13 @@ func New(c Config) (*NodeCount, error) {
 	if c.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", c)
 	}
+	if c.TenantClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.TenatClient must not be empty", c)
+	}
 
 	nc := &NodeCount{
-		k8sClient: c.K8sClient,
+		k8sClient:    c.K8sClient,
+		tenantClient: c.TenantClient,
 
 		nodesCache: cache.NewNodes(),
 	}
@@ -112,14 +118,14 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cr metav1.Object) (corev1.
 		ck := nc.nodesCache.Key(ctx, cr)
 
 		if ck == "" {
-			nodes, err = nc.lookupNodes(ctx)
+			nodes, err = nc.lookupNodes(ctx, cr)
 			if err != nil {
 				return corev1.NodeList{}, microerror.Mask(err)
 			}
 		} else {
 			nodes, ok = nc.nodesCache.Get(ctx, ck)
 			if !ok {
-				nodes, err = nc.lookupNodes(ctx)
+				nodes, err = nc.lookupNodes(ctx, cr)
 				if err != nil {
 					return corev1.NodeList{}, microerror.Mask(err)
 				}
@@ -132,20 +138,19 @@ func (nc *NodeCount) cachedNodes(ctx context.Context, cr metav1.Object) (corev1.
 	return nodes, nil
 }
 
-func (nc *NodeCount) lookupNodes(ctx context.Context) (corev1.NodeList, error) {
-	// TODO we need to get rid off the controllercontext.Context but for now it should be fine.
-	cc, err := controllercontext.FromContext(ctx)
+func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.NodeList, error) {
+	client, err := nc.tenantClient.K8sClient(ctx, cr)
 	if err != nil {
 		return corev1.NodeList{}, microerror.Mask(err)
 	}
-	if cc.Client.TenantCluster.K8s != nil {
-		nodes, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(metav1.ListOptions{})
+	if client.K8sClient() != nil {
+		nodes, err := client.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
 		if err != nil {
 			return corev1.NodeList{}, microerror.Mask(err)
 		}
 
 		if len(nodes.Items) == 0 {
-			return corev1.NodeList{}, microerror.Mask(notFoundError)
+			return corev1.NodeList{}, nil
 		}
 		return *nodes, nil
 	}

@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
-
 ### Added
 
 - Add `deletecrs` handler for better CR cleanup.
@@ -18,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Remove controller context status and use local caching.
+- Remove controller context.
+- Bump alpine version to 3.12
 
 
 ## [2.2.0] 2020-05-20
