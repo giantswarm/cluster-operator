@@ -5,15 +5,16 @@ import (
 	"time"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
+	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
 var (
