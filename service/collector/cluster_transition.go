@@ -170,6 +170,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 				if now.After(maxCreateInterval) {
 					ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(999999999999))
+					ct.clusterTransitionCreateHistogramVec.Collect(ch)
 				}
 
 			}
@@ -181,7 +182,6 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 				if now.After(maxUpdateInterval) {
 					ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(99999999999))
 				}
-
 			}
 
 			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
@@ -190,6 +190,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 				deltaCreate := clusterTransistionCreated - clusterTransitionCreating
 				ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(deltaCreate))
+				ct.clusterTransitionCreateHistogramVec.Collect(ch)
 			}
 
 			if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() {
@@ -198,6 +199,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 				deltaUpdate := clusterTransitionUpdated - clusterTransitionUpdating
 				ct.clusterTransitionCreateHistogramVec.WithLabelValues(cr.GetClusterName()).Observe(float64(deltaUpdate))
+				ct.clusterTransitionCreateHistogramVec.Collect(ch)
 			}
 
 			//deleting figure out howto get deleted
