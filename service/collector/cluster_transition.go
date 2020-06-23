@@ -212,7 +212,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 	for cluster, histogram := range ct.clusterTransitionCreateHistogramVec.Histograms() {
 		ch <- prometheus.MustNewConstHistogram(
 			clusterTransitionCreateDesc,
-			histogram.Count(), histogram.Sum(), histogram.Buckets(),
+			uint64(1), float64(1), histogram.Buckets(),
 			cluster,
 			releases[cluster],
 		)
