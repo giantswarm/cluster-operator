@@ -179,7 +179,10 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		releases[cr.GetName()] = key.ReleaseVersion(cr)
 		var err error
 		{
-			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
+			clusterHistogram := ct.clusterTransitionCreateHistogramVec.Histograms()
+			_, ok := clusterHistogram[cr.GetClusterName()]
+
+			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() && !ok {
 				t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time.Second()
 				t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time.Second()
 				err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(t1-t2))
@@ -194,7 +197,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 				// If the Creating condition is too old without having any
 				// Created condition given, we put the cluster into the last
 				// bucket and consider it invalid in that regard.
-				if time.Now().After(t1.Add(30 * time.Minute)) {
+				if time.Now().After(t1.Add(30*time.Minute)) && !ok {
 					err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
 					if err != nil {
 						return microerror.Mask(err)
@@ -211,7 +214,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 	for cluster, histogram := range ct.clusterTransitionCreateHistogramVec.Histograms() {
 		ch <- prometheus.MustNewConstHistogram(
 			clusterTransitionCreateDesc,
-			histogram.Count()-1, histogram.Sum(), histogram.Buckets(),
+			histogram.Count(), histogram.Sum(), histogram.Buckets(),
 			cluster,
 			releases[cluster],
 		)
