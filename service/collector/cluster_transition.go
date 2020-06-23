@@ -37,24 +37,24 @@ var (
 		},
 		nil,
 	)
-	clusterTransitionUpdateDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystemCluster, "update_transition"),
-		"Latest cluster update transition.",
-		[]string{
-			"cluster_id",
-			"release_version",
-		},
-		nil,
-	)
-	clusterTransitionDeleteDesc *prometheus.Desc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystemCluster, "delete_transition"),
-		"Latest cluster deletion transition.",
-		[]string{
-			"cluster_id",
-			"release_version",
-		},
-		nil,
-	)
+	//clusterTransitionUpdateDesc *prometheus.Desc = prometheus.NewDesc(
+	//	prometheus.BuildFQName(namespace, subsystemCluster, "update_transition"),
+	//	"Latest cluster update transition.",
+	//	[]string{
+	//		"cluster_id",
+	//		"release_version",
+	//	},
+	//	nil,
+	//)
+	//clusterTransitionDeleteDesc *prometheus.Desc = prometheus.NewDesc(
+	//	prometheus.BuildFQName(namespace, subsystemCluster, "delete_transition"),
+	//	"Latest cluster deletion transition.",
+	//	[]string{
+	//		"cluster_id",
+	//		"release_version",
+	//	},
+	//	nil,
+	//)
 )
 
 type ClusterTransitionConfig struct {
@@ -173,12 +173,15 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 		clusters = append(clusters, cr.GetName())
 		releases[cr.GetName()] = key.ReleaseVersion(cr)
-
+		var err error
 		{
 			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
 				t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time.Unix()
 				t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time.Unix()
-				ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(t1-t2))
+				err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(t1-t2))
+				if err != nil {
+					return microerror.Mask(err)
+				}
 			}
 
 			if cr.GetCommonClusterStatus().HasCreatingCondition() && !cr.GetCommonClusterStatus().HasCreatedCondition() {
@@ -188,7 +191,10 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 				// Created condition given, we put the cluster into the last
 				// bucket and consider it invalid in that regard.
 				if time.Now().After(t1.Add(30 * time.Minute)) {
-					ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
+					err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
+					if err != nil {
+						return microerror.Mask(err)
+					}
 				}
 			}
 
