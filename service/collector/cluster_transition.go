@@ -180,8 +180,8 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		var err error
 		{
 			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
-				t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time.Unix()
-				t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time.Unix()
+				t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time.Second()
+				t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time.Second()
 				err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(t1-t2))
 				if err != nil {
 					return microerror.Mask(err)
