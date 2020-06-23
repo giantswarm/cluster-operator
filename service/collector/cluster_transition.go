@@ -14,7 +14,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -147,7 +146,8 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		err := ct.k8sClient.CtrlClient().List(
 			ctx,
 			&list,
-			client.MatchingLabels{label.OperatorVersion: project.Version()},
+			//client.MatchingLabels{label.OperatorVersion: project.Version()},
+			client.MatchingLabels{label.OperatorVersion: "2.2.0"},
 		)
 		if err != nil {
 			return microerror.Mask(err)
