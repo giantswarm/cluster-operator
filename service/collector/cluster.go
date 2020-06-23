@@ -2,12 +2,14 @@ package collector
 
 import (
 	"context"
+	"fmt"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -90,7 +92,9 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 				key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)),
 				cr,
 			)
-			if err != nil {
+			if apierrors.IsNotFound(err) {
+				c.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("could not find object reference %#q", cl.GetName()))
+			} else if err != nil {
 				return microerror.Mask(err)
 			}
 		}
