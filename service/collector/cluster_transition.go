@@ -38,15 +38,15 @@ var (
 		},
 		nil,
 	)
-	//clusterTransitionUpdateDesc *prometheus.Desc = prometheus.NewDesc(
-	//	prometheus.BuildFQName(namespace, subsystemCluster, "update_transition"),
-	//	"Latest cluster update transition.",
-	//	[]string{
-	//		"cluster_id",
-	//		"release_version",
-	//	},
-	//	nil,
-	//)
+	clusterTransitionUpdateDesc *prometheus.Desc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystemCluster, "update_transition"),
+		"Latest cluster update transition.",
+		[]string{
+			"cluster_id",
+			"release_version",
+		},
+		nil,
+	)
 	//clusterTransitionDeleteDesc *prometheus.Desc = prometheus.NewDesc(
 	//	prometheus.BuildFQName(namespace, subsystemCluster, "delete_transition"),
 	//	"Latest cluster deletion transition.",
@@ -179,34 +179,62 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		releases[cr.GetName()] = key.ReleaseVersion(cr)
 		var err error
 		{
-			clusterHistogram := ct.clusterTransitionCreateHistogramVec.Histograms()
-			_, ok := clusterHistogram[cr.GetName()]
+			{
+				clusterHistogram := ct.clusterTransitionCreateHistogramVec.Histograms()
+				_, ok := clusterHistogram[cr.GetName()]
 
-			if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() && !ok {
-				t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
-				t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time
-				err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
-				if err != nil {
-					return microerror.Mask(err)
-				}
-			}
-
-			if cr.GetCommonClusterStatus().HasCreatingCondition() && !cr.GetCommonClusterStatus().HasCreatedCondition() {
-				t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
-
-				// If the Creating condition is too old without having any
-				// Created condition given, we put the cluster into the last
-				// bucket and consider it invalid in that regard.
-				if time.Now().After(t1.Add(30*time.Minute)) && !ok {
-					err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
+				if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() && !ok {
+					t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
+					t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time
+					err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
 					if err != nil {
 						return microerror.Mask(err)
 					}
 				}
+
+				if cr.GetCommonClusterStatus().HasCreatingCondition() && !cr.GetCommonClusterStatus().HasCreatedCondition() {
+					t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
+					maxInterval := createTransitionBuckets[len(createTransitionBuckets)-1]
+
+					// If the Creating condition is too old without having any
+					// Created condition given, we put the cluster into the last
+					// bucket and consider it invalid in that regard.
+					if time.Now().After(t1.Add(time.Duration(maxInterval)*time.Minute)) && !ok {
+						err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
+						if err != nil {
+							return microerror.Mask(err)
+						}
+					}
+				}
 			}
+			{
+				clusterHistogram := ct.clusterTransitionUpdateHistogramVec.Histograms()
+				_, ok := clusterHistogram[cr.GetName()]
 
-			//deleting figure out howto get deleted
+				if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() && !ok {
+					t1 := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Time
+					t2 := cr.GetCommonClusterStatus().GetUpdatedCondition().LastTransitionTime.Time
+					err = ct.clusterTransitionUpdateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
+					if err != nil {
+						return microerror.Mask(err)
+					}
+				}
 
+				if cr.GetCommonClusterStatus().HasUpdatingCondition() && !cr.GetCommonClusterStatus().HasUpdatedCondition() {
+					t1 := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Time
+					maxInterval := updateTransitionBuckets[len(updateTransitionBuckets)-1]
+
+					// If the Updating condition is too old without having any
+					// Updated condition given, we put the cluster into the last
+					// bucket and consider it invalid in that regard.
+					if time.Now().After(t1.Add(time.Duration(maxInterval)*time.Minute)) && !ok {
+						err = ct.clusterTransitionUpdateHistogramVec.Add(cr.GetName(), float64(999999999999))
+						if err != nil {
+							return microerror.Mask(err)
+						}
+					}
+				}
+			}
 		}
 	}
 	ct.clusterTransitionCreateHistogramVec.Ensure(clusters)
@@ -225,7 +253,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 func (ct *ClusterTransition) Describe(ch chan<- *prometheus.Desc) error {
 	ch <- clusterTransitionCreateDesc
-	//	ch <- clusterTransitionUpdateDesc
+	ch <- clusterTransitionUpdateDesc
 	//	ch <- clusterTransitionDeleteDesc
 
 	return nil
