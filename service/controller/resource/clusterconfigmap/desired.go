@@ -132,7 +132,6 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"configmap": map[string]string{
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
 				},
-				"provider": r.provider,
 			},
 		},
 	}
