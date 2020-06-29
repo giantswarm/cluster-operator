@@ -238,6 +238,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		}
 	}
 	ct.clusterTransitionCreateHistogramVec.Ensure(clusters)
+	ct.clusterTransitionUpdateHistogramVec.Ensure(clusters)
 
 	for cluster, histogram := range ct.clusterTransitionCreateHistogramVec.Histograms() {
 		ch <- prometheus.MustNewConstHistogram(
