@@ -27,10 +27,10 @@ Installation:
       Kubernetes:
         API:
           ClusterIPRange: "192.68.0.0/24"
-      Auth:
-        Vault:
-          Certificate:
-            TTL: "10d"
+    Auth:
+      Vault:
+        Certificate:
+          TTL: "10d"
 # Resource names are truncated to 47 characters.
 #
 # Kubernetes allows 63 characters limit for resource names. When pods for
