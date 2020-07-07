@@ -6,7 +6,6 @@ import (
 	"time"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/exporterkit/histogramvec"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -72,9 +71,9 @@ type ClusterTransition struct {
 	logger                     micrologger.Logger
 	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 
-	clusterTransitionCreateHistogramVec *histogramvec.HistogramVec
-	clusterTransitionUpdateHistogramVec *histogramvec.HistogramVec
-	clusterTransitionDeleteHistogramVec *histogramvec.HistogramVec
+	//clusterTransitionCreateHistogramVec *histogramvec.HistogramVec
+	//clusterTransitionUpdateHistogramVec *histogramvec.HistogramVec
+	//clusterTransitionDeleteHistogramVec *histogramvec.HistogramVec
 }
 
 //NewClusterTransition initiates cluster transition metrics
@@ -89,59 +88,59 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
 
-	var err error
+	//var err error
 
-	var clusterTransitionCreateHistogramVec *histogramvec.HistogramVec
-	{
-		c := histogramvec.Config{
-			BucketLimits: createTransitionBuckets,
-		}
+	//var clusterTransitionCreateHistogramVec *histogramvec.HistogramVec
+	//{
+	//	c := histogramvec.Config{
+	//		BucketLimits: createTransitionBuckets,
+	//	}
 
-		clusterTransitionCreateHistogramVec, err = histogramvec.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
+	//	clusterTransitionCreateHistogramVec, err = histogramvec.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
 
-	var clusterTransitionUpdateHistogramVec *histogramvec.HistogramVec
-	{
-		c := histogramvec.Config{
-			BucketLimits: updateTransitionBuckets,
-		}
+	//var clusterTransitionUpdateHistogramVec *histogramvec.HistogramVec
+	//{
+	//	c := histogramvec.Config{
+	//		BucketLimits: updateTransitionBuckets,
+	//	}
 
-		clusterTransitionUpdateHistogramVec, err = histogramvec.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
+	//	clusterTransitionUpdateHistogramVec, err = histogramvec.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
 
-	var clusterTransitionDeleteHistogramVec *histogramvec.HistogramVec
-	{
-		c := histogramvec.Config{
-			BucketLimits: deleteTransitionBuckets,
-		}
+	//var clusterTransitionDeleteHistogramVec *histogramvec.HistogramVec
+	//{
+	//	c := histogramvec.Config{
+	//		BucketLimits: deleteTransitionBuckets,
+	//	}
 
-		clusterTransitionDeleteHistogramVec, err = histogramvec.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
+	//	clusterTransitionDeleteHistogramVec, err = histogramvec.New(c)
+	//	if err != nil {
+	//		return nil, microerror.Mask(err)
+	//	}
+	//}
 
 	ct := &ClusterTransition{
 		k8sClient:                  config.K8sClient,
 		logger:                     config.Logger,
 		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 
-		clusterTransitionCreateHistogramVec: clusterTransitionCreateHistogramVec,
-		clusterTransitionUpdateHistogramVec: clusterTransitionUpdateHistogramVec,
-		clusterTransitionDeleteHistogramVec: clusterTransitionDeleteHistogramVec,
+		//clusterTransitionCreateHistogramVec: clusterTransitionCreateHistogramVec,
+		//clusterTransitionUpdateHistogramVec: clusterTransitionUpdateHistogramVec,
+		//clusterTransitionDeleteHistogramVec: clusterTransitionDeleteHistogramVec,
 	}
 
 	return ct, nil
 }
 
 func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
-	var err error
+	//var err error
 
 	ctx := context.Background()
 
@@ -181,16 +180,20 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		releases[cr.GetName()] = key.ReleaseVersion(cr)
 		{
 			{
-				//clusterHistogram := ct.clusterTransitionCreateHistogramVec.Histograms()
-				//_, ok := clusterHistogram[cr.GetName()]
-
 				if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() { //&& !ok {
 					t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
 					t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time
-					err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
-					if err != nil {
-						return microerror.Mask(err)
-					}
+					ch <- prometheus.MustNewConstMetric(
+						clusterTransitionCreateDesc,
+						prometheus.GaugeValue,
+						t2.Sub(t1).Seconds(),
+						key.ClusterID(&cl),
+						key.ReleaseVersion(&cl),
+					)
+					//err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
+					//if err != nil {
+					//	return microerror.Mask(err)
+					//}
 				}
 
 				if cr.GetCommonClusterStatus().HasCreatingCondition() && !cr.GetCommonClusterStatus().HasCreatedCondition() {
@@ -199,25 +202,37 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 					// If the Creating condition is too old without having any
 					// Created condition given, we put the cluster into the last
 					// bucket and consider it invalid in that regard.
-					if time.Now().After(t1.Add(30 * time.Minute)) { // && !ok {
-						err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
-						if err != nil {
-							return microerror.Mask(err)
-						}
+					if time.Now().After(t1.Add(30 * time.Minute)) {
+						ch <- prometheus.MustNewConstMetric(
+							clusterTransitionCreateDesc,
+							prometheus.GaugeValue,
+							float64(999999999999),
+							key.ClusterID(&cl),
+							key.ReleaseVersion(&cl),
+						)
+						//err = ct.clusterTransitionCreateHistogramVec.Add(cr.GetName(), float64(999999999999))
+						//if err != nil {
+						//	return microerror.Mask(err)
+						//}
 					}
 				}
 			}
 			{
-				//	clusterHistogram := ct.clusterTransitionUpdateHistogramVec.Histograms()
-				//	_, ok := clusterHistogram[cr.GetName()]
-
 				if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() { // && !ok {
 					t1 := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Time
 					t2 := cr.GetCommonClusterStatus().GetUpdatedCondition().LastTransitionTime.Time
-					err = ct.clusterTransitionUpdateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
-					if err != nil {
-						return microerror.Mask(err)
-					}
+					ch <- prometheus.MustNewConstMetric(
+						clusterTransitionUpdateDesc,
+						prometheus.GaugeValue,
+						t2.Sub(t1).Seconds(),
+						key.ClusterID(&cl),
+						key.ReleaseVersion(&cl),
+					)
+
+					//err = ct.clusterTransitionUpdateHistogramVec.Add(cr.GetName(), t2.Sub(t1).Seconds())
+					//if err != nil {
+					//	return microerror.Mask(err)
+					//}
 				}
 
 				if cr.GetCommonClusterStatus().HasUpdatingCondition() && !cr.GetCommonClusterStatus().HasUpdatedCondition() {
@@ -226,37 +241,44 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 					// If the Updating condition is too old without having any
 					// Updated condition given, we put the cluster into the last
 					// bucket and consider it invalid in that regard.
-					if time.Now().After(t1.Add(2 * time.Hour)) { // && !ok {
-						err = ct.clusterTransitionUpdateHistogramVec.Add(cr.GetName(), float64(999999999999))
-						if err != nil {
-							return microerror.Mask(err)
-						}
+					if time.Now().After(t1.Add(2 * time.Hour)) {
+						ch <- prometheus.MustNewConstMetric(
+							clusterTransitionCreateDesc,
+							prometheus.GaugeValue,
+							float64(999999999999),
+							key.ClusterID(&cl),
+							key.ReleaseVersion(&cl),
+						)
+						//err = ct.clusterTransitionUpdateHistogramVec.Add(cr.GetName(), float64(999999999999))
+						//if err != nil {
+						//	return microerror.Mask(err)
+						//}
 					}
 				}
 			}
 		}
 	}
 
-	ct.clusterTransitionCreateHistogramVec.Ensure(clusters)
-	ct.clusterTransitionUpdateHistogramVec.Ensure(clusters)
+	//ct.clusterTransitionCreateHistogramVec.Ensure(clusters)
+	//ct.clusterTransitionUpdateHistogramVec.Ensure(clusters)
 
-	for cluster, histogram := range ct.clusterTransitionCreateHistogramVec.Histograms() {
-		ch <- prometheus.MustNewConstHistogram(
-			clusterTransitionCreateDesc,
-			histogram.Count(), histogram.Sum(), histogram.Buckets(),
-			cluster,
-			releases[cluster],
-		)
-	}
+	//for cluster, histogram := range ct.clusterTransitionCreateHistogramVec.Histograms() {
+	//	ch <- prometheus.MustNewConstHistogram(
+	//		clusterTransitionCreateDesc,
+	//		histogram.Count(), histogram.Sum(), histogram.Buckets(),
+	//		cluster,
+	//		releases[cluster],
+	//	)
+	//}
 
-	for cluster, histogram := range ct.clusterTransitionUpdateHistogramVec.Histograms() {
-		ch <- prometheus.MustNewConstHistogram(
-			clusterTransitionUpdateDesc,
-			histogram.Count(), histogram.Sum(), histogram.Buckets(),
-			cluster,
-			releases[cluster],
-		)
-	}
+	//for cluster, histogram := range ct.clusterTransitionUpdateHistogramVec.Histograms() {
+	//	ch <- prometheus.MustNewConstHistogram(
+	//		clusterTransitionUpdateDesc,
+	//		histogram.Count(), histogram.Sum(), histogram.Buckets(),
+	//		cluster,
+	//		releases[cluster],
+	//	)
+	//}
 
 	return nil
 }
