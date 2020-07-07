@@ -102,8 +102,6 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		}
 	}
 
-	var clusters []string
-	releases := map[string]string{}
 	for _, cl := range list.Items {
 		cl := cl // dereferencing pointer value into new scope
 
@@ -121,8 +119,6 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-		clusters = append(clusters, cr.GetName())
-		releases[cr.GetName()] = key.ReleaseVersion(cr)
 		{
 			{
 				if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() { //&& !ok {
