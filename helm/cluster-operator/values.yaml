@@ -12,10 +12,25 @@ project:
   version: "[[ .Version ]]"
 Installation:
   V1:
+    Registry:
+      Domain: quay.io
+    Provider:
+      Kind: aws
     Secret:
       Registry:
         PullSecret:
           DockerConfigJSON: "axax"
+    Guest:
+      Calico:
+        Subnet: "10.0.0.0"
+        CIDR: 24
+      Kubernetes:
+        API:
+          ClusterIPRange: "192.68.0.0/24"
+      Auth:
+        Vault:
+          Certificate:
+            TTL: "10d"
 # Resource names are truncated to 47 characters.
 #
 # Kubernetes allows 63 characters limit for resource names. When pods for
