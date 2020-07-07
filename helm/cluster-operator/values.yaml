@@ -10,6 +10,12 @@ pod:
 project:
   name: "cluster-operator"
   version: "[[ .Version ]]"
+Installation:
+  V1:
+    Secret:
+      Registry:
+        PullSecret:
+          DockerConfigJSON: "axax"
 # Resource names are truncated to 47 characters.
 #
 # Kubernetes allows 63 characters limit for resource names. When pods for
