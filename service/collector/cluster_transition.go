@@ -85,8 +85,6 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 }
 
 func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
-	//var err error
-
 	ctx := context.Background()
 
 	var list apiv1alpha2.ClusterList
@@ -121,15 +119,15 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 		{
 			{
-				if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() { //&& !ok {
+				if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
 					t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
 					t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time
 					ch <- prometheus.MustNewConstMetric(
 						clusterTransitionCreateDesc,
 						prometheus.GaugeValue,
 						t2.Sub(t1).Seconds(),
-						key.ClusterID(&cl),
-						key.ReleaseVersion(&cl),
+						key.ClusterID(cr),
+						key.ReleaseVersion(cr),
 					)
 				}
 
@@ -144,8 +142,8 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 							clusterTransitionCreateDesc,
 							prometheus.GaugeValue,
 							float64(999999999999),
-							key.ClusterID(&cl),
-							key.ReleaseVersion(&cl),
+							key.ClusterID(cr),
+							key.ReleaseVersion(cr),
 						)
 					}
 				}
@@ -158,8 +156,8 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 						clusterTransitionUpdateDesc,
 						prometheus.GaugeValue,
 						t2.Sub(t1).Seconds(),
-						key.ClusterID(&cl),
-						key.ReleaseVersion(&cl),
+						key.ClusterID(cr),
+						key.ReleaseVersion(cr),
 					)
 				}
 
@@ -174,8 +172,8 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 							clusterTransitionCreateDesc,
 							prometheus.GaugeValue,
 							float64(999999999999),
-							key.ClusterID(&cl),
-							key.ReleaseVersion(&cl),
+							key.ClusterID(cr),
+							key.ReleaseVersion(cr),
 						)
 					}
 				}
