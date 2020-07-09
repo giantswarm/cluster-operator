@@ -2,5 +2,5 @@ apiVersion: v1
 name: cluster-operator
 description: The cluster-operator manages Kubernetes tenant cluster resources.
 home: https://github.com/giantswarm/cluster-operator
-version: "1.1.1"
-appVersion: "1.1.1"
+version: [[ .Version ]]
+appVersion: [[ .AppVersion ]]
