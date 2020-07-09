@@ -8,9 +8,11 @@ var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "TODO",
+			Description: "Make NGINX IC App optional on Azure.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{},
+			URLs: []string{
+				"https://github.com/giantswarm/cluster-operator/pull/1134",
+			},
 		},
 	},
 	Components: []versionbundle.Component{},

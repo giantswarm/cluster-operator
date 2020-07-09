@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -51,8 +52,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps in tenant cluster %#q", clusterConfig.ID))
 
+		selectorLabels := []string{
+			fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+		}
+
+		if r.provider == "azure" {
+			selectorLabels = append(selectorLabels, "app!=nginx-ingress-controller")
+		}
+
 		o := metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+			LabelSelector: strings.Join(selectorLabels, ","),
 		}
 
 		list, err := r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).List(o)
