@@ -22,4 +22,4 @@ Installation:
     Secret:
       Registry:
         PullSecret:
-        DockerConfigJSON: ""
+          DockerConfigJSON: ""
