@@ -8,11 +8,9 @@ var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "Make NGINX IC App optional on Azure.",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1134",
-			},
+			URLs:        []string{},
 		},
 	},
 	Components: []versionbundle.Component{},
