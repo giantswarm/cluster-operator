@@ -8,11 +8,9 @@ var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "Add GitHub workflows.",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1138",
-			},
+			URLs:        []string{},
 		},
 	},
 	Components: []versionbundle.Component{},
