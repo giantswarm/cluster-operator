@@ -7,4 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Added GitHub workflows.
+
 [Unreleased]: https://github.com/giantswarm/cluster-operator/tree/legacy
