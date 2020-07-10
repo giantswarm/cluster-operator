@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.12] - 2020-07-10
+
 ### Changed
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/tree/master
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.12...HEAD
+[0.23.12]: https://github.com/giantswarm/cluster-operator/releases/tag/v0.23.12
