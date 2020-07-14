@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2020-07-14
+
 ### Fixed
 
 - Fix cluster conditions timestamp which was not set correctly
@@ -111,8 +113,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.3.0...HEAD
-
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/giantswarm/cluster-operator/compare/v2.3.0...v2.3.1
 [2.2.0]: https://github.com/giantswarm/cluster-operator/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/giantswarm/cluster-operator/compare/v2.1.10...v2.2.0
 [2.1.10]: https://github.com/giantswarm/cluster-operator/compare/v2.1.9...v2.1.10
