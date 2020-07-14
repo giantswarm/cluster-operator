@@ -40,12 +40,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
 	}
 
-	var nodes []corev1.Node
-
 	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
-	if !tenantclient.IsNotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
+	if tenantclient.IsNotAvailable(err) {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
+	} else if err != nil {
+		return microerror.Mask(err)
+	}
 
+	var nodes []corev1.Node
+	if tenantClient != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			// During cluster creation / upgrade the tenant API is naturally not
