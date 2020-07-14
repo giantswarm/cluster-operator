@@ -43,27 +43,43 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
 	if tenantclient.IsNotAvailable(err) {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
-
-		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	var nodes []corev1.Node
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
+	if tenantClient != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
+		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
+		if tenant.IsAPINotAvailable(err) {
+			// During cluster creation / upgrade the tenant API is naturally not
+			// available but this resource must still continue execution as that's
+			// when `Creating` and `Upgrading` conditions may need to be applied.
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
+		} else if err != nil {
+			return microerror.Mask(err)
+		} else {
+			nodes = l.Items
 
-	l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
-	if tenant.IsAPINotAvailable(err) {
-		// During cluster creation / upgrade the tenant API is naturally not
-		// available but this resource must still continue execution as that's
-		// when `Creating` and `Upgrading` conditions may need to be applied.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-	} else if err != nil {
-		return microerror.Mask(err)
-	} else {
-		nodes = l.Items
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes from tenant cluster", len(nodes)))
+		}
+	}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes from tenant cluster", len(nodes)))
+	cpList := &infrastructurev1alpha2.G8sControlPlaneList{}
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding G8sControlplane for tenant cluster")
+
+		err = r.k8sClient.CtrlClient().List(
+			ctx,
+			cpList,
+			client.InNamespace(cr.GetNamespace()),
+			client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
+		)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d G8sControlplane for tenant cluster", len(cpList.Items)))
 	}
 
 	mdList := &apiv1alpha2.MachineDeploymentList{}
@@ -83,7 +99,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
 	}
 
-	err = r.computeCreateClusterStatusConditions(ctx, uc, nodes, mdList.Items)
+	err = r.computeCreateClusterStatusConditions(ctx, uc, nodes, cpList.Items, mdList.Items)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -107,7 +123,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, machineDeployments []apiv1alpha2.MachineDeployment) error {
+func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha2.G8sControlPlane, machineDeployments []apiv1alpha2.MachineDeployment) error {
 	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
@@ -125,17 +141,31 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		desiredVersion = componentVersions[providerOperator]
 	}
 
+	// Count total number of all masters and number of ready masters that
+	// belong to this cluster.
+	var desiredMasterReplicas int
+	var readyMasterReplicas int
+	{
+		for _, cp := range controlPlanes {
+			desiredMasterReplicas += int(cp.Status.Replicas)
+		}
+
+		for _, cp := range controlPlanes {
+			readyMasterReplicas += int(cp.Status.ReadyReplicas)
+		}
+	}
+
 	// Count total number of all workers and number of Ready workers that
 	// belong to this cluster.
-	var desiredReplicas int
-	var readyReplicas int
+	var desiredWorkerReplicas int
+	var readyWorkerReplicas int
 	{
 		for _, md := range machineDeployments {
-			desiredReplicas += int(md.Status.Replicas)
+			desiredWorkerReplicas += int(md.Status.Replicas)
 		}
 
 		for _, md := range machineDeployments {
-			readyReplicas += int(md.Status.ReadyReplicas)
+			readyWorkerReplicas += int(md.Status.ReadyReplicas)
 		}
 	}
 
@@ -159,10 +189,11 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 	{
 		isCreating := status.HasCreatingCondition()
 		notCreated := !status.HasCreatedCondition()
-		sameCount := readyReplicas == desiredReplicas
+		sameMasterCount := readyMasterReplicas == desiredMasterReplicas
+		sameWorkerCount := readyWorkerReplicas == desiredWorkerReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
-		if isCreating && notCreated && sameCount && sameVersion {
+		if isCreating && notCreated && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Conditions = status.WithCreatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreated))
 		}
@@ -188,10 +219,11 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 	{
 		isUpdating := status.HasUpdatingCondition()
 		notUpdated := !status.HasUpdatedCondition()
-		sameCount := readyReplicas != 0 && readyReplicas == desiredReplicas
+		sameMasterCount := readyMasterReplicas != 0 && readyMasterReplicas == desiredMasterReplicas
+		sameWorkerCount := readyWorkerReplicas != 0 && readyMasterReplicas == desiredWorkerReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
-		if isUpdating && notUpdated && sameCount && sameVersion {
+		if isUpdating && notUpdated && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Conditions = status.WithUpdatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdated))
 		}
@@ -202,10 +234,11 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 	{
 		hasTransitioned := status.HasCreatedCondition() || status.HasUpdatedCondition()
 		notSet := !status.HasVersion(desiredVersion)
-		sameCount := readyReplicas != 0 && readyReplicas == desiredReplicas
+		sameMasterCount := readyMasterReplicas != 0 && readyMasterReplicas == desiredMasterReplicas
+		sameWorkerCount := readyWorkerReplicas != 0 && readyWorkerReplicas == desiredMasterReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
-		if hasTransitioned && notSet && sameCount && sameVersion {
+		if hasTransitioned && notSet && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Versions = status.WithNewVersion(desiredVersion)
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting status versions with new version: %q", desiredVersion))
 		}
