@@ -15,6 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -37,15 +38,6 @@ var (
 		},
 		nil,
 	)
-	//clusterTransitionDeleteDesc *prometheus.Desc = prometheus.NewDesc(
-	//	prometheus.BuildFQName(namespace, subsystemCluster, "delete_transition"),
-	//	"Latest cluster deletion transition.",
-	//	[]string{
-	//		"cluster_id",
-	//		"release_version",
-	//	},
-	//	nil,
-	//)
 )
 
 type ClusterTransitionConfig struct {
@@ -92,8 +84,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 		err := ct.k8sClient.CtrlClient().List(
 			ctx,
 			&list,
-			//client.MatchingLabels{label.OperatorVersion: project.Version()},
-			client.MatchingLabels{label.OperatorVersion: "2.3.1"},
+			client.MatchingLabels{label.OperatorVersion: project.Version()},
 		)
 		if err != nil {
 			return microerror.Mask(err)
@@ -186,7 +177,6 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 func (ct *ClusterTransition) Describe(ch chan<- *prometheus.Desc) error {
 	ch <- clusterTransitionCreateDesc
 	ch <- clusterTransitionUpdateDesc
-	//	ch <- clusterTransitionDeleteDesc
 
 	return nil
 }
