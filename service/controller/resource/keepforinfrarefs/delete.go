@@ -17,6 +17,22 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	// Due to unforeseen reasons it might happen that the infrastructure
+	// reference is partially or even fully empty. In such cases we cancel the
+	// resource gracefully in order to prevent errors blocking the deletion.
+	{
+		if or.Name == "" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "infrastructure reference misses name")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+		}
+		if or.Namespace == "" {
+			r.logger.LogCtx(ctx, "level", "debug", "message", "infrastructure reference misses namespace")
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
+		}
+	}
+
 	// Here we fetch the provider specific CR defined as infrastructure reference
 	// in the CAPI type. We use an unstructured object and therefore need to set
 	// the api version and kind accordingly. If we would not do that the
