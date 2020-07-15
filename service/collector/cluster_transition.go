@@ -93,7 +93,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 			ctx,
 			&list,
 			//client.MatchingLabels{label.OperatorVersion: project.Version()},
-			client.MatchingLabels{label.OperatorVersion: "2.3.0"},
+			client.MatchingLabels{label.OperatorVersion: "2.3.1"},
 		)
 		if err != nil {
 			return microerror.Mask(err)
