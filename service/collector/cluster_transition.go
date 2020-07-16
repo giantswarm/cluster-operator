@@ -140,7 +140,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 				}
 			}
 			{
-				if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() { // && !ok {
+				if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() {
 					t1 := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Time
 					t2 := cr.GetCommonClusterStatus().GetUpdatedCondition().LastTransitionTime.Time
 					ch <- prometheus.MustNewConstMetric(
