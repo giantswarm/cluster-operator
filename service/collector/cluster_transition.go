@@ -72,6 +72,7 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 	ct := &ClusterTransition{
 		k8sClient:                  config.K8sClient,
 		logger:                     config.Logger,
+
 		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
 	}
 
