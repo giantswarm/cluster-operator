@@ -64,6 +64,7 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+
 	if config.NewCommonClusterObjectFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
