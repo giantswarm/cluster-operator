@@ -18,7 +18,7 @@ type SetConfig struct {
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
-// It eases the iniitialization and prevents some weird import mess so we do not
+// It eases the initialization and prevents some weird import mess so we do not
 // have to alias packages.
 type Set struct {
 	*collector.Set
@@ -55,12 +55,28 @@ func NewSet(config SetConfig) (*Set, error) {
 		}
 	}
 
+	var clusterTransitionCollector *ClusterTransition
+	{
+		c := ClusterTransitionConfig{
+			K8sClient: config.K8sClient,
+			Logger:    config.Logger,
+
+			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		}
+
+		clusterTransitionCollector, err = NewClusterTransition(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
 				clusterCollector,
 				nodePoolCollector,
+				clusterTransitionCollector,
 			},
 			Logger: config.Logger,
 		}
