@@ -50,8 +50,8 @@ type ClusterTransitionConfig struct {
 // ClusterTransition implements the ClusterTransition interface, exposing
 // cluster transition information.
 type ClusterTransition struct {
-	k8sClient                  k8sclient.Interface
-	logger                     micrologger.Logger
+	k8sClient k8sclient.Interface
+	logger    micrologger.Logger
 
 	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
