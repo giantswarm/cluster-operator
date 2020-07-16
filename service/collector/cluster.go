@@ -94,6 +94,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 			)
 			if apierrors.IsNotFound(err) {
 				c.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("could not find object reference %#q", cl.GetName()))
+				continue
 			} else if err != nil {
 				return microerror.Mask(err)
 			}
