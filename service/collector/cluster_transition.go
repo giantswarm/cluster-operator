@@ -53,6 +53,7 @@ type ClusterTransition struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+
 	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
 }
 
