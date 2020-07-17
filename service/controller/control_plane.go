@@ -23,6 +23,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
@@ -30,6 +31,7 @@ import (
 // ControlPlane controller implementation.
 type ControlPlaneConfig struct {
 	BaseDomain     basedomain.Interface
+	Event          recorder.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	NodeCount      nodecount.Interface
@@ -91,6 +93,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 	var controlPlaneStatusResource resource.Interface
 	{
 		c := controlplanestatus.Config{
+			Event:     config.Event,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NodeCount: config.NodeCount,

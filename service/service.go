@@ -28,6 +28,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
@@ -231,6 +232,17 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var eventRecorder recorder.Interface
+	{
+		c := recorder.Config{
+			K8sClient: k8sClient,
+
+			Component: config.ProjectName,
+		}
+
+		eventRecorder = recorder.New(c)
+	}
+
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
@@ -284,6 +296,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := controller.MachineDeploymentConfig{
 			BaseDomain:     bd,
+			Event:          eventRecorder,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
 			NodeCount:      nc,
