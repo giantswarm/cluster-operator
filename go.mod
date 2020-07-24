@@ -29,7 +29,6 @@ require (
 	k8s.io/client-go v0.18.5
 	sigs.k8s.io/cluster-api v0.3.7
 	sigs.k8s.io/controller-runtime v0.6.1
-	sigs.k8s.io/yaml v1.2.0
 )
 
 replace sigs.k8s.io/cluster-api v0.3.7 => github.com/giantswarm/cluster-api v0.3.8-0.20200723145930-f76c9cd8e8d1
