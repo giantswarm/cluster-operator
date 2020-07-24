@@ -2,11 +2,11 @@ package nodecount
 
 import (
 	"context"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strconv"
 	"testing"
 
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	tcunittest "github.com/giantswarm/cluster-operator/service/internal/tenantclient/unittest"
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
