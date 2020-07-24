@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // applyCreateChange takes observed custom object and create portion of the
@@ -22,7 +23,7 @@ func (r *Resource) applyCreateChange(ctx context.Context, obj, createChange inte
 		for _, certConfig := range certConfigs {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
-			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Create(certConfig)
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Create(ctx, certConfig, metav1.CreateOptions{})
 			if apierrors.IsAlreadyExists(err) {
 				// fall through
 			} else if err != nil {

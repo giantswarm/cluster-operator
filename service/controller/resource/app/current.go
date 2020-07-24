@@ -36,7 +36,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 		}
 
-		list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(o)
+		list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(ctx, o)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

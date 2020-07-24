@@ -144,7 +144,7 @@ func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.
 		return corev1.NodeList{}, microerror.Mask(err)
 	}
 	if client.K8sClient() != nil {
-		nodes, err := client.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
+		nodes, err := client.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return corev1.NodeList{}, microerror.Mask(err)
 		}

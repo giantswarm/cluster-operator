@@ -26,7 +26,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	if ns != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting namespace %#q in control plane", ns.Name))
 
-		err = r.k8sClient.CoreV1().Namespaces().Delete(ns.Name, &metav1.DeleteOptions{})
+		err = r.k8sClient.CoreV1().Namespaces().Delete(ctx, ns.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 		} else if err != nil {

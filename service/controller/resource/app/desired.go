@@ -94,7 +94,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha2.Cluster) (m
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", key.ClusterID(&cr)))
 
-	list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(metav1.ListOptions{})
+	list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -113,7 +113,7 @@ func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[
 
 	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secrets in namespace %#q", key.ClusterID(&cr)))
 
-	list, err := r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).List(metav1.ListOptions{})
+	list, err := r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -128,7 +128,7 @@ func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[
 }
 
 func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Cluster) (userOverrideConfig, error) {
-	userConfig, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get("user-override-apps", metav1.GetOptions{})
+	userConfig, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get(ctx, "user-override-apps", metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// fall through
 		return nil, nil

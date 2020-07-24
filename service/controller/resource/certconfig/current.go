@@ -32,7 +32,7 @@ func (r *Resource) getCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 
 		for {
-			list, err := r.g8sClient.CoreV1alpha1().CertConfigs(cr.Namespace).List(o)
+			list, err := r.g8sClient.CoreV1alpha1().CertConfigs(cr.Namespace).List(ctx, o)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}

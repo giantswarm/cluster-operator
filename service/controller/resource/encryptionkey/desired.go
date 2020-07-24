@@ -41,7 +41,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
 
-		secret, err := r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(secretName(cr), metav1.GetOptions{})
+		secret, err := r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, secretName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))

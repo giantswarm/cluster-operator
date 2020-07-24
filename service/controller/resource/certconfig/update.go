@@ -6,6 +6,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // applyUpdateChange takes observed custom object and update portion of the
@@ -20,7 +21,7 @@ func (r *Resource) applyUpdateChange(ctx context.Context, obj, updateChange inte
 		for _, certConfig := range certConfigs {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
-			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Update(certConfig)
+			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Update(ctx, certConfig, metav1.UpdateOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}

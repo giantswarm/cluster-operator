@@ -50,7 +50,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	var nodes []corev1.Node
 	if tenantClient != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
-		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
+		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			// During cluster creation / upgrade the tenant API is naturally not
 			// available but this resource must still continue execution as that's

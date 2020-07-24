@@ -31,7 +31,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))
 
-		secret, err = r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).Get(key.KubeConfigSecretName(&cr), metav1.GetOptions{})
+		secret, err = r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).Get(ctx, key.KubeConfigSecretName(&cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q for tenant cluster %#q", key.KubeConfigSecretName(&cr), key.ClusterID(&cr)))
 			return nil, nil

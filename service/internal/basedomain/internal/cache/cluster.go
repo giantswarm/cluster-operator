@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"os"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
@@ -25,6 +26,8 @@ func NewCluster() *Cluster {
 }
 
 func (r *Cluster) Get(ctx context.Context, key string) (infrastructurev1alpha2.AWSCluster, bool) {
+	fmt.Fprintf(os.Stderr, "GET KEY %#q\n", key)
+
 	val, ok := r.cache.Get(key)
 	if ok {
 		return val.(infrastructurev1alpha2.AWSCluster), true
@@ -36,6 +39,7 @@ func (r *Cluster) Get(ctx context.Context, key string) (infrastructurev1alpha2.A
 func (r *Cluster) Key(ctx context.Context, obj metav1.Object) string {
 	ck, ok := cachekeycontext.FromContext(ctx)
 	if ok {
+		fmt.Fprintf(os.Stderr, "KEY KEY %s/%s\n", ck, key.ClusterID(obj))
 		return fmt.Sprintf("%s/%s", ck, key.ClusterID(obj))
 	}
 
@@ -43,5 +47,6 @@ func (r *Cluster) Key(ctx context.Context, obj metav1.Object) string {
 }
 
 func (r *Cluster) Set(ctx context.Context, key string, val infrastructurev1alpha2.AWSCluster) {
+	fmt.Fprintf(os.Stderr, "SET KEY %#q\n", key)
 	r.cache.SetDefault(key, val)
 }

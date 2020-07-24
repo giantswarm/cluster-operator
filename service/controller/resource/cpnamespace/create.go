@@ -9,6 +9,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/giantswarm/cluster-operator/service/controller/key"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange interface{}) error {
@@ -24,7 +25,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	if ns != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating namespace %#q in control plane", ns.Name))
 
-		_, err = r.k8sClient.CoreV1().Namespaces().Create(ns)
+		_, err = r.k8sClient.CoreV1().Namespaces().Create(ctx, ns, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
 			// fall through
 		} else if err != nil {

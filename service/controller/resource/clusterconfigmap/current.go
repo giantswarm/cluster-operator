@@ -36,7 +36,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 		}
 
-		list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(lo)
+		list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(ctx, lo)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

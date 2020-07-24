@@ -24,7 +24,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding namespace %#q in control plane", key.ClusterID(&cr)))
 
-		m, err := r.k8sClient.CoreV1().Namespaces().Get(key.ClusterID(&cr), metav1.GetOptions{})
+		m, err := r.k8sClient.CoreV1().Namespaces().Get(ctx, key.ClusterID(&cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in control plane", key.ClusterID(&cr)))
 		} else if err != nil {
