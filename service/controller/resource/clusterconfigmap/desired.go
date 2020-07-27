@@ -70,9 +70,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	var controllerServiceExternalTrafficPolicy string
 	{
 		if r.provider == "aws" || r.provider == "azure" {
-			controllerServiceType = "Local"
+			controllerServiceExternalTrafficPolicy = "Local"
 		} else if r.provider == "kvm" {
-			controllerServiceType = "Cluster"
+			controllerServiceExternalTrafficPolicy = "Cluster"
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
 		}
