@@ -68,7 +68,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 						nodeLabels[controlPlaneKey] = controlPlaneValue
 					}
 					node.SetLabels(nodeLabels)
-					_, err := nc.k8sClient.K8sClient().CoreV1().Nodes().Create(context.TODO(), node.DeepCopy(), metav1.CreateOptions{})
+					_, err := nc.k8sClient.K8sClient().CoreV1().Nodes().Create(tc.ctx, node.DeepCopy(), metav1.CreateOptions{})
 					if err != nil {
 						t.Fatal(err)
 					}
@@ -91,7 +91,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 				}
 				newNode.ObjectMeta.Name = "ip-10-0-5-50.eu-central-1.compute.internal"
 				newNode.SetLabels(nodeLabels)
-				_, err = nc.k8sClient.K8sClient().CoreV1().Nodes().Create(context.TODO(), &newNode, metav1.CreateOptions{})
+				_, err = nc.k8sClient.K8sClient().CoreV1().Nodes().Create(tc.ctx, &newNode, metav1.CreateOptions{})
 				if err != nil {
 					t.Fatal(err)
 				}
