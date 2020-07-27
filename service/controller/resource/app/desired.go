@@ -27,8 +27,9 @@ import (
 )
 
 type appConfig struct {
-	Catalog string `json:"catalog"`
-	Version string `json:"version"`
+	Catalog         string `json:"catalog"`
+	Version         string `json:"version"`
+	UseUpgradeForce *bool  `json:"useUpgradeForce"`
 }
 
 type userOverrideConfig map[string]appConfig
@@ -371,6 +372,9 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 			}
 			if val.Version != "" {
 				spec.Version = val.Version
+			}
+			if val.UseUpgradeForce != nil {
+				spec.UseUpgradeForce = *val.UseUpgradeForce
 			}
 		}
 
