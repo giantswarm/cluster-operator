@@ -67,6 +67,17 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 		}
 	}
 
+	var controllerServiceExternalTrafficPolicy string
+	{
+		if r.provider == "aws" || r.provider == "azure" {
+			controllerServiceType = "Local"
+		} else if r.provider == "kvm" {
+			controllerServiceType = "Cluster"
+		} else {
+			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
+		}
+	}
+
 	// useProxyProtocol is only enabled by default for AWS clusters.
 	var useProxyProtocol bool
 	{
@@ -137,10 +148,12 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"clusterID":  key.ClusterID(clusterConfig),
 				"controller": map[string]interface{}{
 					"service": map[string]interface{}{
-						"enabled": controllerServiceEnabled,
-						"type":    controllerServiceType,
+						"enabled":               controllerServiceEnabled,
+						"type":                  controllerServiceType,
+						"externalTrafficPolicy": controllerServiceExternalTrafficPolicy,
 						"internal": map[string]interface{}{
-							"type": controllerServiceType,
+							"type":                  controllerServiceType,
+							"externalTrafficPolicy": controllerServiceExternalTrafficPolicy,
 						},
 					},
 				},
