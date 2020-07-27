@@ -2,12 +2,33 @@ version: 2.1
 orbs:
   architect: giantswarm/architect@0.10.1
 
+jobs:
+  build:
+    machine: true
+    steps:
+    - checkout
+
+    - run:
+        name: Install architect
+        command: |
+          architect_version="2.1.0"
+          curl -fsSL https://github.com/giantswarm/architect/releases/download/v${architect_version}/architect-v${architect_version}-linux-amd64.tar.gz | tar -xzv --strip-components 1 --wildcards '*/architect'
+          ./architect version
+    - run:
+        name: Build
+        command: ./architect build
+    - store_test_results:
+        path: /tmp/results
+    - persist_to_workspace:
+        root: .
+        paths:
+        - ./cluster-operator
+
 workflows:
   build_and_push:
     jobs:
-      - architect/go-build:
-          name: build
-          binary: cluster-operator
+      # build binary
+      - build:
           filters:
             tags:
               only: /^v.*/
