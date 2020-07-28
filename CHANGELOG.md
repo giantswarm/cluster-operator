@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Enable NodePort ingress service on KVM.
 - Regenerate GitHub workflows, in post-release phase to create a PR instead of trying to push to legacy branch directly.
 
 ## [0.23.12] - 2020-07-10

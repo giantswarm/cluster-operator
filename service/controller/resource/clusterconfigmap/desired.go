@@ -44,13 +44,35 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	}
 
 	// The controllerServiceEnabled flag is used by the NGINX IC app to avoid creating a Service.
-	// For legacy AWS and KVM clusters this Service is disabled as it gets created via Ignition.
+	// For legacy AWS clusters this Service is disabled as it gets created via Ignition.
 	var controllerServiceEnabled bool
 	{
-		if r.provider == "aws" || r.provider == "kvm" {
+		if r.provider == "aws" {
 			controllerServiceEnabled = false
-		} else if r.provider == "azure" {
+		} else if r.provider == "azure" || r.provider == "kvm" {
 			controllerServiceEnabled = true
+		} else {
+			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
+		}
+	}
+
+	var controllerServiceType string
+	{
+		if r.provider == "aws" || r.provider == "azure" {
+			controllerServiceType = "LoadBalancer"
+		} else if r.provider == "kvm" {
+			controllerServiceType = "NodePort"
+		} else {
+			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
+		}
+	}
+
+	var controllerServiceExternalTrafficPolicy string
+	{
+		if r.provider == "aws" || r.provider == "azure" {
+			controllerServiceExternalTrafficPolicy = "Local"
+		} else if r.provider == "kvm" {
+			controllerServiceExternalTrafficPolicy = "Cluster"
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
 		}
@@ -126,7 +148,13 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 				"clusterID":  key.ClusterID(clusterConfig),
 				"controller": map[string]interface{}{
 					"service": map[string]interface{}{
-						"enabled": controllerServiceEnabled,
+						"enabled":               controllerServiceEnabled,
+						"type":                  controllerServiceType,
+						"externalTrafficPolicy": controllerServiceExternalTrafficPolicy,
+						"internal": map[string]interface{}{
+							"type":                  controllerServiceType,
+							"externalTrafficPolicy": controllerServiceExternalTrafficPolicy,
+						},
 					},
 				},
 				"configmap": map[string]string{
