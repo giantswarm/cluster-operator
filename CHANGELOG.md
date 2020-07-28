@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.13] - 2020-07-28
+
 ### Changed
 
 - Enable NodePort ingress service on KVM.
@@ -18,5 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.12...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.13...HEAD
+[0.23.13]: https://github.com/giantswarm/cluster-operator/compare/v0.23.12...v0.23.13
 [0.23.12]: https://github.com/giantswarm/cluster-operator/releases/tag/v0.23.12
