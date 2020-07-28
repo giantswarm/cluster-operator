@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
@@ -54,8 +55,12 @@ func Test_BaseDomain_Cache(t *testing.T) {
 				}
 			}
 
+			var cl infrastructurev1alpha2.AWSCluster
 			{
-				cl := unittest.DefaultCluster()
+				cl = unittest.DefaultCluster()
+			}
+
+			{
 				cl.Spec.Cluster.DNS.Domain = tc.baseDomain
 				err = bd.k8sClient.CtrlClient().Create(tc.ctx, &cl)
 				if err != nil {
@@ -64,7 +69,6 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				baseDomain1, err = bd.BaseDomain(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
@@ -72,7 +76,6 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				cl.Spec.Cluster.DNS.Domain = "newdomain.company.com"
 				err = bd.k8sClient.CtrlClient().Update(tc.ctx, &cl)
 				if err != nil {
@@ -81,7 +84,6 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				baseDomain2, err = bd.BaseDomain(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)

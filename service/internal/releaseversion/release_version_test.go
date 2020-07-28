@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"testing"
 
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
+	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
@@ -56,8 +58,17 @@ func Test_Release_Cache(t *testing.T) {
 				}
 			}
 
+			var release releasev1alpha1.Release
 			{
-				release := unittest.DefaultRelease()
+				release = unittest.DefaultRelease()
+			}
+
+			var cl infrastructurev1alpha2.AWSCluster
+			{
+				cl = unittest.DefaultCluster()
+			}
+
+			{
 				// Specify the version of the app we want for our tests.
 				release.Spec.Apps[0].Version = tc.appVersion
 				err = rv.k8sClient.CtrlClient().Create(tc.ctx, &release)
@@ -67,14 +78,13 @@ func Test_Release_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				release1, err = rv.AppVersion(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
 				}
 			}
+
 			{
-				release := unittest.DefaultRelease()
 				// Specify the updated version of the cert-operator we want for our tests.
 				// The version should not change when caching is enabled.
 				release.Spec.Apps[0].Version = "1.2.2"
@@ -84,7 +94,6 @@ func Test_Release_Cache(t *testing.T) {
 				}
 			}
 			{
-				cl := unittest.DefaultCluster()
 				release2, err = rv.AppVersion(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)

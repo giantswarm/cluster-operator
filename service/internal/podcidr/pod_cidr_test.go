@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
 
 	"github.com/giantswarm/cluster-operator/service/internal/unittest"
@@ -70,8 +71,12 @@ func Test_PodCIDR_Cache(t *testing.T) {
 				}
 			}
 
+			var cl infrastructurev1alpha2.AWSCluster
 			{
-				cl := unittest.DefaultCluster()
+				cl = unittest.DefaultCluster()
+			}
+
+			{
 				cl.Spec.Provider.Pods.CIDRBlock = tc.cidrBlock
 				err = pc.k8sClient.CtrlClient().Create(tc.ctx, &cl)
 				if err != nil {
@@ -80,7 +85,6 @@ func Test_PodCIDR_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				podCIDR1, err = pc.PodCIDR(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
@@ -88,7 +92,6 @@ func Test_PodCIDR_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				cl.Spec.Provider.Pods.CIDRBlock = "changed"
 				err = pc.k8sClient.CtrlClient().Update(tc.ctx, &cl)
 				if err != nil {
@@ -97,7 +100,6 @@ func Test_PodCIDR_Cache(t *testing.T) {
 			}
 
 			{
-				cl := unittest.DefaultCluster()
 				podCIDR2, err = pc.PodCIDR(tc.ctx, &cl)
 				if err != nil {
 					t.Fatal(err)
