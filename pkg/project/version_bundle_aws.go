@@ -8,11 +8,9 @@ var versionBundleAWS = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "Enable NodePort ingress service on KVM.",
+			Description: "TODO",
 			Kind:        versionbundle.KindChanged,
-			URLs: []string{
-				"https://github.com/giantswarm/cluster-operator/pull/1162",
-			},
+			URLs:        []string{},
 		},
 	},
 	Components: []versionbundle.Component{},
