@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Handle error basedomain not found gracefully, so that G8sControlPlane CR and MachineDeployment CRs can be deleted
+
 ## [2.3.1] - 2020-07-14
 
 ### Fixed
