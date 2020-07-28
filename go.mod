@@ -12,7 +12,7 @@ require (
 	github.com/giantswarm/k8sclient/v3 v3.1.3-0.20200724085258-345602646ea8
 	github.com/giantswarm/kubeconfig v0.2.2-0.20200724082502-5a2c86aaf684
 	github.com/giantswarm/microendpoint v0.2.0
-	github.com/giantswarm/microerror v0.2.0
+	github.com/giantswarm/microerror v0.2.1
 	github.com/giantswarm/microkit v0.2.1
 	github.com/giantswarm/micrologger v0.3.1
 	github.com/giantswarm/operatorkit v1.2.1-0.20200724133006-e6de285a86c0
