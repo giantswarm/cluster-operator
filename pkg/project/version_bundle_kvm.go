@@ -8,9 +8,11 @@ var versionBundleKVM = versionbundle.Bundle{
 	Changelogs: []versionbundle.Changelog{
 		{
 			Component:   Name(),
-			Description: "TODO",
+			Description: "Make NGINX optional on KVM, by ignoring existing NGINX IC App CRs which were managed by cluster-operator.",
 			Kind:        versionbundle.KindChanged,
-			URLs:        []string{},
+			URLs: []string{
+				"https://github.com/giantswarm/cluster-operator/pull/1170",
+			},
 		},
 	},
 	Components: []versionbundle.Component{},

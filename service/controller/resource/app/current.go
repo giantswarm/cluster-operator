@@ -56,7 +56,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 			fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 		}
 
-		if r.provider == "azure" {
+		if r.provider == "azure" || r.provider == "kvm" {
 			selectorLabels = append(selectorLabels, "app!=nginx-ingress-controller")
 		}
 
