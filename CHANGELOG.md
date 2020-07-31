@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.2] - 2020-07-31
+
 - Handle error basedomain not found gracefully, so that G8sControlPlane CR and MachineDeployment CRs can be deleted
 
 ## [2.3.1] - 2020-07-14
@@ -115,7 +117,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v2.3.2...HEAD
+[2.3.2]: https://github.com/giantswarm/cluster-operator/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/giantswarm/cluster-operator/compare/v2.3.0...v2.3.1
 [2.2.0]: https://github.com/giantswarm/cluster-operator/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/giantswarm/cluster-operator/compare/v2.1.10...v2.2.0
