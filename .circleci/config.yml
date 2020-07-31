@@ -97,16 +97,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
-
-      # deploy to kvm installations (only tags)
-      - architect/push-to-app-collection:
-          name: push-cluster-operator-to-kvm-app-collection
-          app_name: "cluster-operator"
-          app_collection_repo: "kvm-app-collection"
-          requires:
-            - push-cluster-operator-to-control-plane-app-catalog
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
