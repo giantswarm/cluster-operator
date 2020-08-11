@@ -42,7 +42,7 @@ type Resource struct {
 // New creates a new configured config map state getter resource managing
 // cluster config maps.
 //
-//     https://godoc.org/github.com/giantswarm/operatorkit/resource/k8s/secretresource#StateGetter
+//     https://godoc.org/github.com/giantswarm/operatorkit/v2/pkg/resource/k8s/secretresource#StateGetter
 //
 func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {

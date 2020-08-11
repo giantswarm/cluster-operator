@@ -3,9 +3,9 @@ package kubeconfig
 import (
 	"context"
 
-	"github.com/giantswarm/kubeconfig"
+	"github.com/giantswarm/kubeconfig/v2"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v3/pkg/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"

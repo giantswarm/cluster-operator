@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
+	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/cachekeycontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	tcunittest "github.com/giantswarm/cluster-operator/service/internal/tenantclient/unittest"
