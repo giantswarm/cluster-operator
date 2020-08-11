@@ -20,8 +20,8 @@ require (
 	github.com/giantswarm/tenantcluster/v2 v2.0.1-0.20200724133643-1c49720f2600
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.7.1
-	github.com/spf13/afero v1.3.2
-	github.com/spf13/viper v1.7.0
+	github.com/spf13/afero v1.3.4
+	github.com/spf13/viper v1.7.1
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.5
 	k8s.io/apiextensions-apiserver v0.18.5
