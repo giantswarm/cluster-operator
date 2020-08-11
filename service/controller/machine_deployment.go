@@ -14,16 +14,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/pkg/project"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/deleteinfrarefs"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/keepforinfrarefs"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/machinedeploymentstatus"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/updateinfrarefs"
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/pkg/project"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/deleteinfrarefs"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/machinedeploymentstatus"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
 type MachineDeploymentConfig struct {

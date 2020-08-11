@@ -8,8 +8,8 @@ import (
 	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/cachekeycontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	tcunittest "github.com/giantswarm/cluster-operator/service/internal/tenantclient/unittest"
-	"github.com/giantswarm/cluster-operator/service/internal/unittest"
+	tcunittest "github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient/unittest"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )
 
 func Test_NodeCount_Cache(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/tenantcluster/v3/pkg/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 )
 
 const (

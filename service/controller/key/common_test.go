@@ -3,7 +3,7 @@ package key
 import (
 	"testing"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 )
 
 // A mock object that implements LabelsGetter interface

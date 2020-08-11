@@ -6,8 +6,8 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 
-	"github.com/giantswarm/cluster-operator/service/internal/releaseversion"
-	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 const (

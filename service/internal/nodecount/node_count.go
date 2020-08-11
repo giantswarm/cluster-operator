@@ -9,9 +9,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
-	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount/internal/cache"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 type Config struct {

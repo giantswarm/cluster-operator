@@ -11,11 +11,11 @@ import (
 	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/resourcecanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
-	"github.com/giantswarm/cluster-operator/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 const (

@@ -3,7 +3,7 @@ package key
 import (
 	"fmt"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 )
 
 // ClusterConfigMapName returns the cluster name used in the configMap
