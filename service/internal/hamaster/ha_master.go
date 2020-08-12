@@ -6,6 +6,7 @@ import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
+	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -52,6 +53,7 @@ func (h *HAMaster) Enabled(ctx context.Context, cluster string) (bool, error) {
 	err := h.k8sClient.CtrlClient().List(
 		ctx,
 		&list,
+		client.InNamespace(v1.NamespaceAll),
 		client.MatchingLabels{label.Cluster: cluster},
 	)
 	if err != nil {
