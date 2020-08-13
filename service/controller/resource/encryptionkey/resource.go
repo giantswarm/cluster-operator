@@ -26,7 +26,7 @@ type Resource struct {
 // New creates a new configured secret state getter resource managing encryption
 // keys.
 //
-//     https://godoc.org/github.com/giantswarm/operatorkit/resource/k8s/secretresource#StateGetter
+//     https://godoc.org/github.com/giantswarm/operatorkit/v2/pkg/resource/k8s/secretresource#StateGetter
 //
 func New(config Config) (*Resource, error) {
 	if config.K8sClient == nil {

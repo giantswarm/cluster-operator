@@ -1,12 +1,12 @@
 package kubernetes
 
 import (
-	"github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/api"
-	"github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/hyperkube"
-	"github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/ingresscontroller"
-	"github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/kubelet"
-	"github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/networksetup"
-	"github.com/giantswarm/cluster-operator/flag/guest/cluster/kubernetes/ssh"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest/cluster/kubernetes/api"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest/cluster/kubernetes/hyperkube"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest/cluster/kubernetes/ingresscontroller"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest/cluster/kubernetes/kubelet"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest/cluster/kubernetes/networksetup"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest/cluster/kubernetes/ssh"
 )
 
 // Kubernetes is a data structure to hold guest cluster Kubernetes specific

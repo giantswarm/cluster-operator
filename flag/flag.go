@@ -3,8 +3,8 @@ package flag
 import (
 	"github.com/giantswarm/microkit/flag"
 
-	"github.com/giantswarm/cluster-operator/flag/guest"
-	"github.com/giantswarm/cluster-operator/flag/service"
+	"github.com/giantswarm/cluster-operator/v3/flag/guest"
+	"github.com/giantswarm/cluster-operator/v3/flag/service"
 )
 
 // Flag provides data structure for service command line flags.

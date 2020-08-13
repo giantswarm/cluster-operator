@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
 // getCurrentState takes observed custom object as an input and based on that
@@ -32,7 +32,7 @@ func (r *Resource) getCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 
 		for {
-			list, err := r.g8sClient.CoreV1alpha1().CertConfigs(cr.Namespace).List(o)
+			list, err := r.g8sClient.CoreV1alpha1().CertConfigs(cr.Namespace).List(ctx, o)
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}

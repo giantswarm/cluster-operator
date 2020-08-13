@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,7 +20,7 @@ func (r *Resource) applyDeleteChange(ctx context.Context, obj, deleteChange inte
 		for _, certConfig := range certConfigs {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
 
-			err := r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Delete(certConfig.Name, &metav1.DeleteOptions{})
+			err := r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Delete(ctx, certConfig.Name, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {

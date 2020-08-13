@@ -3,15 +3,15 @@ package nodecount
 import (
 	"context"
 
-	"github.com/giantswarm/k8sclient/v3/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/pkg/label"
-	"github.com/giantswarm/cluster-operator/service/internal/nodecount/internal/cache"
-	"github.com/giantswarm/cluster-operator/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount/internal/cache"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 type Config struct {
@@ -144,7 +144,7 @@ func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.
 		return corev1.NodeList{}, microerror.Mask(err)
 	}
 	if client.K8sClient() != nil {
-		nodes, err := client.K8sClient().CoreV1().Nodes().List(metav1.ListOptions{})
+		nodes, err := client.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return corev1.NodeList{}, microerror.Mask(err)
 		}

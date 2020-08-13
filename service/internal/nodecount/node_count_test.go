@@ -5,10 +5,11 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/giantswarm/operatorkit/controller/context/cachekeycontext"
+	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/cachekeycontext"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	tcunittest "github.com/giantswarm/cluster-operator/service/internal/tenantclient/unittest"
-	"github.com/giantswarm/cluster-operator/service/internal/unittest"
+	tcunittest "github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient/unittest"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )
 
 func Test_NodeCount_Cache(t *testing.T) {
@@ -67,7 +68,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 						nodeLabels[controlPlaneKey] = controlPlaneValue
 					}
 					node.SetLabels(nodeLabels)
-					_, err := nc.k8sClient.K8sClient().CoreV1().Nodes().Create(node.DeepCopy())
+					_, err := nc.k8sClient.K8sClient().CoreV1().Nodes().Create(tc.ctx, node.DeepCopy(), metav1.CreateOptions{})
 					if err != nil {
 						t.Fatal(err)
 					}
@@ -90,7 +91,7 @@ func Test_NodeCount_Cache(t *testing.T) {
 				}
 				newNode.ObjectMeta.Name = "ip-10-0-5-50.eu-central-1.compute.internal"
 				newNode.SetLabels(nodeLabels)
-				_, err = nc.k8sClient.K8sClient().CoreV1().Nodes().Create(&newNode)
+				_, err = nc.k8sClient.K8sClient().CoreV1().Nodes().Create(tc.ctx, &newNode, metav1.CreateOptions{})
 				if err != nil {
 					t.Fatal(err)
 				}

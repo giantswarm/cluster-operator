@@ -1,12 +1,12 @@
 package service
 
 import (
-	"github.com/giantswarm/operatorkit/flag/service/kubernetes"
+	"github.com/giantswarm/operatorkit/v2/pkg/flag/service/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/flag/service/image"
-	"github.com/giantswarm/cluster-operator/flag/service/kubeconfig"
-	"github.com/giantswarm/cluster-operator/flag/service/provider"
-	"github.com/giantswarm/cluster-operator/flag/service/release"
+	"github.com/giantswarm/cluster-operator/v3/flag/service/image"
+	"github.com/giantswarm/cluster-operator/v3/flag/service/kubeconfig"
+	"github.com/giantswarm/cluster-operator/v3/flag/service/provider"
+	"github.com/giantswarm/cluster-operator/v3/flag/service/release"
 )
 
 // Service is an intermediate data structure for command line configuration flags.
