@@ -151,7 +151,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
-	appOperatorVersion, err := r.getComponentVersion(clusterConfig.ReleaseVersion, "app-operator")
+	appOperatorVersion, err := r.getComponentVersion(fmt.Sprintf("v%s", clusterConfig.ReleaseVersion), "app-operator")
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
