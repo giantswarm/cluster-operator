@@ -151,6 +151,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	// put `v` as a prefix of release version since all releases CRs keep this format.
 	appOperatorVersion, err := r.getComponentVersion(fmt.Sprintf("v%s", clusterConfig.ReleaseVersion), "app-operator")
 	if err != nil {
 		return nil, microerror.Mask(err)
