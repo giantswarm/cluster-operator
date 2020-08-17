@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Get app-operator version from releases CR. 
+
 ## [0.23.14] - 2020-07-30
 
 - Make NGINX optional on KVM, by ignoring existing NGINX IC App CRs which were managed by cluster-operator.

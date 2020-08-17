@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Masterminds/semver"
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
@@ -152,6 +151,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	// put `v` as a prefix of release version since all releases CRs keep this format.
+	appOperatorVersion, err := r.getComponentVersion(fmt.Sprintf("v%s", clusterConfig.ReleaseVersion), "app-operator")
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	for _, appSpec := range appSpecs {
 		if !hasMigrationCompleted(appSpec, chartConfigs, configMaps, tenantConfigMaps) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q user values not migrated yet, continuing", appSpec.App))
@@ -164,26 +169,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		}
 
 		if !appSpec.ClusterAPIOnly {
-			app := r.newApp(clusterConfig, appSpec, userConfig)
-
-			// For chart-operator only we need to set the Helm major version
-			// label. This is so the correct instance of app-operator processes
-			// the CR.
-			if appSpec.App == chartOperatorAppName {
-				helmMajorVersion := "2"
-
-				version, err := semver.NewVersion(appSpec.Version)
-				if err != nil {
-					return nil, microerror.Mask(err)
-				}
-
-				// For chart-operator 1.0.0 and greater we use Helm 3.
-				if version.Major() >= 1 {
-					helmMajorVersion = "3"
-				}
-
-				app.Labels[label.AppOperatorHelmMajorVersion] = helmMajorVersion
-			}
+			app := r.newApp(clusterConfig, appSpec, userConfig, appOperatorVersion)
 
 			apps = append(apps, app)
 		}
@@ -256,7 +242,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, clusterConfig v1al
 	return u, nil
 }
 
-func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig, appOperatorVersion string) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(clusterConfig)
 
 	// Override config map name when specified.
@@ -275,7 +261,7 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 			},
 			Labels: map[string]string{
 				label.App:                appSpec.App,
-				label.AppOperatorVersion: "1.0.0",
+				label.AppOperatorVersion: appOperatorVersion,
 				label.Cluster:            clusterConfig.ID,
 				label.ManagedBy:          project.Name(),
 				label.Organization:       clusterConfig.Owner,
@@ -377,6 +363,21 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 		specs = append(specs, spec)
 	}
 	return specs, nil
+}
+
+func (r *Resource) getComponentVersion(releaseVersion, component string) (string, error) {
+	release, err := r.g8sClient.ReleaseV1alpha1().Releases().Get(releaseVersion, metav1.GetOptions{})
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	for _, c := range release.Spec.Components {
+		if c.Name == component {
+			return c.Version, nil
+		}
+	}
+
+	return "", microerror.Maskf(notFoundError, fmt.Sprintf("can't find the release version %#q", releaseVersion))
 }
 
 // hasMigrationCompleted checks if the migration from chartconfig to app CR
