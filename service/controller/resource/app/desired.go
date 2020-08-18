@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Masterminds/semver"
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/v2/pkg/apis/application/v1alpha1"
+	"github.com/giantswarm/apiextensions/v2/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -15,7 +15,7 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	pkglabel "github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
@@ -61,28 +61,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
-			app := r.newApp(appOperatorVersion, cr, appSpec, userConfig)
-
-			// For chart-operator only we need to set the Helm major version
-			// label. This is so the correct instance of app-operator processes
-			// the CR.
-			if appSpec.App == chartOperatorAppName {
-				helmMajorVersion := "2"
-
-				version, err := semver.NewVersion(appSpec.Version)
-				if err != nil {
-					return nil, microerror.Mask(err)
-				}
-
-				// For chart-operator 1.0.0 and greater we use Helm 3.
-				if version.Major() >= 1 {
-					helmMajorVersion = "3"
-				}
-
-				app.Labels[label.AppOperatorHelmMajorVersion] = helmMajorVersion
-			}
-
-			apps = append(apps, app)
+			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig))
 		}
 	}
 
@@ -171,12 +150,12 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
 			},
 			Labels: map[string]string{
-				label.App:                appSpec.App,
+				pkglabel.App:             appSpec.App,
 				label.AppOperatorVersion: appOperatorVersion,
 				label.Cluster:            key.ClusterID(&cr),
 				label.ManagedBy:          project.Name(),
 				label.Organization:       key.OrganizationID(&cr),
-				label.ServiceType:        label.ServiceTypeManaged,
+				pkglabel.ServiceType:     pkglabel.ServiceTypeManaged,
 			},
 			Name:      appSpec.App,
 			Namespace: key.ClusterID(&cr),
