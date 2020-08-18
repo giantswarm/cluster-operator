@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.16] - 2020-08-18
 
-## [0.23.15] - 2020-08-17
-
 ### Changed
 
 - Get app-operator version from releases CR. 
