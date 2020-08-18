@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated backward incompatible Kubernetes dependencies to v1.18.5.
 
+### Removed
+
+- Remove Helm major version label for chart-operator app CR as it is not used.
+
 ## [2.3.2] - 2020-07-31
 
 - Handle error basedomain not found gracefully, so that G8sControlPlane CR and MachineDeployment CRs can be deleted
