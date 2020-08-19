@@ -8,7 +8,6 @@ require (
 	github.com/giantswarm/certs/v3 v3.0.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
-	github.com/giantswarm/k8sclient/v3 v3.1.2
 	github.com/giantswarm/k8sclient/v4 v4.0.0
 	github.com/giantswarm/kubeconfig/v2 v2.0.0
 	github.com/giantswarm/microendpoint v0.2.0
