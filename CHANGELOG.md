@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed condition where reference id does not match with G8sControlplane or MachineDeployment
+
 ## [3.0.0] - 2020-08-18
 
 ### Changed
