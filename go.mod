@@ -1,4 +1,4 @@
-module github.com/giantswarm/cluster-operator
+module github.com/giantswarm/cluster-operator/v2
 
 go 1.14
 
