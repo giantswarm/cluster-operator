@@ -10,6 +10,7 @@ import (
 	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
+	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/pkg/label"
@@ -67,7 +68,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromMachineDeployment(md)), cr)
+		err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: md.Name, Namespace: md.Namespace}, cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
