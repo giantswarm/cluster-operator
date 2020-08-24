@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add NetworkPolicy.
 
+## [3.0.1] - 2020-08-21
+
 ### Fixed
 
 - Fixed condition where reference id does not match with G8sControlplane or MachineDeployment
@@ -135,7 +137,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/giantswarm/cluster-operator/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/giantswarm/cluster-operator/compare/v2.3.2...v3.0.0
 [2.3.2]: https://github.com/giantswarm/cluster-operator/compare/v2.3.1...v2.3.2
 [2.3.1]: https://github.com/giantswarm/cluster-operator/compare/v2.3.0...v2.3.1
