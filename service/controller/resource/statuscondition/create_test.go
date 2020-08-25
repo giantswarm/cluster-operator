@@ -60,7 +60,6 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 	if !(status.Conditions[0].Condition == "Updated") {
 		t.Fatal("First condition has to be 'Updated', we expect status condition to be set")
 	}
-
 }
 
 func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
