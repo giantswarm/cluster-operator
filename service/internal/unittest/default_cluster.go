@@ -1,6 +1,8 @@
 package unittest
 
 import (
+	"time"
+
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v2/pkg/apis/infrastructure/v1alpha2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -16,7 +18,7 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 		ObjectMeta: metav1.ObjectMeta{
 			Labels: map[string]string{
 				label.Cluster:         DefaultClusterID,
-				label.OperatorVersion: "7.3.0",
+				label.OperatorVersion: "3.1.1",
 				label.Release:         "100.0.0",
 			},
 			Name:      DefaultClusterID,
@@ -42,6 +44,24 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 			},
 		},
 		Status: infrastructurev1alpha2.AWSClusterStatus{
+			Cluster: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					{
+						LastTransitionTime: metav1.NewTime(time.Now().Add(-90 * time.Minute)),
+						Condition:          "Creating",
+					},
+					{
+						LastTransitionTime: metav1.NewTime(time.Now().Add(-60 * time.Minute)),
+						Condition:          "Created",
+					},
+					{
+						LastTransitionTime: metav1.NewTime(time.Now().Add(-15 * time.Minute)),
+						Condition:          "Updating",
+					},
+				},
+				ID:       "yolo1",
+				Versions: nil,
+			},
 			Provider: infrastructurev1alpha2.AWSClusterStatusProvider{
 				Network: infrastructurev1alpha2.AWSClusterStatusProviderNetwork{
 					CIDR: "10.0.0.0/24",
