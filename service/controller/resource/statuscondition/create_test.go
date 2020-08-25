@@ -15,6 +15,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )
 
+// TestComputeCreateClusterStatusConditions assumes a cluster upgrade is updating and expects updated to be set
 func TestComputeCreateClusterStatusConditions(t *testing.T) {
 	fakeK8sClient := unittest.FakeK8sClient()
 	workerNode := unittest.NewWorkerNode()
@@ -45,7 +46,10 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 
 	// create a new release
 	release := unittest.DefaultRelease()
-	fakeK8sClient.CtrlClient().Create(ctx, release.DeepCopy())
+	err = fakeK8sClient.CtrlClient().Create(ctx, release.DeepCopy())
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	cluster := unittest.DefaultCluster()
 	cps := []infrastructurev1alpha2.G8sControlPlane{unittest.DefaultControlPlane()}
@@ -57,7 +61,7 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 	}
 	status := cluster.GetCommonClusterStatus()
 
-	if !(status.Conditions[0].Condition == "Updated") {
+	if status.Conditions[0].Condition != "Updated" {
 		t.Fatal("First condition has to be 'Updated', we expect status condition to be set")
 	}
 }
