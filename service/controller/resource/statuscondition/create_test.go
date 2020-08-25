@@ -8,10 +8,11 @@ import (
 	"github.com/giantswarm/micrologger/microloggertest"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
+	v1 "k8s.io/api/core/v1"
+
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 	tcunittest "github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient/unittest"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
-	v1 "k8s.io/api/core/v1"
 )
 
 func TestComputeCreateClusterStatusConditions(t *testing.T) {
