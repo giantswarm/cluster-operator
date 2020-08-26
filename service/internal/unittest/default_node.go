@@ -38,8 +38,9 @@ func NewWorkerNode() corev1.Node {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "ip-10-0-5-28.eu-central-1.compute.internal",
 			Labels: map[string]string{
-				"node-role.kubernetes.io/worker":   "",
-				"giantswarm.io/machine-deployment": "abc123",
+				"node-role.kubernetes.io/worker":     "",
+				"giantswarm.io/machine-deployment":   "",
+				"aws-operator.giantswarm.io/version": "8.7.5",
 			},
 			ClusterName: "",
 		},
@@ -75,8 +76,9 @@ func NewMasterNode() corev1.Node {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "ip-10-0-5-29.eu-central-1.compute.internal",
 			Labels: map[string]string{
-				"node-role.kubernetes.io/master": "",
-				"giantswarm.io/control-plane":    "",
+				"node-role.kubernetes.io/master":     "",
+				"giantswarm.io/control-plane":        "",
+				"aws-operator.giantswarm.io/version": "8.7.5",
 			},
 			ClusterName: "",
 		},

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix cluster status is not updated during cluster upgrade
+
 ## [3.1.0] - 2020-08-24
 
 ### Added
