@@ -5,7 +5,7 @@ var (
 	gitSHA      = "n/a"
 	name        = "cluster-operator"
 	source      = "https://github.com/giantswarm/cluster-operator"
-	version     = "3.1.2-dev"
+	version     = "3.1.1"
 )
 
 func Description() string {
