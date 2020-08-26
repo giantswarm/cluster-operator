@@ -2,9 +2,12 @@ package statuscondition
 
 import (
 	"context"
+	"strconv"
 	"testing"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v2/pkg/apis/infrastructure/v1alpha2"
+	"github.com/giantswarm/apiextensions/v2/pkg/apis/release/v1alpha1"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/micrologger/microloggertest"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
@@ -15,54 +18,74 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )
 
-// TestComputeCreateClusterStatusConditions assumes a cluster upgrade is updating and expects updated to be set
 func TestComputeCreateClusterStatusConditions(t *testing.T) {
-	fakeK8sClient := unittest.FakeK8sClient()
-	workerNode := unittest.NewWorkerNode()
-	masterNode := unittest.NewMasterNode()
-	nodes := []v1.Node{masterNode, workerNode}
+	testCases := []struct {
+		name          string
+		cluster       infrastructurev1alpha2.AWSCluster
+		ctx           context.Context
+		fakek8sclient k8sclient.Interface
+		release       v1alpha1.Release
 
-	var rv *releaseversion.ReleaseVersion
-	var err error
-	{
-		c := releaseversion.Config{
-			K8sClient: fakeK8sClient,
-		}
-		rv, err = releaseversion.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		expectCondition string
+	}{
+		// This is the case where we simulating a cluster upgrade with condition `Updating` and we expect condition `Updated` to be set
+		{
+			name:          "case 0",
+			cluster:       unittest.DefaultCluster(),
+			ctx:           context.Background(),
+			fakek8sclient: unittest.FakeK8sClient(),
+			release:       unittest.DefaultRelease(),
+
+			expectCondition: "Updated",
+		},
 	}
 
-	r := Resource{
-		k8sClient:                  fakeK8sClient,
-		logger:                     microloggertest.New(),
-		releaseVersion:             rv,
-		tenantClient:               tcunittest.FakeTenantClient(fakeK8sClient),
-		newCommonClusterObjectFunc: newCommonClusterObjectFunc("aws"),
-		provider:                   "aws",
-	}
-	ctx := context.TODO()
+	for i, tc := range testCases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
 
-	// create a new release
-	release := unittest.DefaultRelease()
-	err = fakeK8sClient.CtrlClient().Create(ctx, release.DeepCopy())
-	if err != nil {
-		t.Fatal(err)
-	}
+			workerNode := unittest.NewWorkerNode()
+			masterNode := unittest.NewMasterNode()
+			nodes := []v1.Node{masterNode, workerNode}
 
-	cluster := unittest.DefaultCluster()
-	cps := []infrastructurev1alpha2.G8sControlPlane{unittest.DefaultControlPlane()}
-	mds := []apiv1alpha2.MachineDeployment{unittest.DefaultMachineDeployment()}
+			var rv *releaseversion.ReleaseVersion
+			var err error
+			{
+				c := releaseversion.Config{
+					K8sClient: tc.fakek8sclient,
+				}
+				rv, err = releaseversion.New(c)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
 
-	err = r.computeCreateClusterStatusConditions(ctx, &cluster, nodes, cps, mds)
-	if err != nil {
-		t.Fatal(err)
-	}
-	status := cluster.GetCommonClusterStatus()
+			r := Resource{
+				k8sClient:                  tc.fakek8sclient,
+				logger:                     microloggertest.New(),
+				releaseVersion:             rv,
+				tenantClient:               tcunittest.FakeTenantClient(tc.fakek8sclient),
+				newCommonClusterObjectFunc: newCommonClusterObjectFunc("aws"),
+				provider:                   "aws",
+			}
 
-	if status.Conditions[0].Condition != "Updated" {
-		t.Fatal("First condition has to be 'Updated', we expect status condition to be set")
+			err = tc.fakek8sclient.CtrlClient().Create(tc.ctx, &tc.release)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			cps := []infrastructurev1alpha2.G8sControlPlane{unittest.DefaultControlPlane()}
+			mds := []apiv1alpha2.MachineDeployment{unittest.DefaultMachineDeployment()}
+
+			err = r.computeCreateClusterStatusConditions(tc.ctx, &tc.cluster, nodes, cps, mds)
+			if err != nil {
+				t.Fatal(err)
+			}
+			status := tc.cluster.GetCommonClusterStatus()
+
+			if status.Conditions[0].Condition != tc.expectCondition {
+				t.Fatalf("expected %#q to differ from %#q", tc.expectCondition, status.Conditions[0].Condition)
+			}
+		})
 	}
 }
 

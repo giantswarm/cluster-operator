@@ -47,16 +47,16 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 			Cluster: infrastructurev1alpha2.CommonClusterStatus{
 				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
 					{
-						LastTransitionTime: metav1.NewTime(time.Now().Add(-90 * time.Minute)),
-						Condition:          "Creating",
+						LastTransitionTime: metav1.NewTime(time.Now().Add(-15 * time.Minute)),
+						Condition:          "Updating",
 					},
 					{
 						LastTransitionTime: metav1.NewTime(time.Now().Add(-60 * time.Minute)),
 						Condition:          "Created",
 					},
 					{
-						LastTransitionTime: metav1.NewTime(time.Now().Add(-15 * time.Minute)),
-						Condition:          "Updating",
+						LastTransitionTime: metav1.NewTime(time.Now().Add(-90 * time.Minute)),
+						Condition:          "Creating",
 					},
 				},
 				ID:       "yolo1",
