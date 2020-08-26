@@ -34,6 +34,10 @@ func DefaultRelease() releasev1alpha1.Release {
 					Version: "1.0.0",
 				},
 				{
+					Name:    "aws-operator",
+					Version: "8.7.5",
+				},
+				{
 					Name:    "cert-operator",
 					Version: "1.0.0",
 				},
