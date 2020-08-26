@@ -220,7 +220,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		isUpdating := status.HasUpdatingCondition()
 		notUpdated := !status.HasUpdatedCondition()
 		sameMasterCount := readyMasterReplicas != 0 && readyMasterReplicas == desiredMasterReplicas
-		sameWorkerCount := readyWorkerReplicas != 0 && readyMasterReplicas == desiredWorkerReplicas
+		sameWorkerCount := readyWorkerReplicas != 0 && readyWorkerReplicas == desiredWorkerReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
 		if isUpdating && notUpdated && sameMasterCount && sameWorkerCount && sameVersion {
@@ -235,7 +235,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		hasTransitioned := status.HasCreatedCondition() || status.HasUpdatedCondition()
 		notSet := !status.HasVersion(desiredVersion)
 		sameMasterCount := readyMasterReplicas != 0 && readyMasterReplicas == desiredMasterReplicas
-		sameWorkerCount := readyWorkerReplicas != 0 && readyWorkerReplicas == desiredMasterReplicas
+		sameWorkerCount := readyWorkerReplicas != 0 && readyWorkerReplicas == desiredWorkerReplicas
 		sameVersion := allNodesHaveVersion(nodes, desiredVersion, providerOperatorVersionLabel)
 
 		if hasTransitioned && notSet && sameMasterCount && sameWorkerCount && sameVersion {
