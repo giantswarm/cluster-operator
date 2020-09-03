@@ -116,7 +116,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of control plane")
 		r.event.Emit(ctx, cr, "ControlPlaneUpdated",
-			fmt.Sprintf("Updated status of control plane, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
+			fmt.Sprintf("updated status of control plane, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
 		)
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, cr)

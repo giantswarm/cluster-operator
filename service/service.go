@@ -248,6 +248,7 @@ func New(config Config) (*Service, error) {
 		c := controller.ClusterConfig{
 			BaseDomain:     bd,
 			CertsSearcher:  certsSearcher,
+			Event:          eventRecorder,
 			FileSystem:     afero.NewOsFs(),
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,

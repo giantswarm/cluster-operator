@@ -124,7 +124,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of machine deployment")
 		r.event.Emit(ctx, cr, "MachineDeploymentUpdated",
-			fmt.Sprintf("Updated status of machine deployment, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
+			fmt.Sprintf("updated status of machine deployment, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
 		)
 
 		if key.IsDeleted(cr) {

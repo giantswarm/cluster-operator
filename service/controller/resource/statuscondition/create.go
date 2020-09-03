@@ -181,6 +181,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if notCreating && conditionsEmpty && versionsEmpty {
 			status.Conditions = status.WithCreatingCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreating))
+			r.event.Emit(ctx, cr, "ClusterInCreation", fmt.Sprintf("cluster creation is in condition %s", infrastructurev1alpha2.ClusterStatusConditionCreating))
 		}
 	}
 
@@ -196,6 +197,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if isCreating && notCreated && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Conditions = status.WithCreatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreated))
+			r.event.Emit(ctx, cr, "ClusterCreated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionCreated))
 		}
 	}
 
@@ -210,6 +212,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if isCreated && notUpdating && versionDiffers {
 			status.Conditions = status.WithUpdatingCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdating))
+			r.event.Emit(ctx, cr, "ClusterIsUpdating", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionUpdating))
 		}
 	}
 
@@ -226,6 +229,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if isUpdating && notUpdated && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Conditions = status.WithUpdatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdated))
+			r.event.Emit(ctx, cr, "ClusterUpdated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionUpdated))
 		}
 	}
 
@@ -241,6 +245,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if hasTransitioned && notSet && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Versions = status.WithNewVersion(desiredVersion)
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting status versions with new version: %q", desiredVersion))
+			r.event.Emit(ctx, cr, "ClusterVersionUpdated", fmt.Sprintf("cluster status set with new version: %q", desiredVersion))
 		}
 	}
 

@@ -43,6 +43,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/hamaster"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
@@ -52,6 +53,7 @@ import (
 type ClusterConfig struct {
 	BaseDomain     basedomain.Interface
 	CertsSearcher  certs.Interface
+	Event          recorder.Interface
 	FileSystem     afero.Fs
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
@@ -485,6 +487,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var statusConditionResource resource.Interface
 	{
 		c := statuscondition.Config{
+			Event:          config.Event,
 			K8sClient:      config.K8sClient,
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
