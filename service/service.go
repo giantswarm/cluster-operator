@@ -278,6 +278,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := controller.ControlPlaneConfig{
 			BaseDomain:     bd,
+			Event:          eventRecorder,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
 			NodeCount:      nc,
