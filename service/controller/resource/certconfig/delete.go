@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/azure-operator/service/controller/key"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/resource/crud"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/giantswarm/cluster-operator/pkg/project"
 )
 
 func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
@@ -89,7 +92,10 @@ func (r *Resource) newDeleteChangeForUpdatePatch(ctx context.Context, obj, curre
 		_, err := getCertConfigByName(desiredCertConfigs, currentCertConfig.Name)
 		// Existing CertConfig is not desired anymore so it should be deleted.
 		if IsNotFound(err) {
-			certConfigsToDelete = append(certConfigsToDelete, currentCertConfig)
+			// Only delete a CertConfig if it is managed by ClusterOperator.
+			if currentCertConfig.Labels[key.LabelManagedBy] == project.Name() {
+				certConfigsToDelete = append(certConfigsToDelete, currentCertConfig)
+			}
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}

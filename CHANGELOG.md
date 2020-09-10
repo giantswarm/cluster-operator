@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Only delete CertConfigs that have the "managed-by" label set to "cluster-operator".
+
 ## [0.23.16] - 2020-08-18
 
 ### Changed
