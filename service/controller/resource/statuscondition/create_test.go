@@ -86,10 +86,12 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 				t.Fatal(err)
 			}
 
+			cl := apiv1alpha2.Cluster{}
+
 			cps := []infrastructurev1alpha2.G8sControlPlane{unittest.DefaultControlPlane()}
 			mds := []apiv1alpha2.MachineDeployment{unittest.DefaultMachineDeployment()}
 
-			err = r.computeCreateClusterStatusConditions(tc.ctx, &tc.cluster, nodes, cps, mds)
+			err = r.computeCreateClusterStatusConditions(tc.ctx, cl, &tc.cluster, nodes, cps, mds)
 			if err != nil {
 				t.Fatal(err)
 			}
