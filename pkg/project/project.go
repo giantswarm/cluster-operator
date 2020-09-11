@@ -1,12 +1,12 @@
 package project
 
 var (
-	bundleVersion = "0.23.16"
+	bundleVersion = "0.23.16-dev"
 	description   = "The cluster-operator manages Kubernetes tenant cluster resources."
 	gitSHA        = "n/a"
 	name          = "cluster-operator"
 	source        = "https://github.com/giantswarm/cluster-operator"
-	version       = "0.23.16"
+	version       = "0.23.16-dev"
 )
 
 func BundleVersion() string {
