@@ -45,12 +45,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding cluster")
 
-		cl, err := key.ToCluster(obj)
+		c, err := key.ToCluster(obj)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: cl.GetName(), Namespace: cl.GetNamespace()}, &cr)
+		err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: c.GetName(), Namespace: c.GetNamespace()}, &cl)
 		if err != nil {
 			return microerror.Mask(err)
 		}
