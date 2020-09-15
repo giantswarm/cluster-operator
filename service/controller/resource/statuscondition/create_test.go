@@ -8,11 +8,13 @@ import (
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v2/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/apiextensions/v2/pkg/apis/release/v1alpha1"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v4/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	v1 "k8s.io/api/core/v1"
 
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 	tcunittest "github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient/unittest"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
@@ -47,8 +49,18 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 			masterNode := unittest.NewMasterNode()
 			nodes := []v1.Node{masterNode, workerNode}
 
-			var rv *releaseversion.ReleaseVersion
 			var err error
+			var e recorder.Interface
+			{
+				c := recorder.Config{
+					K8sClient: k8sclienttest.NewEmpty(),
+				}
+				e = recorder.New(c)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			var rv *releaseversion.ReleaseVersion
 			{
 				c := releaseversion.Config{
 					K8sClient: tc.fakek8sclient,
@@ -60,6 +72,7 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 			}
 
 			r := Resource{
+				event:                      e,
 				k8sClient:                  tc.fakek8sclient,
 				logger:                     microloggertest.New(),
 				releaseVersion:             rv,
@@ -73,10 +86,12 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 				t.Fatal(err)
 			}
 
+			cl := apiv1alpha2.Cluster{}
+
 			cps := []infrastructurev1alpha2.G8sControlPlane{unittest.DefaultControlPlane()}
 			mds := []apiv1alpha2.MachineDeployment{unittest.DefaultMachineDeployment()}
 
-			err = r.computeCreateClusterStatusConditions(tc.ctx, &tc.cluster, nodes, cps, mds)
+			err = r.computeCreateClusterStatusConditions(tc.ctx, cl, &tc.cluster, nodes, cps, mds)
 			if err != nil {
 				t.Fatal(err)
 			}

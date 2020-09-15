@@ -11,6 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -38,6 +39,23 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		uc = cr.DeepCopyObject().(infrastructurev1alpha2.CommonClusterObject)
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
+	}
+
+	var cl apiv1alpha2.Cluster
+	{
+		r.logger.LogCtx(ctx, "level", "debug", "message", "finding cluster")
+
+		c, err := key.ToCluster(obj)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		err = r.k8sClient.CtrlClient().Get(ctx, types.NamespacedName{Name: c.GetName(), Namespace: c.GetNamespace()}, &cl)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		r.logger.LogCtx(ctx, "level", "debug", "message", "found cluster")
 	}
 
 	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
@@ -99,7 +117,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
 	}
 
-	err = r.computeCreateClusterStatusConditions(ctx, uc, nodes, cpList.Items, mdList.Items)
+	err = r.computeCreateClusterStatusConditions(ctx, cl, uc, nodes, cpList.Items, mdList.Items)
 	if err != nil {
 		return microerror.Mask(err)
 	}
@@ -123,7 +141,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha2.G8sControlPlane, machineDeployments []apiv1alpha2.MachineDeployment) error {
+func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cl apiv1alpha2.Cluster, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha2.G8sControlPlane, machineDeployments []apiv1alpha2.MachineDeployment) error {
 	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
 	if err != nil {
 		return microerror.Mask(err)
@@ -181,6 +199,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if notCreating && conditionsEmpty && versionsEmpty {
 			status.Conditions = status.WithCreatingCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreating))
+			r.event.Emit(ctx, &cl, "ClusterInCreation", fmt.Sprintf("cluster creation is in condition %s", infrastructurev1alpha2.ClusterStatusConditionCreating))
 		}
 	}
 
@@ -196,6 +215,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if isCreating && notCreated && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Conditions = status.WithCreatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreated))
+			r.event.Emit(ctx, &cl, "ClusterCreated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionCreated))
 		}
 	}
 
@@ -210,6 +230,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if isCreated && notUpdating && versionDiffers {
 			status.Conditions = status.WithUpdatingCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdating))
+			r.event.Emit(ctx, &cl, "ClusterIsUpdating", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionUpdating))
 		}
 	}
 
@@ -226,6 +247,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if isUpdating && notUpdated && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Conditions = status.WithUpdatedCondition()
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdated))
+			r.event.Emit(ctx, &cl, "ClusterUpdated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionUpdated))
 		}
 	}
 
@@ -241,6 +263,7 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cr 
 		if hasTransitioned && notSet && sameMasterCount && sameWorkerCount && sameVersion {
 			status.Versions = status.WithNewVersion(desiredVersion)
 			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting status versions with new version: %q", desiredVersion))
+			r.event.Emit(ctx, &cl, "ClusterVersionUpdated", fmt.Sprintf("cluster status set with new version: %q", desiredVersion))
 		}
 	}
 

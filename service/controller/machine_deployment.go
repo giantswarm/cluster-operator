@@ -23,11 +23,13 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updateinfrarefs"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
 type MachineDeploymentConfig struct {
 	BaseDomain     basedomain.Interface
+	Event          recorder.Interface
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
 	NodeCount      nodecount.Interface
@@ -119,6 +121,7 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 	var machineDeploymentStatusResource resource.Interface
 	{
 		c := machinedeploymentstatus.Config{
+			Event:     config.Event,
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NodeCount: config.NodeCount,

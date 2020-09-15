@@ -17,6 +17,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
@@ -25,18 +26,23 @@ const (
 )
 
 type Config struct {
+	Event     recorder.Interface
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 	NodeCount nodecount.Interface
 }
 
 type Resource struct {
+	event     recorder.Interface
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 	nodeCount nodecount.Interface
 }
 
 func New(config Config) (*Resource, error) {
+	if config.Event == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Event must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -48,6 +54,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
+		event:     config.Event,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 		nodeCount: config.NodeCount,
@@ -116,6 +123,9 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 		}
 
 		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of machine deployment")
+		r.event.Emit(ctx, cr, "MachineDeploymentUpdated",
+			fmt.Sprintf("updated status of machine deployment, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
+		)
 
 		if key.IsDeleted(cr) {
 			r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")

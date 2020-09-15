@@ -22,12 +22,14 @@ import (
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/v3/flag"
+	"github.com/giantswarm/cluster-operator/v3/pkg/project"
 	"github.com/giantswarm/cluster-operator/v3/service/collector"
 	"github.com/giantswarm/cluster-operator/v3/service/controller"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
@@ -231,11 +233,23 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var eventRecorder recorder.Interface
+	{
+		c := recorder.Config{
+			K8sClient: k8sClient,
+
+			Component: fmt.Sprintf("%s-%s", project.Name(), project.Version()),
+		}
+
+		eventRecorder = recorder.New(c)
+	}
+
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
 			BaseDomain:     bd,
 			CertsSearcher:  certsSearcher,
+			Event:          eventRecorder,
 			FileSystem:     afero.NewOsFs(),
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
@@ -265,6 +279,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := controller.ControlPlaneConfig{
 			BaseDomain:     bd,
+			Event:          eventRecorder,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
 			NodeCount:      nc,
@@ -284,6 +299,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := controller.MachineDeploymentConfig{
 			BaseDomain:     bd,
+			Event:          eventRecorder,
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
 			NodeCount:      nc,

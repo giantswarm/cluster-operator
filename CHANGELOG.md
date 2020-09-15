@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Introducing Kubernetes events
 - Add monitoring labels.
 
 ## [3.1.1] - 2020-08-26
