@@ -39,16 +39,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	// we fall through and compute the desired encryption key secret so it gets
 	// created.
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), SecretNamespace))
 
-		secret, err := r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, secretName(cr), metav1.GetOptions{})
+		secret, err := r.k8sClient.CoreV1().Secrets(SecretNamespace).Get(ctx, secretName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), SecretNamespace))
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), SecretNamespace))
 			return []*corev1.Secret{secret}, nil
 		}
 	}
@@ -65,7 +65,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		secret = &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName(cr),
-				Namespace: cr.Namespace,
+				Namespace: SecretNamespace,
 				Labels: map[string]string{
 					label.Cluster:   key.ClusterID(&cr),
 					label.ManagedBy: project.Name(),

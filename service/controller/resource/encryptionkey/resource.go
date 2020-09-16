@@ -9,6 +9,8 @@ import (
 const (
 	// Name is the identifier of the resource.
 	Name = "encryptionkey"
+	// SecretNamespace is the namespace in which the secret should be stored
+	SecretNamespace = "default"
 )
 
 // Config represents the configuration used to create a new cloud config resource.
