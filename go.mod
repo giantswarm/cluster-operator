@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v2 v2.1.0
-	github.com/giantswarm/certs/v3 v3.0.0
+	github.com/giantswarm/certs/v3 v3.0.1-0.20200917104320-503ea3d8f24e
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
 	github.com/giantswarm/k8sclient/v4 v4.0.0
@@ -16,7 +16,7 @@ require (
 	github.com/giantswarm/micrologger v0.3.1
 	github.com/giantswarm/operatorkit/v2 v2.0.0
 	github.com/giantswarm/resource/v2 v2.0.0
-	github.com/giantswarm/tenantcluster/v3 v3.0.0
+	github.com/giantswarm/tenantcluster/v3 v3.0.1-0.20200917110635-386a89362e05
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.7.1
 	github.com/spf13/afero v1.4.0
