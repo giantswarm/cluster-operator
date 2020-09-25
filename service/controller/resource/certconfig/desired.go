@@ -286,7 +286,7 @@ func (r *Resource) newSpecForPrometheus(ctx context.Context, bd string, cr apiv1
 func (r *Resource) newSpecForPrometheusEtcdClient(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
 	return corev1alpha1.CertConfigSpecCert{
 		AllowBareDomains: true,
-		ClusterComponent: certs.PrometheusEtcdClient.String(),
+		ClusterComponent: certs.PrometheusEtcdClientCert.String(),
 		ClusterID:        key.ClusterID(&cr),
 		CommonName:       fmt.Sprintf("prometheus-etcd-client.%s.k8s.%s", key.ClusterID(&cr), bd),
 		TTL:              r.certTTL,
