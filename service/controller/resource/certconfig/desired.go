@@ -70,6 +70,7 @@ func (r *Resource) getDesiredState(ctx context.Context, obj interface{}) (interf
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForClusterOperator(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForNodeOperator(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForPrometheus(ctx, bd, cr)))
+		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForPrometheusEtcdClient(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForServiceAccount(ctx, bd, cr)))
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForWorker(ctx, bd, cr)))
 
@@ -279,6 +280,16 @@ func (r *Resource) newSpecForPrometheus(ctx context.Context, bd string, cr apiv1
 		//
 		Organizations: []string{"system:masters"},
 		TTL:           r.certTTL,
+	}
+}
+
+func (r *Resource) newSpecForPrometheusEtcdClient(ctx context.Context, bd string, cr apiv1alpha2.Cluster) corev1alpha1.CertConfigSpecCert {
+	return corev1alpha1.CertConfigSpecCert{
+		AllowBareDomains: true,
+		ClusterComponent: certs.PrometheusEtcdClientCert.String(),
+		ClusterID:        key.ClusterID(&cr),
+		CommonName:       fmt.Sprintf("prometheus-etcd-client.%s.k8s.%s", key.ClusterID(&cr), bd),
+		TTL:              r.certTTL,
 	}
 }
 
