@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added etcd client certificates for Prometheus.
+- Add etcd client certificates for Prometheus.
 
 ### Fixed
 
