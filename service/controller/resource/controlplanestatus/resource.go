@@ -79,21 +79,28 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 	}
+
 	masterNodes, err := r.nodeCount.MasterCount(ctx, cr)
 	if tenantclient.IsNotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)))
+		r.logger.LogCtx(
+			ctx,
+			"level", "debug",
+			"message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)),
+			"reason", "tenant cluster api not available yet",
+		)
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if basedomain.IsNotFound(err) {
 		// in case of a cluster deletion AWSCluster CR does not exist anymore, handle basedomain error gracefully
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting basedomain for tenant client %#q", key.ClusterID(cr)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting basedomain for tenant cluster %#q", key.ClusterID(cr)))
 		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
+
 	{
 		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of control plane needs to be updated")
 

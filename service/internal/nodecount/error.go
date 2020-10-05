@@ -19,12 +19,3 @@ var notFoundError = &microerror.Error{
 func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
-
-var tenantClusterNotInitializedError = &microerror.Error{
-	Kind: "tentantClusterNotInitializedError",
-}
-
-// IsTenantClusterNotInitialized asserts tenantClusterNotInitializedError.
-func IsTenantClusterNotInitialized(err error) bool {
-	return microerror.Cause(err) == tenantClusterNotInitializedError
-}

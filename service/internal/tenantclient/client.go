@@ -3,7 +3,6 @@ package tenantclient
 import (
 	"context"
 
-	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -83,11 +82,10 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 		}
 
 		k8sClient, err = k8sclient.NewClients(c)
-		if tenant.IsAPINotAvailable(err) {
-			return nil, microerror.Mask(notAvailableError)
-		} else if err != nil {
-			return nil, microerror.Mask(err)
+		if err != nil {
+			return nil, microerror.Maskf(notAvailableError, err.Error())
 		}
 	}
+
 	return k8sClient, nil
 }

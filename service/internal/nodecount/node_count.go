@@ -143,16 +143,15 @@ func (nc *NodeCount) lookupNodes(ctx context.Context, cr metav1.Object) (corev1.
 	if err != nil {
 		return corev1.NodeList{}, microerror.Mask(err)
 	}
-	if client.K8sClient() != nil {
-		nodes, err := client.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
-		if err != nil {
-			return corev1.NodeList{}, microerror.Mask(err)
-		}
 
-		if len(nodes.Items) == 0 {
-			return corev1.NodeList{}, nil
-		}
-		return *nodes, nil
+	nodes, err := client.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return corev1.NodeList{}, microerror.Mask(err)
 	}
-	return corev1.NodeList{}, microerror.Mask(tenantClusterNotInitializedError)
+
+	if len(nodes.Items) == 0 {
+		return corev1.NodeList{}, nil
+	}
+
+	return *nodes, nil
 }
