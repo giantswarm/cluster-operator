@@ -6,7 +6,6 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v2 v2.6.2
 	github.com/giantswarm/certs/v3 v3.1.0
-	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
 	github.com/giantswarm/k8sclient/v4 v4.0.0
 	github.com/giantswarm/kubeconfig/v2 v2.0.0

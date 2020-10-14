@@ -6,7 +6,6 @@ import (
 	"reflect"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v2/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v2/pkg/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
@@ -17,7 +16,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -59,23 +57,23 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
-	if tenantclient.IsNotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
-	} else if err != nil {
-		return microerror.Mask(err)
+	if err != nil {
+		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client not available yet", "stack", microerror.JSON(err))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		return nil
 	}
 
 	var nodes []corev1.Node
 	if tenantClient != nil {
 		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
 		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
-		if tenant.IsAPINotAvailable(err) {
+		if err != nil {
 			// During cluster creation / upgrade the tenant API is naturally not
 			// available but this resource must still continue execution as that's
 			// when `Creating` and `Upgrading` conditions may need to be applied.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-		} else if err != nil {
-			return microerror.Mask(err)
+			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet", "stack", microerror.JSON(err))
+			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			return nil
 		} else {
 			nodes = l.Items
 
