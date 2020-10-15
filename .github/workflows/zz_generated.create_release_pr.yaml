@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       base: ${{ steps.gather_facts.outputs.base }}
+      skip: ${{ steps.pr_exists.outputs.skip }}
       version: ${{ steps.gather_facts.outputs.version }}
     steps:
       - name: Gather facts
@@ -42,9 +43,9 @@ jobs:
           echo "::set-output name=head::${head}"
           echo "::set-output name=version::${version}"
       - name: Check if PR exists
+        id: pr_exists
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        id: pr_exists
         run: |
           if gh pr view --repo ${{ github.repository }} ${{ github.event.ref }} ; then
             echo "::warning::Release PR already exists"
