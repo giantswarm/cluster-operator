@@ -47,7 +47,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         id: pr_exists
         run: |
-          if gh pr view ${{ steps.gather_facts.outputs.head }} ; then
+          if gh pr view ${{ steps.gather_facts.outputs.head }} --repo ${{ github.repository }} ; then
             echo "::warning::Release PR already exists"
             echo "::set-output name=skip::true"
           else
