@@ -42,12 +42,14 @@ jobs:
           echo "::set-output name=base::${base}"
           echo "::set-output name=head::${head}"
           echo "::set-output name=version::${version}"
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Check if PR exists
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         id: pr_exists
         run: |
-          if gh pr view ${{ steps.gather_facts.outputs.head }} --repo ${{ github.repository }} ; then
+          if gh pr view ; then
             echo "::warning::Release PR already exists"
             echo "::set-output name=skip::true"
           else
