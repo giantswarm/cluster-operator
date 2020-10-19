@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/clusterclient/service/release/searcher"
-	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
@@ -21,7 +19,6 @@ import (
 	"github.com/giantswarm/cluster-operator/pkg/label"
 	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
-	pkgerrors "github.com/giantswarm/cluster-operator/service/controller/internal/errors"
 	"github.com/giantswarm/cluster-operator/service/controller/key"
 )
 
@@ -48,11 +45,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
-	// TODO: Remove connection to tenant cluster once all tenant clusters use
-	// app CRs instead of chartconfig CRs.
-	//
-	//	https://github.com/giantswarm/giantswarm/issues/7402
-	//
 	cc, err := controllercontext.FromContext(ctx)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -72,79 +64,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, nil
 	}
 
-	listOptions := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
-	}
-
-	ch := make(chan struct{})
-
-	var chartConfigList *v1alpha1.ChartConfigList
-
-	go func() {
-		chartConfigList, err = cc.Client.TenantCluster.G8s.CoreV1alpha1().ChartConfigs("giantswarm").List(listOptions)
-		close(ch)
-	}()
-
-	select {
-	case <-ch:
-		// Fall through.
-	case <-time.After(3 * time.Second):
-		// Set status so we don't try to connect to the tenant cluster
-		// again in this reconciliation loop.
-		cc.Status.TenantCluster.IsUnavailable = true
-
-		r.logger.LogCtx(ctx, "level", "debug", "message", "timeout getting chartconfig crs")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		return nil, nil
-	}
-
-	if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
-	} else if pkgerrors.IsChartConfigNotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRs are not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
-	} else if pkgerrors.IsChartConfigNotInstalled(err) {
-		// chartconfig CRD is not installed. So this cluster does not need
-		// any CRs to be migrated.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "chartconfig CRD not installed")
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	chartConfigs := map[string]v1alpha1.ChartConfig{}
-
-	if err == nil {
-		for _, cr := range chartConfigList.Items {
-			// Chartconfig and app CRs have the same app label. So we use this as
-			// the key for the map.
-			appName := cr.Labels[label.App]
-			chartConfigs[appName] = cr
-		}
-	}
-
-	// Get all configmaps in kube-system in the tenant cluster to ensure user
-	// configmaps have been migrated.
-	configMapList, err := cc.Client.TenantCluster.K8s.CoreV1().ConfigMaps(metav1.NamespaceSystem).List(listOptions)
-	if tenant.IsAPINotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
-	} else if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	tenantConfigMaps := map[string]corev1.ConfigMap{}
-
-	for _, cm := range configMapList.Items {
-		tenantConfigMaps[cm.Name] = cm
-	}
-
 	var apps []*g8sv1alpha1.App
 	appSpecs, err := r.newAppSpecs(ctx, clusterConfig)
 	if err != nil {
@@ -158,11 +77,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	for _, appSpec := range appSpecs {
-		if !hasMigrationCompleted(appSpec, chartConfigs, configMaps, tenantConfigMaps) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("app %#q user values not migrated yet, continuing", appSpec.App))
-			continue
-		}
-
 		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, secrets)
 		if err != nil {
 			return nil, microerror.Mask(err)
@@ -378,31 +292,6 @@ func (r *Resource) getComponentVersion(releaseVersion, component string) (string
 	}
 
 	return "", microerror.Maskf(notFoundError, fmt.Sprintf("can't find the release version %#q", releaseVersion))
-}
-
-// hasMigrationCompleted checks if the migration from chartconfig to app CR
-// has completed. We delay creating the app CR until any user settings have
-// been copied to their new location.
-func hasMigrationCompleted(appSpec key.AppSpec, chartConfigs map[string]v1alpha1.ChartConfig, configMaps, tenantConfigMaps map[string]corev1.ConfigMap) bool {
-	_, hasChartConfig := chartConfigs[appSpec.App]
-
-	// No chartconfig CR exists so either no migration was needed or it has
-	// completed.
-	if !hasChartConfig {
-		return true
-	}
-
-	tenantCM, tenantExists := tenantConfigMaps[key.AppUserConfigMapName(appSpec)]
-	_, cmExists := configMaps[key.AppUserConfigMapName(appSpec)]
-
-	// A tenant configmap exists with user settings but the user configmap for
-	// this app CR does not exist yet. We delay creating the app CR until it
-	// does so the app is installed with the correct settings.
-	if tenantExists && len(tenantCM.Data) > 0 && !cmExists {
-		return false
-	}
-
-	return true
 }
 
 func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) (g8sv1alpha1.AppSpecUserConfig, error) {
