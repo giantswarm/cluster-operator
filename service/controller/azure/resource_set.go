@@ -27,10 +27,8 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/azure/key"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/appmigration"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/service/controller/resource/configmapmigration"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/kubeconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/tenantclients"
@@ -119,24 +117,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 	}
 
-	var appMigrationResource resource.Interface
-	{
-		c := appmigration.Config{
-			GetClusterConfigFunc:     getClusterConfig,
-			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			G8sClient:                config.K8sClient.G8sClient(),
-			Logger:                   config.Logger,
-			Tenant:                   config.Tenant,
-
-			Provider: config.Provider,
-		}
-
-		appMigrationResource, err = appmigration.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var certConfigResource resource.Interface
 	{
 		c := certconfig.Config{
@@ -175,23 +155,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var configMapMigrationResource resource.Interface
-	{
-		c := configmapmigration.Config{
-			GetClusterConfigFunc:     getClusterConfig,
-			GetClusterObjectMetaFunc: getClusterObjectMeta,
-			K8sClient:                config.K8sClient.K8sClient(),
-			Logger:                   config.Logger,
-
-			Provider: config.Provider,
-		}
-
-		configMapMigrationResource, err = configmapmigration.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -309,10 +272,6 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
-
-		// Migration resources are for migrating from chartconfig to app CRs.
-		appMigrationResource,
-		configMapMigrationResource,
 
 		// appResource is executed after migration resources.
 		appResource,
