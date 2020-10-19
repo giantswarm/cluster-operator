@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Delete all chartconfig migration logic. 
+
 ## [0.23.16] - 2020-08-18
 
 ### Changed
