@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.18] - 2020-10-21
+
 ## [0.23.17] - 2020-10-19
 
 ### Changed
@@ -36,7 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.17...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.18...HEAD
+[0.23.18]: https://github.com/giantswarm/cluster-operator/compare/v0.23.17...v0.23.18
 [0.23.17]: https://github.com/giantswarm/cluster-operator/compare/v0.23.16...v0.23.17
 [0.23.16]: https://github.com/giantswarm/cluster-operator/compare/v0.23.15...v0.23.16
 [0.23.15]: https://github.com/giantswarm/cluster-operator/compare/v0.23.14...v0.23.15
