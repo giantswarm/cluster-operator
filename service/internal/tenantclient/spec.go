@@ -3,7 +3,7 @@ package tenantclient
 import (
 	"context"
 
-	client "github.com/giantswarm/k8sclient/v4/pkg/k8sclient"
+	client "github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 )
 
 type Interface interface {
