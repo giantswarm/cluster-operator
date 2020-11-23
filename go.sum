@@ -164,6 +164,7 @@ github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeME
 github.com/giantswarm/apiextensions/v2 v2.0.0 h1:rKUHhiM8herDiNSgkfdLwqs+Pzrews2T/8JJ4Z4JCmA=
 github.com/giantswarm/apiextensions/v2 v2.0.0/go.mod h1:/qSx5jA2F5um0ipvVDMZJz+rJqsPZewzz4jjMXkXYFw=
 github.com/giantswarm/apiextensions/v3 v3.4.0/go.mod h1:MMLkRJta4mbTbrikP9LewADiCL+55LmsagyhdTU7XAY=
+github.com/giantswarm/apiextensions/v3 v3.8.0/go.mod h1:MMLkRJta4mbTbrikP9LewADiCL+55LmsagyhdTU7XAY=
 github.com/giantswarm/apiextensions/v3 v3.8.1-0.20201120151140-f03bde4123c1 h1:dRux+U0u8dQ3BjdVZdAVTqs4UtR/ATa9PYeW+0H/LVE=
 github.com/giantswarm/apiextensions/v3 v3.8.1-0.20201120151140-f03bde4123c1/go.mod h1:MMLkRJta4mbTbrikP9LewADiCL+55LmsagyhdTU7XAY=
 github.com/giantswarm/backoff v0.2.0 h1:kdfAf83pZ/l8X0KiA2dJ2Wq19nS9hISijVn7ZRdFhfU=
@@ -196,12 +197,10 @@ github.com/giantswarm/micrologger v0.3.1/go.mod h1:PjAgtcJ922ZMX/Aa05IPi0bdYvOj2
 github.com/giantswarm/micrologger v0.3.3/go.mod h1:fkzQdDBC6HjJq4nllBDt6XB4t4yeVyhdHKblFX6QoMQ=
 github.com/giantswarm/micrologger v0.3.4 h1:NKD6pz1++Hkq/ulOT9iu7hwTnG3ZfjnPUtuK/tbeCc8=
 github.com/giantswarm/micrologger v0.3.4/go.mod h1:fkzQdDBC6HjJq4nllBDt6XB4t4yeVyhdHKblFX6QoMQ=
-github.com/giantswarm/operatorkit/v2 v2.0.0 h1:sq7WWTggG+8PryPppxgLJ4djjrRreY1g4fH6vfXor1M=
-github.com/giantswarm/operatorkit/v2 v2.0.0/go.mod h1:hPkK01XN+c6mk65Ox3M4TFLSX7SpySFnkVCn+uUeNrw=
 github.com/giantswarm/operatorkit/v4 v4.0.0 h1:rC3MZGA6Rg2HeEbn5poPH/EWHpJk6NpnbpBWc6t7w7Y=
 github.com/giantswarm/operatorkit/v4 v4.0.0/go.mod h1:9VLDXCofhooOPbRt3XCZQmMZJ0tW7X3x7G/2Sz3kb5o=
-github.com/giantswarm/resource/v2 v2.0.0 h1:bzJic8qJ+lzCGvwl4PmVE97X8tyqIPeA7OMCLH4bQtg=
-github.com/giantswarm/resource/v2 v2.0.0/go.mod h1:2k/pzTRHTgDCqFgRa3pVnjwygvorU8+6H1sB2pi0b6U=
+github.com/giantswarm/resource/v2 v2.0.1-0.20201123132514-f924a32b7107 h1:CDymU/VfMXSt1VA5Dnr9WC+k2/lRtv529gS3p75os9c=
+github.com/giantswarm/resource/v2 v2.0.1-0.20201123132514-f924a32b7107/go.mod h1:baYsz9o264UHXPLC8AYJEQlYQQgbJoc2swhZ7c8afag=
 github.com/giantswarm/tenantcluster/v3 v3.0.0 h1:Vrx0LnItmvIUjvkJ10bkz+M8cEFOjrWl5HQv04VmJKg=
 github.com/giantswarm/tenantcluster/v3 v3.0.0/go.mod h1:gTVnGDFVG+lHzoD1ATDJtQ3zgoYcgFbFlJ8go3jvxeM=
 github.com/giantswarm/to v0.3.0 h1:cEzMYkWLGI3cI8x3a0L3nPCQYJTb/cAaqcIPvxnDmpQ=
