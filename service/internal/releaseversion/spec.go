@@ -13,7 +13,14 @@ const (
 
 type Interface interface {
 	// AppVersion provides the version of each app in a release.
-	AppVersion(ctx context.Context, obj interface{}) (map[string]string, error)
+	Apps(ctx context.Context, obj interface{}) (map[string]ReleaseApp, error)
 	// ComponentVersion provides the version of each component in a release.
 	ComponentVersion(ctx context.Context, obj interface{}) (map[string]string, error)
+}
+
+type ReleaseApp struct {
+	// Catalog of the app.
+	Catalog string `json:"catalog"`
+	// Version of the app.
+	Version string `json:"version"`
 }

@@ -30,4 +30,5 @@ require (
 	sigs.k8s.io/controller-runtime v0.6.3
 )
 
-replace sigs.k8s.io/cluster-api v0.3.7 => github.com/giantswarm/cluster-api v0.3.7
+// keep in sync with giantswarm/apiextensions
+replace sigs.k8s.io/cluster-api => github.com/giantswarm/cluster-api v0.3.10-gs

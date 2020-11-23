@@ -38,7 +38,7 @@ func New(c Config) (*ReleaseVersion, error) {
 	return rv, nil
 }
 
-func (rv *ReleaseVersion) AppVersion(ctx context.Context, obj interface{}) (map[string]string, error) {
+func (rv *ReleaseVersion) Apps(ctx context.Context, obj interface{}) (map[string]ReleaseApp, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -48,9 +48,12 @@ func (rv *ReleaseVersion) AppVersion(ctx context.Context, obj interface{}) (map[
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	apps := make(map[string]string, len(release.Spec.Apps))
+	apps := make(map[string]ReleaseApp, len(release.Spec.Apps))
 	for _, v := range release.Spec.Apps {
-		apps[v.Name] = v.Version
+		apps[v.Name] = ReleaseApp{
+			Catalog: v.Catalog,
+			Version: v.Version,
+		}
 	}
 	return apps, nil
 }
