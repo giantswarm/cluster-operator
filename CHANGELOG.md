@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated `apiextensions` and `operatorkit` dependencies.
+- Update `apiextensions`, `k8sclient`, and `operatorkit` dependencies.
 
 ## [3.3.1] - 2020-10-15
 
