@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated `apiextensions` and `operatorkit` dependencies.
+
 ## [3.3.1] - 2020-10-15
 
 ### Fixed
