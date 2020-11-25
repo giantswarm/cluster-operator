@@ -2,6 +2,7 @@ package kubeconfig
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/giantswarm/kubeconfig/v2"
 	"github.com/giantswarm/microerror"
@@ -46,7 +47,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 
 		secret = &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      key.KubeConfigSecretName(&cr),
+				Name:      fmt.Sprintf("%s-missing-kubeconfig-test", key.ClusterID(&cr)), // key.KubeConfigSecretName(&cr), WIP test error handling
 				Namespace: key.ClusterID(&cr),
 				Labels: map[string]string{
 					label.Cluster:      key.ClusterID(&cr),
