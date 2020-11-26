@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Update resource library to handle app CR validation errors from app-admission-controller.
+
 ### Changed
 
 - Update `apiextensions`, `k8sclient`, and `operatorkit` dependencies.
