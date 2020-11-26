@@ -21,7 +21,7 @@ require (
 	github.com/prometheus/client_golang v1.8.0
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/viper v1.7.1
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.18.9
 	k8s.io/apiextensions-apiserver v0.18.9
 	k8s.io/apimachinery v0.18.9
