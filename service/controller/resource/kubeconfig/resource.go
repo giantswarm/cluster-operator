@@ -36,7 +36,7 @@ type Resource struct {
 // New creates a new configured secret state getter resource managing kube
 // configs.
 //
-//     https://godoc.org/github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/secretresource#StateGetter
+//     https://pkg.go.dev/github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/secretresource#StateGetter
 //
 func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {

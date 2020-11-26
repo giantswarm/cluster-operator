@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.8.1-0.20201120151140-f03bde4123c1
+	github.com/giantswarm/apiextensions/v3 v3.9.0
 	github.com/giantswarm/certs/v3 v3.1.0
 	github.com/giantswarm/errors v0.2.3
 	github.com/giantswarm/exporterkit v0.2.0
@@ -21,7 +21,7 @@ require (
 	github.com/prometheus/client_golang v1.8.0
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/viper v1.7.1
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.18.9
 	k8s.io/apiextensions-apiserver v0.18.9
 	k8s.io/apimachinery v0.18.9
