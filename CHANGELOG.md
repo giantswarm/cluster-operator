@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add functionality to template `catalog` into `apps` depending on `release` CR.
+
 ### Changed
 
 - Update `apiextensions`, `k8sclient`, and `operatorkit` dependencies.

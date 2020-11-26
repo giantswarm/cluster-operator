@@ -194,20 +194,26 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		return nil, microerror.Mask(err)
 	}
 
-	apps, err := r.releaseVersion.AppVersion(ctx, &cr)
+	apps, err := r.releaseVersion.Apps(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
 	var specs []key.AppSpec
-	for appName, appVersion := range apps {
+	for appName, app := range apps {
+		var catalog string
+		if app.Catalog == "" {
+			catalog = r.defaultConfig.Catalog
+		} else {
+			catalog = app.Catalog
+		}
 		spec := key.AppSpec{
 			App:             appName,
-			Catalog:         r.defaultConfig.Catalog,
+			Catalog:         catalog,
 			Chart:           fmt.Sprintf("%s-app", appName),
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
-			Version:         appVersion,
+			Version:         app.Version,
 		}
 		// For some apps we can't use default settings. We check ConfigExceptions map
 		// for these differences.
