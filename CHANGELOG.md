@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.0] - 2020-12-02
+
 ### Added
 
 - Add functionality to template `catalog` into `apps` depending on `release` CR.
@@ -178,7 +180,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.3.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/giantswarm/cluster-operator/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/giantswarm/cluster-operator/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/giantswarm/cluster-operator/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/giantswarm/cluster-operator/compare/v3.1.1...v3.2.0
