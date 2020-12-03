@@ -15,7 +15,7 @@ require (
 	github.com/giantswarm/microkit v0.2.2
 	github.com/giantswarm/micrologger v0.4.0
 	github.com/giantswarm/operatorkit/v4 v4.0.0
-	github.com/giantswarm/resource/v2 v2.1.0
+	github.com/giantswarm/resource/v2 v2.1.1-0.20201203083842-30a3bdfd4fac
 	github.com/giantswarm/tenantcluster/v3 v3.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.8.0
