@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs/v3/pkg/certs"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -181,8 +182,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		c.AllowedAnnotations = []string{
-			"app-operator.giantswarm.io/latest-configmap-version",
-			"app-operator.giantswarm.io/latest-secret-version",
+			annotation.LatestConfigMapVersion,
+			annotation.LatestSecretVersion,
 		}
 
 		ops, err := appresource.New(c)
