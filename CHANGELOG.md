@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-  Allow annotations from current app CR to remain.
+
 ## [0.23.18] - 2020-10-21
 
 ## [0.23.17] - 2020-10-19
