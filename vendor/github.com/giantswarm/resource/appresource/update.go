@@ -20,7 +20,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating App CR %#q in namespace %#q", appCR.Name, appCR.Namespace))
 
 		// Get app CR again to ensure the resource version is correct.
-		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(appCR.Namespace).Get(ctx, appCR.Name, metav1.GetOptions{})
+		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(appCR.Namespace).Get(appCR.Name, metav1.GetOptions{})
 		if err != nil {
 			return microerror.Mask(err)
 		}

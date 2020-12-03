@@ -321,11 +321,11 @@
 
 [[projects]]
   branch = "legacy"
-  digest = "1:eb1262021c830f20a576a10bbc450ce640ac484b649c19b68f19e2429b4dd328"
+  digest = "1:56927a410457350077343f557ee836ab5279dd15acdaff8d7c66f82907c8f3cf"
   name = "github.com/giantswarm/resource"
   packages = ["appresource"]
   pruneopts = "UT"
-  revision = "78a54efcbff63446c840df0beea12976b2469214"
+  revision = "9ca9ddbde7cfe07ddf02a1577c556a71fa9b25da"
 
 [[projects]]
   branch = "master"
