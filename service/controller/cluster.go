@@ -180,6 +180,11 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			StateGetter: appGetter,
 		}
 
+		c.AllowedAnnotations = []string{
+			"app-operator.giantswarm.io/latest-configmap-version",
+			"app-operator.giantswarm.io/latest-secret-version",
+		}
+
 		ops, err := appresource.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
