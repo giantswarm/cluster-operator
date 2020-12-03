@@ -93,7 +93,7 @@ required = [
 
 [[constraint]]
   name = "github.com/giantswarm/resource"
-  branch = "master"
+  branch = "legacy"
 
 [[constraint]]
   name = "github.com/giantswarm/tenantcluster"

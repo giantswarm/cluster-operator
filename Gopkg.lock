@@ -14,14 +14,6 @@
   version = "v9.10.0"
 
 [[projects]]
-  digest = "1:087d103f14f737c68b30386831252e96564a8a7e5e8c157227dd57154cd050d6"
-  name = "github.com/Masterminds/semver"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "805c489aa98f412e79eb308a37996bf9d8b1c91e"
-  version = "v1.5.0"
-
-[[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
@@ -328,12 +320,12 @@
   revision = "748c399a1bba09ef0227617d1e313c2723e16c5f"
 
 [[projects]]
-  branch = "master"
-  digest = "1:c9ed61ebac47a063ed917404eb2a63558a672f2f4d1904584a2f2684a3acbf2e"
+  branch = "legacy"
+  digest = "1:eb1262021c830f20a576a10bbc450ce640ac484b649c19b68f19e2429b4dd328"
   name = "github.com/giantswarm/resource"
   packages = ["appresource"]
   pruneopts = "UT"
-  revision = "efec931a0c230f01a9966dda1dd5864088546e09"
+  revision = "78a54efcbff63446c840df0beea12976b2469214"
 
 [[projects]]
   branch = "master"
@@ -1209,7 +1201,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Azure/go-autorest/autorest",
-    "github.com/Masterminds/semver",
     "github.com/docker/distribution/reference",
     "github.com/ghodss/yaml",
     "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1",
@@ -1258,7 +1249,6 @@
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
-    "k8s.io/apimachinery/pkg/types",
     "k8s.io/apiserver/pkg/endpoints/request",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
