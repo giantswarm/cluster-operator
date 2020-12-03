@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.19] - 2020-12-03
+
 ### Fixed
 
 -  Allow annotations from current app CR to remain.
@@ -42,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.18...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.19...HEAD
+[0.23.19]: https://github.com/giantswarm/cluster-operator/compare/v0.23.18...v0.23.19
 [0.23.18]: https://github.com/giantswarm/cluster-operator/compare/v0.23.17...v0.23.18
 [0.23.17]: https://github.com/giantswarm/cluster-operator/compare/v0.23.16...v0.23.17
 [0.23.16]: https://github.com/giantswarm/cluster-operator/compare/v0.23.15...v0.23.16
