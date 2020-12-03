@@ -105,6 +105,11 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 			StateGetter: appGetter,
 		}
 
+		c.AllowedAnnotations = []string{
+			"app-operator.giantswarm.io/latest-configmap-version",
+			"app-operator.giantswarm.io/latest-secret-version",
+		}
+
 		ops, err := appresource.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)

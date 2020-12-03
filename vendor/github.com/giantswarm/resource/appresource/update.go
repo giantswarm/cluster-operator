@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 )
@@ -17,6 +18,14 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 
 	for _, appCR := range appCRs {
 		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating App CR %#q in namespace %#q", appCR.Name, appCR.Namespace))
+
+		// Get app CR again to ensure the resource version is correct.
+		currentCR, err := r.g8sClient.ApplicationV1alpha1().Apps(appCR.Namespace).Get(appCR.Name, metav1.GetOptions{})
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		appCR.ResourceVersion = currentCR.ResourceVersion
 
 		_, err = r.g8sClient.ApplicationV1alpha1().Apps(appCR.Namespace).Update(appCR)
 		if err != nil {
@@ -46,7 +55,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 
 		for _, c := range currentAppCRs {
 			for _, d := range desiredAppCRs {
-				m := newAppCRToUpdate(c, d)
+				m := newAppCRToUpdate(c, d, r.allowedAnnotations)
 				if m != nil {
 					appCRsToUpdate = append(appCRsToUpdate, m)
 				}
