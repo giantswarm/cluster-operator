@@ -2,7 +2,6 @@ package cpnamespace
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/finalizerskeptcontext"
@@ -22,16 +21,16 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	var ns *corev1.Namespace
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding namespace %#q in control plane", key.ClusterID(&cr)))
+		r.logger.Debugf(ctx, "finding namespace %#q in control plane", key.ClusterID(&cr))
 
 		m, err := r.k8sClient.CoreV1().Namespaces().Get(ctx, key.ClusterID(&cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find namespace %#q in control plane", key.ClusterID(&cr)))
+			r.logger.Debugf(ctx, "did not find namespace %#q in control plane", key.ClusterID(&cr))
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
 			ns = m
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found namespace %#q in control plane", key.ClusterID(&cr)))
+			r.logger.Debugf(ctx, "found namespace %#q in control plane", key.ClusterID(&cr))
 		}
 	}
 
@@ -42,20 +41,20 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 	// conditions of the watched CR are used to inhibit alerts, for instance when
 	// the cluster is being deleted.
 	if ns != nil && ns.Status.Phase == corev1.NamespaceTerminating {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("namespace is %#q", corev1.NamespaceTerminating))
+		r.logger.Debugf(ctx, "namespace is %#q", corev1.NamespaceTerminating)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+		r.logger.Debugf(ctx, "keeping finalizers")
 		finalizerskeptcontext.SetKept(ctx)
 
 		return nil, nil
 	}
 
 	if ns == nil && key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "resource deletion completed")
+		r.logger.Debugf(ctx, "resource deletion completed")
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil

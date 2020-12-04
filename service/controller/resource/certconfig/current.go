@@ -23,7 +23,7 @@ func (r *Resource) getCurrentState(ctx context.Context, obj interface{}) (interf
 
 	var certConfigs []*v1alpha1.CertConfig
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding CertConfig CRs in namespace %#q", cr.Namespace))
+		r.logger.Debugf(ctx, "finding CertConfig CRs in namespace %#q", cr.Namespace)
 
 		o := metav1.ListOptions{
 			Continue:      "",
@@ -48,7 +48,7 @@ func (r *Resource) getCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d CertConfig CRs in namespace %#q", len(certConfigs), cr.Namespace))
+	r.logger.Debugf(ctx, "found %d CertConfig CRs in namespace %#q", len(certConfigs), cr.Namespace)
 
 	return certConfigs, nil
 }

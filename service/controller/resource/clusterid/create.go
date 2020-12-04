@@ -2,7 +2,6 @@ package clusterid
 
 import (
 	"context"
-	"fmt"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/microerror"
@@ -30,21 +29,21 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	{
 		if status.ID != "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q has cluster id in status", cr.GetName()))
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "cluster %#q has cluster id in status", cr.GetName())
+			r.logger.Debugf(ctx, "canceling resource")
 
 			return nil
 		}
 
 		if key.ClusterID(cr) == "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster %#q misses cluster id in labels", cr.GetName()))
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "cluster %#q misses cluster id in labels", cr.GetName())
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 		}
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
+		r.logger.Debugf(ctx, "updating cluster status")
 
 		status.ID = key.ClusterID(cr)
 
@@ -55,12 +54,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
+		r.logger.Debugf(ctx, "updated cluster status")
 
 		// All further resources require cluster ID to be present in the status so
 		// it makes sense to cancel whole CR reconciliation here and start from the
 		// beginning.
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 	}
 

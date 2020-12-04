@@ -22,15 +22,15 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 
 	// The config maps are deleted when the namespace is deleted.
 	if key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not deleting config maps for tenant cluster %#q", key.ClusterID(&cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "not deleting config maps for tenant cluster %#q", key.ClusterID(&cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
 	var configMaps []*corev1.ConfigMap
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding cluster config maps in namespace %#q", key.ClusterID(&cr)))
+		r.logger.Debugf(ctx, "finding cluster config maps in namespace %#q", key.ClusterID(&cr))
 
 		lo := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
@@ -45,7 +45,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 			configMaps = append(configMaps, item.DeepCopy())
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d config maps in namespace %#q", len(configMaps), key.ClusterID(&cr)))
+		r.logger.Debugf(ctx, "found %d config maps in namespace %#q", len(configMaps), key.ClusterID(&cr))
 	}
 
 	return configMaps, nil

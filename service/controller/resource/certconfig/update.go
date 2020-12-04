@@ -2,7 +2,6 @@ package certconfig
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -19,17 +18,17 @@ func (r *Resource) applyUpdateChange(ctx context.Context, obj, updateChange inte
 
 	if len(certConfigs) > 0 {
 		for _, certConfig := range certConfigs {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.Debugf(ctx, "updating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 
 			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Update(ctx, certConfig, metav1.UpdateOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.Debugf(ctx, "updated CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not update CertConfig CRs")
+		r.logger.Debugf(ctx, "did not update CertConfig CRs")
 	}
 
 	return nil

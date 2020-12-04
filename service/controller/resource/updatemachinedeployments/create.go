@@ -2,7 +2,6 @@ package updatemachinedeployments
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
@@ -20,7 +19,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	mdList := &apiv1alpha2.MachineDeploymentList{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
+		r.logger.Debugf(ctx, "finding MachineDeployments for tenant cluster")
 
 		err = r.k8sClient.CtrlClient().List(
 			ctx,
@@ -32,7 +31,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
+		r.logger.Debugf(ctx, "found %d MachineDeployments for tenant cluster", len(mdList.Items))
 	}
 
 	for _, md := range mdList.Items {
@@ -49,7 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				md.Labels[l] = d
 				updated = true
 
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+				r.logger.Debugf(ctx, "label value of %#q changed from %#q to %#q", l, c, d)
 			}
 		}
 
@@ -62,19 +61,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				md.Labels[l] = d
 				updated = true
 
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+				r.logger.Debugf(ctx, "label value of %#q changed from %#q to %#q", l, c, d)
 			}
 		}
 
 		if updated {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+			r.logger.Debugf(ctx, "updating machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr))
 
 			err = r.k8sClient.CtrlClient().Update(ctx, &md)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr)))
+			r.logger.Debugf(ctx, "updated machine deployment %#q for tenant cluster %#q", md.Namespace+"/"+md.Name, key.ClusterID(&cr))
 		}
 	}
 

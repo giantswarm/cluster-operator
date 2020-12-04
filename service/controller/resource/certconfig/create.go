@@ -2,7 +2,6 @@ package certconfig
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -21,7 +20,7 @@ func (r *Resource) applyCreateChange(ctx context.Context, obj, createChange inte
 
 	if len(certConfigs) > 0 {
 		for _, certConfig := range certConfigs {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.Debugf(ctx, "creating CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 
 			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Create(ctx, certConfig, metav1.CreateOptions{})
 			if apierrors.IsAlreadyExists(err) {
@@ -30,10 +29,10 @@ func (r *Resource) applyCreateChange(ctx context.Context, obj, createChange inte
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.Debugf(ctx, "created CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not create CertConfig CRs")
+		r.logger.Debugf(ctx, "did not create CertConfig CRs")
 	}
 
 	return nil
