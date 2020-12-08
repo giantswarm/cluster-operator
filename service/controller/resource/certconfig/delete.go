@@ -2,7 +2,6 @@ package certconfig
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
@@ -18,7 +17,7 @@ func (r *Resource) applyDeleteChange(ctx context.Context, obj, deleteChange inte
 
 	if len(certConfigs) != 0 {
 		for _, certConfig := range certConfigs {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.Debugf(ctx, "deleting CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 
 			err := r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Delete(ctx, certConfig.Name, metav1.DeleteOptions{})
 			if apierrors.IsNotFound(err) {
@@ -27,10 +26,10 @@ func (r *Resource) applyDeleteChange(ctx context.Context, obj, deleteChange inte
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace))
+			r.logger.Debugf(ctx, "deleted CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 		}
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not delete CertConfig CRs")
+		r.logger.Debugf(ctx, "did not delete CertConfig CRs")
 	}
 
 	return nil

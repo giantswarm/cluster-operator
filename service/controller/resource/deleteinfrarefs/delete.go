@@ -24,7 +24,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	var ir *unstructured.Unstructured
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding infrastructure reference")
+		r.logger.Debugf(ctx, "finding infrastructure reference")
 
 		ir = &unstructured.Unstructured{}
 		ir.SetAPIVersion(or.APIVersion)
@@ -35,25 +35,25 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			// At this point the runtime object linked in the infrastructure reference
 			// does not exist anymore, which means the deletion of the parent can
 			// continue now.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find infrastructure reference")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "did not find infrastructure reference")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found infrastructure reference")
+		r.logger.Debugf(ctx, "found infrastructure reference")
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting object %#q of type %T for tenant cluster %#q", fmt.Sprintf("%s/%s", or.Namespace, or.Name), or.Kind, key.ClusterID(cr)))
+		r.logger.Debugf(ctx, "deleting object %#q of type %T for tenant cluster %#q", fmt.Sprintf("%s/%s", or.Namespace, or.Name), or.Kind, key.ClusterID(cr))
 
 		err = r.k8sClient.CtrlClient().Delete(ctx, ir)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted object %#q of type %T for tenant cluster %#q", fmt.Sprintf("%s/%s", or.Namespace, or.Name), or.Kind, key.ClusterID(cr)))
+		r.logger.Debugf(ctx, "deleted object %#q of type %T for tenant cluster %#q", fmt.Sprintf("%s/%s", or.Namespace, or.Name), or.Kind, key.ClusterID(cr))
 	}
 
 	return nil

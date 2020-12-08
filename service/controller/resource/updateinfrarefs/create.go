@@ -32,7 +32,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// controller-runtime client cannot find the right object.
 	ir := &unstructured.Unstructured{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding infrastructure reference")
+		r.logger.Debugf(ctx, "finding infrastructure reference")
 
 		ir.SetAPIVersion(or.APIVersion)
 		ir.SetKind(or.Kind)
@@ -42,7 +42,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found infrastructure reference")
+		r.logger.Debugf(ctx, "found infrastructure reference")
 	}
 
 	var updated bool
@@ -59,7 +59,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			ir.SetLabels(labels)
 			updated = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+			r.logger.Debugf(ctx, "label value of %#q changed from %#q to %#q", l, c, d)
 		}
 	}
 
@@ -74,19 +74,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			ir.SetLabels(labels)
 			updated = true
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+			r.logger.Debugf(ctx, "label value of %#q changed from %#q to %#q", l, c, d)
 		}
 	}
 
 	if updated {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating infrastructure reference %#q", ir.GetNamespace()+"/"+ir.GetName()))
+		r.logger.Debugf(ctx, "updating infrastructure reference %#q", ir.GetNamespace()+"/"+ir.GetName())
 
 		err = r.k8sClient.CtrlClient().Update(ctx, ir)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated infrastructure reference %#q", ir.GetNamespace()+"/"+ir.GetName()))
+		r.logger.Debugf(ctx, "updated infrastructure reference %#q", ir.GetNamespace()+"/"+ir.GetName())
 	}
 
 	return nil

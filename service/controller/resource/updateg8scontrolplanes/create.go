@@ -2,7 +2,6 @@ package updateg8scontrolplanes
 
 import (
 	"context"
-	"fmt"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/microerror"
@@ -20,7 +19,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	cpList := &infrastructurev1alpha2.G8sControlPlaneList{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding G8sControlPlanes for tenant cluster")
+		r.logger.Debugf(ctx, "finding G8sControlPlanes for tenant cluster")
 
 		err = r.k8sClient.CtrlClient().List(
 			ctx,
@@ -32,7 +31,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d G8sControlPlanes for tenant cluster", len(cpList.Items)))
+		r.logger.Debugf(ctx, "found %d G8sControlPlanes for tenant cluster", len(cpList.Items))
 	}
 
 	for _, cp := range cpList.Items {
@@ -49,7 +48,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				cp.Labels[l] = d
 				updated = true
 
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+				r.logger.Debugf(ctx, "label value of %#q changed from %#q to %#q", l, c, d)
 			}
 		}
 
@@ -62,19 +61,19 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				cp.Labels[l] = d
 				updated = true
 
-				r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("label value of %#q changed from %#q to %#q", l, c, d))
+				r.logger.Debugf(ctx, "label value of %#q changed from %#q to %#q", l, c, d)
 			}
 		}
 
 		if updated {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updating G8sControlPlane %#q for tenant cluster %#q", cp.Namespace+"/"+cp.Name, key.ClusterID(&cr)))
+			r.logger.Debugf(ctx, "updating G8sControlPlane %#q for tenant cluster %#q", cp.Namespace+"/"+cp.Name, key.ClusterID(&cr))
 
 			err = r.k8sClient.CtrlClient().Update(ctx, &cp)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("updated G8sControlPlane %#q for tenant cluster %#q", cp.Namespace+"/"+cp.Name, key.ClusterID(&cr)))
+			r.logger.Debugf(ctx, "updated G8sControlPlane %#q for tenant cluster %#q", cp.Namespace+"/"+cp.Name, key.ClusterID(&cr))
 		}
 	}
 

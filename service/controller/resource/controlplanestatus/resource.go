@@ -88,13 +88,13 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			"message", fmt.Sprintf("not getting master nodes for tenant cluster %#q", key.ClusterID(cr)),
 			"reason", "tenant cluster api not available yet",
 		)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if basedomain.IsNotFound(err) {
 		// in case of a cluster deletion AWSCluster CR does not exist anymore, handle basedomain error gracefully
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting basedomain for tenant cluster %#q", key.ClusterID(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "not getting basedomain for tenant cluster %#q", key.ClusterID(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
@@ -102,17 +102,17 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of control plane needs to be updated")
+		r.logger.Debugf(ctx, "checking if status of control plane needs to be updated")
 
 		replicasChanged := cr.Status.Replicas != masterNodes[cr.Labels[label.ControlPlane]].Nodes
 		readyReplicasChanged := cr.Status.ReadyReplicas != masterNodes[cr.Labels[label.ControlPlane]].Ready
 
 		if !replicasChanged && !readyReplicasChanged {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "status of control plane does not need to be updated")
+			r.logger.Debugf(ctx, "status of control plane does not need to be updated")
 			return nil
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "status of control plane needs to be updated")
+		r.logger.Debugf(ctx, "status of control plane needs to be updated")
 	}
 
 	{
@@ -121,7 +121,7 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of control plane")
+		r.logger.Debugf(ctx, "updating status of control plane")
 		r.event.Emit(ctx, cr, "ControlPlaneUpdated",
 			fmt.Sprintf("updated status of control plane, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
 		)
@@ -131,8 +131,8 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of control plane")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "updated status of control plane")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 	}
 

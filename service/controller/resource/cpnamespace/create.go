@@ -2,7 +2,6 @@ package cpnamespace
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -23,7 +22,7 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 	}
 
 	if ns != nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("creating namespace %#q in control plane", ns.Name))
+		r.logger.Debugf(ctx, "creating namespace %#q in control plane", ns.Name)
 
 		_, err = r.k8sClient.CoreV1().Namespaces().Create(ctx, ns, metav1.CreateOptions{})
 		if apierrors.IsAlreadyExists(err) {
@@ -32,9 +31,9 @@ func (r *Resource) ApplyCreateChange(ctx context.Context, obj, createChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("created namespace %#q in control plane", ns.Name))
+		r.logger.Debugf(ctx, "created namespace %#q in control plane", ns.Name)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not create namespace %#q in control plane", key.ClusterID(&cr)))
+		r.logger.Debugf(ctx, "did not create namespace %#q in control plane", key.ClusterID(&cr))
 	}
 
 	return nil

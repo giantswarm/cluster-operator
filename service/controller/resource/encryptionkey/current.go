@@ -2,7 +2,6 @@ package encryptionkey
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -20,17 +19,17 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 
 	var secret *corev1.Secret
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+		r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", secretName(cr), cr.Namespace)
 
 		secret, err = r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, secretName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			r.logger.Debugf(ctx, "did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace)
 			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+		r.logger.Debugf(ctx, "found secret %#q in namespace %#q", secretName(cr), cr.Namespace)
 	}
 
 	return []*corev1.Secret{secret}, nil

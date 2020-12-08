@@ -16,7 +16,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// if it has its status already updated.
 	var cr apiv1alpha2.Cluster
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding cluster")
+		r.logger.Debugf(ctx, "finding cluster")
 
 		cl, err := key.ToCluster(obj)
 		if err != nil {
@@ -28,7 +28,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found cluster")
+		r.logger.Debugf(ctx, "found cluster")
 	}
 
 	if cr.Status.ControlPlaneInitialized && cr.Status.InfrastructureReady {
@@ -41,14 +41,14 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	// InfrastructureReady to true.
 	cc := r.newCommonClusterObjectFunc()
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding infrastructure reference")
+		r.logger.Debugf(ctx, "finding infrastructure reference")
 
 		err := r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromCluster(cr)), cc)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found infrastructure reference")
+		r.logger.Debugf(ctx, "found infrastructure reference")
 	}
 
 	if !cc.GetCommonClusterStatus().HasCreatedCondition() {
@@ -56,7 +56,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
+		r.logger.Debugf(ctx, "updating cluster status")
 
 		cr.Status.ControlPlaneInitialized = true
 		cr.Status.InfrastructureReady = true
@@ -66,9 +66,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
+		r.logger.Debugf(ctx, "updated cluster status")
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 	}
 

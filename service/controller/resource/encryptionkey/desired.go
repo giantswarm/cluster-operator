@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -39,23 +38,23 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	// we fall through and compute the desired encryption key secret so it gets
 	// created.
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+		r.logger.Debugf(ctx, "finding secret %#q in namespace %#q", secretName(cr), cr.Namespace)
 
 		secret, err := r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, secretName(cr), metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			// fall through
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			r.logger.Debugf(ctx, "did not find secret %#q in namespace %#q", secretName(cr), cr.Namespace)
 		} else if err != nil {
 			return nil, microerror.Mask(err)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found secret %#q in namespace %#q", secretName(cr), cr.Namespace))
+			r.logger.Debugf(ctx, "found secret %#q in namespace %#q", secretName(cr), cr.Namespace)
 			return []*corev1.Secret{secret}, nil
 		}
 	}
 
 	var secret *corev1.Secret
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computing secret %#q", secretName(cr)))
+		r.logger.Debugf(ctx, "computing secret %#q", secretName(cr))
 
 		keyBytes, err := newRandomKey(AESCBCKeyLength)
 		if err != nil {
@@ -84,7 +83,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			},
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("computed secret %#q", secretName(cr)))
+		r.logger.Debugf(ctx, "computed secret %#q", secretName(cr))
 	}
 
 	return []*corev1.Secret{secret}, nil

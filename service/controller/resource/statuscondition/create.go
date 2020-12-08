@@ -24,7 +24,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr := r.newCommonClusterObjectFunc()
 	var uc infrastructurev1alpha2.CommonClusterObject
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding latest cluster")
+		r.logger.Debugf(ctx, "finding latest cluster")
 
 		cl, err := key.ToCluster(obj)
 		if err != nil {
@@ -38,12 +38,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		uc = cr.DeepCopyObject().(infrastructurev1alpha2.CommonClusterObject)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found latest cluster")
+		r.logger.Debugf(ctx, "found latest cluster")
 	}
 
 	var cl apiv1alpha2.Cluster
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding cluster")
+		r.logger.Debugf(ctx, "finding cluster")
 
 		c, err := key.ToCluster(obj)
 		if err != nil {
@@ -55,37 +55,37 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found cluster")
+		r.logger.Debugf(ctx, "found cluster")
 	}
 
 	tenantClient, err := r.tenantClient.K8sClient(ctx, cr)
 	if tenantclient.IsNotAvailable(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant client is not available yet")
+		r.logger.Debugf(ctx, "tenant client is not available yet")
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	var nodes []corev1.Node
 	if tenantClient != nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding nodes of tenant cluster")
+		r.logger.Debugf(ctx, "finding nodes of tenant cluster")
 		l, err := tenantClient.K8sClient().CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if tenant.IsAPINotAvailable(err) {
 			// During cluster creation / upgrade the tenant API is naturally not
 			// available but this resource must still continue execution as that's
 			// when `Creating` and `Upgrading` conditions may need to be applied.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
+			r.logger.Debugf(ctx, "tenant API not available yet")
 		} else if err != nil {
 			return microerror.Mask(err)
 		} else {
 			nodes = l.Items
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes from tenant cluster", len(nodes)))
+			r.logger.Debugf(ctx, "found %d nodes from tenant cluster", len(nodes))
 		}
 	}
 
 	cpList := &infrastructurev1alpha2.G8sControlPlaneList{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding G8sControlplane for tenant cluster")
+		r.logger.Debugf(ctx, "finding G8sControlplane for tenant cluster")
 
 		err = r.k8sClient.CtrlClient().List(
 			ctx,
@@ -97,12 +97,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d G8sControlplane for tenant cluster", len(cpList.Items)))
+		r.logger.Debugf(ctx, "found %d G8sControlplane for tenant cluster", len(cpList.Items))
 	}
 
 	mdList := &apiv1alpha2.MachineDeploymentList{}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding MachineDeployments for tenant cluster")
+		r.logger.Debugf(ctx, "finding MachineDeployments for tenant cluster")
 
 		err = r.k8sClient.CtrlClient().List(
 			ctx,
@@ -114,7 +114,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d MachineDeployments for tenant cluster", len(mdList.Items)))
+		r.logger.Debugf(ctx, "found %d MachineDeployments for tenant cluster", len(mdList.Items))
 	}
 
 	err = r.computeCreateClusterStatusConditions(ctx, cl, uc, nodes, cpList.Items, mdList.Items)
@@ -123,16 +123,16 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	if !reflect.DeepEqual(cr.GetCommonClusterStatus(), uc.GetCommonClusterStatus()) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
+		r.logger.Debugf(ctx, "updating cluster status")
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, uc)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
+		r.logger.Debugf(ctx, "updated cluster status")
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 
 		return nil

@@ -88,30 +88,30 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 			"message", fmt.Sprintf("not getting worker nodes for tenant cluster %#q", key.ClusterID(cr)),
 			"reason", "tenant cluster api not available yet",
 		)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if basedomain.IsNotFound(err) {
 		// in case of a cluster deletion AWSCluster CR does not exist anymore, handle basedomain error gracefully
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not getting basedomain for tenant client %#q", key.ClusterID(cr)))
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.Debugf(ctx, "not getting basedomain for tenant client %#q", key.ClusterID(cr))
+		r.logger.Debugf(ctx, "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "checking if status of machine deployment needs to be updated")
+		r.logger.Debugf(ctx, "checking if status of machine deployment needs to be updated")
 
 		replicasChanged := cr.Status.Replicas != workerCount[cr.Labels[label.MachineDeployment]].Nodes
 		readyReplicasChanged := cr.Status.ReadyReplicas != workerCount[cr.Labels[label.MachineDeployment]].Ready
 
 		if !replicasChanged && !readyReplicasChanged {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment does not need to be updated")
+			r.logger.Debugf(ctx, "status of machine deployment does not need to be updated")
 			return nil
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "status of machine deployment needs to be updated")
+		r.logger.Debugf(ctx, "status of machine deployment needs to be updated")
 	}
 
 	{
@@ -120,24 +120,24 @@ func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
 	}
 
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating status of machine deployment")
+		r.logger.Debugf(ctx, "updating status of machine deployment")
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, cr)
 		if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated status of machine deployment")
+		r.logger.Debugf(ctx, "updated status of machine deployment")
 		r.event.Emit(ctx, cr, "MachineDeploymentUpdated",
 			fmt.Sprintf("updated status of machine deployment, changed replicas %d -> %d", cr.Status.Replicas, cr.Status.ReadyReplicas),
 		)
 
 		if key.IsDeleted(cr) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+			r.logger.Debugf(ctx, "keeping finalizers")
 			finalizerskeptcontext.SetKept(ctx)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.Debugf(ctx, "canceling reconciliation")
 		reconciliationcanceledcontext.SetCanceled(ctx)
 	}
 

@@ -22,39 +22,39 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding latest infrastructure reference for cluster %#q", key.ClusterID(&cl)))
+		r.logger.Debugf(ctx, "finding latest infrastructure reference for cluster %#q", key.ClusterID(&cl))
 
 		err = r.k8sClient.CtrlClient().Get(ctx, key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)), cr)
 		if errors.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find latest infrastructure reference for cluster %#q", key.ClusterID(&cl)))
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "did not find latest infrastructure reference for cluster %#q", key.ClusterID(&cl))
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found latest infrastructure reference for cluster %#q", key.ClusterID(&cl)))
+		r.logger.Debugf(ctx, "found latest infrastructure reference for cluster %#q", key.ClusterID(&cl))
 	}
 
 	updatedCR := r.computeDeleteClusterStatusConditions(ctx, cr)
 
 	if !reflect.DeepEqual(cr, updatedCR) {
 		{
-			r.logger.LogCtx(ctx, "level", "debug", "message", "updating cluster status")
+			r.logger.Debugf(ctx, "updating cluster status")
 
 			err := r.k8sClient.CtrlClient().Status().Update(ctx, updatedCR)
 			if err != nil {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, "level", "debug", "message", "updated cluster status")
+			r.logger.Debugf(ctx, "updated cluster status")
 		}
 
 		{
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+			r.logger.Debugf(ctx, "canceling reconciliation")
 			reconciliationcanceledcontext.SetCanceled(ctx)
-			r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+			r.logger.Debugf(ctx, "keeping finalizers")
 			finalizerskeptcontext.SetKept(ctx)
 		}
 

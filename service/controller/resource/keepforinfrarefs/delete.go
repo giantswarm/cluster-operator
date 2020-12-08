@@ -22,13 +22,13 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	// resource gracefully in order to prevent errors blocking the deletion.
 	{
 		if or.Name == "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "infrastructure reference misses name")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "infrastructure reference misses name")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 		}
 		if or.Namespace == "" {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "infrastructure reference misses namespace")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "infrastructure reference misses namespace")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil
 		}
 	}
@@ -38,7 +38,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	// the api version and kind accordingly. If we would not do that the
 	// controller-runtime client cannot find the right object.
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", "finding infrastructure reference")
+		r.logger.Debugf(ctx, "finding infrastructure reference")
 
 		ir := &unstructured.Unstructured{}
 		ir.SetAPIVersion(or.APIVersion)
@@ -49,15 +49,15 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 			// At this point the runtime object linked in the infrastructure reference
 			// does not exist anymore, which means the deletion of the parent can
 			// continue now.
-			r.logger.LogCtx(ctx, "level", "debug", "message", "did not find infrastructure reference")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "continue deletion of parent runtime object")
+			r.logger.Debugf(ctx, "did not find infrastructure reference")
+			r.logger.Debugf(ctx, "continue deletion of parent runtime object")
 			return nil
 		} else if err != nil {
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "found infrastructure reference")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+		r.logger.Debugf(ctx, "found infrastructure reference")
+		r.logger.Debugf(ctx, "keeping finalizers")
 		finalizerskeptcontext.SetKept(ctx)
 	}
 

@@ -2,7 +2,6 @@ package cpnamespace
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
@@ -24,7 +23,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 	}
 
 	if ns != nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleting namespace %#q in control plane", ns.Name))
+		r.logger.Debugf(ctx, "deleting namespace %#q in control plane", ns.Name)
 
 		err = r.k8sClient.CoreV1().Namespaces().Delete(ctx, ns.Name, metav1.DeleteOptions{})
 		if apierrors.IsNotFound(err) {
@@ -33,9 +32,9 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			return microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("deleted namespace %#q in control plane", ns.Name))
+		r.logger.Debugf(ctx, "deleted namespace %#q in control plane", ns.Name)
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not delete namespace %#q in control plane", key.ClusterID(&cr)))
+		r.logger.Debugf(ctx, "did not delete namespace %#q in control plane", key.ClusterID(&cr))
 	}
 
 	return nil

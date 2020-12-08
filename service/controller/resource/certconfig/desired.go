@@ -34,7 +34,7 @@ func (r *Resource) getDesiredState(ctx context.Context, obj interface{}) (interf
 	// Cluster deletion should not be affected only because some releases are
 	// missing or broken when fetching them from cluster-service.
 	if key.IsDeleted(&cr) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state", "reason", "the current state is used for deletion")
+		r.logger.Debugf(ctx, "not computing desired state", "reason", "the current state is used for deletion")
 		return nil, nil
 	}
 
@@ -44,8 +44,8 @@ func (r *Resource) getDesiredState(ctx context.Context, obj interface{}) (interf
 	{
 		haMasterEnabled, err = r.haMaster.Enabled(ctx, key.ClusterID(&cr))
 		if hamaster.IsNotFound(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "not computing desired state", "reason", "control plane CR not available yet")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "not computing desired state", "reason", "control plane CR not available yet")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil, nil
 		} else if err != nil {
 			return nil, microerror.Mask(err)

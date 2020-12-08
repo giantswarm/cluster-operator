@@ -28,8 +28,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	{
 		restConfig, err = r.tenant.NewRestConfig(ctx, key.ClusterID(&cr), key.KubeConfigEndpoint(&cr, bd))
 		if tenantcluster.IsTimeout(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "timeout fetching certificates")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			r.logger.Debugf(ctx, "timeout fetching certificates")
+			r.logger.Debugf(ctx, "canceling resource")
 			return nil, nil
 
 		} else if err != nil {

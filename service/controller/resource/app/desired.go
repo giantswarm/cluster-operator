@@ -71,7 +71,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha2.Cluster) (map[string]corev1.ConfigMap, error) {
 	configMaps := map[string]corev1.ConfigMap{}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", key.ClusterID(&cr)))
+	r.logger.Debugf(ctx, "finding configMaps in namespace %#q", key.ClusterID(&cr))
 
 	list, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -82,7 +82,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha2.Cluster) (m
 		configMaps[cm.Name] = cm
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(&cr)))
+	r.logger.Debugf(ctx, "found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(&cr))
 
 	return configMaps, nil
 }
@@ -90,7 +90,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha2.Cluster) (m
 func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[string]corev1.Secret, error) {
 	secrets := map[string]corev1.Secret{}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secrets in namespace %#q", key.ClusterID(&cr)))
+	r.logger.Debugf(ctx, "finding secrets in namespace %#q", key.ClusterID(&cr))
 
 	list, err := r.k8sClient.CoreV1().Secrets(key.ClusterID(&cr)).List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -101,7 +101,7 @@ func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[
 		secrets[s.Name] = s
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d secrets in namespace %#q", len(secrets), key.ClusterID(&cr)))
+	r.logger.Debugf(ctx, "found %d secrets in namespace %#q", len(secrets), key.ClusterID(&cr))
 
 	return secrets, nil
 }
@@ -125,7 +125,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Clu
 
 	err = yaml.Unmarshal([]byte(appConfigs), &u)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.JSON(err))
+		r.logger.Errorf(ctx, err, "failed to unmarshal the user config")
 		return nil, nil
 	}
 
@@ -233,7 +233,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		// To test apps in the testing catalog, users can override default app properties with
 		// a user-override-apps configmap.
 		if val, ok := userOverrideConfigs[appName]; ok {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", appName))
+			r.logger.Debugf(ctx, "found a user override app config for %#q, applying it", appName)
 			if val.Catalog != "" {
 				spec.Catalog = val.Catalog
 			}
