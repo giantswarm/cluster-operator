@@ -59,7 +59,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "updating version label for optional apps in tenant cluster %#q", key.ClusterID(&cr))
 
 		for _, app := range apps {
-			currentVersion, _ := app.Labels[label.AppOperatorVersion]
+			currentVersion := app.Labels[label.AppOperatorVersion]
 
 			if currentVersion != appOperatorVersion {
 				patches := []Patch{}
