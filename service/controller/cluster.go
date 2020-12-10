@@ -206,7 +206,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			ReleaseVersion: config.ReleaseVersion,
 		}
 
-		appVersionLabelResource, err := appversionlabel.New(c)
+		appVersionLabelResource, err = appversionlabel.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
