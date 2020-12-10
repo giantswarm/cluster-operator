@@ -20,7 +20,7 @@ require (
 	github.com/giantswarm/tenantcluster/v3 v3.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.8.0
-	github.com/spf13/afero v1.5.0
+	github.com/spf13/afero v1.5.1
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1 // indirect
