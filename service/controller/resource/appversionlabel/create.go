@@ -50,49 +50,51 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	var updatedAppCount int
 	{
-		componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		appOperatorVersion := componentVersions[releaseversion.AppOperator]
+		if len(apps) > 0 {
+			componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
+			if err != nil {
+				return microerror.Mask(err)
+			}
+			appOperatorVersion := componentVersions[releaseversion.AppOperator]
 
-		r.logger.Debugf(ctx, "updating version label for optional apps in tenant cluster %#q", key.ClusterID(&cr))
+			r.logger.Debugf(ctx, "updating version label for optional apps in tenant cluster %#q", key.ClusterID(&cr))
 
-		for _, app := range apps {
-			currentVersion := app.Labels[label.AppOperatorVersion]
+			for _, app := range apps {
+				currentVersion := app.Labels[label.AppOperatorVersion]
 
-			if currentVersion != appOperatorVersion {
-				patches := []Patch{}
+				if currentVersion != appOperatorVersion {
+					patches := []Patch{}
 
-				if len(app.Labels) == 0 {
+					if len(app.Labels) == 0 {
+						patches = append(patches, Patch{
+							Op:    "add",
+							Path:  "/metadata/labels",
+							Value: map[string]string{},
+						})
+					}
+
 					patches = append(patches, Patch{
 						Op:    "add",
-						Path:  "/metadata/labels",
-						Value: map[string]string{},
+						Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
+						Value: appOperatorVersion,
 					})
+
+					bytes, err := json.Marshal(patches)
+					if err != nil {
+						return microerror.Mask(err)
+					}
+
+					_, err = r.g8sClient.ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+					if err != nil {
+						return microerror.Mask(err)
+					}
+
+					updatedAppCount++
 				}
-
-				patches = append(patches, Patch{
-					Op:    "add",
-					Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
-					Value: appOperatorVersion,
-				})
-
-				bytes, err := json.Marshal(patches)
-				if err != nil {
-					return microerror.Mask(err)
-				}
-
-				_, err = r.g8sClient.ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
-				if err != nil {
-					return microerror.Mask(err)
-				}
-
-				updatedAppCount++
 			}
-		}
 
-		r.logger.Debugf(ctx, "updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, key.ClusterID(&cr))
+			r.logger.Debugf(ctx, "updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, key.ClusterID(&cr))
+		}
 	}
 
 	return nil
