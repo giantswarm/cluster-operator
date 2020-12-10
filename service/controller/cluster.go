@@ -26,6 +26,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterid"
@@ -192,6 +193,20 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 
 		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appVersionLabelResource resource.Interface
+	{
+		c := appversionlabel.Config{
+			G8sClient:      config.K8sClient.G8sClient(),
+			Logger:         config.Logger,
+			ReleaseVersion: config.ReleaseVersion,
+		}
+
+		appVersionLabelResource, err := appversionlabel.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -560,6 +575,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
+		appVersionLabelResource,
 		updateG8sControlPlanesResource,
 		updateMachineDeploymentsResource,
 		updateInfraRefsResource,
