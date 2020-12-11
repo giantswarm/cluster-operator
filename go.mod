@@ -3,7 +3,6 @@ module github.com/giantswarm/cluster-operator/v3
 go 1.14
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions/v3 v3.13.0
 	github.com/giantswarm/certs/v3 v3.1.0
@@ -21,9 +20,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.8.0
 	github.com/spf13/afero v1.5.1
-	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.6.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.18.9
 	k8s.io/apiextensions-apiserver v0.18.9
