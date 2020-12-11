@@ -53,9 +53,3 @@ func (r *Resource) Name() string {
 func replaceToEscape(from string) string {
 	return strings.Replace(from, "/", "~1", -1)
 }
-
-type Patch struct {
-	Op    string      `json:"op"`
-	Path  string      `json:"path"`
-	Value interface{} `json:"value"`
-}

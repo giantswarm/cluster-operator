@@ -63,17 +63,17 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				currentVersion := app.Labels[label.AppOperatorVersion]
 
 				if currentVersion != appOperatorVersion {
-					patches := []Patch{}
+					patches := []patch{}
 
 					if len(app.Labels) == 0 {
-						patches = append(patches, Patch{
+						patches = append(patches, patch{
 							Op:    "add",
 							Path:  "/metadata/labels",
 							Value: map[string]string{},
 						})
 					}
 
-					patches = append(patches, Patch{
+					patches = append(patches, patch{
 						Op:    "add",
 						Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
 						Value: appOperatorVersion,
