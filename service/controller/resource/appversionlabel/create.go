@@ -22,13 +22,6 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	// The app custom resources are deleted when the namespace is deleted.
-	if key.IsDeleted(&cr) {
-		r.logger.Debugf(ctx, "not updating app version labels for tenant cluster %#q", key.ClusterID(&cr))
-		r.logger.Debugf(ctx, "canceling resource")
-		return nil
-	}
-
 	var apps []*v1alpha1.App
 	{
 		r.logger.Debugf(ctx, "finding optional apps for tenant cluster %#q", key.ClusterID(&cr))
@@ -48,8 +41,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "found %d optional apps for tenant cluster %#q", len(apps), key.ClusterID(&cr))
 	}
 
-	var updatedAppCount int
 	{
+		var updatedAppCount int
+
 		if len(apps) > 0 {
 			componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
 			if err != nil {
