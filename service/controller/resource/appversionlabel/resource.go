@@ -36,8 +36,9 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient: config.G8sClient,
-		logger:    config.Logger,
+		g8sClient:            config.G8sClient,
+		getClusterConfigFunc: config.GetClusterConfigFunc,
+		logger:               config.Logger,
 	}
 
 	return r, nil
