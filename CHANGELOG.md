@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.0] - 2021-01-05
+
 ### Added
 
 - Add vertical pod autoscaler support.
@@ -191,7 +193,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.4.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.5.0...HEAD
+[3.5.0]: https://github.com/giantswarm/cluster-operator/compare/v3.4.1...v3.5.0
 [3.4.1]: https://github.com/giantswarm/cluster-operator/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/giantswarm/cluster-operator/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/giantswarm/cluster-operator/compare/v3.3.0...v3.3.1
