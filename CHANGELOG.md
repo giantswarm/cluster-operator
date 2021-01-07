@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.20] - 2021-01-07
+
 ### Added
 
 - Add appversionlabel resource to update version labels for optional app CRs.
