@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/ghodss/yaml"
@@ -14,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
+	"github.com/giantswarm/appcatalog"
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	pkglabel "github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
@@ -188,6 +190,44 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 	}
 }
 
+func chartName(appName, catalog, version string) (string, error) {
+	// first fetch
+	chartName := appName
+	catalogBaseURL := fmt.Sprintf("https://giantswarm.github.io/%s-catalog", catalog)
+	chartURL, err := appcatalog.NewTarballURL(catalogBaseURL, chartName, version)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	resp, err := http.Head(chartURL) // #nosec
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		return chartName, nil
+	}
+
+	chartName = fmt.Sprintf("%s-app", chartName)
+	chartURL, err = appcatalog.NewTarballURL(catalogBaseURL, chartName, version)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	resp, err = http.Head(chartURL) // #nosec
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		return chartName, nil
+	}
+
+	return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
+}
+
 func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
 	userOverrideConfigs, err := r.getUserOverrideConfig(ctx, cr)
 	if err != nil {
@@ -207,10 +247,16 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		} else {
 			catalog = app.Catalog
 		}
+
+		chart, err := chartName(appName, catalog, app.Version)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
 		spec := key.AppSpec{
 			App:             appName,
 			Catalog:         catalog,
-			Chart:           fmt.Sprintf("%s-app", appName),
+			Chart:           chart,
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
 			Version:         app.Version,
