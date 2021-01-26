@@ -65,6 +65,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		}
 	}
 
+	appOperatorSpec := key.AppSpec{
+		App:             fmt.Sprintf("app-operator-%s", key.ClusterID(&cr)),
+		Catalog:         "control-plane-test-catalog",
+		Chart:           "app-operator",
+		Namespace:       key.ClusterID(&cr),
+		UseUpgradeForce: true,
+		Version:         "3.1.0-c1125839e93d97949327cbd8f62782097457c644",
+	}
+	apps = append(apps, r.newApp("0.0.0", cr, appOperatorSpec, g8sv1alpha1.AppSpecUserConfig{}))
+
 	return apps, nil
 }
 
