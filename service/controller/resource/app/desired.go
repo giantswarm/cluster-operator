@@ -211,7 +211,7 @@ func (r *Resource) chartName(ctx context.Context, appName, catalog, version stri
 		return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
 	}
 
-	appNameWithoutAppSuffix := strings.TrimRight(appName, "-app")
+	appNameWithoutAppSuffix := strings.TrimSuffix(appName, "-app")
 	appNameWithAppSuffix := fmt.Sprintf("%s-app", appNameWithoutAppSuffix)
 
 	for _, entry := range entries {
