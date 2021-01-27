@@ -1,10 +1,13 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
@@ -14,8 +17,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
-
-	"github.com/giantswarm/appcatalog"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	pkglabel "github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -191,39 +192,32 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 	}
 }
 
-func chartName(appName, catalog, version string) (string, error) {
-	// first fetch
-	chartName := appName
-	catalogBaseURL := fmt.Sprintf("https://giantswarm.github.io/%s-catalog", catalog)
-	chartURL, err := appcatalog.NewTarballURL(catalogBaseURL, chartName, version)
-	if err != nil {
-		return "", microerror.Mask(err)
+func (r *Resource) chartName(ctx context.Context, appName, catalog, version string) (string, error) {
+	var index Index
+	{
+		indexYamlBytes, err := r.getCatalogIndex(ctx, catalog)
+		if err != nil {
+			return "", microerror.Mask(err)
+		}
+
+		err = yaml.Unmarshal(indexYamlBytes, &index)
+		if err != nil {
+			return "", microerror.Mask(err)
+		}
 	}
 
-	resp, err := http.Head(chartURL) // #nosec
-	if err != nil {
-		return "", microerror.Mask(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusOK {
-		return chartName, nil
+	entries, ok := index.Entries[appName]
+	if !ok || len(entries) == 0 {
+		return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
 	}
 
-	chartName = fmt.Sprintf("%s-app", chartName)
-	chartURL, err = appcatalog.NewTarballURL(catalogBaseURL, chartName, version)
-	if err != nil {
-		return "", microerror.Mask(err)
-	}
+	appNameWithoutAppSuffix := strings.TrimRight(appName, "-app")
+	appNameWithAppSuffix := fmt.Sprintf("%s-app", appNameWithoutAppSuffix)
 
-	resp, err = http.Head(chartURL) // #nosec
-	if err != nil {
-		return "", microerror.Mask(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusOK {
-		return chartName, nil
+	for _, entry := range entries {
+		if entry.Version == version && (entry.Name == appNameWithAppSuffix || entry.Name == appNameWithoutAppSuffix) {
+			return entry.Name, nil
+		}
 	}
 
 	return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
@@ -249,7 +243,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 			catalog = app.Catalog
 		}
 
-		chart, err := chartName(appName, catalog, app.Version)
+		chart, err := r.chartName(ctx, appName, catalog, app.Version)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -318,4 +312,35 @@ func newUserConfig(cr apiv1alpha2.Cluster, appSpec key.AppSpec, configMaps map[s
 	}
 
 	return userConfig
+}
+
+func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]byte, error) {
+	client := &http.Client{}
+
+	var err error
+	var catalog *g8sv1alpha1.AppCatalog
+	{
+		catalog, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	url := strings.TrimRight(catalog.Spec.Storage.URL, "/") + "/index.yaml"
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, &bytes.Buffer{}) // nolint: gosec
+	if err != nil {
+		return []byte{}, microerror.Mask(err)
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		return []byte{}, microerror.Mask(err)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []byte{}, microerror.Mask(err)
+	}
+
+	return body, nil
 }
