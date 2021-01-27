@@ -69,6 +69,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		App:             fmt.Sprintf("app-operator-%s", key.ClusterID(&cr)),
 		Catalog:         "control-plane-test-catalog",
 		Chart:           "app-operator",
+		InCluster:       true,
 		Namespace:       key.ClusterID(&cr),
 		UseUpgradeForce: true,
 		Version:         "3.1.0-c1125839e93d97949327cbd8f62782097457c644",
@@ -150,6 +151,24 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 		configMapName = appSpec.ConfigMapName
 	}
 
+	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
+
+	if appSpec.InCluster {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			InCluster: true,
+		}
+	} else {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			Context: g8sv1alpha1.AppSpecKubeConfigContext{
+				Name: key.KubeConfigSecretName(&cr),
+			},
+			Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
+				Name:      key.KubeConfigSecretName(&cr),
+				Namespace: key.ClusterID(&cr),
+			},
+		}
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -175,24 +194,13 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 			Name:      appSpec.Chart,
 			Namespace: appSpec.Namespace,
 			Version:   appSpec.Version,
-
 			Config: g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
 					Name:      configMapName,
 					Namespace: key.ClusterID(&cr),
 				},
 			},
-
-			KubeConfig: g8sv1alpha1.AppSpecKubeConfig{
-				Context: g8sv1alpha1.AppSpecKubeConfigContext{
-					Name: key.KubeConfigSecretName(&cr),
-				},
-				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
-					Name:      key.KubeConfigSecretName(&cr),
-					Namespace: key.ClusterID(&cr),
-				},
-			},
-
+			KubeConfig: kubeConfig,
 			UserConfig: userConfig,
 		},
 	}
