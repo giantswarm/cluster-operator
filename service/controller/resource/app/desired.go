@@ -208,16 +208,23 @@ func (r *Resource) chartName(ctx context.Context, appName, catalog, version stri
 		}
 	}
 
-	entries, ok := index.Entries[appName]
-	if !ok || len(entries) == 0 {
-		return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
-	}
-
 	appNameWithoutAppSuffix := strings.TrimSuffix(appName, "-app")
 	appNameWithAppSuffix := fmt.Sprintf("%s-app", appNameWithoutAppSuffix)
+	chartName := ""
+
+	entries, ok := index.Entries[appNameWithAppSuffix]
+	if !ok || len(entries) == 0 {
+		entries, ok = index.Entries[appNameWithoutAppSuffix]
+		if !ok || len(entries) == 0 {
+			return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
+		}
+		chartName = appNameWithoutAppSuffix
+	} else {
+		chartName = appNameWithAppSuffix
+	}
 
 	for _, entry := range entries {
-		if entry.Version == version && (entry.Name == appNameWithAppSuffix || entry.Name == appNameWithoutAppSuffix) {
+		if entry.Version == version && entry.Name == chartName {
 			return entry.Name, nil
 		}
 	}
