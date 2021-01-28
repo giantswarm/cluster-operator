@@ -1,19 +1,13 @@
 package app
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/clusterclient/service/release/searcher"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/controller/context/resourcecanceledcontext"
@@ -219,44 +213,6 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 	}
 }
 
-func (r *Resource) chartName(ctx context.Context, appName, catalog, version string) (string, error) {
-	var index Index
-	{
-		indexYamlBytes, err := r.getCatalogIndex(ctx, catalog)
-		if err != nil {
-			return "", microerror.Mask(err)
-		}
-
-		err = yaml.Unmarshal(indexYamlBytes, &index)
-		if err != nil {
-			return "", microerror.Mask(err)
-		}
-	}
-
-	appNameWithoutAppSuffix := strings.TrimSuffix(appName, "-app")
-	appNameWithAppSuffix := fmt.Sprintf("%s-app", appNameWithoutAppSuffix)
-	chartName := ""
-
-	entries, ok := index.Entries[appNameWithAppSuffix]
-	if !ok || len(entries) == 0 {
-		entries, ok = index.Entries[appNameWithoutAppSuffix]
-		if !ok || len(entries) == 0 {
-			return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
-		}
-		chartName = appNameWithoutAppSuffix
-	} else {
-		chartName = appNameWithAppSuffix
-	}
-
-	for _, entry := range entries {
-		if entry.Version == version && entry.Name == chartName {
-			return entry.Name, nil
-		}
-	}
-
-	return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
-}
-
 func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConfig) ([]key.AppSpec, error) {
 	req := searcher.Request{
 		ReleaseVersion: cr.ReleaseVersion,
@@ -278,15 +234,10 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 	var specs []key.AppSpec
 
 	for _, app := range res.Apps {
-		chart, err := r.chartName(ctx, app.App, r.defaultConfig.Catalog, app.Version)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
 		spec := key.AppSpec{
 			App:             app.App,
 			Catalog:         r.defaultConfig.Catalog,
-			Chart:           chart,
+			Chart:           fmt.Sprintf("%s-app", app.App),
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
 			Version:         app.Version,
@@ -367,48 +318,4 @@ func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpe
 	}
 
 	return userConfig, nil
-}
-
-func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]byte, error) {
-	client := &http.Client{}
-
-	var err error
-	var catalog *g8sv1alpha1.AppCatalog
-	{
-		catalog, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(catalogName, metav1.GetOptions{})
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	url := strings.TrimRight(catalog.Spec.Storage.URL, "/") + "/index.yaml"
-	body := []byte{}
-
-	o := func() error {
-		request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, &bytes.Buffer{}) // nolint: gosec
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		response, err := client.Do(request)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		return nil
-	}
-	b := backoff.NewExponential(30*time.Second, 5*time.Second)
-	n := backoff.NewNotifier(r.logger, ctx)
-
-	err = backoff.RetryNotify(o, b, n)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
-	return body, nil
 }
