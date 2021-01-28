@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Check existence of chart tarball for `release` CR `apps` in catalog.
+
 ## [3.5.0] - 2021-01-05
 
 ### Added
