@@ -8,10 +8,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -327,19 +329,32 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 	}
 
 	url := strings.TrimRight(catalog.Spec.Storage.URL, "/") + "/index.yaml"
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, &bytes.Buffer{}) // nolint: gosec
-	if err != nil {
-		return []byte{}, microerror.Mask(err)
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		return []byte{}, microerror.Mask(err)
-	}
-	defer response.Body.Close()
+	body := []byte{}
 
-	body, err := ioutil.ReadAll(response.Body)
+	o := func() error {
+		request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, &bytes.Buffer{}) // nolint: gosec
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		response, err := client.Do(request)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		defer response.Body.Close()
+
+		body, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		return nil
+	}
+	b := backoff.NewExponential(30*time.Second, 5*time.Second)
+	n := backoff.NewNotifier(r.logger, ctx)
+
+	err = backoff.RetryNotify(o, b, n)
 	if err != nil {
-		return []byte{}, microerror.Mask(err)
+		return nil, microerror.Mask(err)
 	}
 
 	return body, nil
