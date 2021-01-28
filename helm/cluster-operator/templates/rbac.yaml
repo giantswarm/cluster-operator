@@ -41,6 +41,12 @@ rules:
     verbs:
       - "*"
   - apiGroups:
+      - application.giantswarm.io
+    resources:
+      - appcatalogs
+    verbs:
+      - get
+  - apiGroups:
       - "networking.k8s.io"
     resources:
       - networkpolicies
