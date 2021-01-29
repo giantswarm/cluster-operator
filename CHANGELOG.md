@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.21] - 2021-01-28
+
 ### Added
 
 - Check existence of chart tarball for `release` CR `apps` in catalog.
@@ -54,7 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.19...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.21...HEAD
+[0.23.21]: https://github.com/giantswarm/cluster-operator/compare/v0.23.19...v0.23.21
 [0.23.19]: https://github.com/giantswarm/cluster-operator/compare/v0.23.18...v0.23.19
 [0.23.18]: https://github.com/giantswarm/cluster-operator/compare/v0.23.17...v0.23.18
 [0.23.17]: https://github.com/giantswarm/cluster-operator/compare/v0.23.16...v0.23.17
