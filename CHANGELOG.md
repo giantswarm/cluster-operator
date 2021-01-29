@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.22] - 2021-01-29
 
+Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
+
 ## [0.23.21] - 2021-01-28
 
 ### Added
