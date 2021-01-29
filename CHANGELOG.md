@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.22] - 2021-01-29
+
+### Changed
+
+Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
+
 ## [0.23.21] - 2021-01-28
 
 ### Added
@@ -31,13 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Delete all chartconfig migration logic. 
+- Delete all chartconfig migration logic.
 
 ## [0.23.16] - 2020-08-18
 
 ### Changed
 
-- Get app-operator version from releases CR. 
+- Get app-operator version from releases CR.
 
 ## [0.23.14] - 2020-07-30
 
@@ -56,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.21...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.22...HEAD
+[0.23.22]: https://github.com/giantswarm/cluster-operator/compare/v0.23.21...v0.23.22
 [0.23.21]: https://github.com/giantswarm/cluster-operator/compare/v0.23.19...v0.23.21
 [0.23.19]: https://github.com/giantswarm/cluster-operator/compare/v0.23.18...v0.23.19
 [0.23.18]: https://github.com/giantswarm/cluster-operator/compare/v0.23.17...v0.23.18
