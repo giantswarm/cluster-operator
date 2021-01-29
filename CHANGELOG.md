@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.22] - 2021-01-29
 
+### Changed
+
 Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
 
 ## [0.23.21] - 2021-01-28
@@ -35,13 +37,13 @@ Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
 
 ### Changed
 
-- Delete all chartconfig migration logic. 
+- Delete all chartconfig migration logic.
 
 ## [0.23.16] - 2020-08-18
 
 ### Changed
 
-- Get app-operator version from releases CR. 
+- Get app-operator version from releases CR.
 
 ## [0.23.14] - 2020-07-30
 
