@@ -185,7 +185,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
 			},
 			Labels: map[string]string{
-				pkglabel.App:             appSpec.App,
+				label.AppKubernetesName:  appSpec.App,
 				label.AppOperatorVersion: appOperatorVersion,
 				label.Cluster:            key.ClusterID(&cr),
 				label.ManagedBy:          project.Name(),
