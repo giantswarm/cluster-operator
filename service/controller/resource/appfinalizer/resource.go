@@ -1,8 +1,6 @@
 package appfinalizer
 
 import (
-	"strings"
-
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -40,8 +38,4 @@ func New(config Config) (*Resource, error) {
 
 func (r *Resource) Name() string {
 	return Name
-}
-
-func replaceToEscape(from string) string {
-	return strings.Replace(from, "/", "~1", -1)
 }
