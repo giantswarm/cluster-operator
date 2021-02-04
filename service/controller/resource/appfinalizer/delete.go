@@ -36,7 +36,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "removing finalizer for app %#q", app.Name)
 
 		index := getFinalizerIndex(app.Finalizers)
-		if index > 0 {
+		if index >= 0 {
 			patches := []patch{
 				{
 					Op:   "remove",
