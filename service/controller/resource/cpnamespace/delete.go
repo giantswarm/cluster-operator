@@ -11,7 +11,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
@@ -62,7 +61,7 @@ func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desir
 	}
 
 	o := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s,%s!=%s", label.ManagedBy, project.Name(), label.AppKubernetesName, "app-operator"),
+		LabelSelector: fmt.Sprintf("%s!=%s", label.AppKubernetesName, "app-operator"),
 	}
 	list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(ctx, o)
 	if err != nil {
