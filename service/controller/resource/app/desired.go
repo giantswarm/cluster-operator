@@ -78,7 +78,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		InCluster:       true,
 		Namespace:       key.ClusterID(&cr),
 		UseUpgradeForce: true,
-		Version:         "3.1.0-340649283175f38d592375ba3108b1de6c9ea1f2",
+		Version:         "3.1.0-77d0f102d4f1773cc48b03b4397ce1c7d003a090",
 	}
 	apps = append(apps, r.newApp("0.0.0", cr, appOperatorSpec, g8sv1alpha1.AppSpecUserConfig{}))
 
