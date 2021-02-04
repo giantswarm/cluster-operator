@@ -1,6 +1,7 @@
 package cpnamespace
 
 import (
+	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
@@ -14,18 +15,23 @@ const (
 
 // Config represents the configuration used to create a new namespace resource.
 type Config struct {
+	G8sClient versioned.Interface
 	K8sClient kubernetes.Interface
 	Logger    micrologger.Logger
 }
 
 // Resource implements the namespace resource.
 type Resource struct {
+	g8sClient versioned.Interface
 	k8sClient kubernetes.Interface
 	logger    micrologger.Logger
 }
 
 // New creates a new configured namespace resource.
 func New(config Config) (*Resource, error) {
+	if config.G8sClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
 	}
@@ -34,6 +40,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
+		g8sClient: config.G8sClient,
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 	}

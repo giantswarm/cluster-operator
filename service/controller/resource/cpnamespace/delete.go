@@ -2,13 +2,16 @@ package cpnamespace
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/giantswarm/cluster-operator/v3/pkg/project"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
@@ -53,6 +56,23 @@ func (r *Resource) NewDeletePatch(ctx context.Context, obj, currentState, desire
 }
 
 func (r *Resource) newDeleteChange(ctx context.Context, obj, currentState, desiredState interface{}) (*corev1.Namespace, error) {
+	cr, err := key.ToCluster(obj)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	o := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s,%s!=%s", label.ManagedBy, project.Name(), label.AppKubernetesName, "app-operator"),
+	}
+	list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(ctx, o)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	if len(list.Items) > 0 {
+		r.logger.Debugf(ctx, "waiting for %d apps for cluster %#q to be deleted", len(list.Items), key.ClusterID(&cr))
+		return nil, microerror.Mask(err)
+	}
+
 	currentNamespace, err := toNamespace(currentState)
 	if err != nil {
 		return nil, microerror.Mask(err)
