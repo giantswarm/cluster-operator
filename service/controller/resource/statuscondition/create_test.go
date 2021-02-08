@@ -30,16 +30,66 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 		controlPlane nodeConfig
 		nodePools    []nodeConfig
 		release      v1alpha1.Release
+		conditions   []infrastructurev1alpha2.CommonClusterStatusCondition
 
 		expectCondition string
 	}{
 		// This is the case where we simulating a cluster upgrade with condition `Updating` and we expect condition `Updated` to be set
 		{
-			name:            "case 0",
-			release:         unittest.DefaultRelease(),
-			controlPlane:    nodeConfig{1, 1},
-			nodePools:       []nodeConfig{{1, 1}},
+			name:         "case 0",
+			release:      unittest.DefaultRelease(),
+			controlPlane: nodeConfig{1, 1},
+			nodePools:    []nodeConfig{{1, 1}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
 			expectCondition: "Updated",
+		},
+		// Some nodes are not ready yet
+		{
+			name:         "case 1",
+			release:      unittest.DefaultRelease(),
+			controlPlane: nodeConfig{3, 1},
+			nodePools:    []nodeConfig{{2, 1}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			expectCondition: "Updating",
+		},
+		// The cluster is creating
+		{
+			name:            "case 2",
+			release:         unittest.DefaultRelease(),
+			controlPlane:    nodeConfig{1, 0},
+			nodePools:       []nodeConfig{{1, 0}},
+			conditions:      []infrastructurev1alpha2.CommonClusterStatusCondition{},
+			expectCondition: "Creating",
+		},
+		// The cluster is still creating - some nodes are not ready yet
+		{
+			name:         "case 3",
+			release:      unittest.DefaultRelease(),
+			controlPlane: nodeConfig{3, 1},
+			nodePools:    []nodeConfig{{2, 1}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetCreatingCondition(90),
+			},
+			expectCondition: "Creating",
+		},
+		// The cluster is created
+		{
+			name:         "case 3",
+			release:      unittest.DefaultRelease(),
+			controlPlane: nodeConfig{3, 3},
+			nodePools:    []nodeConfig{{2, 2}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetCreatingCondition(90),
+			},
+			expectCondition: "Created",
 		},
 	}
 
@@ -47,7 +97,6 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			fakek8sclient := unittest.FakeK8sClient()
 			ctx := context.Background()
-			cluster := unittest.DefaultCluster()
 
 			// The worker and master nodes are created
 			var nodes []v1.Node
@@ -72,6 +121,15 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 					masterNode := unittest.NewMasterNode()
 					nodes = append(nodes, masterNode)
 				}
+			}
+
+			// The cluster created
+			var cluster infrastructurev1alpha2.AWSCluster
+			var cl apiv1alpha2.Cluster
+			{
+				cluster = unittest.DefaultCluster()
+				cluster.Status.Cluster.Conditions = tc.conditions
+				cl = apiv1alpha2.Cluster{}
 			}
 
 			var err error
@@ -111,7 +169,6 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			cl := apiv1alpha2.Cluster{}
 			err = r.computeCreateClusterStatusConditions(ctx, cl, &cluster, nodes, cps, mds)
 			if err != nil {
 				t.Fatal(err)
