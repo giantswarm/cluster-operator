@@ -109,3 +109,9 @@ func GetUpdatedCondition(minutesAgo time.Duration) infrastructurev1alpha2.Common
 		Condition:          infrastructurev1alpha2.ClusterStatusConditionUpdated,
 	}
 }
+func GetVersion(minutesAgo time.Duration, version string) infrastructurev1alpha2.CommonClusterStatusVersion {
+	return infrastructurev1alpha2.CommonClusterStatusVersion{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Version:            version,
+	}
+}

@@ -26,70 +26,176 @@ type nodeConfig struct {
 
 func TestComputeCreateClusterStatusConditions(t *testing.T) {
 	testCases := []struct {
-		name         string
-		controlPlane nodeConfig
-		nodePools    []nodeConfig
-		release      v1alpha1.Release
-		conditions   []infrastructurev1alpha2.CommonClusterStatusCondition
+		name string
+
+		controlPlane    nodeConfig
+		nodePools       []nodeConfig
+		conditions      []infrastructurev1alpha2.CommonClusterStatusCondition
+		versions        []infrastructurev1alpha2.CommonClusterStatusVersion
+		operatorVersion string
 
 		expectCondition string
+		expectVersion   string
 	}{
-		// This is the case where we simulating a cluster upgrade with condition `Updating` and we expect condition `Updated` to be set
-		{
-			name:         "case 0",
-			release:      unittest.DefaultRelease(),
-			controlPlane: nodeConfig{1, 1},
-			nodePools:    []nodeConfig{{1, 1}},
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
-				unittest.GetUpdatingCondition(15),
-				unittest.GetCreatedCondition(60),
-				unittest.GetCreatingCondition(90),
-			},
-			expectCondition: "Updated",
-		},
-		// Some nodes are not ready yet
-		{
-			name:         "case 1",
-			release:      unittest.DefaultRelease(),
-			controlPlane: nodeConfig{3, 1},
-			nodePools:    []nodeConfig{{2, 1}},
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
-				unittest.GetUpdatingCondition(15),
-				unittest.GetCreatedCondition(60),
-				unittest.GetCreatingCondition(90),
-			},
-			expectCondition: "Updating",
-		},
 		// The cluster is creating
 		{
-			name:            "case 2",
-			release:         unittest.DefaultRelease(),
+			name: "case 0",
+
 			controlPlane:    nodeConfig{1, 0},
-			nodePools:       []nodeConfig{{1, 0}},
+			nodePools:       []nodeConfig{{2, 0}},
 			conditions:      []infrastructurev1alpha2.CommonClusterStatusCondition{},
+			versions:        []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			operatorVersion: "8.7.5",
+
 			expectCondition: "Creating",
+			expectVersion:   "",
 		},
 		// The cluster is still creating - some nodes are not ready yet
 		{
-			name:         "case 3",
-			release:      unittest.DefaultRelease(),
-			controlPlane: nodeConfig{3, 1},
+			name: "case 1",
+
+			controlPlane: nodeConfig{1, 0},
 			nodePools:    []nodeConfig{{2, 1}},
 			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
 				unittest.GetCreatingCondition(90),
 			},
+			versions:        []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			operatorVersion: "8.7.5",
+
 			expectCondition: "Creating",
+			expectVersion:   "",
 		},
 		// The cluster is created
 		{
-			name:         "case 3",
-			release:      unittest.DefaultRelease(),
-			controlPlane: nodeConfig{3, 3},
+			name: "case 2",
+
+			controlPlane: nodeConfig{1, 1},
 			nodePools:    []nodeConfig{{2, 2}},
 			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
 				unittest.GetCreatingCondition(90),
 			},
+			versions:        []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			operatorVersion: "8.7.5",
+
 			expectCondition: "Created",
+			expectVersion:   "8.7.5",
+		},
+		// We add a nodepool
+		{
+			name: "case 3",
+
+			controlPlane: nodeConfig{1, 1},
+			nodePools:    []nodeConfig{{2, 2}, {2, 0}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.5",
+
+			expectCondition: "Created",
+			expectVersion:   "8.7.5",
+		},
+		// The cluster is upgrading
+		{
+			name: "case 4",
+
+			controlPlane: nodeConfig{1, 0},
+			nodePools:    []nodeConfig{{2, 2}, {2, 0}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.6",
+
+			expectCondition: "Updating",
+			expectVersion:   "8.7.5",
+		},
+		// Some nodes are not ready yet
+		{
+			name: "case 5",
+
+			controlPlane: nodeConfig{1, 0},
+			nodePools:    []nodeConfig{{2, 2}, {2, 0}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.6",
+
+			expectCondition: "Updating",
+			expectVersion:   "8.7.5",
+		},
+		// This is the case where we simulating a cluster upgrade with condition `Updating` and we expect condition `Updated` to be set
+		{
+			name: "case 6",
+
+			controlPlane: nodeConfig{1, 1},
+			nodePools:    []nodeConfig{{2, 2}, {2, 2}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.6",
+
+			expectCondition: "Updated",
+			expectVersion:   "8.7.6",
+		},
+		// We go HA masters
+		{
+			name: "case 7",
+
+			controlPlane: nodeConfig{3, 1},
+			nodePools:    []nodeConfig{{2, 2}, {2, 2}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatedCondition(5),
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(5, "8.7.6"),
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.6",
+
+			expectCondition: "Updated",
+			expectVersion:   "8.7.6",
+		},
+		// We upgrade again
+		{
+			name: "case 8",
+
+			controlPlane: nodeConfig{3, 1},
+			nodePools:    []nodeConfig{{2, 0}, {2, 1}},
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatedCondition(5),
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(5, "8.7.6"),
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.7",
+
+			// TODO: this should be "updating" but it does not work yet
+			expectCondition: "Updated",
+			expectVersion:   "8.7.6",
 		},
 	}
 
@@ -110,6 +216,7 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 					mds = append(mds, md)
 					for i := 0; i < nodePool.readyReplicas; i++ {
 						workerNode := unittest.NewWorkerNode()
+						workerNode.Labels["aws-operator.giantswarm.io/version"] = tc.operatorVersion
 						nodes = append(nodes, workerNode)
 					}
 				}
@@ -119,20 +226,32 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 				cps = append(cps, cp)
 				for i := 0; i < tc.controlPlane.readyReplicas; i++ {
 					masterNode := unittest.NewMasterNode()
+					masterNode.Labels["aws-operator.giantswarm.io/version"] = tc.operatorVersion
 					nodes = append(nodes, masterNode)
 				}
 			}
 
-			// The cluster created
+			// The cluster is created
 			var cluster infrastructurev1alpha2.AWSCluster
 			var cl apiv1alpha2.Cluster
 			{
 				cluster = unittest.DefaultCluster()
 				cluster.Status.Cluster.Conditions = tc.conditions
+				cluster.Status.Cluster.Versions = tc.versions
 				cl = apiv1alpha2.Cluster{}
 			}
 
-			var err error
+			// The release is created
+			var release v1alpha1.Release
+			{
+				release = unittest.DefaultRelease()
+				release.Spec.Components[1].Version = tc.operatorVersion
+			}
+			err := fakek8sclient.CtrlClient().Create(ctx, &release)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			var e recorder.Interface
 			{
 				c := recorder.Config{
@@ -164,19 +283,29 @@ func TestComputeCreateClusterStatusConditions(t *testing.T) {
 				provider:                   "aws",
 			}
 
-			err = fakek8sclient.CtrlClient().Create(ctx, &tc.release)
-			if err != nil {
-				t.Fatal(err)
-			}
-
 			err = r.computeCreateClusterStatusConditions(ctx, cl, &cluster, nodes, cps, mds)
 			if err != nil {
 				t.Fatal(err)
 			}
-			status := cluster.GetCommonClusterStatus()
 
-			if status.Conditions[0].Condition != tc.expectCondition {
-				t.Fatalf("expected %#q to differ from %#q", tc.expectCondition, status.Conditions[0].Condition)
+			// Check results
+			var currentCondition string
+			var currentVersion string
+			{
+				status := cluster.GetCommonClusterStatus()
+				if len(status.Conditions) > 0 {
+					currentCondition = status.Conditions[0].Condition
+				}
+				if len(status.Versions) > 0 {
+					currentVersion = status.Versions[0].Version
+				}
+			}
+
+			if currentCondition != tc.expectCondition {
+				t.Fatalf("expected %#q to differ from %#q", tc.expectCondition, currentCondition)
+			}
+			if currentVersion != tc.expectVersion {
+				t.Fatalf("expected %#q to differ from %#q", tc.expectVersion, currentVersion)
 			}
 		})
 	}
