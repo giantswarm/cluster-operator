@@ -72,13 +72,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	appOperatorSpec := key.AppSpec{
-		App:             fmt.Sprintf("app-operator-%s", key.ClusterID(&cr)),
+		App: "app-operator",
+		// Override app name to include the cluster ID.
+		AppName:         fmt.Sprintf("app-operator-%s", key.ClusterID(&cr)),
 		Catalog:         "control-plane-test-catalog",
 		Chart:           "app-operator",
 		InCluster:       true,
 		Namespace:       key.ClusterID(&cr),
 		UseUpgradeForce: true,
-		Version:         "3.2.0-5b0c45036a109274afe5ba7957fd2be1178c1258",
+		Version:         "3.2.0-071b124b4633bb67cfe3b2a4f59834bba7ef13a5",
 	}
 	apps = append(apps, r.newApp("0.0.0", cr, appOperatorSpec, g8sv1alpha1.AppSpecUserConfig{}))
 
@@ -157,6 +159,14 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 		configMapName = appSpec.ConfigMapName
 	}
 
+	var appName string
+
+	if appSpec.AppName != "" {
+		appName = appSpec.AppName
+	} else {
+		appName = appSpec.App
+	}
+
 	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
 
 	if appSpec.InCluster {
@@ -192,7 +202,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 				label.Organization:       key.OrganizationID(&cr),
 				pkglabel.ServiceType:     pkglabel.ServiceTypeManaged,
 			},
-			Name:      appSpec.App,
+			Name:      appName,
 			Namespace: key.ClusterID(&cr),
 		},
 		Spec: g8sv1alpha1.AppSpec{
