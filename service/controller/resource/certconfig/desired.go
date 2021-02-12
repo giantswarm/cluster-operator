@@ -109,9 +109,6 @@ func newCertConfig(certOperatorVersion string, cr apiv1alpha2.Cluster, cert core
 		},
 		Spec: corev1alpha1.CertConfigSpec{
 			Cert: cert,
-			VersionBundle: corev1alpha1.CertConfigSpecVersionBundle{
-				Version: certOperatorVersion,
-			},
 		},
 	}
 }
