@@ -52,37 +52,39 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	var apps []*g8sv1alpha1.App
 
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	// Define app CR for app-operator.
+	appOperatorComponent := componentVersions[releaseversion.AppOperator]
+	appOperatorSpec := key.AppSpec{
+		App: releaseversion.AppOperator,
+		// Override app name to include the cluster ID.
+		AppName:         fmt.Sprintf("%s-%s", releaseversion.AppOperator, key.ClusterID(&cr)),
+		Catalog:         appOperatorComponent.Catalog,
+		Chart:           releaseversion.AppOperator,
+		InCluster:       true,
+		Namespace:       key.ClusterID(&cr),
+		UseUpgradeForce: true,
+		Version:         appOperatorComponent.Version,
+	}
+	apps = append(apps, r.newApp(uniqueOperatorVersion, cr, appOperatorSpec, g8sv1alpha1.AppSpecUserConfig{}))
+
+	// Define app CRs for pre-installed apps.
 	appSpecs, err := r.newAppSpecs(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	appOperatorVersion := componentVersions[releaseversion.AppOperator]
-
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
-			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig))
+			apps = append(apps, r.newApp(appOperatorComponent.Version, cr, appSpec, userConfig))
 		}
 	}
-
-	appOperatorSpec := key.AppSpec{
-		App: "app-operator",
-		// Override app name to include the cluster ID.
-		AppName:         fmt.Sprintf("app-operator-%s", key.ClusterID(&cr)),
-		Catalog:         "control-plane-test-catalog",
-		Chart:           "app-operator",
-		InCluster:       true,
-		Namespace:       key.ClusterID(&cr),
-		UseUpgradeForce: true,
-		Version:         "3.2.0-071b124b4633bb67cfe3b2a4f59834bba7ef13a5",
-	}
-	apps = append(apps, r.newApp("0.0.0", cr, appOperatorSpec, g8sv1alpha1.AppSpecUserConfig{}))
 
 	return apps, nil
 }
