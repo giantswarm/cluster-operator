@@ -58,7 +58,7 @@ func (rv *ReleaseVersion) Apps(ctx context.Context, obj interface{}) (map[string
 	return apps, nil
 }
 
-func (rv *ReleaseVersion) ComponentVersion(ctx context.Context, obj interface{}) (map[string]string, error) {
+func (rv *ReleaseVersion) ComponentVersion(ctx context.Context, obj interface{}) (map[string]ReleaseComponent, error) {
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -68,9 +68,12 @@ func (rv *ReleaseVersion) ComponentVersion(ctx context.Context, obj interface{})
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	components := make(map[string]string, len(release.Spec.Components))
+	components := make(map[string]ReleaseComponent, len(release.Spec.Components))
 	for _, v := range release.Spec.Components {
-		components[v.Name] = v.Version
+		components[v.Name] = ReleaseComponent{
+			Catalog: v.Catalog,
+			Version: v.Version,
+		}
 	}
 	return components, nil
 }
