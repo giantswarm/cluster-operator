@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Refactor cluster status computation and add unit tests for it.
+
 ## [3.5.1] - 2021-01-28
 
 ### Added
