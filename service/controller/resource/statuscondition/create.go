@@ -141,6 +141,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
+
 func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1alpha2.Cluster, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha2.G8sControlPlane, machineDeployments []apiv1alpha2.MachineDeployment) error {
 	var desiredVersion string
 	var nodesReady bool
