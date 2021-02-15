@@ -24,7 +24,7 @@ type nodeConfig struct {
 	readyReplicas int
 }
 
-func TestcomputeClusterStatusConditions(t *testing.T) {
+func TestComputeClusterStatusConditions(t *testing.T) {
 	testCases := []struct {
 		name string
 
