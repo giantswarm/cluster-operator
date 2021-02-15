@@ -156,7 +156,12 @@ func (r *Resource) computeCreateClusterStatusConditions(ctx context.Context, cl 
 	var desiredVersion string
 	{
 		currentVersion = status.LatestVersion()
-		desiredVersion = componentVersions[providerOperator]
+
+		providerComponent := componentVersions[providerOperator]
+		desiredVersion = providerComponent.Version
+		if desiredVersion == "" {
+			return microerror.Maskf(notFoundError, "component version not found for %#q", providerOperator)
+		}
 	}
 
 	// Count total number of all masters and number of ready masters that

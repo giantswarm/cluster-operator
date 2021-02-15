@@ -49,7 +49,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			if err != nil {
 				return microerror.Mask(err)
 			}
-			appOperatorVersion := componentVersions[releaseversion.AppOperator]
+
+			appOperatorComponent := componentVersions[releaseversion.AppOperator]
+			appOperatorVersion := appOperatorComponent.Version
+			if appOperatorVersion == "" {
+				return microerror.Maskf(notFoundError, "app-operator component version not found")
+			}
 
 			r.logger.Debugf(ctx, "updating version label for optional apps in tenant cluster %#q", key.ClusterID(&cr))
 
