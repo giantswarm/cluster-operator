@@ -359,6 +359,38 @@ func TestComputeCreatingCondition(t *testing.T) {
 			},
 			expectedResult: false,
 		},
+		// There are previous conditions and versions in the status
+		{
+			name: "case 3",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetCreatingCondition(90),
+				},
+				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(60, "8.7.6"),
+				},
+			},
+			expectedResult: false,
+		},
+		// There are previous conditions and versions in the status
+		{
+			name: "case 4",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetUpdatedCondition(10),
+					unittest.GetUpdatingCondition(30),
+					unittest.GetCreatedCondition(60),
+					unittest.GetCreatingCondition(90),
+				},
+				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(60, "8.7.5"),
+					unittest.GetVersion(60, "8.7.6"),
+				},
+			},
+			expectedResult: false,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -507,6 +539,25 @@ func TestComputeUpdatingCondition(t *testing.T) {
 
 			expectedResult: false,
 		},
+		// the version is already present and cluster is already updating
+		{
+			name: "case 4",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetUpdatingCondition(30),
+					unittest.GetCreatedCondition(60),
+					unittest.GetCreatingCondition(90),
+				},
+				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(60, "8.7.5"),
+					unittest.GetVersion(60, "8.7.6"),
+				},
+			},
+			desiredVersion: "8.7.6",
+
+			expectedResult: false,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -634,7 +685,7 @@ func TestComputeVersionChange(t *testing.T) {
 		},
 		// the nodes are not ready yet
 		{
-			name: "case 0",
+			name: "case 2",
 
 			status: infrastructurev1alpha2.CommonClusterStatus{
 				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
@@ -654,7 +705,7 @@ func TestComputeVersionChange(t *testing.T) {
 		},
 		// the version is already set
 		{
-			name: "case 0",
+			name: "case 3",
 
 			status: infrastructurev1alpha2.CommonClusterStatus{
 				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
