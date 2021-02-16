@@ -173,7 +173,49 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			},
 			operatorVersion: "8.7.7",
 
-			// TODO: this should be "updating" but it does not work yet
+			expectCondition: "Updating",
+			expectVersion:   "8.7.6",
+		},
+		// We want to roll back
+		{
+			name: "case 9",
+
+			nodesReady: false,
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatedCondition(5),
+				unittest.GetUpdatingCondition(15),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(5, "8.7.6"),
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.5",
+
+			expectCondition: "Updating",
+			expectVersion:   "8.7.6",
+		},
+		// We rolled back
+		// TODO: when we roll back, the version does currently not appear in the history again.
+		// this is because of how the function withVersion() in apiextensions works
+		{
+			name: "case 10",
+
+			nodesReady: true,
+			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+				unittest.GetUpdatingCondition(5),
+				unittest.GetUpdatedCondition(15),
+				unittest.GetUpdatingCondition(20),
+				unittest.GetCreatedCondition(60),
+				unittest.GetCreatingCondition(90),
+			},
+			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				unittest.GetVersion(15, "8.7.6"),
+				unittest.GetVersion(60, "8.7.5"),
+			},
+			operatorVersion: "8.7.5",
+
 			expectCondition: "Updated",
 			expectVersion:   "8.7.6",
 		},
@@ -214,23 +256,13 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			}
 
 			// Check results
-			var currentCondition string
-			var currentVersion string
-			{
-				status := cluster.GetCommonClusterStatus()
-				if len(status.Conditions) > 0 {
-					currentCondition = status.Conditions[0].Condition
-				}
-				if len(status.Versions) > 0 {
-					currentVersion = status.Versions[0].Version
-				}
-			}
+			status := cluster.GetCommonClusterStatus()
 
-			if currentCondition != tc.expectCondition {
-				t.Fatalf("expected %#q to differ from %#q", tc.expectCondition, currentCondition)
+			if status.LatestCondition() != tc.expectCondition {
+				t.Fatalf("expected %#q to differ from %#q", tc.expectCondition, status.LatestCondition())
 			}
-			if currentVersion != tc.expectVersion {
-				t.Fatalf("expected %#q to differ from %#q", tc.expectVersion, currentVersion)
+			if status.LatestVersion() != tc.expectVersion {
+				t.Fatalf("expected %#q to differ from %#q", tc.expectVersion, status.LatestVersion())
 			}
 		})
 	}
@@ -303,8 +335,8 @@ func TestComputeCreatingCondition(t *testing.T) {
 					unittest.GetCreatingCondition(90),
 				},
 				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
-					unittest.GetVersion(60, "8.7.5"),
 					unittest.GetVersion(60, "8.7.6"),
+					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
 			expectedResult: false,
@@ -468,13 +500,33 @@ func TestComputeUpdatingCondition(t *testing.T) {
 					unittest.GetCreatingCondition(90),
 				},
 				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
-					unittest.GetVersion(60, "8.7.5"),
 					unittest.GetVersion(60, "8.7.6"),
+					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
 			desiredVersion: "8.7.6",
 
 			expectedResult: false,
+		},
+		// we can also upgrade multiple times
+		{
+			name: "case 5",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetUpdatedCondition(10),
+					unittest.GetUpdatingCondition(30),
+					unittest.GetCreatedCondition(60),
+					unittest.GetCreatingCondition(90),
+				},
+				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(10, "8.7.6"),
+					unittest.GetVersion(60, "8.7.5"),
+				},
+			},
+			desiredVersion: "8.7.7",
+
+			expectedResult: true,
 		},
 	}
 
@@ -497,7 +549,6 @@ func TestComputeUpdatedCondition(t *testing.T) {
 		expectedResult bool
 	}{
 		// the cluster is updating and nodes are ready
-		// TODO this should also work a second time
 		{
 			name: "case 0",
 
@@ -529,7 +580,7 @@ func TestComputeUpdatedCondition(t *testing.T) {
 		},
 		// the cluster is already updated
 		{
-			name: "case 1",
+			name: "case 2",
 
 			status: infrastructurev1alpha2.CommonClusterStatus{
 				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
@@ -542,6 +593,23 @@ func TestComputeUpdatedCondition(t *testing.T) {
 			nodesReady: true,
 
 			expectedResult: false,
+		},
+		// the cluster is updating and nodes are ready for the second time
+		{
+			name: "case 3",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetUpdatingCondition(10),
+					unittest.GetUpdatedCondition(20),
+					unittest.GetUpdatingCondition(40),
+					unittest.GetCreatedCondition(60),
+					unittest.GetCreatingCondition(90),
+				},
+			},
+			nodesReady: true,
+
+			expectedResult: true,
 		},
 	}
 
@@ -586,7 +654,6 @@ func TestComputeVersionChange(t *testing.T) {
 			expectedResult: true,
 		},
 		// the cluster has not transitioned yet
-		// TODO this should also work for updates
 		{
 			name: "case 1",
 
@@ -633,14 +700,56 @@ func TestComputeVersionChange(t *testing.T) {
 					unittest.GetCreatingCondition(90),
 				},
 				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(10, "8.7.6"),
 					unittest.GetVersion(60, "8.7.5"),
-					unittest.GetVersion(60, "8.7.6"),
 				},
 			},
 			nodesReady:     true,
 			desiredVersion: "8.7.6",
 
 			expectedResult: false,
+		},
+		// the cluster has not transitioned yet
+		{
+			name: "case 4",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetUpdatingCondition(30),
+					unittest.GetCreatedCondition(60),
+					unittest.GetCreatingCondition(90),
+				},
+				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(60, "8.7.5"),
+				},
+			},
+			nodesReady:     true,
+			desiredVersion: "8.7.6",
+
+			expectedResult: false,
+		},
+		// we roll back
+		{
+			name: "case 5",
+
+			status: infrastructurev1alpha2.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+					unittest.GetUpdatedCondition(5),
+					unittest.GetUpdatingCondition(15),
+					unittest.GetUpdatedCondition(20),
+					unittest.GetUpdatingCondition(40),
+					unittest.GetCreatedCondition(60),
+					unittest.GetCreatingCondition(90),
+				},
+				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+					unittest.GetVersion(20, "8.7.6"),
+					unittest.GetVersion(60, "8.7.5"),
+				},
+			},
+			nodesReady:     true,
+			desiredVersion: "8.7.5",
+
+			expectedResult: true,
 		},
 	}
 

@@ -286,22 +286,24 @@ func computeCreatedCondition(status infrastructurev1alpha2.CommonClusterStatus, 
 func computeUpdatingCondition(status infrastructurev1alpha2.CommonClusterStatus, desiredVersion string) bool {
 	currentVersion := status.LatestVersion()
 	isCreated := status.HasCreatedCondition()
-	notUpdating := !status.HasUpdatingCondition()
+	notUpdating := status.LatestCondition() != infrastructurev1alpha2.ClusterStatusConditionUpdating
 	versionDiffers := currentVersion != "" && currentVersion != desiredVersion
 
 	return isCreated && notUpdating && versionDiffers
 }
 
 func computeUpdatedCondition(status infrastructurev1alpha2.CommonClusterStatus, nodesReady bool) bool {
-	isUpdating := status.HasUpdatingCondition()
-	notUpdated := !status.HasUpdatedCondition()
+	isUpdating := status.LatestCondition() == infrastructurev1alpha2.ClusterStatusConditionUpdating
+	notUpdated := status.LatestCondition() != infrastructurev1alpha2.ClusterStatusConditionUpdated
 
 	return isUpdating && notUpdated && nodesReady
 }
 
 func computeVersionChange(status infrastructurev1alpha2.CommonClusterStatus, nodesReady bool, desiredVersion string) bool {
-	hasTransitioned := status.HasCreatedCondition() || status.HasUpdatedCondition()
-	notSet := !status.HasVersion(desiredVersion)
+	isCreated := status.LatestCondition() == infrastructurev1alpha2.ClusterStatusConditionCreated
+	isUpdated := status.LatestCondition() == infrastructurev1alpha2.ClusterStatusConditionUpdated
+	hasTransitioned := isCreated || isUpdated
+	notSet := status.LatestVersion() != desiredVersion
 
 	return hasTransitioned && notSet && nodesReady
 }
