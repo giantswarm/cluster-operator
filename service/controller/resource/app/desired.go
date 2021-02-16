@@ -61,7 +61,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	appOperatorVersion := componentVersions[releaseversion.AppOperator]
+
+	appOperatorComponent := componentVersions[releaseversion.AppOperator]
+	appOperatorVersion := appOperatorComponent.Version
+	if appOperatorVersion == "" {
+		return nil, microerror.Maskf(notFoundError, "%#q component version not found", releaseversion.AppOperator)
+	}
 
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)

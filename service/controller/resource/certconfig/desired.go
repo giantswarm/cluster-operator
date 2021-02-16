@@ -63,7 +63,7 @@ func (r *Resource) getDesiredState(ctx context.Context, obj interface{}) (interf
 	certOperatorComponent := componentVersions[releaseversion.CertOperator]
 	certOperatorVersion := certOperatorComponent.Version
 	if certOperatorVersion == "" {
-		return nil, microerror.Maskf(notFoundError, "cert-operator component version not found")
+		return nil, microerror.Maskf(notFoundError, "%#q component version not found", releaseversion.CertOperator)
 	}
 
 	var certConfigs []*corev1alpha1.CertConfig
