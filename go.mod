@@ -4,12 +4,12 @@ go 1.14
 
 require (
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions/v3 v3.17.0
+	github.com/giantswarm/apiextensions/v3 v3.18.1
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/certs/v3 v3.1.0
 	github.com/giantswarm/errors v0.2.3
-	github.com/giantswarm/exporterkit v0.2.0
-	github.com/giantswarm/k8sclient/v5 v5.0.0
+	github.com/giantswarm/exporterkit v0.2.1
+	github.com/giantswarm/k8sclient/v5 v5.10.0
 	github.com/giantswarm/kubeconfig/v2 v2.0.0
 	github.com/giantswarm/microendpoint v0.2.0
 	github.com/giantswarm/microerror v0.3.0
@@ -27,7 +27,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.18.9
 	k8s.io/apimachinery v0.18.9
 	k8s.io/client-go v0.18.9
-	sigs.k8s.io/cluster-api v0.3.13
+	sigs.k8s.io/cluster-api v0.3.14
 	sigs.k8s.io/controller-runtime v0.6.4
 )
 
