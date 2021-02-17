@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Remove `VersionBundle` version from `CertConfigs` and add the `cert-operator.giantswarm.io/version` label.
+
 ## [0.23.22] - 2021-01-29
 
 ### Changed
