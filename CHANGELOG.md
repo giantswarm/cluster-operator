@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Create app CR for per cluster app-operator instance.
+
 ## [3.5.1] - 2021-01-28
 
 ### Added

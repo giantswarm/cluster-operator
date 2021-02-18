@@ -68,6 +68,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Maskf(notFoundError, "%#q component version not found", releaseversion.AppOperator)
 	}
 
+	// Define app CR for app-operator in the management cluster namespace.
+	appOperatorAppSpec := newAppOperatorAppSpec(cr, appOperatorComponent)
+	apps = append(apps, r.newApp(uniqueOperatorVersion, cr, appOperatorAppSpec, g8sv1alpha1.AppSpecUserConfig{}))
+
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
 
@@ -151,6 +155,32 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 		configMapName = appSpec.ConfigMapName
 	}
 
+	var appName string
+
+	if appSpec.AppName != "" {
+		appName = appSpec.AppName
+	} else {
+		appName = appSpec.App
+	}
+
+	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
+
+	if appSpec.InCluster {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			InCluster: true,
+		}
+	} else {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			Context: g8sv1alpha1.AppSpecKubeConfigContext{
+				Name: key.KubeConfigSecretName(&cr),
+			},
+			Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
+				Name:      key.KubeConfigSecretName(&cr),
+				Namespace: key.ClusterID(&cr),
+			},
+		}
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -161,14 +191,14 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
 			},
 			Labels: map[string]string{
-				pkglabel.App:             appSpec.App,
+				label.AppKubernetesName:  appSpec.App,
 				label.AppOperatorVersion: appOperatorVersion,
 				label.Cluster:            key.ClusterID(&cr),
 				label.ManagedBy:          project.Name(),
 				label.Organization:       key.OrganizationID(&cr),
 				pkglabel.ServiceType:     pkglabel.ServiceTypeManaged,
 			},
-			Name:      appSpec.App,
+			Name:      appName,
 			Namespace: key.ClusterID(&cr),
 		},
 		Spec: g8sv1alpha1.AppSpec{
@@ -176,24 +206,13 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 			Name:      appSpec.Chart,
 			Namespace: appSpec.Namespace,
 			Version:   appSpec.Version,
-
 			Config: g8sv1alpha1.AppSpecConfig{
 				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
 					Name:      configMapName,
 					Namespace: key.ClusterID(&cr),
 				},
 			},
-
-			KubeConfig: g8sv1alpha1.AppSpecKubeConfig{
-				Context: g8sv1alpha1.AppSpecKubeConfigContext{
-					Name: key.KubeConfigSecretName(&cr),
-				},
-				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
-					Name:      key.KubeConfigSecretName(&cr),
-					Namespace: key.ClusterID(&cr),
-				},
-			},
-
+			KubeConfig: kubeConfig,
 			UserConfig: userConfig,
 		},
 	}
@@ -300,6 +319,20 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 		specs = append(specs, spec)
 	}
 	return specs, nil
+}
+
+func newAppOperatorAppSpec(cr apiv1alpha2.Cluster, component releaseversion.ReleaseComponent) key.AppSpec {
+	return key.AppSpec{
+		App: releaseversion.AppOperator,
+		// Override app name to include the cluster ID.
+		AppName:         fmt.Sprintf("%s-%s", releaseversion.AppOperator, key.ClusterID(&cr)),
+		Catalog:         component.Catalog,
+		Chart:           releaseversion.AppOperator,
+		InCluster:       true,
+		Namespace:       key.ClusterID(&cr),
+		UseUpgradeForce: true,
+		Version:         component.Version,
+	}
 }
 
 func newUserConfig(cr apiv1alpha2.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
