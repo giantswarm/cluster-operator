@@ -197,8 +197,6 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			expectVersion:   "8.7.6",
 		},
 		// We rolled back
-		// TODO: when we roll back, the version does currently not appear in the history again.
-		// this is because of how the function withVersion() in apiextensions works
 		{
 			name: "case 10",
 
@@ -217,7 +215,7 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			operatorVersion: "8.7.5",
 
 			expectCondition: "Updated",
-			expectVersion:   "8.7.6",
+			expectVersion:   "8.7.5",
 		},
 	}
 
