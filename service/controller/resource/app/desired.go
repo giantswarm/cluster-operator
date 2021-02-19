@@ -330,7 +330,7 @@ func newAppOperatorAppSpec(cr apiv1alpha2.Cluster, component releaseversion.Rele
 		Chart:           releaseversion.AppOperator,
 		InCluster:       true,
 		Namespace:       key.ClusterID(&cr),
-		UseUpgradeForce: true,
+		UseUpgradeForce: false,
 		Version:         component.Version,
 	}
 }
