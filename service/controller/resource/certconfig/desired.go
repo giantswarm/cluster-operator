@@ -60,7 +60,12 @@ func (r *Resource) getDesiredState(ctx context.Context, obj interface{}) (interf
 		return nil, microerror.Mask(err)
 	}
 
-	certOperatorVersion := componentVersions[releaseversion.CertOperator]
+	certOperatorComponent := componentVersions[releaseversion.CertOperator]
+	certOperatorVersion := certOperatorComponent.Version
+	if certOperatorVersion == "" {
+		return nil, microerror.Maskf(notFoundError, "%#q component version not found", releaseversion.CertOperator)
+	}
+
 	var certConfigs []*corev1alpha1.CertConfig
 	{
 		certConfigs = append(certConfigs, newCertConfig(certOperatorVersion, cr, r.newSpecForAPI(ctx, bd, cr)))

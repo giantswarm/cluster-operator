@@ -215,8 +215,16 @@ func (r *Resource) getDesiredVersion(ctx context.Context, cr infrastructurev1alp
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
+
 	providerOperator := fmt.Sprintf("%s-operator", r.provider)
-	return componentVersions[providerOperator], nil
+
+	providerComponent := componentVersions[providerOperator]
+	desiredVersion := providerComponent.Version
+	if desiredVersion == "" {
+		return "", microerror.Maskf(notFoundError, "component version not found for %#q", providerOperator)
+	}
+
+	return desiredVersion, nil
 }
 
 func allMasterNodesReady(controlPlanes []infrastructurev1alpha2.G8sControlPlane) bool {
