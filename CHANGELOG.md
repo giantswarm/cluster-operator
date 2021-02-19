@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] - 2021-02-19
+
+### Fixed
+
+- Fix cluster status computation to correctly display rollbacks, version changes and multiple updates.
+
+### Added
+
+- Add unit tests for cluster status computation
+
 ## [3.5.1] - 2021-01-28
 
 ### Added
@@ -199,7 +209,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.5.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.6.0...HEAD
+[3.6.0]: https://github.com/giantswarm/cluster-operator/compare/v3.5.1...v3.6.0
 [3.5.1]: https://github.com/giantswarm/cluster-operator/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/giantswarm/cluster-operator/compare/v3.4.1...v3.5.0
 [3.4.1]: https://github.com/giantswarm/cluster-operator/compare/v3.4.0...v3.4.1

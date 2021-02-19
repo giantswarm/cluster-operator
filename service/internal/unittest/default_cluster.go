@@ -72,3 +72,46 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 
 	return cr
 }
+
+func GetCreatingCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
+	return infrastructurev1alpha2.CommonClusterStatusCondition{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Condition:          infrastructurev1alpha2.ClusterStatusConditionCreating,
+	}
+}
+func GetCreatedCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
+	return infrastructurev1alpha2.CommonClusterStatusCondition{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Condition:          infrastructurev1alpha2.ClusterStatusConditionCreated,
+	}
+}
+func GetDeletedCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
+	return infrastructurev1alpha2.CommonClusterStatusCondition{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Condition:          infrastructurev1alpha2.ClusterStatusConditionDeleting,
+	}
+}
+func GetDeletingCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
+	return infrastructurev1alpha2.CommonClusterStatusCondition{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Condition:          infrastructurev1alpha2.ClusterStatusConditionDeleted,
+	}
+}
+func GetUpdatingCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
+	return infrastructurev1alpha2.CommonClusterStatusCondition{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Condition:          infrastructurev1alpha2.ClusterStatusConditionUpdating,
+	}
+}
+func GetUpdatedCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
+	return infrastructurev1alpha2.CommonClusterStatusCondition{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Condition:          infrastructurev1alpha2.ClusterStatusConditionUpdated,
+	}
+}
+func GetVersion(minutesAgo time.Duration, version string) infrastructurev1alpha2.CommonClusterStatusVersion {
+	return infrastructurev1alpha2.CommonClusterStatusVersion{
+		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
+		Version:            version,
+	}
+}
