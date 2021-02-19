@@ -13,12 +13,16 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
+// EnsureDeleted removes finalizers for workload cluster app CRs. These are
+// deleted with the cluster by the provider operator.
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
+	// We keep the finalizer for the app-operator app CR so the resources in
+	// the management cluster are deleted.
 	o := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s!=%s", label.AppKubernetesName, "app-operator"),
 	}
