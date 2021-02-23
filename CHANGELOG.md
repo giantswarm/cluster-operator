@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2021-02-23
+
 ### Changed
 
 - Remove `VersionBundle` version from `CertConfigs` and add the `cert-operator.giantswarm.io/version` label. **This change requires using `cert-operator` 1.0.0 or later**.
@@ -66,7 +68,8 @@ Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.23.22...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/giantswarm/cluster-operator/compare/v0.23.22...v0.24.0
 [0.23.22]: https://github.com/giantswarm/cluster-operator/compare/v0.23.21...v0.23.22
 [0.23.21]: https://github.com/giantswarm/cluster-operator/compare/v0.23.19...v0.23.21
 [0.23.19]: https://github.com/giantswarm/cluster-operator/compare/v0.23.18...v0.23.19
