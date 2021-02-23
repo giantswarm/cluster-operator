@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Do not add `VersionBundle` to new `CertConfig` specs (`CertConfig`s are now versioned using a label).
+- Do not add `VersionBundle` to new `CertConfig` specs (`CertConfig`s are now versioned using a label). **This change requires using `cert-operator` 1.0.0 or later.**
 
 ## [3.5.1] - 2021-01-28
 
