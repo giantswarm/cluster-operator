@@ -13,8 +13,6 @@ import (
 
 const (
 	Name = "app"
-
-	chartOperatorAppName = "chart-operator"
 )
 
 // Config represents the configuration used to create a new chartconfig service.
