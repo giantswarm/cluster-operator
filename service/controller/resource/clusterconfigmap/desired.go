@@ -20,6 +20,12 @@ import (
 type clusterProfile int
 
 const (
+	providerAWS   = "aws"
+	providerAzure = "azure"
+	providerKVM   = "kvm"
+)
+
+const (
 	// Here we declare supported cluster profile constants.
 	// They are encoded as ordered incrementing numbers so they can be compared
 	// with relational operators for equality and ineqality.
@@ -47,9 +53,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	// For legacy AWS clusters this Service is disabled as it gets created via Ignition.
 	var controllerServiceEnabled bool
 	{
-		if r.provider == "aws" {
+		if r.provider == providerAWS {
 			controllerServiceEnabled = false
-		} else if r.provider == "azure" || r.provider == "kvm" {
+		} else if r.provider == providerAzure || r.provider == providerKVM {
 			controllerServiceEnabled = true
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
@@ -58,9 +64,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	var controllerServiceType string
 	{
-		if r.provider == "aws" || r.provider == "azure" {
+		if r.provider == providerAWS || r.provider == providerAzure {
 			controllerServiceType = "LoadBalancer"
-		} else if r.provider == "kvm" {
+		} else if r.provider == providerKVM {
 			controllerServiceType = "NodePort"
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
@@ -69,9 +75,9 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	var controllerServiceExternalTrafficPolicy string
 	{
-		if r.provider == "aws" || r.provider == "azure" {
+		if r.provider == providerAWS || r.provider == providerAzure {
 			controllerServiceExternalTrafficPolicy = "Local"
-		} else if r.provider == "kvm" {
+		} else if r.provider == providerKVM {
 			controllerServiceExternalTrafficPolicy = "Cluster"
 		} else {
 			return nil, microerror.Maskf(executionFailedError, "invalid provider %#q", r.provider)
@@ -81,7 +87,7 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 	// useProxyProtocol is only enabled by default for AWS clusters.
 	var useProxyProtocol bool
 	{
-		if r.provider == "aws" {
+		if r.provider == providerAWS {
 			useProxyProtocol = true
 		}
 	}

@@ -2,33 +2,13 @@ version: 2.1
 orbs:
   architect: giantswarm/architect@0.10.1
 
-jobs:
-  build:
-    machine: true
-    steps:
-    - checkout
-
-    - run:
-        name: Install architect
-        command: |
-          architect_version="2.1.0"
-          curl -fsSL https://github.com/giantswarm/architect/releases/download/v${architect_version}/architect-v${architect_version}-linux-amd64.tar.gz | tar -xzv --strip-components 1 --wildcards '*/architect'
-          ./architect version
-    - run:
-        name: Build
-        command: ./architect build
-    - store_test_results:
-        path: /tmp/results
-    - persist_to_workspace:
-        root: .
-        paths:
-        - ./cluster-operator
-
 workflows:
   build_and_push:
     jobs:
       # build binary
-      - build:
+      - architect/go-build:
+          name: go-build
+          binary: cluster-operator
           filters:
             tags:
               only: /^v.*/
@@ -40,7 +20,7 @@ workflows:
           username_envar: "QUAY_USERNAME"
           password_envar: "QUAY_PASSWORD"
           requires:
-            - build
+            - go-build
           filters:
             tags:
               only: /^v.*/
@@ -53,7 +33,7 @@ workflows:
           password_envar: "ALIYUN_PASSWORD"
           # requires manual approval
           requires:
-            - build
+            - go-build
           filters:
             tags:
               ignore: /^v.*/
@@ -65,7 +45,7 @@ workflows:
           username_envar: "ALIYUN_USERNAME"
           password_envar: "ALIYUN_PASSWORD"
           requires:
-            - build
+            - go-build
           filters:
             branches:
               ignore: /.*/

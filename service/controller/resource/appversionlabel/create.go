@@ -22,7 +22,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	var apps []*v1alpha1.App
 	{
-		r.logger.LogCtx(ctx, fmt.Sprintf("finding optional apps for tenant cluster %#q", clusterConfig.ID))
+		_ = r.logger.LogCtx(ctx, fmt.Sprintf("finding optional apps for tenant cluster %#q", clusterConfig.ID))
 
 		o := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s!=%s", label.ManagedBy, project.Name()),
@@ -36,7 +36,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			apps = append(apps, item.DeepCopy())
 		}
 
-		r.logger.LogCtx(ctx, fmt.Sprintf("found %d optional apps for tenant cluster %#q", len(apps), clusterConfig.ID))
+		_ = r.logger.LogCtx(ctx, fmt.Sprintf("found %d optional apps for tenant cluster %#q", len(apps), clusterConfig.ID))
 	}
 
 	{
@@ -49,7 +49,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			r.logger.LogCtx(ctx, fmt.Sprintf("updating version label for optional apps in tenant cluster %#q", clusterConfig.ID))
+			_ = r.logger.LogCtx(ctx, fmt.Sprintf("updating version label for optional apps in tenant cluster %#q", clusterConfig.ID))
 
 			for _, app := range apps {
 				currentVersion := app.Labels[label.AppOperatorVersion]
@@ -85,7 +85,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				}
 			}
 
-			r.logger.LogCtx(ctx, fmt.Sprintf("updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, clusterConfig.ID))
+			_ = r.logger.LogCtx(ctx, fmt.Sprintf("updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, clusterConfig.ID))
 		}
 	}
 

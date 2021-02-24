@@ -23,7 +23,7 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 		return microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret")
+	_ = r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret")
 
 	if secret != nil {
 		err = r.k8sClient.CoreV1().Secrets(objectMeta.Namespace).Delete(secret.Name, &metav1.DeleteOptions{})
@@ -37,9 +37,9 @@ func (r *Resource) ApplyDeleteChange(ctx context.Context, obj, deleteChange inte
 			err = microerror.Mask(err)
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret: deleted")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret: deleted")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret: already deleted")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "deleting encryptionkey secret: already deleted")
 	}
 
 	return err

@@ -46,11 +46,7 @@ func IsChartConfigNotAvailable(err error) bool {
 		}
 	}
 
-	if c == ChartConfigNotAvailableError {
-		return true
-	}
-
-	return false
+	return c == ChartConfigNotAvailableError
 }
 
 // IsChartConfigNotInstalled asserts ChartConfigNotInstalledError

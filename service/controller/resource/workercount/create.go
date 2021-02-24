@@ -25,15 +25,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	{
 		if cc.Client.TenantCluster.K8s == nil {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available yet")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster clients not available yet")
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 		}
 	}
 
 	var workerCount int
 	{
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding nodes of tenant cluster %#q", key.ClusterID(cr)))
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding nodes of tenant cluster %#q", key.ClusterID(cr)))
 
 		o := metav1.ListOptions{
 			// This label selector excludes the master nodes from node list.
@@ -45,8 +45,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		l, err := cc.Client.TenantCluster.K8s.CoreV1().Nodes().List(o)
 		if tenant.IsAPINotAvailable(err) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
-			r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", "tenant API not available yet")
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 			return nil
 
 		} else if err != nil {
@@ -55,7 +55,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 		workerCount = len(l.Items)
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes of tenant cluster %#q", workerCount, key.ClusterID(cr)))
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d nodes of tenant cluster %#q", workerCount, key.ClusterID(cr)))
 	}
 
 	{
