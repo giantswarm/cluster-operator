@@ -57,15 +57,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	if cc.Client.TenantCluster.G8s == nil {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "tenant clients not available")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
 
 	if cc.Status.TenantCluster.IsUnavailable {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "tenant cluster is unavailable")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 		return nil, nil
 	}
@@ -101,7 +101,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 func (r *Resource) getConfigMaps(ctx context.Context, clusterConfig v1alpha1.ClusterGuestConfig) (map[string]corev1.ConfigMap, error) {
 	configMaps := map[string]corev1.ConfigMap{}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", clusterConfig.ID))
+	_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", clusterConfig.ID))
 
 	list, err := r.k8sClient.CoreV1().ConfigMaps(clusterConfig.ID).List(metav1.ListOptions{})
 	if err != nil {
@@ -112,7 +112,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, clusterConfig v1alpha1.Clu
 		configMaps[cm.Name] = cm
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), clusterConfig.ID))
+	_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), clusterConfig.ID))
 
 	return configMaps, nil
 }
@@ -120,7 +120,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, clusterConfig v1alpha1.Clu
 func (r *Resource) getSecrets(ctx context.Context, clusterConfig v1alpha1.ClusterGuestConfig) (map[string]corev1.Secret, error) {
 	secrets := map[string]corev1.Secret{}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secrets in namespace %#q", clusterConfig.ID))
+	_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding secrets in namespace %#q", clusterConfig.ID))
 
 	list, err := r.k8sClient.CoreV1().Secrets(clusterConfig.ID).List(metav1.ListOptions{})
 	if err != nil {
@@ -131,7 +131,7 @@ func (r *Resource) getSecrets(ctx context.Context, clusterConfig v1alpha1.Cluste
 		secrets[s.Name] = s
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d secrets in namespace %#q", len(secrets), clusterConfig.ID))
+	_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d secrets in namespace %#q", len(secrets), clusterConfig.ID))
 
 	return secrets, nil
 }
@@ -155,7 +155,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, clusterConfig v1al
 
 	err = yaml.Unmarshal([]byte(appConfigs), &u)
 	if err != nil {
-		r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.Stack(err))
+		_ = r.logger.LogCtx(ctx, "level", "error", "message", "failed to unmarshal the user config", "stack", microerror.Stack(err))
 		return nil, nil
 	}
 
@@ -314,7 +314,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 		// To test apps in the testing catalog, users can override default app properties with
 		// a user-override-apps configmap.
 		if val, ok := userOverrideConfigs[app.App]; ok {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", app.App))
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found a user override app config for %#q, applying it", app.App))
 			if val.Catalog != "" {
 				spec.Catalog = val.Catalog
 			}

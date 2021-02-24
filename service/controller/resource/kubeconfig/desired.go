@@ -47,12 +47,12 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	appOperator, err := r.certsSearcher.SearchAppOperator(clusterConfig.ID)
 	if certs.IsTimeout(err) {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the tenant cluster")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the tenant cluster")
 
 		// We can't continue without a app-operator-api cert. We will retry during the
 		// next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 		return []*corev1.Secret{}, nil
 	} else if err != nil {

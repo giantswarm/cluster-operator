@@ -23,7 +23,7 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 	}
 
 	if len(certConfigsToUpdate) > 0 {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updating certconfigs")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "updating certconfigs")
 
 		for _, certConfigToUpdate := range certConfigsToUpdate {
 			_, err = r.g8sClient.CoreV1alpha1().CertConfigs(objectMeta.Namespace).Update(certConfigToUpdate)
@@ -32,9 +32,9 @@ func (r *Resource) ApplyUpdateChange(ctx context.Context, obj, updateChange inte
 			}
 		}
 
-		r.logger.LogCtx(ctx, "level", "debug", "message", "updated certconfigs")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "updated certconfigs")
 	} else {
-		r.logger.LogCtx(ctx, "level", "debug", "message", "no need to update certconfigs")
+		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "no need to update certconfigs")
 	}
 
 	return nil
@@ -76,7 +76,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		return nil, microerror.Mask(err)
 	}
 
-	r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be updated")
+	_ = r.logger.LogCtx(ctx, "level", "debug", "message", "finding out which certconfigs have to be updated")
 
 	var certConfigsToUpdate []*v1alpha1.CertConfig
 	for _, currentCertConfig := range currentCertConfigs {
@@ -89,7 +89,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 		}
 
 		if isCertConfigModified(desiredCertConfig, currentCertConfig) {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found certconfig '%s' that has to be updated", desiredCertConfig.GetName()))
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found certconfig '%s' that has to be updated", desiredCertConfig.GetName()))
 
 			// Create a copy and set the resource version to allow the CR to be updated.
 			certConfigToUpdate := desiredCertConfig.DeepCopy()
@@ -97,7 +97,7 @@ func (r *Resource) newUpdateChange(ctx context.Context, obj, currentState, desir
 
 			certConfigsToUpdate = append(certConfigsToUpdate, certConfigToUpdate)
 		} else {
-			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not updating certconfig '%s': no changes found", currentCertConfig.GetName()))
+			_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("not updating certconfig '%s': no changes found", currentCertConfig.GetName()))
 		}
 	}
 
