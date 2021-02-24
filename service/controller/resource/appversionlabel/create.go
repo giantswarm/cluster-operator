@@ -85,7 +85,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 				}
 			}
 
-			r.logger.LogCtx(ctx, fmt.Sprintf("updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, clusterConfig.ID))
+			_ = r.logger.LogCtx(ctx, fmt.Sprintf("updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, clusterConfig.ID))
 		}
 	}
 
