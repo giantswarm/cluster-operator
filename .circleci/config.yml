@@ -20,7 +20,7 @@ workflows:
           username_envar: "QUAY_USERNAME"
           password_envar: "QUAY_PASSWORD"
           requires:
-            - build
+            - go-build
           filters:
             tags:
               only: /^v.*/
@@ -33,7 +33,7 @@ workflows:
           password_envar: "ALIYUN_PASSWORD"
           # requires manual approval
           requires:
-            - build
+            - go-build
           filters:
             tags:
               ignore: /^v.*/
@@ -45,7 +45,7 @@ workflows:
           username_envar: "ALIYUN_USERNAME"
           password_envar: "ALIYUN_PASSWORD"
           requires:
-            - build
+            - go-build
           filters:
             branches:
               ignore: /.*/
