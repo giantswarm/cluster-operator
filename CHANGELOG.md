@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Migrate to Go modules.
+- Update `certs` package to v2.0.0.
+- Refactor to use slightly newer dependency versions.
 
 ## [0.24.1] - 2021-02-23
 
