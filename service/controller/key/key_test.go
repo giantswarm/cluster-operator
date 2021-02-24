@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/v2/pkg/certs"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

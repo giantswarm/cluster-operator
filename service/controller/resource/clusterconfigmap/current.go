@@ -24,8 +24,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	// Cluster configMap is deleted by the provider operator when it deletes
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting cluster configMap deletion to provider operators")
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting cluster configMap deletion to provider operators")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
@@ -40,8 +40,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	// exist yet we should retry in the next reconciliation loop.
 	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
@@ -49,7 +49,7 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 
 	var configMaps []*corev1.ConfigMap
 	{
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", key.ClusterID(clusterConfig)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding configMaps in namespace %#q", key.ClusterID(clusterConfig)))
 
 		o := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
@@ -64,7 +64,7 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 			configMaps = append(configMaps, item.DeepCopy())
 		}
 
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(clusterConfig)))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d configMaps in namespace %#q", len(configMaps), key.ClusterID(clusterConfig)))
 	}
 
 	return configMaps, nil

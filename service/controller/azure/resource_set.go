@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/apprclient"
-	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/v2/pkg/certs"
 	"github.com/giantswarm/clusterclient"
 	"github.com/giantswarm/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -18,7 +18,7 @@ import (
 	"github.com/giantswarm/operatorkit/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/resource/wrapper/retryresource"
 	"github.com/giantswarm/resource/appresource"
-	"github.com/giantswarm/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
