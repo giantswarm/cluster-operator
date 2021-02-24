@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"gopkg.in/resty.v1"
 	"net"
 	"sync"
 	"time"
@@ -19,6 +18,7 @@ import (
 	"github.com/giantswarm/tenantcluster"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	"gopkg.in/resty.v1"
 	"k8s.io/client-go/rest"
 
 	"github.com/giantswarm/cluster-operator/flag"
