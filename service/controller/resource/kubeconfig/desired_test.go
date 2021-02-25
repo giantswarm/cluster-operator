@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/certs"
-	"github.com/giantswarm/certs/certstest"
+	"github.com/giantswarm/certs/v2/pkg/certs"
+	"github.com/giantswarm/certs/v2/pkg/certstest"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger/microloggertest"
 	"github.com/google/go-cmp/cmp"

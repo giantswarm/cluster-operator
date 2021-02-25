@@ -26,18 +26,18 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) (interf
 
 	secretName := key.EncryptionKeySecretName(clusterGuestConfig)
 
-	_ = r.logger.LogCtx(ctx, "level", "debug", "message", "looking for encryptionkey secret in the Kubernetes API", "secretName", secretName)
+	r.logger.LogCtx(ctx, "level", "debug", "message", "looking for encryptionkey secret in the Kubernetes API", "secretName", secretName)
 
 	secret, err := r.k8sClient.CoreV1().Secrets(objectMeta.Namespace).Get(secretName, apismetav1.GetOptions{})
 
 	if apierrors.IsNotFound(err) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "did not find a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not find a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	_ = r.logger.LogCtx(ctx, "level", "debug", "message", "found a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
+	r.logger.LogCtx(ctx, "level", "debug", "message", "found a secret for encryptionkey in the Kubernetes API", "secretName", secretName)
 
 	return secret, nil
 }

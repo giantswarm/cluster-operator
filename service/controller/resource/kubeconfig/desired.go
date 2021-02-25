@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/giantswarm/certs"
+	"github.com/giantswarm/certs/v2/pkg/certs"
 	"github.com/giantswarm/k8sclient/k8srestconfig"
 	"github.com/giantswarm/kubeconfig"
 	"github.com/giantswarm/microerror"
@@ -47,12 +47,12 @@ func (r *StateGetter) GetDesiredState(ctx context.Context, obj interface{}) ([]*
 
 	appOperator, err := r.certsSearcher.SearchAppOperator(clusterConfig.ID)
 	if certs.IsTimeout(err) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the tenant cluster")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "did not get an app-operator-api cert for the tenant cluster")
 
 		// We can't continue without a app-operator-api cert. We will retry during the
 		// next execution.
 		reconciliationcanceledcontext.SetCanceled(ctx)
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling reconciliation")
 
 		return []*corev1.Secret{}, nil
 	} else if err != nil {

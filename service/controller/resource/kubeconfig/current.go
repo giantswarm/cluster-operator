@@ -22,8 +22,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	// Cluster kubeconfig is deleted by the provider operator when it deletes
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting kubeconfig secret deletion to provider operators")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
@@ -38,8 +38,8 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 	// exist yet we should retry in the next reconciliation loop.
 	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
@@ -47,17 +47,17 @@ func (r *StateGetter) GetCurrentState(ctx context.Context, obj interface{}) ([]*
 
 	secretName := key.KubeConfigSecretName(clusterConfig)
 
-	_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret %#q", secretName))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding kubeconfig secret %#q", secretName))
 
 	secret, err := r.k8sClient.CoreV1().Secrets(clusterConfig.ID).Get(secretName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find kubeconfig secret %#q", secretName))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("did not find kubeconfig secret %#q", secretName))
 		return nil, nil
 	} else if err != nil {
 		return nil, microerror.Mask(err)
 	}
 
-	_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found kubeconfig secret %#q", secretName))
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found kubeconfig secret %#q", secretName))
 
 	return []*corev1.Secret{secret}, nil
 }

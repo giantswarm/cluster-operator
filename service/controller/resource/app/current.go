@@ -25,8 +25,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	// Apps are deleted by the provider operator when it deletes
 	// the tenant cluster namespace in the control plane cluster.
 	if key.IsDeleted(objectMeta) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting app deletion to provider operators")
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "redirecting app deletion to provider operators")
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
@@ -41,8 +41,8 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	// exist yet we should retry in the next reconciliation loop.
 	_, err = r.k8sClient.CoreV1().Namespaces().Get(clusterConfig.ID, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("cluster namespace %#q does not exist", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "canceling resource")
 		resourcecanceledcontext.SetCanceled(ctx)
 
 		return nil, nil
@@ -50,7 +50,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 
 	var apps []*v1alpha1.App
 	{
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps in tenant cluster %#q", clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finding apps in tenant cluster %#q", clusterConfig.ID))
 
 		selectorLabels := []string{
 			fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
@@ -73,7 +73,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 			apps = append(apps, item.DeepCopy())
 		}
 
-		_ = r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps in tenant cluster %#q", len(apps), clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps in tenant cluster %#q", len(apps), clusterConfig.ID))
 	}
 
 	return apps, nil
