@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.2] - 2021-02-25
+
 ### Changed
 
 - Migrate to Go modules.
@@ -80,7 +82,8 @@ Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.24.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.24.2...HEAD
+[0.24.2]: https://github.com/giantswarm/cluster-operator/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/giantswarm/cluster-operator/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/giantswarm/cluster-operator/compare/v0.23.22...v0.24.0
 [0.23.22]: https://github.com/giantswarm/cluster-operator/compare/v0.23.21...v0.23.22
