@@ -163,6 +163,19 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 		appName = appSpec.App
 	}
 
+	var config g8sv1alpha1.AppSpecConfig
+
+	if appSpec.InCluster {
+		config = g8sv1alpha1.AppSpecConfig{}
+	} else {
+		config = g8sv1alpha1.AppSpecConfig{
+			ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
+				Name:      configMapName,
+				Namespace: key.ClusterID(&cr),
+			},
+		}
+	}
+
 	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
 
 	if appSpec.InCluster {
@@ -202,16 +215,11 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, app
 			Namespace: key.ClusterID(&cr),
 		},
 		Spec: g8sv1alpha1.AppSpec{
-			Catalog:   appSpec.Catalog,
-			Name:      appSpec.Chart,
-			Namespace: appSpec.Namespace,
-			Version:   appSpec.Version,
-			Config: g8sv1alpha1.AppSpecConfig{
-				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
-					Name:      configMapName,
-					Namespace: key.ClusterID(&cr),
-				},
-			},
+			Catalog:    appSpec.Catalog,
+			Name:       appSpec.Chart,
+			Namespace:  appSpec.Namespace,
+			Version:    appSpec.Version,
+			Config:     config,
 			KubeConfig: kubeConfig,
 			UserConfig: userConfig,
 		},
