@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
-
 ## [Unreleased]
+
+## [3.6.1] - 2021-02-23
+
+### Removed
+
+- Do not add `VersionBundle` to new `CertConfig` specs (`CertConfig`s are now versioned using a label). **This change requires using `cert-operator` 1.0.0 or later.**
 
 ### Added
 
@@ -214,7 +218,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.6.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.6.1...HEAD
+[3.6.1]: https://github.com/giantswarm/cluster-operator/compare/v3.6.0...v3.6.1
 [3.6.0]: https://github.com/giantswarm/cluster-operator/compare/v3.5.1...v3.6.0
 [3.5.1]: https://github.com/giantswarm/cluster-operator/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/giantswarm/cluster-operator/compare/v3.4.1...v3.5.0
