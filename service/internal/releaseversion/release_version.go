@@ -71,8 +71,9 @@ func (rv *ReleaseVersion) ComponentVersion(ctx context.Context, obj interface{})
 	components := make(map[string]ReleaseComponent, len(release.Spec.Components))
 	for _, v := range release.Spec.Components {
 		components[v.Name] = ReleaseComponent{
-			Catalog: v.Catalog,
-			Version: v.Version,
+			Catalog:   v.Catalog,
+			Reference: v.Reference,
+			Version:   v.Version,
 		}
 	}
 	return components, nil

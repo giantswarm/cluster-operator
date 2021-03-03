@@ -28,6 +28,8 @@ type ReleaseApp struct {
 type ReleaseComponent struct {
 	// Catalog of the component.
 	Catalog string `json:"catalog"`
+	// Version of the component in the catalog.
+	Reference string `json:"reference"`
 	// Version of the component.
 	Version string `json:"version"`
 }

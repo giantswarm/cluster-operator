@@ -330,6 +330,15 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 }
 
 func newAppOperatorAppSpec(cr apiv1alpha2.Cluster, component releaseversion.ReleaseComponent) key.AppSpec {
+	var operatorAppVersion string
+
+	// Setting the reference allows us to deploy from a test catalog.
+	if component.Reference != "" {
+		operatorAppVersion = component.Reference
+	} else {
+		operatorAppVersion = component.Version
+	}
+
 	return key.AppSpec{
 		App: releaseversion.AppOperator,
 		// Override app name to include the cluster ID.
@@ -339,7 +348,7 @@ func newAppOperatorAppSpec(cr apiv1alpha2.Cluster, component releaseversion.Rele
 		InCluster:       true,
 		Namespace:       key.ClusterID(&cr),
 		UseUpgradeForce: false,
-		Version:         component.Version,
+		Version:         operatorAppVersion,
 	}
 }
 
