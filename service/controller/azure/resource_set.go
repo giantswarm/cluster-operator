@@ -27,6 +27,7 @@ import (
 	"github.com/giantswarm/cluster-operator/service/controller/azure/key"
 	"github.com/giantswarm/cluster-operator/service/controller/controllercontext"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/service/controller/resource/appfinalizer"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/appversionlabel"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/certconfig"
 	"github.com/giantswarm/cluster-operator/service/controller/resource/clusterconfigmap"
@@ -118,6 +119,20 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		}
 
 		appResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var appFinalizerResource resource.Interface
+	{
+		c := appfinalizer.Config{
+			GetClusterConfigFunc: getClusterConfig,
+			G8sClient:            config.K8sClient.G8sClient(),
+			Logger:               config.Logger,
+		}
+
+		appFinalizerResource, err = appfinalizer.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -293,6 +308,7 @@ func newResourceSet(config resourceSetConfig) (*controller.ResourceSet, error) {
 		clusterConfigMapResource,
 		kubeConfigResource,
 		appResource,
+		appFinalizerResource,
 		appVersionLabelResource,
 	}
 
