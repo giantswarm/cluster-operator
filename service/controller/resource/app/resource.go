@@ -13,6 +13,10 @@ import (
 
 const (
 	Name = "app"
+
+	appOperatorComponentName = "app-operator"
+	controlPlaneCatalog      = "control-plane-catalog"
+	uniqueOperatorVersion    = "0.0.0"
 )
 
 // Config represents the configuration used to create a new chartconfig service.
