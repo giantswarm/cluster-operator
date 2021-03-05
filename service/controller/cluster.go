@@ -15,14 +15,12 @@ import (
 	"github.com/giantswarm/resource/v2/appresource"
 	"github.com/giantswarm/tenantcluster/v3/pkg/tenantcluster"
 	"github.com/spf13/afero"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appfinalizer"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
@@ -199,15 +197,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	}
 
 	return resources, nil
-}
-
-func toClusterObjRef(obj interface{}) (corev1.ObjectReference, error) {
-	cr, err := key.ToCluster(obj)
-	if err != nil {
-		return corev1.ObjectReference{}, microerror.Mask(err)
-	}
-
-	return key.ObjRefFromCluster(cr), nil
 }
 
 func toCRUDResource(logger micrologger.Logger, v crud.Interface) (*crud.Resource, error) {
