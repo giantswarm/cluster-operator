@@ -27,58 +27,11 @@ type Set struct {
 func NewSet(config SetConfig) (*Set, error) {
 	var err error
 
-	var clusterCollector *Cluster
-	{
-		c := ClusterConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
-		}
-
-		clusterCollector, err = NewCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var nodePoolCollector *NodePool
-	{
-		c := NodePoolConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		nodePoolCollector, err = NewNodePool(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterTransitionCollector *ClusterTransition
-	{
-		c := ClusterTransitionConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
-		}
-
-		clusterTransitionCollector, err = NewClusterTransition(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
-			Collectors: []collector.Interface{
-				clusterCollector,
-				nodePoolCollector,
-				clusterTransitionCollector,
-			},
-			Logger: config.Logger,
+			Collectors: []collector.Interface{},
+			Logger:     config.Logger,
 		}
 
 		collectorSet, err = collector.NewSet(c)
