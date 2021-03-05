@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/certs/v3/pkg/certs"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -37,15 +36,13 @@ type ClusterConfig struct {
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
-	APIIP                      string
-	ClusterIPRange             string
-	DNSIP                      string
-	ClusterDomain              string
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
-	Provider                   string
-	RawAppDefaultConfig        string
-	RawAppOverrideConfig       string
-	RegistryDomain             string
+	APIIP                string
+	ClusterIPRange       string
+	DNSIP                string
+	ClusterDomain        string
+	RawAppDefaultConfig  string
+	RawAppOverrideConfig string
+	RegistryDomain       string
 }
 
 type Cluster struct {
@@ -105,7 +102,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
 
-			Provider:             config.Provider,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
 			RawAppOverrideConfig: config.RawAppOverrideConfig,
 		}

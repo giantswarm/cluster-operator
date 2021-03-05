@@ -66,7 +66,6 @@ func New(config Config) (*Service, error) {
 	var err error
 
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
-	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
 
 	var restConfig *rest.Config
@@ -178,15 +177,13 @@ func New(config Config) (*Service, error) {
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
 
-			APIIP:                      apiIP,
-			ClusterIPRange:             clusterIPRange,
-			DNSIP:                      dnsIP,
-			ClusterDomain:              config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
-			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
-			Provider:                   provider,
-			RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
-			RawAppOverrideConfig:       config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
-			RegistryDomain:             registryDomain,
+			APIIP:                apiIP,
+			ClusterIPRange:       clusterIPRange,
+			DNSIP:                dnsIP,
+			ClusterDomain:        config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
+			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+			RawAppOverrideConfig: config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
+			RegistryDomain:       registryDomain,
 		}
 
 		clusterController, err = controller.NewCluster(c)
@@ -201,8 +198,6 @@ func New(config Config) (*Service, error) {
 			CertSearcher: certsSearcher,
 			K8sClient:    k8sClient,
 			Logger:       config.Logger,
-
-			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -251,13 +246,6 @@ func (s *Service) Boot(ctx context.Context) {
 		// Start the controllers.
 		go s.clusterController.Boot(ctx)
 	})
-}
-
-func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
-	// Deal with different providers in here once they reach Cluster API.
-	return func() infrastructurev1alpha2.CommonClusterObject {
-		return new(infrastructurev1alpha2.AWSCluster)
-	}
 }
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {

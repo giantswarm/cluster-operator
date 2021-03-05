@@ -13,7 +13,5 @@ Installation:
           ClusterIPRange: ""
           EndpointBase: ""
         ClusterDomain: ""
-    Provider:
-      Kind: ""
     Registry:
       Domain: ""
