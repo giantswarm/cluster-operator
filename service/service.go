@@ -195,9 +195,8 @@ func New(config Config) (*Service, error) {
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
-			CertSearcher: certsSearcher,
-			K8sClient:    k8sClient,
-			Logger:       config.Logger,
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
 		}
 
 		operatorCollector, err = collector.NewSet(c)
