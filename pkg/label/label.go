@@ -3,20 +3,10 @@
 package label
 
 const (
-	// Certificate label identifies certificates in CertConfig CRs.
-	Certificate = "giantswarm.io/certificate"
-	// Cluster label is a new style label for ClusterID
 	Cluster = "giantswarm.io/cluster"
-	// ControlPlane label denotes which control plane corresponding resources belong to.
-	ControlPlane = "giantswarm.io/control-plane"
-	// MachineDeployment label denotes which node pool corresponding resources
-	// belongs.
-	MachineDeployment = "giantswarm.io/machine-deployment"
 	// ManagedBy label denotes which operator manages corresponding resource.
 	ManagedBy = "giantswarm.io/managed-by"
 	// Organization label denotes guest cluster's organization ID as displayed
 	// in the front-end.
 	Organization = "giantswarm.io/organization"
-	// Release conveys the Giant Swarm release version.
-	Release = "release.giantswarm.io/version"
 )

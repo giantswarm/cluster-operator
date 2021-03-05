@@ -7,40 +7,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func Test_CertConfigCertOperatorVersion(t *testing.T) {
-	testCases := []struct {
-		description     string
-		certConfig      v1alpha1.CertConfig
-		expectedVersion string
-	}{
-		{
-			description:     "empty value",
-			certConfig:      v1alpha1.CertConfig{},
-			expectedVersion: "",
-		},
-		{
-			description: "CertConfig with version",
-			certConfig: v1alpha1.CertConfig{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"cert-operator.giantswarm.io/version": "1.0.1",
-					},
-				},
-			},
-			expectedVersion: "1.0.1",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.description, func(t *testing.T) {
-			version := CertConfigCertOperatorVersion(tc.certConfig)
-			if version != tc.expectedVersion {
-				t.Fatalf("version '%s' doesn't match expected '%s'", version, tc.expectedVersion)
-			}
-		})
-	}
-}
-
 func Test_DNSIP(t *testing.T) {
 	testCases := []struct {
 		description  string

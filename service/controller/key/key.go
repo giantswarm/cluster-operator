@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
-
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 )
 
 const (
@@ -26,16 +23,6 @@ func AppUserConfigMapName(appSpec AppSpec) string {
 // given app spec.
 func AppUserSecretName(appSpec AppSpec) string {
 	return fmt.Sprintf("%s-user-secrets", appSpec.App)
-}
-
-// CertConfigCertOperatorVersion returns version bundle version for given
-// CertConfig.
-func CertConfigCertOperatorVersion(cr v1alpha1.CertConfig) string {
-	if cr.Labels == nil {
-		return ""
-	}
-
-	return cr.Labels[label.CertOperatorVersion]
 }
 
 // DNSIP returns the IP of the DNS service given a cluster IP range.

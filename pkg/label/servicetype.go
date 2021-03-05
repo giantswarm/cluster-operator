@@ -8,6 +8,4 @@ const (
 const (
 	// ServiceTypeManaged is a label value for managed resources.
 	ServiceTypeManaged = "managed"
-	// ServiceTypeSystem is a label value for system resources.
-	ServiceTypeSystem = "system"
 )
