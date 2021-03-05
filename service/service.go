@@ -26,7 +26,6 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/collector"
 	"github.com/giantswarm/cluster-operator/v3/service/controller"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
@@ -177,18 +176,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var bd basedomain.Interface
-	{
-		c := basedomain.Config{
-			K8sClient: k8sClient,
-		}
-
-		bd, err = basedomain.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var rv releaseversion.Interface
 	{
 		c := releaseversion.Config{
@@ -215,7 +202,6 @@ func New(config Config) (*Service, error) {
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
-			BaseDomain:     bd,
 			CertsSearcher:  certsSearcher,
 			Event:          eventRecorder,
 			FileSystem:     afero.NewOsFs(),
