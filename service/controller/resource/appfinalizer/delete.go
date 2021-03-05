@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/operatorkit/controller/context/finalizerskeptcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -60,6 +61,21 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		} else {
 			r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("finalizer already removed for app %#q", app.Name))
 		}
+	}
+
+	r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("checking all apps are deleted in namespace %#q", clusterConfig.ID))
+
+	list, err = r.g8sClient.ApplicationV1alpha1().Apps(clusterConfig.ID).List(o)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	if len(list.Items) > 0 {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("found %d apps in namespace %#q", len(list.Items), clusterConfig.ID))
+		r.logger.LogCtx(ctx, "level", "debug", "message", "keeping finalizers")
+		finalizerskeptcontext.SetKept(ctx)
+	} else {
+		r.logger.LogCtx(ctx, "level", "debug", "message", fmt.Sprintf("all apps in namespace %#q are deleted", clusterConfig.ID))
 	}
 
 	return nil
