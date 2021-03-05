@@ -1,22 +1,21 @@
 package collector
 
 import (
-	"github.com/giantswarm/certs/v3/pkg/certs"
 	"github.com/giantswarm/exporterkit/collector"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	"k8s.io/client-go/kubernetes"
 )
 
 type SetConfig struct {
-	CertSearcher certs.Interface
-	K8sClient    k8sclient.Interface
-	Logger       micrologger.Logger
+	K8sClient kubernetes.Interface
+	Logger    micrologger.Logger
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
 // It eases the initialization and prevents some weird import mess so we do not
-// have to alias packages.
+// have to alias packages. There is also the benefit of the helper type kept
+// private so we do not need to expose this magic.
 type Set struct {
 	*collector.Set
 }
@@ -24,11 +23,18 @@ type Set struct {
 func NewSet(config SetConfig) (*Set, error) {
 	var err error
 
+	todo, err := NewTodo(TodoConfig{})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
-			Collectors: []collector.Interface{},
-			Logger:     config.Logger,
+			Collectors: []collector.Interface{
+				todo,
+			},
+			Logger: config.Logger,
 		}
 
 		collectorSet, err = collector.NewSet(c)
