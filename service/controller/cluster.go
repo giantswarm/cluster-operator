@@ -26,7 +26,6 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appfinalizer"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
@@ -39,7 +38,6 @@ type ClusterConfig struct {
 	FileSystem     afero.Fs
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
-	PodCIDR        podcidr.Interface
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
 
