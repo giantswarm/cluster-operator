@@ -1,10 +1,6 @@
 ---
 Installation:
   V1:
-    Auth:
-      Vault:
-        Certificate:
-          TTL: ""
     GiantSwarm:
       Release:
         App:
@@ -12,9 +8,6 @@ Installation:
             Default: ""
             Override: ""
     Guest:
-      Calico:
-        CIDR: ""
-        Subnet: ""
       Kubernetes:
         API:
           ClusterIPRange: ""
