@@ -27,11 +27,9 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 const (
@@ -56,11 +54,9 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce                    sync.Once
-	clusterController           *controller.Cluster
-	controlPlaneController      *controller.ControlPlane
-	machineDeploymentController *controller.MachineDeployment
-	operatorCollector           *collector.Set
+	bootOnce          sync.Once
+	clusterController *controller.Cluster
+	operatorCollector *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -193,34 +189,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var tenantClient tenantclient.Interface
-	{
-		c := tenantclient.Config{
-			K8sClient:     k8sClient,
-			BaseDomain:    bd,
-			TenantCluster: tenantCluster,
-			Logger:        config.Logger,
-		}
-
-		tenantClient, err = tenantclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var nc nodecount.Interface
-	{
-		c := nodecount.Config{
-			K8sClient:    k8sClient,
-			TenantClient: tenantClient,
-		}
-
-		nc, err = nodecount.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var rv releaseversion.Interface
 	{
 		c := releaseversion.Config{
@@ -275,46 +243,6 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var controlPlaneController *controller.ControlPlane
-	{
-		c := controller.ControlPlaneConfig{
-			BaseDomain:     bd,
-			Event:          eventRecorder,
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			NodeCount:      nc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
-
-			Provider: provider,
-		}
-
-		controlPlaneController, err = controller.NewControlPlane(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var machineDeploymentController *controller.MachineDeployment
-	{
-		c := controller.MachineDeploymentConfig{
-			BaseDomain:     bd,
-			Event:          eventRecorder,
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			NodeCount:      nc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
-
-			Provider: provider,
-		}
-
-		machineDeploymentController, err = controller.NewMachineDeployment(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
@@ -350,11 +278,9 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:                    sync.Once{},
-		clusterController:           clusterController,
-		controlPlaneController:      controlPlaneController,
-		machineDeploymentController: machineDeploymentController,
-		operatorCollector:           operatorCollector,
+		bootOnce:          sync.Once{},
+		clusterController: clusterController,
+		operatorCollector: operatorCollector,
 	}
 
 	return s, nil
@@ -372,8 +298,6 @@ func (s *Service) Boot(ctx context.Context) {
 
 		// Start the controllers.
 		go s.clusterController.Boot(ctx)
-		go s.controlPlaneController.Boot(ctx)
-		go s.machineDeploymentController.Boot(ctx)
 	})
 }
 
