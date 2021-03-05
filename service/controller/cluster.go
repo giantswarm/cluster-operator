@@ -26,7 +26,6 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appfinalizer"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
@@ -34,7 +33,6 @@ import (
 // CRD controller implementation.
 type ClusterConfig struct {
 	CertsSearcher  certs.Interface
-	Event          recorder.Interface
 	FileSystem     afero.Fs
 	K8sClient      k8sclient.Interface
 	Logger         micrologger.Logger
@@ -42,7 +40,6 @@ type ClusterConfig struct {
 	ReleaseVersion releaseversion.Interface
 
 	APIIP                      string
-	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
 	ClusterDomain              string
