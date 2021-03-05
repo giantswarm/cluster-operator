@@ -13,6 +13,7 @@ import (
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/pkg/apis/core/v1alpha1"
+	releasev1alpha1 "github.com/giantswarm/apiextensions/pkg/apis/release/v1alpha1"
 	"github.com/giantswarm/backoff"
 	"github.com/giantswarm/clusterclient/service/release/searcher"
 	"github.com/giantswarm/microerror"
@@ -77,10 +78,19 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	// put `v` as a prefix of release version since all releases CRs keep this format.
-	appOperatorVersion, err := r.getComponentVersion(fmt.Sprintf("v%s", clusterConfig.ReleaseVersion), "app-operator")
+	appOperatorComponent, err := r.getReleaseComponent(fmt.Sprintf("v%s", clusterConfig.ReleaseVersion), appOperatorComponentName)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
+
+	appOperatorVersion := appOperatorComponent.Version
+	if appOperatorVersion == "" {
+		return nil, microerror.Maskf(notFoundError, "%#q release component not found", appOperatorComponentName)
+	}
+
+	// Define app CR for app-operator in the management cluster namespace.
+	appOperatorAppSpec := newAppOperatorAppSpec(clusterConfig, appOperatorComponent)
+	apps = append(apps, r.newApp(clusterConfig, appOperatorAppSpec, g8sv1alpha1.AppSpecUserConfig{}, uniqueOperatorVersion))
 
 	for _, appSpec := range appSpecs {
 		userConfig, err := newUserConfig(clusterConfig, appSpec, configMaps, secrets)
@@ -170,6 +180,45 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 		configMapName = appSpec.ConfigMapName
 	}
 
+	var appName string
+
+	if appSpec.AppName != "" {
+		appName = appSpec.AppName
+	} else {
+		appName = appSpec.App
+	}
+
+	var config g8sv1alpha1.AppSpecConfig
+
+	if appSpec.InCluster {
+		config = g8sv1alpha1.AppSpecConfig{}
+	} else {
+		config = g8sv1alpha1.AppSpecConfig{
+			ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
+				Name:      configMapName,
+				Namespace: clusterConfig.ID,
+			},
+		}
+	}
+
+	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
+
+	if appSpec.InCluster {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			InCluster: true,
+		}
+	} else {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			Context: g8sv1alpha1.AppSpecKubeConfigContext{
+				Name: key.KubeConfigSecretName(clusterConfig),
+			},
+			Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
+				Name:      key.KubeConfigSecretName(clusterConfig),
+				Namespace: clusterConfig.ID,
+			},
+		}
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
@@ -180,40 +229,23 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
 			},
 			Labels: map[string]string{
-				label.App:                appSpec.App,
+				label.AppKubernetesName:  appSpec.App,
 				label.AppOperatorVersion: appOperatorVersion,
 				label.Cluster:            clusterConfig.ID,
 				label.ManagedBy:          project.Name(),
 				label.Organization:       clusterConfig.Owner,
 				label.ServiceType:        label.ServiceTypeManaged,
 			},
-			Name:      appSpec.App,
+			Name:      appName,
 			Namespace: clusterConfig.ID,
 		},
 		Spec: g8sv1alpha1.AppSpec{
-			Catalog:   appSpec.Catalog,
-			Name:      appSpec.Chart,
-			Namespace: appSpec.Namespace,
-			Version:   appSpec.Version,
-
-			Config: g8sv1alpha1.AppSpecConfig{
-				ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
-					Name:      configMapName,
-					Namespace: clusterConfig.ID,
-				},
-			},
-
-			KubeConfig: g8sv1alpha1.AppSpecKubeConfig{
-				Context: g8sv1alpha1.AppSpecKubeConfigContext{
-					Name: key.KubeConfigSecretName(clusterConfig),
-				},
-				InCluster: false,
-				Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
-					Name:      key.KubeConfigSecretName(clusterConfig),
-					Namespace: clusterConfig.ID,
-				},
-			},
-
+			Catalog:    appSpec.Catalog,
+			Name:       appSpec.Chart,
+			Namespace:  appSpec.Namespace,
+			Version:    appSpec.Version,
+			Config:     config,
+			KubeConfig: kubeConfig,
 			UserConfig: userConfig,
 		},
 	}
@@ -328,19 +360,33 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 	return specs, nil
 }
 
-func (r *Resource) getComponentVersion(releaseVersion, component string) (string, error) {
+func newAppOperatorAppSpec(clusterConfig v1alpha1.ClusterGuestConfig, component releasev1alpha1.ReleaseSpecComponent) key.AppSpec {
+	return key.AppSpec{
+		App: appOperatorComponentName,
+		// Override app name to include the cluster ID.
+		AppName:         fmt.Sprintf("%s-%s", appOperatorComponentName, clusterConfig.ID),
+		Catalog:         controlPlaneCatalog,
+		Chart:           appOperatorComponentName,
+		InCluster:       true,
+		Namespace:       clusterConfig.ID,
+		UseUpgradeForce: false,
+		Version:         component.Version,
+	}
+}
+
+func (r *Resource) getReleaseComponent(releaseVersion, component string) (releasev1alpha1.ReleaseSpecComponent, error) {
 	release, err := r.g8sClient.ReleaseV1alpha1().Releases().Get(releaseVersion, metav1.GetOptions{})
 	if err != nil {
-		return "", microerror.Mask(err)
+		return releasev1alpha1.ReleaseSpecComponent{}, microerror.Mask(err)
 	}
 
 	for _, c := range release.Spec.Components {
 		if c.Name == component {
-			return c.Version, nil
+			return c, nil
 		}
 	}
 
-	return "", microerror.Maskf(notFoundError, fmt.Sprintf("can't find the release version %#q", releaseVersion))
+	return releasev1alpha1.ReleaseSpecComponent{}, microerror.Maskf(notFoundError, fmt.Sprintf("can't find the %#q component for %#q", component, releaseVersion))
 }
 
 func newUserConfig(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) (g8sv1alpha1.AppSpecUserConfig, error) {
