@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -24,6 +25,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/collector"
 	"github.com/giantswarm/cluster-operator/v3/service/controller"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
@@ -184,15 +186,29 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var bd basedomain.Interface
+	{
+		c := basedomain.Config{
+			K8sClient: k8sClient,
+		}
+
+		bd, err = basedomain.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
+			BaseDomain:     bd,
 			CertsSearcher:  certsSearcher,
 			FileSystem:     afero.NewOsFs(),
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
+			PodCIDR:        pc,
 
 			APIIP:                apiIP,
 			ClusterIPRange:       clusterIPRange,
