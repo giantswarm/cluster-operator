@@ -24,6 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/collector"
 	"github.com/giantswarm/cluster-operator/v3/service/controller"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
@@ -65,6 +66,8 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
+	calicoSubnet := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
+	calicoCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
 
@@ -162,6 +165,20 @@ func New(config Config) (*Service, error) {
 		}
 
 		rv, err = releaseversion.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var pc podcidr.Interface
+	{
+		c := podcidr.Config{
+			K8sClient: k8sClient,
+
+			InstallationCIDR: fmt.Sprintf("%s/%s", calicoSubnet, calicoCIDR),
+		}
+
+		pc, err = podcidr.New(c)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
