@@ -24,6 +24,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appfinalizer"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
@@ -36,6 +37,7 @@ type ClusterConfig struct {
 	Logger         micrologger.Logger
 	Tenant         tenantcluster.Interface
 	ReleaseVersion releaseversion.Interface
+	PodCIDR        podcidr.Interface
 
 	APIIP                string
 	ClusterIPRange       string
