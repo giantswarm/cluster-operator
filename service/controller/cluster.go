@@ -23,6 +23,7 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appfinalizer"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
+	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterconfigmap"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
 
@@ -165,11 +166,51 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
+	var clusterConfigMapGetter configmapresource.StateGetter
+	{
+		c := clusterconfigmap.Config{
+			BaseDomain: config.BaseDomain,
+			K8sClient:  config.K8sClient.K8sClient(),
+			Logger:     config.Logger,
+			PodCIDR:    config.PodCIDR,
+
+			ClusterIPRange: config.ClusterIPRange,
+			DNSIP:          config.DNSIP,
+		}
+
+		clusterConfigMapGetter, err = clusterconfigmap.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
+	var clusterConfigMapResource resource.Interface
+	{
+		c := configmapresource.Config{
+			K8sClient: config.K8sClient.K8sClient(),
+			Logger:    config.Logger,
+
+			Name:        clusterconfigmap.Name,
+			StateGetter: clusterConfigMapGetter,
+		}
+
+		ops, err := configmapresource.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterConfigMapResource, err = toCRUDResource(config.Logger, ops)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	resources := []resource.Interface{
 		// Following resources manage resources in the control plane.
 		appFinalizerResource,
 		appResource,
 		appVersionLabelResource,
+		clusterConfigMapResource,
 	}
 
 	// Wrap resources with retry and metrics.
