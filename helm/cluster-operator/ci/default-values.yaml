@@ -8,6 +8,9 @@ Installation:
             Default: ""
             Override: ""
     Guest:
+      Calico:
+        CIDR: ""
+        Subnet: ""
       Kubernetes:
         API:
           ClusterIPRange: ""

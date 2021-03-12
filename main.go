@@ -108,6 +108,8 @@ func mainE() error {
 
 	daemonCommand := newCommand.DaemonCommand().CobraCommand()
 
+	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Calico.CIDR, "", "Prefix length for the CIDR block used by Calico.")
+	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Calico.Subnet, "", "Network address for the CIDR block used by Calico.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Kubernetes.API.ClusterIPRange, "", "CIDR Range for Pods in cluster.")
 	daemonCommand.PersistentFlags().String(f.Guest.Cluster.Kubernetes.ClusterDomain, "cluster.local", "Internal Kubernetes domain.")
 
