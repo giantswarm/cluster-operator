@@ -3,7 +3,6 @@ package clusterconfigmap
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"

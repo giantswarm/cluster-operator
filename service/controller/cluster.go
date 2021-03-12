@@ -9,6 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/v4/pkg/controller"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/configmapresource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
 	"github.com/giantswarm/resource/v2/appresource"

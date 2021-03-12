@@ -71,7 +71,6 @@ func New(config Config) (*Resource, error) {
 		podCIDR:        config.PodCIDR,
 		clusterIPRange: config.ClusterIPRange,
 		dnsIP:          config.DNSIP,
-		provider:       config.Provider,
 	}
 
 	return r, nil
