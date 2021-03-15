@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	bootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -24,8 +25,6 @@ type Config struct {
 type PodCIDR struct {
 	k8sClient k8sclient.Interface
 
-	clusterCache *cache.Cluster
-
 	installationCIDR string
 }
 
@@ -41,8 +40,6 @@ func New(c Config) (*PodCIDR, error) {
 	p := &PodCIDR{
 		k8sClient: c.K8sClient,
 
-		clusterCache: cache.NewCluster(),
-
 		installationCIDR: c.InstallationCIDR,
 	}
 
@@ -55,52 +52,23 @@ func (p *PodCIDR) PodCIDR(ctx context.Context, obj interface{}) (string, error) 
 		return "", microerror.Mask(err)
 	}
 
-	cl, err := p.cachedCluster(ctx, cr)
+	cl, err := p.lookupCluster(ctx, cr)
 	if err != nil {
 		return "", microerror.Mask(err)
 	}
 
 	var podCIDR string
-	if cl.Spec.Provider.Pods.CIDRBlock == "" {
+	if cl.Spec.ClusterConfiguration.Networking.PodSubnet == "" {
 		podCIDR = p.installationCIDR
 	} else {
-		podCIDR = cl.Spec.Provider.Pods.CIDRBlock
+		podCIDR = cl.Spec.ClusterConfiguration.Networking.PodSubnet
 	}
 
 	return podCIDR, nil
 }
 
-func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
-	var err error
-	var ok bool
-
-	var cluster infrastructurev1alpha2.AWSCluster
-	{
-		ck := p.clusterCache.Key(ctx, cr)
-
-		if ck == "" {
-			cluster, err = p.lookupCluster(ctx, cr)
-			if err != nil {
-				return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
-			}
-		} else {
-			cluster, ok = p.clusterCache.Get(ctx, ck)
-			if !ok {
-				cluster, err = p.lookupCluster(ctx, cr)
-				if err != nil {
-					return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
-				}
-
-				p.clusterCache.Set(ctx, ck, cluster)
-			}
-		}
-	}
-
-	return cluster, nil
-}
-
-func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
-	var list infrastructurev1alpha2.AWSClusterList
+func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (bootstrapkubeadmv1alpha3.KubeadmConfig, error) {
+	var list bootstrapkubeadmv1alpha3.KubeadmConfigList
 
 	err := p.k8sClient.CtrlClient().List(
 		ctx,
@@ -109,14 +77,14 @@ func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastr
 		client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
 	)
 	if err != nil {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+		return bootstrapkubeadmv1alpha3.KubeadmConfig, microerror.Mask(err)
 	}
 
 	if len(list.Items) == 0 {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(notFoundError)
+		return bootstrapkubeadmv1alpha3.KubeadmConfig, microerror.Mask(notFoundError)
 	}
 	if len(list.Items) > 1 {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(tooManyCRsError)
+		return bootstrapkubeadmv1alpha3.KubeadmConfig, microerror.Mask(tooManyCRsError)
 	}
 
 	return list.Items[0], nil
