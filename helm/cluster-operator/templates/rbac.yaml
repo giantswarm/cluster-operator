@@ -114,6 +114,13 @@ rules:
       - kvmclusterconfigs
     verbs:
       - "*"
+  - apiGroups:
+      - bootstrap.cluster.x-k8s.io
+    resources:
+      - kubeadmconfigs
+    verbs:
+      - get
+      - list
   - nonResourceURLs:
       - "/"
       - "/healthz"
