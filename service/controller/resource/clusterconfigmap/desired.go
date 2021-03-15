@@ -100,3 +100,7 @@ func newConfigMap(cr apiv1alpha2.Cluster, configMapSpec configMapSpec) (*corev1.
 
 	return cm, nil
 }
+
+func createBaseDomain(ctx context.Context) string {
+
+}

@@ -15,6 +15,7 @@ data:
         address: 'http://0.0.0.0:8000'
     guest:
       cluster:
+        baseDomain: '{{ .Values.Installation.V1.Guest.Kubernetes.API.EndpointBase }}'
         calico:
           subnet: '{{ .Values.Installation.V1.Guest.Calico.Subnet }}'
           cidr: '{{ .Values.Installation.V1.Guest.Calico.CIDR }}'
