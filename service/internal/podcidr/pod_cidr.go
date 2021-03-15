@@ -3,7 +3,6 @@ package podcidr
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -13,7 +12,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr/internal/cache"
 )
 
 type Config struct {
@@ -77,14 +75,14 @@ func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (bootstra
 		client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
 	)
 	if err != nil {
-		return bootstrapkubeadmv1alpha3.KubeadmConfig, microerror.Mask(err)
+		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(err)
 	}
 
 	if len(list.Items) == 0 {
-		return bootstrapkubeadmv1alpha3.KubeadmConfig, microerror.Mask(notFoundError)
+		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(notFoundError)
 	}
 	if len(list.Items) > 1 {
-		return bootstrapkubeadmv1alpha3.KubeadmConfig, microerror.Mask(tooManyCRsError)
+		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(tooManyCRsError)
 	}
 
 	return list.Items[0], nil

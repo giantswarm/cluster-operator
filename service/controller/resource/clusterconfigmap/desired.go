@@ -21,10 +21,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
 
 	var podCIDR string
 	{
@@ -39,7 +35,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(&cr, bd),
+				"baseDomain": key.TenantEndpoint(&cr, r.baseDomain),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
 						"CIDR": podCIDR,
@@ -99,8 +95,4 @@ func newConfigMap(cr apiv1alpha2.Cluster, configMapSpec configMapSpec) (*corev1.
 	}
 
 	return cm, nil
-}
-
-func createBaseDomain(ctx context.Context) string {
-
 }
