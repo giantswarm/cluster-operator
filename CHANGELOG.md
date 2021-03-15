@@ -9,16 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.7.0] - 2021-03-15
 
+### Added
+
+- Create app CR for per cluster app-operator instance.
+- Add `appfinalizer` resource to remove finalizers from workload cluster app CRs.
+
 ## [3.6.1] - 2021-02-23
 
 ### Removed
 
 - Do not add `VersionBundle` to new `CertConfig` specs (`CertConfig`s are now versioned using a label). **This change requires using `cert-operator` 1.0.0 or later.**
-
-### Added
-
-- Create app CR for per cluster app-operator instance.
-- Add `appfinalizer` resource to remove finalizers from workload cluster app CRs.
 
 ## [3.6.0] - 2021-02-19
 
