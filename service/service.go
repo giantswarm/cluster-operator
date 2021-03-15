@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
 	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	bootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/flag"
 	"github.com/giantswarm/cluster-operator/v3/service/collector"
@@ -99,6 +100,7 @@ func New(config Config) (*Service, error) {
 		c := k8sclient.ClientsConfig{
 			SchemeBuilder: k8sclient.SchemeBuilder{
 				apiv1alpha2.AddToScheme,
+				bootstrapkubeadmv1alpha3.AddToScheme,
 				infrastructurev1alpha2.AddToScheme,
 				releasev1alpha1.AddToScheme,
 			},
