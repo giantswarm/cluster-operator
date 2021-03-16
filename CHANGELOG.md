@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Add `AllowedLabels` to clusterconfigmap resource to prevent unnecessary updates.
+
 ## [3.7.0] - 2021-03-15
 
 ### Added
