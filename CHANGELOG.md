@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Delete app CRs on KVM cluster deletion so all pods are deleted from the cluster
+namespace in the management cluster.
+
 ## [0.25.1] - 2021-03-17
 
 ### Fixed
