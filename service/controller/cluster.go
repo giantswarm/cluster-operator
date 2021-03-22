@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/afero"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
@@ -71,7 +71,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha2.Cluster)
+				return new(apiv1alpha3.Cluster)
 			},
 			Resources: resources,
 
