@@ -2,16 +2,14 @@ package podcidr
 
 import (
 	"context"
-	"strings"
 
+	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	bootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
 type Config struct {
@@ -72,31 +70,22 @@ func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (bootstra
 		ctx,
 		&list,
 		client.InNamespace(cr.GetNamespace()),
-		client.MatchingLabels{"cluster.x-k8s.io/cluster-name": key.ClusterID(cr)},
+		client.MatchingLabels{
+			"cluster.x-k8s.io/cluster-name":  key.ClusterID(cr),
+			"cluster.x-k8s.io/control-plane": "",
+		},
 	)
 	if err != nil {
 		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(err)
 	}
 
-	filteredItems := filterByName(list.Items, "control-plane")
-
-	if len(filteredItems) == 0 {
+	if len(list.Items) == 0 {
 		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(notFoundError)
 	}
 
-	if len(filteredItems) > 1 {
+	if len(list.Items) > 1 {
 		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(tooManyCRsError)
 	}
 
-	return filteredItems[0], nil
-}
-
-func filterByName(items []bootstrapkubeadmv1alpha3.KubeadmConfig, substr string) (result []bootstrapkubeadmv1alpha3.KubeadmConfig) {
-	for _, item := range items {
-		if strings.Contains(item.Name, substr) {
-			result = append(result, item)
-		}
-	}
-
-	return result
+	return list.Items[0], nil
 }
