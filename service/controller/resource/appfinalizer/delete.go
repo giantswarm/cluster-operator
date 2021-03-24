@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/microerror"
@@ -21,10 +22,16 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
+	selectors := []string{}
 	// We keep the finalizer for the app-operator app CR so the resources in
 	// the management cluster are deleted.
+	selectors = append(selectors, fmt.Sprintf("%s!=%s", label.AppKubernetesName, "app-operator"))
+
+	// Remove resources matching cluster label
+	selectors = append(selectors, fmt.Sprintf("%s=%s", label.Cluster, key.ClusterID(&cr)))
+
 	o := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s!=%s", label.AppKubernetesName, "app-operator"),
+		LabelSelector: strings.Join(selectors, ","),
 	}
 
 	r.logger.Debugf(ctx, "finding apps to remove finalizers for")
