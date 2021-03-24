@@ -10,7 +10,6 @@ import (
 	bootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
@@ -72,7 +71,10 @@ func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (bootstra
 		ctx,
 		&list,
 		client.InNamespace(cr.GetNamespace()),
-		client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
+		client.MatchingLabels{
+			"cluster.x-k8s.io/cluster-name":  key.ClusterID(cr),
+			"cluster.x-k8s.io/control-plane": "",
+		},
 	)
 	if err != nil {
 		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(err)
@@ -81,6 +83,7 @@ func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (bootstra
 	if len(list.Items) == 0 {
 		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(notFoundError)
 	}
+
 	if len(list.Items) > 1 {
 		return bootstrapkubeadmv1alpha3.KubeadmConfig{}, microerror.Mask(tooManyCRsError)
 	}
