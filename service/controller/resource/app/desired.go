@@ -51,6 +51,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	var apps []*g8sv1alpha1.App
+	if key.IsDeleted(&cr) {
+		r.logger.Debugf(ctx, "deleting apps for tenant cluster %#q", key.ClusterID(&cr))
+		return apps, nil
+	}
 
 	appSpecs, err := r.newAppSpecs(ctx, cr)
 	if err != nil {
