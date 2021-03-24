@@ -3,13 +3,14 @@ package podcidr
 import (
 	"context"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	bootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
 type Config struct {
