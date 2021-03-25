@@ -45,8 +45,10 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	for _, app := range list.Items {
 		r.logger.Debugf(ctx, "removing finalizer for app %#q", app.Name)
+		r.logger.Debugf(ctx, "KUBA: %#q - finalizers: %+v", app.Name, app.Finalizers)
 
 		index := getFinalizerIndex(app.Finalizers)
+		r.logger.Debugf(ctx, "KUBA: %#q - index: %d", app.Name, index)
 		if index >= 0 {
 			patches := []patch{
 				{
@@ -59,11 +61,11 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			_, err = r.g8sClient.ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+			result, err := r.g8sClient.ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
 			if err != nil {
 				return microerror.Mask(err)
 			}
-
+			r.logger.Debugf(ctx, "KUBA: %#q - result finalizers: %+v", app.Name, result.Finalizers)
 			r.logger.Debugf(ctx, "removed finalizer for app %#q", app.Name)
 		} else {
 			r.logger.Debugf(ctx, "finalizer already removed for app %#q", app.Name)
