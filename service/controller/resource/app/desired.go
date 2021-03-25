@@ -361,17 +361,24 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr v1alpha1.ClusterGuestConf
 }
 
 func newAppOperatorAppSpec(clusterConfig v1alpha1.ClusterGuestConfig, component releasev1alpha1.ReleaseSpecComponent) key.AppSpec {
-	return key.AppSpec{
+	spec := key.AppSpec{
 		App: appOperatorComponentName,
 		// Override app name to include the cluster ID.
 		AppName:         fmt.Sprintf("%s-%s", appOperatorComponentName, clusterConfig.ID),
-		Catalog:         controlPlaneCatalog,
+		Catalog:         component.Catalog,
 		Chart:           appOperatorComponentName,
 		InCluster:       true,
 		Namespace:       clusterConfig.ID,
 		UseUpgradeForce: false,
 		Version:         component.Version,
 	}
+
+	// Setting the reference allows us to deploy from a test catalog.
+	if component.Reference != "" {
+		spec.Version = component.Reference
+	}
+
+	return spec
 }
 
 func (r *Resource) getReleaseComponent(releaseVersion, component string) (releasev1alpha1.ReleaseSpecComponent, error) {

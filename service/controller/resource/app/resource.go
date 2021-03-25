@@ -15,7 +15,6 @@ const (
 	Name = "app"
 
 	appOperatorComponentName = "app-operator"
-	controlPlaneCatalog      = "control-plane-catalog"
 	uniqueOperatorVersion    = "0.0.0"
 )
 

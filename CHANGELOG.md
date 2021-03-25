@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.1] - 2021-03-17
 
+### Added
+
+- Assign app catalog name from the component in release CR.
+
 ### Fixed
 
 - Add `AllowedLabels` to clusterconfigmap resource to prevent unnecessary updates.

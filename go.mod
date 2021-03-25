@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
-	github.com/giantswarm/apiextensions v0.2.0
+	github.com/giantswarm/apiextensions v0.2.1-0.20210324165038-360688c8588a
 	github.com/giantswarm/apprclient v0.0.0-20191209123802-955b7e89e6e2
 	github.com/giantswarm/backoff v0.2.0
 	github.com/giantswarm/certs/v2 v2.0.0
