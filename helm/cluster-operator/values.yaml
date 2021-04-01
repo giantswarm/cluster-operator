@@ -4,7 +4,7 @@ image:
 Installation:
   V1:
     Registry:
-      Domain: quay.io
+      Domain: docker.io
 pod:
   user:
     id: 1000
