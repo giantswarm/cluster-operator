@@ -16,19 +16,19 @@ data:
     guest:
       cluster:
         calico:
-          subnet: '{{ .Values.Installation.V1.Guest.Calico.Subnet }}'
-          cidr: '{{ .Values.Installation.V1.Guest.Calico.CIDR }}'
+          subnet: '{{ .Values.cni.subnet }}'
+          cidr: '{{ .Values.cni.mask }}'
         kubernetes:
           api:
-            clusterIPRange: '{{ .Values.Installation.V1.Guest.Kubernetes.API.ClusterIPRange }}'
-          domain: '{{ .Values.Installation.V1.Guest.Kubernetes.ClusterDomain }}'
+            clusterIPRange: '{{ .Values.kubernetes.api.clusterAPIRange }}'
+          domain: '{{ .Values.kubernetes.clusterDomain }}'
         vault:
           certificate:
-            ttl: '{{ .Values.Installation.V1.Auth.Vault.Certificate.TTL }}'
+            ttl: '{{ .Values.vault.certificate.ttl }}'
     service:
       image:
         registry:
-          domain: '{{ .Values.Installation.V1.Registry.Domain }}'
+          domain: '{{ .Values.registry.domain }}'
       kubeconfig:
         resource:
           namespace: 'giantswarm'
@@ -40,9 +40,9 @@ data:
           crtFile: ''
           keyFile: ''
       provider:
-        kind: '{{ .Values.Installation.V1.Provider.Kind }}'
+        kind: '{{ .Values.provider.kind }}'
       release:
         app:
           config:
-            default: {{ toYaml .Values.Installation.V1.GiantSwarm.Release.App.Config.Default | indent 12 }}
-            override: {{ toYaml .Values.Installation.V1.GiantSwarm.Release.App.Config.Override | indent 12 }}
+            default: {{ toYaml .Values.release.app.config.default | indent 12 }}
+            override: {{ toYaml .Values.release.app.config.override | indent 12 }}
