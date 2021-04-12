@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Adjust helm values to be used with `config-controller`.
+- Adjust helm chart to be used with `config-controller`.
 
 ## [3.7.1] - 2021-03-17
 
