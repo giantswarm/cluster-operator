@@ -2,6 +2,10 @@ package appfinalizer
 
 import "github.com/giantswarm/microerror"
 
+var executionFailedError = &microerror.Error{
+	Kind: "executionFailed",
+}
+
 var invalidConfigError = &microerror.Error{
 	Kind: "invalidConfigError",
 }
