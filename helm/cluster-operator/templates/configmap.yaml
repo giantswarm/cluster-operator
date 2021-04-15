@@ -39,7 +39,7 @@ data:
           crtFile: ''
           keyFile: ''
       provider:
-        kind: '{{ .Values.Installation.V1.Provider.Kind }}'
+        kind: '{{ .Values.provider.kind }}'
       release:
         app:
           config:
