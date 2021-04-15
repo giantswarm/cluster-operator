@@ -77,3 +77,6 @@ release:
         # Upgrade force is disabled to avoid affecting customer workloads.
         nginx-ingress-controller:
           useUpgradeForce: false
+vault:
+  certificate:
+    ttl: 4320h
