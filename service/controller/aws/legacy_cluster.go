@@ -81,7 +81,6 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 	var clusterController *controller.Controller
 	{
 		c := controller.Config{
-			CRD:       v1alpha1.NewAWSClusterConfigCRD(),
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			ResourceSets: []*controller.ResourceSet{
