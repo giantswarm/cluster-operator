@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.1] - 2021-04-21
+
 ### Changed
 
 - Dropped ensuring cluster CRDs from controllers.
@@ -111,7 +113,8 @@ Replacement for [0.23.21] because of incorrect `bundleVersion` in [0.23.21]
 
 - Added GitHub workflows.
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.27.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v0.27.1...HEAD
+[0.27.1]: https://github.com/giantswarm/cluster-operator/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/giantswarm/cluster-operator/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/giantswarm/cluster-operator/compare/v0.25.1...v0.26.0
 [0.25.1]: https://github.com/giantswarm/cluster-operator/compare/v0.25.0...v0.25.1
