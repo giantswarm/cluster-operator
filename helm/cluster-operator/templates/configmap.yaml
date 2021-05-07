@@ -15,13 +15,13 @@ data:
         address: 'http://0.0.0.0:8000'
     guest:
       cluster:
-        baseDomain: '{{ .Values.Installation.V1.Guest.Kubernetes.API.EndpointBase }}'
+        baseDomain: '{{ .Values.baseDomain }}'
         calico:
           subnet: '{{ .Values.cni.subnet }}'
           cidr: '{{ .Values.cni.mask }}'
         kubernetes:
           api:
-            clusterIPRange: '{{ .Values.kubernetes.api.clusterAPIRange }}'
+            clusterIPRange: '{{ .Values.kubernetes.api.clusterIPRange }}'
           domain: '{{ .Values.kubernetes.clusterDomain }}'
     service:
       image:
