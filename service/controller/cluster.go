@@ -147,6 +147,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	{
 		c := appfinalizer.Config{
 			G8sClient: config.K8sClient.G8sClient(),
+			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 		}
 
@@ -194,6 +195,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			K8sClient: config.K8sClient.K8sClient(),
 			Logger:    config.Logger,
 
+			AllowedLabels: []string{
+				label.AppOperatorWatching,
+			},
 			Name:        clusterconfigmap.Name,
 			StateGetter: clusterConfigMapGetter,
 		}

@@ -22,6 +22,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		return nil, microerror.Mask(err)
 	}
 
+	var configMaps []*corev1.ConfigMap
+
+	if key.IsDeleted(&cr) {
+		r.logger.Debugf(ctx, "deleting cluster ConfigMap for tenant cluster %#q", key.ClusterID(&cr))
+		return configMaps, nil
+	}
+
 	var podCIDR string
 	{
 		podCIDR, err = r.podCIDR.PodCIDR(ctx, &cr)
@@ -54,8 +61,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			},
 		},
 	}
-
-	var configMaps []*corev1.ConfigMap
 
 	for _, spec := range configMapSpecs {
 		configMap, err := newConfigMap(cr, spec)
