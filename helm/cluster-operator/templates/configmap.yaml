@@ -20,7 +20,7 @@ data:
           cidr: '{{ .Values.cni.mask }}'
         kubernetes:
           api:
-            clusterIPRange: '{{ .Values.kubernetes.api.clusterAPIRange }}'
+            clusterIPRange: '{{ .Values.kubernetes.api.clusterIPRange }}'
           domain: '{{ .Values.kubernetes.clusterDomain }}'
         vault:
           certificate:
