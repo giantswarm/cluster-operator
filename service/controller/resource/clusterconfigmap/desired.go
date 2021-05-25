@@ -3,13 +3,12 @@ package clusterconfigmap
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -22,9 +21,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
-	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
+
+	var configMaps []*corev1.ConfigMap
+
+	if key.IsDeleted(&cr) {
+		r.logger.Debugf(ctx, "deleting cluster ConfigMap for tenant cluster %#q", key.ClusterID(&cr))
+		return configMaps, nil
 	}
 
 	var podCIDR string
@@ -35,20 +37,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
-	// useProxyProtocol is only enabled by default for AWS clusters.
-	var useProxyProtocol bool
-	{
-		if r.provider == "aws" {
-			useProxyProtocol = true
-		}
-	}
-
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(&cr, bd),
+				"baseDomain": key.TenantEndpoint(&cr, r.baseDomain),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
 						"CIDR": podCIDR,
@@ -66,20 +60,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"clusterID":    key.ClusterID(&cr),
 			},
 		},
-		{
-			Name:      "ingress-controller-values",
-			Namespace: key.ClusterID(&cr),
-			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"clusterID":  key.ClusterID(&cr),
-				"configmap": map[string]interface{}{
-					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
-				},
-			},
-		},
 	}
-
-	var configMaps []*corev1.ConfigMap
 
 	for _, spec := range configMapSpecs {
 		configMap, err := newConfigMap(cr, spec)
@@ -93,7 +74,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	return configMaps, nil
 }
 
-func newConfigMap(cr apiv1alpha2.Cluster, configMapSpec configMapSpec) (*corev1.ConfigMap, error) {
+func newConfigMap(cr apiv1alpha3.Cluster, configMapSpec configMapSpec) (*corev1.ConfigMap, error) {
 	yamlValues, err := yaml.Marshal(configMapSpec.Values)
 	if err != nil {
 		return nil, microerror.Mask(err)

@@ -27,7 +27,7 @@ cni:
 
 kubernetes:
   api:
-    clusterAPIRange: 172.31.0.0/16
+    clusterIPRange: 172.31.0.0/16
   clusterDomain: cluster.local
 
 provider:

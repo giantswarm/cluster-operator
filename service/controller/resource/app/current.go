@@ -6,7 +6,6 @@ import (
 
 	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -18,14 +17,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
-	}
-
-	// The app custom resources are deleted when the namespace is deleted.
-	if key.IsDeleted(&cr) {
-		r.logger.Debugf(ctx, "not deleting apps for tenant cluster %#q", key.ClusterID(&cr))
-		r.logger.Debugf(ctx, "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
 	}
 
 	var apps []*v1alpha1.App

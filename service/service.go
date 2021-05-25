@@ -19,19 +19,15 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	bootstrapkubeadmv1alpha3 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/flag"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
 	"github.com/giantswarm/cluster-operator/v3/service/collector"
 	"github.com/giantswarm/cluster-operator/v3/service/controller"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
 )
 
 const (
@@ -56,11 +52,9 @@ type Config struct {
 type Service struct {
 	Version *version.Service
 
-	bootOnce                    sync.Once
-	clusterController           *controller.Cluster
-	controlPlaneController      *controller.ControlPlane
-	machineDeploymentController *controller.MachineDeployment
-	operatorCollector           *collector.Set
+	bootOnce          sync.Once
+	clusterController *controller.Cluster
+	operatorCollector *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -74,10 +68,10 @@ func New(config Config) (*Service, error) {
 
 	var err error
 
+	baseDomain := config.Viper.GetString(config.Flag.Guest.Cluster.BaseDomain)
 	calicoSubnet := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.Subnet)
 	calicoCIDR := config.Viper.GetString(config.Flag.Guest.Cluster.Calico.CIDR)
 	clusterIPRange := config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.API.ClusterIPRange)
-	provider := config.Viper.GetString(config.Flag.Service.Provider.Kind)
 	registryDomain := config.Viper.GetString(config.Flag.Service.Image.Registry.Domain)
 
 	var restConfig *rest.Config
@@ -105,7 +99,8 @@ func New(config Config) (*Service, error) {
 	{
 		c := k8sclient.ClientsConfig{
 			SchemeBuilder: k8sclient.SchemeBuilder{
-				apiv1alpha2.AddToScheme,
+				apiv1alpha3.AddToScheme,
+				bootstrapkubeadmv1alpha3.AddToScheme,
 				infrastructurev1alpha2.AddToScheme,
 				releasev1alpha1.AddToScheme,
 			},
@@ -167,6 +162,18 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
+	var rv releaseversion.Interface
+	{
+		c := releaseversion.Config{
+			K8sClient: k8sClient,
+		}
+
+		rv, err = releaseversion.New(c)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var pc podcidr.Interface
 	{
 		c := podcidr.Config{
@@ -181,92 +188,25 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var bd basedomain.Interface
-	{
-		c := basedomain.Config{
-			K8sClient: k8sClient,
-		}
-
-		bd, err = basedomain.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var tenantClient tenantclient.Interface
-	{
-		c := tenantclient.Config{
-			K8sClient:     k8sClient,
-			BaseDomain:    bd,
-			TenantCluster: tenantCluster,
-			Logger:        config.Logger,
-		}
-
-		tenantClient, err = tenantclient.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var nc nodecount.Interface
-	{
-		c := nodecount.Config{
-			K8sClient:    k8sClient,
-			TenantClient: tenantClient,
-		}
-
-		nc, err = nodecount.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var rv releaseversion.Interface
-	{
-		c := releaseversion.Config{
-			K8sClient: k8sClient,
-		}
-
-		rv, err = releaseversion.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var eventRecorder recorder.Interface
-	{
-		c := recorder.Config{
-			K8sClient: k8sClient,
-
-			Component: fmt.Sprintf("%s-%s", project.Name(), project.Version()),
-		}
-
-		eventRecorder = recorder.New(c)
-	}
-
 	var clusterController *controller.Cluster
 	{
 		c := controller.ClusterConfig{
-			BaseDomain:     bd,
+			BaseDomain:     baseDomain,
 			CertsSearcher:  certsSearcher,
-			Event:          eventRecorder,
 			FileSystem:     afero.NewOsFs(),
 			K8sClient:      k8sClient,
 			Logger:         config.Logger,
-			PodCIDR:        pc,
 			Tenant:         tenantCluster,
 			ReleaseVersion: rv,
+			PodCIDR:        pc,
 
-			APIIP:                      apiIP,
-			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
-			ClusterIPRange:             clusterIPRange,
-			DNSIP:                      dnsIP,
-			ClusterDomain:              config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
-			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
-			Provider:                   provider,
-			RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
-			RawAppOverrideConfig:       config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
-			RegistryDomain:             registryDomain,
+			APIIP:                apiIP,
+			ClusterIPRange:       clusterIPRange,
+			DNSIP:                dnsIP,
+			ClusterDomain:        config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
+			RawAppDefaultConfig:  config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+			RawAppOverrideConfig: config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
+			RegistryDomain:       registryDomain,
 		}
 
 		clusterController, err = controller.NewCluster(c)
@@ -275,54 +215,11 @@ func New(config Config) (*Service, error) {
 		}
 	}
 
-	var controlPlaneController *controller.ControlPlane
-	{
-		c := controller.ControlPlaneConfig{
-			BaseDomain:     bd,
-			Event:          eventRecorder,
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			NodeCount:      nc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
-
-			Provider: provider,
-		}
-
-		controlPlaneController, err = controller.NewControlPlane(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var machineDeploymentController *controller.MachineDeployment
-	{
-		c := controller.MachineDeploymentConfig{
-			BaseDomain:     bd,
-			Event:          eventRecorder,
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			NodeCount:      nc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
-
-			Provider: provider,
-		}
-
-		machineDeploymentController, err = controller.NewMachineDeployment(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var operatorCollector *collector.Set
 	{
 		c := collector.SetConfig{
-			CertSearcher: certsSearcher,
-			K8sClient:    k8sClient,
-			Logger:       config.Logger,
-
-			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
+			K8sClient: k8sClient,
+			Logger:    config.Logger,
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -350,11 +247,9 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:                    sync.Once{},
-		clusterController:           clusterController,
-		controlPlaneController:      controlPlaneController,
-		machineDeploymentController: machineDeploymentController,
-		operatorCollector:           operatorCollector,
+		bootOnce:          sync.Once{},
+		clusterController: clusterController,
+		operatorCollector: operatorCollector,
 	}
 
 	return s, nil
@@ -372,16 +267,7 @@ func (s *Service) Boot(ctx context.Context) {
 
 		// Start the controllers.
 		go s.clusterController.Boot(ctx)
-		go s.controlPlaneController.Boot(ctx)
-		go s.machineDeploymentController.Boot(ctx)
 	})
-}
-
-func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
-	// Deal with different providers in here once they reach Cluster API.
-	return func() infrastructurev1alpha2.CommonClusterObject {
-		return new(infrastructurev1alpha2.AWSCluster)
-	}
 }
 
 func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {

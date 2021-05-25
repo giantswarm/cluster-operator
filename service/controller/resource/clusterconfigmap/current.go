@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -18,14 +17,6 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*cor
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return nil, microerror.Mask(err)
-	}
-
-	// The config maps are deleted when the namespace is deleted.
-	if key.IsDeleted(&cr) {
-		r.logger.Debugf(ctx, "not deleting config maps for tenant cluster %#q", key.ClusterID(&cr))
-		r.logger.Debugf(ctx, "canceling resource")
-		resourcecanceledcontext.SetCanceled(ctx)
-		return nil, nil
 	}
 
 	var configMaps []*corev1.ConfigMap

@@ -24,7 +24,6 @@ type Config struct {
 	Logger         micrologger.Logger
 	ReleaseVersion releaseversion.Interface
 
-	Provider             string
 	RawAppDefaultConfig  string
 	RawAppOverrideConfig string
 }
@@ -38,7 +37,6 @@ type Resource struct {
 
 	defaultConfig  defaultConfig
 	overrideConfig overrideConfig
-	provider       string
 }
 
 type defaultConfig struct {
@@ -70,9 +68,6 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ReleaseVersion must not be empty", config)
 	}
 
-	if config.Provider == "" {
-		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
-	}
 	if config.RawAppDefaultConfig == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.RawDefaultConfig must not be empty", config)
 	}
@@ -100,7 +95,6 @@ func New(config Config) (*Resource, error) {
 
 		defaultConfig:  defaultConfig,
 		overrideConfig: overrideConfig,
-		provider:       config.Provider,
 	}
 
 	return r, nil

@@ -15,6 +15,7 @@ data:
         address: 'http://0.0.0.0:8000'
     guest:
       cluster:
+        baseDomain: '{{ .Values.baseDomain }}'
         calico:
           subnet: '{{ .Values.cni.subnet }}'
           cidr: '{{ .Values.cni.mask }}'
@@ -22,9 +23,6 @@ data:
           api:
             clusterIPRange: '{{ .Values.kubernetes.api.clusterIPRange }}'
           domain: '{{ .Values.kubernetes.clusterDomain }}'
-        vault:
-          certificate:
-            ttl: '{{ .Values.vault.certificate.ttl }}'
     service:
       image:
         registry:
@@ -39,8 +37,6 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
-      provider:
-        kind: '{{ .Values.provider.kind }}'
       release:
         app:
           config:

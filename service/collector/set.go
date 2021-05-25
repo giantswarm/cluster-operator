@@ -1,8 +1,6 @@
 package collector
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/certs/v3/pkg/certs"
 	"github.com/giantswarm/exporterkit/collector"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -10,16 +8,14 @@ import (
 )
 
 type SetConfig struct {
-	CertSearcher certs.Interface
-	K8sClient    k8sclient.Interface
-	Logger       micrologger.Logger
-
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	K8sClient k8sclient.Interface
+	Logger    micrologger.Logger
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
 // It eases the initialization and prevents some weird import mess so we do not
-// have to alias packages.
+// have to alias packages. There is also the benefit of the helper type kept
+// private so we do not need to expose this magic.
 type Set struct {
 	*collector.Set
 }
@@ -27,56 +23,16 @@ type Set struct {
 func NewSet(config SetConfig) (*Set, error) {
 	var err error
 
-	var clusterCollector *Cluster
-	{
-		c := ClusterConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
-		}
-
-		clusterCollector, err = NewCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var nodePoolCollector *NodePool
-	{
-		c := NodePoolConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-		}
-
-		nodePoolCollector, err = NewNodePool(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var clusterTransitionCollector *ClusterTransition
-	{
-		c := ClusterTransitionConfig{
-			K8sClient: config.K8sClient,
-			Logger:    config.Logger,
-
-			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
-		}
-
-		clusterTransitionCollector, err = NewClusterTransition(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
+	todo, err := NewTodo(TodoConfig{})
+	if err != nil {
+		return nil, microerror.Mask(err)
 	}
 
 	var collectorSet *collector.Set
 	{
 		c := collector.SetConfig{
 			Collectors: []collector.Interface{
-				clusterCollector,
-				nodePoolCollector,
-				clusterTransitionCollector,
+				todo,
 			},
 			Logger: config.Logger,
 		}

@@ -2,16 +2,16 @@ package unittest
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 )
 
-func DefaultMachineDeployment() apiv1alpha2.MachineDeployment {
-	cr := apiv1alpha2.MachineDeployment{
+func DefaultMachineDeployment() apiv1alpha3.MachineDeployment {
+	cr := apiv1alpha3.MachineDeployment{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "MachineDeployment",
 			APIVersion: "cluster.x-k8s.io/v1alpha2",
 		},
-		Status: apiv1alpha2.MachineDeploymentStatus{
+		Status: apiv1alpha3.MachineDeploymentStatus{
 			ObservedGeneration:  0,
 			Selector:            "",
 			Replicas:            1,
