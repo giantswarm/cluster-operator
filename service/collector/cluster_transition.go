@@ -111,71 +111,69 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 				return microerror.Mask(err)
 			}
 		}
-
 		{
-			{
-				if cr.GetCommonClusterStatus().HasCreatingCondition() && cr.GetCommonClusterStatus().HasCreatedCondition() {
-					t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
-					t2 := cr.GetCommonClusterStatus().GetCreatedCondition().LastTransitionTime.Time
-					ch <- prometheus.MustNewConstMetric(
-						clusterTransitionCreateDesc,
-						prometheus.GaugeValue,
-						t2.Sub(t1).Seconds(),
-						key.ClusterID(cr),
-						key.ReleaseVersion(cr),
-					)
-				}
-
-				if cr.GetCommonClusterStatus().HasCreatingCondition() && !cr.GetCommonClusterStatus().HasCreatedCondition() {
-					t1 := cr.GetCommonClusterStatus().GetCreatingCondition().LastTransitionTime.Time
-
-					// If the Creating condition is too old without having any
-					// Created condition given, we put the cluster into the last
-					// bucket and consider it invalid in that regard.
-					if time.Now().After(t1.Add(30 * time.Minute)) {
-						ch <- prometheus.MustNewConstMetric(
-							clusterTransitionCreateDesc,
-							prometheus.GaugeValue,
-							float64(999999999999),
-							key.ClusterID(cr),
-							key.ReleaseVersion(cr),
-						)
-					}
-				}
+			created, createTime := getCreateMetrics(cr.GetCommonClusterStatus())
+			if created {
+				ch <- prometheus.MustNewConstMetric(
+					clusterTransitionCreateDesc,
+					prometheus.GaugeValue,
+					createTime,
+					key.ClusterID(cr),
+					key.ReleaseVersion(cr),
+				)
 			}
-			{
-				if cr.GetCommonClusterStatus().HasUpdatingCondition() && cr.GetCommonClusterStatus().HasUpdatedCondition() {
-					t1 := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Time
-					t2 := cr.GetCommonClusterStatus().GetUpdatedCondition().LastTransitionTime.Time
-					ch <- prometheus.MustNewConstMetric(
-						clusterTransitionUpdateDesc,
-						prometheus.GaugeValue,
-						t2.Sub(t1).Seconds(),
-						key.ClusterID(cr),
-						key.ReleaseVersion(cr),
-					)
-				}
-
-				if cr.GetCommonClusterStatus().HasUpdatingCondition() && !cr.GetCommonClusterStatus().HasUpdatedCondition() {
-					t1 := cr.GetCommonClusterStatus().GetUpdatingCondition().LastTransitionTime.Time
-
-					// If the Updating condition is too old without having any
-					// Updated condition given, we put the cluster into the last
-					// bucket and consider it invalid in that regard.
-					if time.Now().After(t1.Add(2 * time.Hour)) {
-						ch <- prometheus.MustNewConstMetric(
-							clusterTransitionCreateDesc,
-							prometheus.GaugeValue,
-							float64(999999999999),
-							key.ClusterID(cr),
-							key.ReleaseVersion(cr),
-						)
-					}
-				}
+			updated, updateTime := getCreateMetrics(cr.GetCommonClusterStatus())
+			if updated {
+				ch <- prometheus.MustNewConstMetric(
+					clusterTransitionUpdateDesc,
+					prometheus.GaugeValue,
+					updateTime,
+					key.ClusterID(cr),
+					key.ReleaseVersion(cr),
+				)
 			}
 		}
 	}
 	return nil
+}
+
+func getCreateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, float64) {
+	if status.HasCreatingCondition() && status.HasCreatedCondition() {
+		t1 := status.GetCreatingCondition().LastTransitionTime.Time
+		t2 := status.GetCreatedCondition().LastTransitionTime.Time
+		return true, t2.Sub(t1).Seconds()
+	}
+
+	if status.HasCreatingCondition() && !status.HasCreatedCondition() {
+		t1 := status.GetCreatingCondition().LastTransitionTime.Time
+
+		// If the Creating condition is too old without having any
+		// Created condition given, we put the cluster into the last
+		// bucket and consider it invalid in that regard.
+		if time.Now().After(t1.Add(30 * time.Minute)) {
+			return true, float64(999999999999)
+		}
+	}
+	return false, 0
+}
+func getUpdateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, float64) {
+	if status.HasUpdatingCondition() && status.HasUpdatedCondition() {
+		t1 := status.GetUpdatingCondition().LastTransitionTime.Time
+		t2 := status.GetUpdatedCondition().LastTransitionTime.Time
+		return true, t2.Sub(t1).Seconds()
+	}
+
+	if status.HasUpdatingCondition() && !status.HasUpdatedCondition() {
+		t1 := status.GetUpdatingCondition().LastTransitionTime.Time
+
+		// If the Updating condition is too old without having any
+		// Updated condition given, we put the cluster into the last
+		// bucket and consider it invalid in that regard.
+		if time.Now().After(t1.Add(2 * time.Hour)) {
+			return true, float64(999999999999)
+		}
+	}
+	return false, 0
 }
 
 func (ct *ClusterTransition) Describe(ch chan<- *prometheus.Desc) error {
