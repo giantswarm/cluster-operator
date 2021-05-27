@@ -83,7 +83,7 @@ func TestCollectClusterTransition(t *testing.T) {
 				},
 			},
 			expectCreated: 30*60 - 1,
-			expectUpdated: 20*60 - 1,
+			expectUpdated: 0,
 		},
 		// the cluster is updated for the second time
 		{

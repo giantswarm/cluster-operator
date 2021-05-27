@@ -157,13 +157,16 @@ func getCreateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, 
 	return false, 0
 }
 func getUpdateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, float64) {
+
 	if status.HasUpdatingCondition() && status.HasUpdatedCondition() {
 		t1 := status.GetUpdatingCondition().LastTransitionTime.Time
 		t2 := status.GetUpdatedCondition().LastTransitionTime.Time
-		return true, t2.Sub(t1).Seconds()
+		if t2.Sub(t1).Seconds() > 0 {
+			return true, t2.Sub(t1).Seconds()
+		}
 	}
 
-	if status.HasUpdatingCondition() && !status.HasUpdatedCondition() {
+	if status.HasUpdatingCondition() {
 		t1 := status.GetUpdatingCondition().LastTransitionTime.Time
 
 		// If the Updating condition is too old without having any
