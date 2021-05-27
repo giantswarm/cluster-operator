@@ -122,7 +122,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 					key.ReleaseVersion(cr),
 				)
 			}
-			updated, updateTime := getCreateMetrics(cr.GetCommonClusterStatus())
+			updated, updateTime := getUpdateMetrics(cr.GetCommonClusterStatus())
 			if updated {
 				ch <- prometheus.MustNewConstMetric(
 					clusterTransitionUpdateDesc,
