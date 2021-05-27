@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )
 
