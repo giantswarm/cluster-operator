@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated OperatorKit to v4.3.1 for Kubernetes 1.20 support.
 - Fix `clusterIPRange` value in configmap.
+- Fix `kubeconfig` resource to search secrets in all namespaces.
 
 ## [3.7.1] - 2021-03-17
 
