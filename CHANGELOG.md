@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.0] - 2021-06-16
+
 
 ### Changed
 
@@ -237,7 +239,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.7.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.8.0...HEAD
+[3.8.0]: https://github.com/giantswarm/cluster-operator/compare/v3.7.1...v3.8.0
 [3.7.1]: https://github.com/giantswarm/cluster-operator/compare/v3.7.0...v3.7.1
 [3.7.0]: https://github.com/giantswarm/cluster-operator/compare/v3.6.1...v3.7.0
 [3.6.1]: https://github.com/giantswarm/cluster-operator/compare/v3.6.0...v3.6.1
