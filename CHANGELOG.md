@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Use `app-operator-konfigure` configmap on the app-operator per cluster.
+
 ## [3.8.0] - 2021-06-16
 
 
