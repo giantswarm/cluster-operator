@@ -3,7 +3,7 @@ package clusterid
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
 
@@ -12,7 +12,7 @@ import (
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr := r.newCommonClusterObjectFunc()
-	var status infrastructurev1alpha2.CommonClusterStatus
+	var status infrastructurev1alpha3.CommonClusterStatus
 	{
 		cl, err := key.ToCluster(obj)
 		if err != nil {

@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -35,14 +35,14 @@ type ClusterConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 }
 
 type Cluster struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	newCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 }
 
 func NewCluster(config ClusterConfig) (*Cluster, error) {
@@ -70,7 +70,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	var list apiv1alpha2.ClusterList
+	var list apiv1alpha3.ClusterList
 	{
 		err := c.k8sClient.CtrlClient().List(
 			ctx,
@@ -106,42 +106,42 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreating),
+				boolToFloat64(latest == infrastructurev1alpha3.ClusterStatusConditionCreating),
 				key.ClusterID(&cl),
 				key.ReleaseVersion(&cl),
-				infrastructurev1alpha2.ClusterStatusConditionCreating,
+				infrastructurev1alpha3.ClusterStatusConditionCreating,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionCreated),
+				boolToFloat64(latest == infrastructurev1alpha3.ClusterStatusConditionCreated),
 				key.ClusterID(&cl),
 				key.ReleaseVersion(&cl),
-				infrastructurev1alpha2.ClusterStatusConditionCreated,
+				infrastructurev1alpha3.ClusterStatusConditionCreated,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdating),
+				boolToFloat64(latest == infrastructurev1alpha3.ClusterStatusConditionUpdating),
 				key.ClusterID(&cl),
 				key.ReleaseVersion(&cl),
-				infrastructurev1alpha2.ClusterStatusConditionUpdating,
+				infrastructurev1alpha3.ClusterStatusConditionUpdating,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionUpdated),
+				boolToFloat64(latest == infrastructurev1alpha3.ClusterStatusConditionUpdated),
 				key.ClusterID(&cl),
 				key.ReleaseVersion(&cl),
-				infrastructurev1alpha2.ClusterStatusConditionUpdated,
+				infrastructurev1alpha3.ClusterStatusConditionUpdated,
 			)
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(latest == infrastructurev1alpha2.ClusterStatusConditionDeleting),
+				boolToFloat64(latest == infrastructurev1alpha3.ClusterStatusConditionDeleting),
 				key.ClusterID(&cl),
 				key.ReleaseVersion(&cl),
-				infrastructurev1alpha2.ClusterStatusConditionDeleting,
+				infrastructurev1alpha3.ClusterStatusConditionDeleting,
 			)
 		}
 	}

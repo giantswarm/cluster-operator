@@ -1,7 +1,7 @@
 package controller
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -62,7 +62,7 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(infrastructurev1alpha2.G8sControlPlane)
+				return new(infrastructurev1alpha3.G8sControlPlane)
 			},
 			Resources: resources,
 

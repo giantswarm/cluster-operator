@@ -3,7 +3,7 @@ package basedomain
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -53,25 +53,25 @@ func (bd *BaseDomain) BaseDomain(ctx context.Context, obj interface{}) (string, 
 	return cl.Spec.Cluster.DNS.Domain, nil
 }
 
-func (bd *BaseDomain) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
+func (bd *BaseDomain) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha3.AWSCluster, error) {
 	var err error
 	var ok bool
 
-	var cluster infrastructurev1alpha2.AWSCluster
+	var cluster infrastructurev1alpha3.AWSCluster
 	{
 		ck := bd.clusterCache.Key(ctx, cr)
 
 		if ck == "" {
 			cluster, err = bd.lookupCluster(ctx, cr)
 			if err != nil {
-				return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+				return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
 			}
 		} else {
 			cluster, ok = bd.clusterCache.Get(ctx, ck)
 			if !ok {
 				cluster, err = bd.lookupCluster(ctx, cr)
 				if err != nil {
-					return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+					return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
 				}
 
 				bd.clusterCache.Set(ctx, ck, cluster)
@@ -82,8 +82,8 @@ func (bd *BaseDomain) cachedCluster(ctx context.Context, cr metav1.Object) (infr
 	return cluster, nil
 }
 
-func (bd *BaseDomain) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
-	var list infrastructurev1alpha2.AWSClusterList
+func (bd *BaseDomain) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha3.AWSCluster, error) {
+	var list infrastructurev1alpha3.AWSClusterList
 
 	err := bd.k8sClient.CtrlClient().List(
 		ctx,
@@ -92,14 +92,14 @@ func (bd *BaseDomain) lookupCluster(ctx context.Context, cr metav1.Object) (infr
 		client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
 	)
 	if err != nil {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
 	}
 
 	if len(list.Items) == 0 {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(notFoundError)
+		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(notFoundError)
 	}
 	if len(list.Items) > 1 {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(tooManyCRsError)
+		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(tooManyCRsError)
 	}
 
 	return list.Items[0], nil

@@ -3,7 +3,7 @@ package updateg8scontrolplanes
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -17,7 +17,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		return microerror.Mask(err)
 	}
 
-	cpList := &infrastructurev1alpha2.G8sControlPlaneList{}
+	cpList := &infrastructurev1alpha3.G8sControlPlaneList{}
 	{
 		r.logger.Debugf(ctx, "finding G8sControlPlanes for tenant cluster")
 

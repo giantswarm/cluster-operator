@@ -1,17 +1,17 @@
 package unittest
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func DefaultControlPlane() infrastructurev1alpha2.G8sControlPlane {
-	cr := infrastructurev1alpha2.G8sControlPlane{
+func DefaultControlPlane() infrastructurev1alpha3.G8sControlPlane {
+	cr := infrastructurev1alpha3.G8sControlPlane{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "G8ControlPlane",
-			APIVersion: "infrastructure.giantswarm.io/v1alpha2",
+			APIVersion: "infrastructure.giantswarm.io/v1alpha3",
 		},
-		Status: infrastructurev1alpha2.G8sControlPlaneStatus{
+		Status: infrastructurev1alpha3.G8sControlPlaneStatus{
 			Replicas:      1,
 			ReadyReplicas: 1,
 		},

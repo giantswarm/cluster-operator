@@ -18,7 +18,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	pkglabel "github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -88,7 +88,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	return apps, nil
 }
 
-func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha2.Cluster) (map[string]corev1.ConfigMap, error) {
+func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha3.Cluster) (map[string]corev1.ConfigMap, error) {
 	configMaps := map[string]corev1.ConfigMap{}
 
 	r.logger.Debugf(ctx, "finding configMaps in namespace %#q", key.ClusterID(&cr))
@@ -107,7 +107,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha2.Cluster) (m
 	return configMaps, nil
 }
 
-func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[string]corev1.Secret, error) {
+func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha3.Cluster) (map[string]corev1.Secret, error) {
 	secrets := map[string]corev1.Secret{}
 
 	r.logger.Debugf(ctx, "finding secrets in namespace %#q", key.ClusterID(&cr))
@@ -126,7 +126,7 @@ func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha2.Cluster) (map[
 	return secrets, nil
 }
 
-func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Cluster) (userOverrideConfig, error) {
+func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha3.Cluster) (userOverrideConfig, error) {
 	userConfig, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get(ctx, "user-override-apps", metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// fall through
@@ -152,7 +152,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha2.Clu
 	return u, nil
 }
 
-func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha2.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha3.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
 	// Override config map name when specified.
@@ -269,7 +269,7 @@ func (r *Resource) chartName(ctx context.Context, appName, catalog, version stri
 	return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
 }
 
-func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]key.AppSpec, error) {
+func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]key.AppSpec, error) {
 	userOverrideConfigs, err := r.getUserOverrideConfig(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -334,7 +334,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha2.Cluster) ([]k
 	return specs, nil
 }
 
-func newAppOperatorAppSpec(cr apiv1alpha2.Cluster, component releaseversion.ReleaseComponent) key.AppSpec {
+func newAppOperatorAppSpec(cr apiv1alpha3.Cluster, component releaseversion.ReleaseComponent) key.AppSpec {
 	var operatorAppVersion string
 
 	// Setting the reference allows us to deploy from a test catalog.
@@ -357,7 +357,7 @@ func newAppOperatorAppSpec(cr apiv1alpha2.Cluster, component releaseversion.Rele
 	}
 }
 
-func newUserConfig(cr apiv1alpha2.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
+func newUserConfig(cr apiv1alpha3.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
 	userConfig := g8sv1alpha1.AppSpecUserConfig{}
 
 	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]

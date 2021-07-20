@@ -1,7 +1,7 @@
 package statuscondition
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
@@ -22,7 +22,7 @@ type Config struct {
 	ReleaseVersion releaseversion.Interface
 	TenantClient   tenantclient.Interface
 
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 	Provider                   string
 }
 
@@ -33,7 +33,7 @@ type Resource struct {
 	releaseVersion releaseversion.Interface
 	tenantClient   tenantclient.Interface
 
-	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	newCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 	provider                   string
 }
 

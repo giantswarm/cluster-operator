@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/certs/v3/pkg/certs"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
@@ -20,7 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
@@ -69,7 +69,7 @@ type ClusterConfig struct {
 	ClusterIPRange             string
 	DNSIP                      string
 	ClusterDomain              string
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string
 	RawAppOverrideConfig       string
@@ -97,7 +97,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha2.Cluster)
+				return new(apiv1alpha3.Cluster)
 			},
 			Resources: resources,
 
@@ -345,7 +345,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &infrastructurev1alpha2.G8sControlPlane{}
+				return &infrastructurev1alpha3.G8sControlPlane{}
 			},
 		}
 
@@ -362,7 +362,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &apiv1alpha2.MachineDeployment{}
+				return &apiv1alpha3.MachineDeployment{}
 			},
 		}
 
@@ -428,7 +428,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &infrastructurev1alpha2.G8sControlPlane{}
+				return &infrastructurev1alpha3.G8sControlPlane{}
 			},
 		}
 
@@ -445,7 +445,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &apiv1alpha2.MachineDeployment{}
+				return &apiv1alpha3.MachineDeployment{}
 			},
 		}
 

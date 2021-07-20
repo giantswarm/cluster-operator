@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/cachekeycontext"
 
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
@@ -71,7 +71,7 @@ func Test_PodCIDR_Cache(t *testing.T) {
 				}
 			}
 
-			var cl infrastructurev1alpha2.AWSCluster
+			var cl infrastructurev1alpha3.AWSCluster
 			{
 				cl = unittest.DefaultCluster()
 			}
