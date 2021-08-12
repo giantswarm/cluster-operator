@@ -23,12 +23,12 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/viper v1.8.1
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.18.19
-	k8s.io/apiextensions-apiserver v0.18.19
-	k8s.io/apimachinery v0.18.19
-	k8s.io/client-go v0.18.19
+	k8s.io/api v0.21.3
+	k8s.io/apiextensions-apiserver v0.21.3
+	k8s.io/apimachinery v0.21.3
+	k8s.io/client-go v0.21.3
 	sigs.k8s.io/cluster-api v0.3.17
-	sigs.k8s.io/controller-runtime v0.6.4
+	sigs.k8s.io/controller-runtime v0.9.6
 )
 
 replace (
