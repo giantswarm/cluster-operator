@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/finalizerskeptcontext"
 	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
@@ -64,8 +64,8 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj infrastructurev1alpha2.CommonClusterObject) infrastructurev1alpha2.CommonClusterObject {
-	cr := (obj.DeepCopyObject()).(infrastructurev1alpha2.CommonClusterObject)
+func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj infrastructurev1alpha3.CommonClusterObject) infrastructurev1alpha3.CommonClusterObject {
+	cr := (obj.DeepCopyObject()).(infrastructurev1alpha3.CommonClusterObject)
 
 	status := cr.GetCommonClusterStatus()
 
@@ -76,7 +76,7 @@ func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj
 		if notDeleting {
 			status.Conditions = status.WithDeletingCondition()
 			cr.SetCommonClusterStatus(status)
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionDeleting))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha3.ClusterStatusConditionDeleting))
 		}
 	}
 

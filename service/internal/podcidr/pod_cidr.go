@@ -3,7 +3,7 @@ package podcidr
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -70,25 +70,25 @@ func (p *PodCIDR) PodCIDR(ctx context.Context, obj interface{}) (string, error) 
 	return podCIDR, nil
 }
 
-func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
+func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha3.AWSCluster, error) {
 	var err error
 	var ok bool
 
-	var cluster infrastructurev1alpha2.AWSCluster
+	var cluster infrastructurev1alpha3.AWSCluster
 	{
 		ck := p.clusterCache.Key(ctx, cr)
 
 		if ck == "" {
 			cluster, err = p.lookupCluster(ctx, cr)
 			if err != nil {
-				return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+				return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
 			}
 		} else {
 			cluster, ok = p.clusterCache.Get(ctx, ck)
 			if !ok {
 				cluster, err = p.lookupCluster(ctx, cr)
 				if err != nil {
-					return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+					return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
 				}
 
 				p.clusterCache.Set(ctx, ck, cluster)
@@ -99,8 +99,8 @@ func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastr
 	return cluster, nil
 }
 
-func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha2.AWSCluster, error) {
-	var list infrastructurev1alpha2.AWSClusterList
+func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha3.AWSCluster, error) {
+	var list infrastructurev1alpha3.AWSClusterList
 
 	err := p.k8sClient.CtrlClient().List(
 		ctx,
@@ -109,14 +109,14 @@ func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastr
 		client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
 	)
 	if err != nil {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(err)
+		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
 	}
 
 	if len(list.Items) == 0 {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(notFoundError)
+		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(notFoundError)
 	}
 	if len(list.Items) > 1 {
-		return infrastructurev1alpha2.AWSCluster{}, microerror.Mask(tooManyCRsError)
+		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(tooManyCRsError)
 	}
 
 	return list.Items[0], nil

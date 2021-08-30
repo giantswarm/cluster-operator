@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
 	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/resourcecanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
@@ -68,7 +68,7 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cr := &apiv1alpha2.MachineDeployment{}
+	cr := &apiv1alpha3.MachineDeployment{}
 	{
 		md, err := key.ToMachineDeployment(obj)
 		if err != nil {

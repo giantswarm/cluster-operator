@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -75,7 +75,7 @@ func NewNodePool(config NodePoolConfig) (*NodePool, error) {
 func (np *NodePool) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	var list apiv1alpha2.MachineDeploymentList
+	var list apiv1alpha3.MachineDeploymentList
 	{
 		err := np.k8sClient.CtrlClient().List(
 			ctx,

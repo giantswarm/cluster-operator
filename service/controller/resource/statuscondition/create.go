@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"reflect"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -22,7 +22,7 @@ import (
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	cr := r.newCommonClusterObjectFunc()
-	var uc infrastructurev1alpha2.CommonClusterObject
+	var uc infrastructurev1alpha3.CommonClusterObject
 	{
 		r.logger.Debugf(ctx, "finding latest cluster")
 
@@ -36,12 +36,12 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			return microerror.Mask(err)
 		}
 
-		uc = cr.DeepCopyObject().(infrastructurev1alpha2.CommonClusterObject)
+		uc = cr.DeepCopyObject().(infrastructurev1alpha3.CommonClusterObject)
 
 		r.logger.Debugf(ctx, "found latest cluster")
 	}
 
-	var cl apiv1alpha2.Cluster
+	var cl apiv1alpha3.Cluster
 	{
 		r.logger.Debugf(ctx, "finding cluster")
 
@@ -83,7 +83,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		}
 	}
 
-	cpList := &infrastructurev1alpha2.G8sControlPlaneList{}
+	cpList := &infrastructurev1alpha3.G8sControlPlaneList{}
 	{
 		r.logger.Debugf(ctx, "finding G8sControlplane for tenant cluster")
 
@@ -100,7 +100,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "found %d G8sControlplane for tenant cluster", len(cpList.Items))
 	}
 
-	mdList := &apiv1alpha2.MachineDeploymentList{}
+	mdList := &apiv1alpha3.MachineDeploymentList{}
 	{
 		r.logger.Debugf(ctx, "finding MachineDeployments for tenant cluster")
 
@@ -141,7 +141,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1alpha2.Cluster, cr infrastructurev1alpha2.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha2.G8sControlPlane, machineDeployments []apiv1alpha2.MachineDeployment) error {
+func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1alpha3.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha3.G8sControlPlane, machineDeployments []apiv1alpha3.MachineDeployment) error {
 	var desiredVersion string
 	var nodesReady bool
 
@@ -161,7 +161,7 @@ func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1a
 	return r.writeClusterStatusConditions(ctx, cl, cr, nodesReady, desiredVersion)
 }
 
-func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alpha2.Cluster, cr infrastructurev1alpha2.CommonClusterObject, nodesReady bool, desiredVersion string) error {
+func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alpha3.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodesReady bool, desiredVersion string) error {
 	status := cr.GetCommonClusterStatus()
 	// After initialization the most likely implication is the tenant cluster
 	// being in a creation status. In case no other conditions are given and no
@@ -169,16 +169,16 @@ func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alp
 	// condition.
 	if computeCreatingCondition(status) {
 		status.Conditions = status.WithCreatingCondition()
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreating))
-		r.event.Emit(ctx, &cl, "ClusterInCreation", fmt.Sprintf("cluster creation is in condition %s", infrastructurev1alpha2.ClusterStatusConditionCreating))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha3.ClusterStatusConditionCreating))
+		r.event.Emit(ctx, &cl, "ClusterInCreation", fmt.Sprintf("cluster creation is in condition %s", infrastructurev1alpha3.ClusterStatusConditionCreating))
 	}
 
 	// Once the tenant cluster is created we set the according status condition so
 	// the cluster status reflects the transitioning from creating to created.
 	if computeCreatedCondition(status, nodesReady) {
 		status.Conditions = status.WithCreatedCondition()
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionCreated))
-		r.event.Emit(ctx, &cl, "ClusterCreated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionCreated))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha3.ClusterStatusConditionCreated))
+		r.event.Emit(ctx, &cl, "ClusterCreated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha3.ClusterStatusConditionCreated))
 	}
 
 	// When we notice the current and the desired tenant cluster version differs,
@@ -186,8 +186,8 @@ func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alp
 	// indicating the tenant cluster is updating now.
 	if computeUpdatingCondition(status, desiredVersion) {
 		status.Conditions = status.WithUpdatingCondition()
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdating))
-		r.event.Emit(ctx, &cl, "ClusterIsUpdating", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionUpdating))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha3.ClusterStatusConditionUpdating))
+		r.event.Emit(ctx, &cl, "ClusterIsUpdating", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha3.ClusterStatusConditionUpdating))
 	}
 
 	// Set the status cluster condition to updated when an update successfully
@@ -195,8 +195,8 @@ func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alp
 	// nodes being known and all nodes having the same versions.
 	if computeUpdatedCondition(status, nodesReady) {
 		status.Conditions = status.WithUpdatedCondition()
-		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionUpdated))
-		r.event.Emit(ctx, &cl, "ClusterUpdated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha2.ClusterStatusConditionUpdated))
+		r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha3.ClusterStatusConditionUpdated))
+		r.event.Emit(ctx, &cl, "ClusterUpdated", fmt.Sprintf("cluster is in condition %s", infrastructurev1alpha3.ClusterStatusConditionUpdated))
 	}
 
 	// Check all node versions held by the cluster status and add the version the
@@ -210,7 +210,7 @@ func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alp
 	return nil
 }
 
-func (r *Resource) getDesiredVersion(ctx context.Context, cr infrastructurev1alpha2.CommonClusterObject) (string, error) {
+func (r *Resource) getDesiredVersion(ctx context.Context, cr infrastructurev1alpha3.CommonClusterObject) (string, error) {
 	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, cr)
 	if err != nil {
 		return "", microerror.Mask(err)
@@ -227,7 +227,7 @@ func (r *Resource) getDesiredVersion(ctx context.Context, cr infrastructurev1alp
 	return desiredVersion, nil
 }
 
-func allMasterNodesReady(controlPlanes []infrastructurev1alpha2.G8sControlPlane) bool {
+func allMasterNodesReady(controlPlanes []infrastructurev1alpha3.G8sControlPlane) bool {
 	// Count total number of all masters and number of ready masters that
 	// belong to this cluster.
 	var desiredMasterReplicas int
@@ -244,7 +244,7 @@ func allMasterNodesReady(controlPlanes []infrastructurev1alpha2.G8sControlPlane)
 	return readyMasterReplicas == desiredMasterReplicas
 }
 
-func allWorkerNodesReady(machineDeployments []apiv1alpha2.MachineDeployment) bool {
+func allWorkerNodesReady(machineDeployments []apiv1alpha3.MachineDeployment) bool {
 	// Count total number of all workers and number of Ready workers that
 	// belong to this cluster.
 	var desiredWorkerReplicas int
@@ -276,7 +276,7 @@ func allNodesHaveVersion(nodes []corev1.Node, version string, providerOperatorVe
 	return true
 }
 
-func computeCreatingCondition(status infrastructurev1alpha2.CommonClusterStatus) bool {
+func computeCreatingCondition(status infrastructurev1alpha3.CommonClusterStatus) bool {
 	notCreating := !status.HasCreatingCondition()
 	conditionsEmpty := len(status.Conditions) == 0
 	versionsEmpty := len(status.Versions) == 0
@@ -284,32 +284,32 @@ func computeCreatingCondition(status infrastructurev1alpha2.CommonClusterStatus)
 	return notCreating && conditionsEmpty && versionsEmpty
 }
 
-func computeCreatedCondition(status infrastructurev1alpha2.CommonClusterStatus, nodesReady bool) bool {
+func computeCreatedCondition(status infrastructurev1alpha3.CommonClusterStatus, nodesReady bool) bool {
 	isCreating := status.HasCreatingCondition()
 	notCreated := !status.HasCreatedCondition()
 
 	return isCreating && notCreated && nodesReady
 }
 
-func computeUpdatingCondition(status infrastructurev1alpha2.CommonClusterStatus, desiredVersion string) bool {
+func computeUpdatingCondition(status infrastructurev1alpha3.CommonClusterStatus, desiredVersion string) bool {
 	currentVersion := status.LatestVersion()
 	isCreated := status.HasCreatedCondition()
-	notUpdating := status.LatestCondition() != infrastructurev1alpha2.ClusterStatusConditionUpdating
+	notUpdating := status.LatestCondition() != infrastructurev1alpha3.ClusterStatusConditionUpdating
 	versionDiffers := currentVersion != "" && currentVersion != desiredVersion
 
 	return isCreated && notUpdating && versionDiffers
 }
 
-func computeUpdatedCondition(status infrastructurev1alpha2.CommonClusterStatus, nodesReady bool) bool {
-	isUpdating := status.LatestCondition() == infrastructurev1alpha2.ClusterStatusConditionUpdating
-	notUpdated := status.LatestCondition() != infrastructurev1alpha2.ClusterStatusConditionUpdated
+func computeUpdatedCondition(status infrastructurev1alpha3.CommonClusterStatus, nodesReady bool) bool {
+	isUpdating := status.LatestCondition() == infrastructurev1alpha3.ClusterStatusConditionUpdating
+	notUpdated := status.LatestCondition() != infrastructurev1alpha3.ClusterStatusConditionUpdated
 
 	return isUpdating && notUpdated && nodesReady
 }
 
-func computeVersionChange(status infrastructurev1alpha2.CommonClusterStatus, nodesReady bool, desiredVersion string) bool {
-	isCreated := status.LatestCondition() == infrastructurev1alpha2.ClusterStatusConditionCreated
-	isUpdated := status.LatestCondition() == infrastructurev1alpha2.ClusterStatusConditionUpdated
+func computeVersionChange(status infrastructurev1alpha3.CommonClusterStatus, nodesReady bool, desiredVersion string) bool {
+	isCreated := status.LatestCondition() == infrastructurev1alpha3.ClusterStatusConditionCreated
+	isUpdated := status.LatestCondition() == infrastructurev1alpha3.ClusterStatusConditionUpdated
 	hasTransitioned := isCreated || isUpdated
 	notSet := status.LatestVersion() != desiredVersion
 

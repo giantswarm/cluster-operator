@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -44,7 +44,7 @@ type ClusterTransitionConfig struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 }
 
 // ClusterTransition implements the ClusterTransition interface, exposing
@@ -53,7 +53,7 @@ type ClusterTransition struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	newCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 }
 
 //NewClusterTransition initiates cluster transition metrics
@@ -82,7 +82,7 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	var list apiv1alpha2.ClusterList
+	var list apiv1alpha3.ClusterList
 	{
 		err := ct.k8sClient.CtrlClient().List(
 			ctx,
@@ -137,7 +137,7 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getCreateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, float64) {
+func getCreateMetrics(status infrastructurev1alpha3.CommonClusterStatus) (bool, float64) {
 	if status.HasCreatingCondition() && status.HasCreatedCondition() {
 		t1 := status.GetCreatingCondition().LastTransitionTime.Time
 		t2 := status.GetCreatedCondition().LastTransitionTime.Time
@@ -156,7 +156,7 @@ func getCreateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, 
 	}
 	return false, 0
 }
-func getUpdateMetrics(status infrastructurev1alpha2.CommonClusterStatus) (bool, float64) {
+func getUpdateMetrics(status infrastructurev1alpha3.CommonClusterStatus) (bool, float64) {
 
 	if status.HasUpdatingCondition() && status.HasUpdatedCondition() {
 		t1 := status.GetUpdatingCondition().LastTransitionTime.Time

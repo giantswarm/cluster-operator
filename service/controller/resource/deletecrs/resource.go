@@ -17,8 +17,8 @@ type Config struct {
 	// NewObjFunc is to return an instance of a pointer for the CR type that
 	// should be scheduled for deletion.
 	//
-	//     &infrastructurev1alpha2.G8sControlPlane{}
-	//     &apiv1alpha2.MachineDeployment{}
+	//     &infrastructurev1alpha3.G8sControlPlane{}
+	//     &apiv1alpha3.MachineDeployment{}
 	//
 	NewObjFunc func() runtime.Object
 }

@@ -1,7 +1,7 @@
 package unittest
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
@@ -27,7 +27,7 @@ func FakeK8sClient() k8sclient.Interface {
 	var k8sClient k8sclient.Interface
 	{
 		scheme := runtime.NewScheme()
-		err = infrastructurev1alpha2.AddToScheme(scheme)
+		err = infrastructurev1alpha3.AddToScheme(scheme)
 		if err != nil {
 			panic(err)
 		}
