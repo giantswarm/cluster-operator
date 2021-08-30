@@ -3,7 +3,7 @@ package kubeconfig
 import (
 	"context"
 
-	"github.com/giantswarm/kubeconfig/v2"
+	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	corev1 "k8s.io/api/core/v1"

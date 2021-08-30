@@ -8,7 +8,7 @@ import (
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
