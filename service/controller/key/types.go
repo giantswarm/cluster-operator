@@ -10,7 +10,8 @@ type AppSpec struct {
 	ClusterAPIOnly bool
 	// ConfigMapName overrides the name, otherwise the cluster values configmap
 	// is used.
-	ConfigMapName string
+	ConfigMapName      string
+	ConfigMapNamespace string
 	// Whether app is installed for legacy clusters only.
 	// InCluster determines if the app CR should use in cluster. Otherwise the
 	// cluster kubeconfig is specified.
