@@ -191,7 +191,12 @@ func (r *Resource) newApp(clusterConfig v1alpha1.ClusterGuestConfig, appSpec key
 	var config g8sv1alpha1.AppSpecConfig
 
 	if appSpec.InCluster {
-		config = g8sv1alpha1.AppSpecConfig{}
+		config = g8sv1alpha1.AppSpecConfig{
+			ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
+				Name:      appSpec.ConfigMapName,
+				Namespace: appSpec.ConfigMapNamespace,
+			},
+		}
 	} else {
 		config = g8sv1alpha1.AppSpecConfig{
 			ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
@@ -364,13 +369,16 @@ func newAppOperatorAppSpec(clusterConfig v1alpha1.ClusterGuestConfig, component 
 	spec := key.AppSpec{
 		App: appOperatorComponentName,
 		// Override app name to include the cluster ID.
-		AppName:         fmt.Sprintf("%s-%s", appOperatorComponentName, clusterConfig.ID),
-		Catalog:         component.Catalog,
-		Chart:           appOperatorComponentName,
-		InCluster:       true,
-		Namespace:       clusterConfig.ID,
-		UseUpgradeForce: false,
-		Version:         component.Version,
+		AppName: fmt.Sprintf("%s-%s", appOperatorComponentName, clusterConfig.ID),
+		Catalog: component.Catalog,
+		Chart:   appOperatorComponentName,
+		// Use config map with management cluster config.
+		ConfigMapName:      "app-operator-konfigure",
+		ConfigMapNamespace: "giantswarm",
+		InCluster:          true,
+		Namespace:          clusterConfig.ID,
+		UseUpgradeForce:    false,
+		Version:            component.Version,
 	}
 
 	// Setting the reference allows us to deploy from a test catalog.
