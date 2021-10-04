@@ -127,6 +127,7 @@ func mainE() error {
 
 	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Default, "", "Default properties for app.")
 	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Override, "", "Overriding properties for app.")
+	daemonCommand.PersistentFlags().Bool(f.Service.Release.App.Config.KiamWatchDogEnabled, false, "Enable Kiam Watchdog.")
 
 	err = newCommand.CobraCommand().Execute()
 	if err != nil {
