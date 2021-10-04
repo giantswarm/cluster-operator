@@ -289,6 +289,11 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 			catalog = app.Catalog
 		}
 
+		if !r.kiamWatchDogEnabled && appName == "kiam-watchdog" {
+			// skip if disabled
+			continue
+		}
+
 		chart, err := r.chartName(ctx, appName, catalog, app.Version)
 		if err != nil {
 			return nil, microerror.Mask(err)

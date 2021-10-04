@@ -24,6 +24,7 @@ type Config struct {
 	Logger         micrologger.Logger
 	ReleaseVersion releaseversion.Interface
 
+	KiamWatchDogEnabled  bool
 	Provider             string
 	RawAppDefaultConfig  string
 	RawAppOverrideConfig string
@@ -36,9 +37,10 @@ type Resource struct {
 	logger         micrologger.Logger
 	releaseVersion releaseversion.Interface
 
-	defaultConfig  defaultConfig
-	overrideConfig overrideConfig
-	provider       string
+	defaultConfig       defaultConfig
+	kiamWatchDogEnabled bool
+	overrideConfig      overrideConfig
+	provider            string
 }
 
 type defaultConfig struct {
@@ -98,9 +100,10 @@ func New(config Config) (*Resource, error) {
 		logger:         config.Logger,
 		releaseVersion: config.ReleaseVersion,
 
-		defaultConfig:  defaultConfig,
-		overrideConfig: overrideConfig,
-		provider:       config.Provider,
+		defaultConfig:       defaultConfig,
+		kiamWatchDogEnabled: config.KiamWatchDogEnabled,
+		overrideConfig:      overrideConfig,
+		provider:            config.Provider,
 	}
 
 	return r, nil

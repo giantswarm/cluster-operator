@@ -60,3 +60,5 @@ release:
 vault:
   certificate:
     ttl: 4320h
+
+kiamWatchdogEnabled: true
