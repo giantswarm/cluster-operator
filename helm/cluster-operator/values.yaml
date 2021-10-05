@@ -61,4 +61,3 @@ release:
 vault:
   certificate:
     ttl: 4320h
-
