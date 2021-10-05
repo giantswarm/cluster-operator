@@ -45,5 +45,5 @@ data:
         app:
           config:
             default: {{ toYaml .Values.release.app.config.default | indent 12 }}
-            kiamWatchdogEnabled: '{{ .Values.release.app.config.kiamWatchdogEnabled }}'
+            kiamWatchdogEnabled: {{ .Values.kiamWatchdogEnabled | quote }}
             override: {{ toYaml .Values.release.app.config.override | indent 12 }}
