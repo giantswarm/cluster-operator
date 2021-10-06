@@ -262,6 +262,7 @@ func New(config Config) (*Service, error) {
 			ClusterIPRange:             clusterIPRange,
 			DNSIP:                      dnsIP,
 			ClusterDomain:              config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
+			KiamWatchDogEnabled:        config.Viper.GetBool(config.Flag.Service.Release.App.Config.KiamWatchDogEnabled),
 			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
 			Provider:                   provider,
 			RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),

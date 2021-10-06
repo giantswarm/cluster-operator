@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Check if `kiam-watchdog` app has to be enabled.
+
 ## [3.10.0] - 2021-08-30
 
 ### Changed
