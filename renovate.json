@@ -1,7 +1,7 @@
 {
   "extends": [
     "config:base",
-    ":reviewer(team:team-firecracker-engineers)"
+    ":reviewer(team:team-phoenix)"
   ],
   "packageRules": [
     {
