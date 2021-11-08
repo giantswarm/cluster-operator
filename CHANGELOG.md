@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.0] - 2021-11-08
+
 ### Added
 
 - Check if `kiam-watchdog` app has to be enabled.
@@ -257,7 +259,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.10.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.11.0...HEAD
+[3.11.0]: https://github.com/giantswarm/cluster-operator/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/giantswarm/cluster-operator/compare/v3.9.0...v3.10.0
 [3.9.0]: https://github.com/giantswarm/cluster-operator/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/giantswarm/cluster-operator/compare/v3.7.1...v3.8.0
