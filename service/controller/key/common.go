@@ -6,6 +6,10 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 )
 
+func APISecretName(getter LabelsGetter) string {
+	return fmt.Sprintf("%s-api", ClusterID(getter))
+}
+
 // ClusterConfigMapName returns the cluster name used in the configMap
 // generated for this tenant cluster.
 func ClusterConfigMapName(getter LabelsGetter) string {

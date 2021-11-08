@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
@@ -25,6 +26,20 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	var clusterCA string
+	{
+		apiSecret, err := r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, key.APISecretName(&cr), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// During cluster creation there may be a delay until the
+			// cert is issued.
+			r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set cluster CA", cr.Namespace, key.APISecretName(&cr))
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterCA = apiSecret.StringData["ca"]
 	}
 
 	var podCIDR string
@@ -62,6 +77,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 						},
 					},
 				},
+				"clusterCA":    clusterCA,
 				"clusterDNSIP": r.dnsIP,
 				"clusterID":    key.ClusterID(&cr),
 			},
