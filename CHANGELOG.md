@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Check if `kiam-watchdog` app has to be enabled.
+- Add cluster CA to cluster values configmap for apps like dex that need to
+verify it.
 
 ## [3.10.0] - 2021-08-30
 
