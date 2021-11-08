@@ -39,6 +39,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			return nil, microerror.Mask(err)
 		}
 
+		r.logger.Debugf(ctx, "SECRET %#v", apiSecret)
+		r.logger.Debugf(ctx, "CA %#q", apiSecret.StringData["ca"])
 		clusterCA = apiSecret.StringData["ca"]
 	}
 
