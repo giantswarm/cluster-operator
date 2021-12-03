@@ -299,6 +299,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterIDResource, err = clusterid.New(c)
@@ -314,6 +315,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
@@ -349,6 +351,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			NewObjFunc: func() runtime.Object {
 				return &infrastructurev1alpha3.G8sControlPlane{}
 			},
+			Provider: config.Provider,
 		}
 
 		deleteG8sControlPlaneCRsResource, err = deletecrs.New(c)
@@ -366,6 +369,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			NewObjFunc: func() runtime.Object {
 				return &apiv1alpha3.MachineDeployment{}
 			},
+			Provider: config.Provider,
 		}
 
 		deleteMachineDeploymentCRsResource, err = deletecrs.New(c)
@@ -380,6 +384,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			Provider: config.Provider,
 			ToObjRef: toClusterObjRef,
 		}
 
@@ -432,6 +437,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			NewObjFunc: func() runtime.Object {
 				return &infrastructurev1alpha3.G8sControlPlane{}
 			},
+			Provider: config.Provider,
 		}
 
 		keepForG8sControlPlaneCRsResource, err = keepforcrs.New(c)
@@ -449,6 +455,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			NewObjFunc: func() runtime.Object {
 				return &apiv1alpha3.MachineDeployment{}
 			},
+			Provider: config.Provider,
 		}
 
 		keepForMachineDeploymentCRsResource, err = keepforcrs.New(c)
@@ -548,6 +555,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		c := updateg8scontrolplanes.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Provider:  config.Provider,
 		}
 
 		updateG8sControlPlanesResource, err = updateg8scontrolplanes.New(c)

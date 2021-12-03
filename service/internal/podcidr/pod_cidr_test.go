@@ -63,6 +63,7 @@ func Test_PodCIDR_Cache(t *testing.T) {
 					K8sClient: unittest.FakeK8sClient(),
 
 					InstallationCIDR: "installation-cidr",
+					Provider:         "aws",
 				}
 
 				pc, err = New(c)

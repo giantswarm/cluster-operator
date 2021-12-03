@@ -13,6 +13,7 @@ const (
 type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
+	Provider  string
 }
 
 // Resource implements the operatorkit resource interface to propagate the
@@ -26,6 +27,7 @@ type Config struct {
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
+	provider  string
 }
 
 func New(config Config) (*Resource, error) {
@@ -35,10 +37,14 @@ func New(config Config) (*Resource, error) {
 	if config.Logger == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
+		provider:  config.Provider,
 	}
 
 	return r, nil

@@ -15,6 +15,7 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
+	Provider string
 	ToObjRef func(v interface{}) (corev1.ObjectReference, error)
 }
 
@@ -22,6 +23,7 @@ type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
+	provider string
 	toObjRef func(v interface{}) (corev1.ObjectReference, error)
 }
 
@@ -33,6 +35,9 @@ func New(config Config) (*Resource, error) {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
 	}
 
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 	if config.ToObjRef == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.ToObjRef must not be empty", config)
 	}
@@ -41,6 +46,7 @@ func New(config Config) (*Resource, error) {
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
+		provider: config.Provider,
 		toObjRef: config.ToObjRef,
 	}
 

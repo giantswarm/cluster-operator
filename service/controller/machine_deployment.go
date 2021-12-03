@@ -94,6 +94,7 @@ func newMachineDeploymentResources(config MachineDeploymentConfig) ([]resource.I
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			Provider: config.Provider,
 			ToObjRef: toMachineDeploymentObjRef,
 		}
 
