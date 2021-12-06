@@ -9,10 +9,17 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
+	if r.provider != label.ProviderAWS {
+		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	cr, err := meta.Accessor(obj)
 	if err != nil {
 		return microerror.Mask(err)

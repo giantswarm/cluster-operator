@@ -45,6 +45,7 @@ type ClusterTransitionConfig struct {
 	Logger    micrologger.Logger
 
 	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
+	Provider                   string
 }
 
 // ClusterTransition implements the ClusterTransition interface, exposing
@@ -54,6 +55,7 @@ type ClusterTransition struct {
 	logger    micrologger.Logger
 
 	newCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
+	provider                   string
 }
 
 //NewClusterTransition initiates cluster transition metrics
@@ -68,12 +70,16 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 	if config.NewCommonClusterObjectFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	ct := &ClusterTransition{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		provider:                   config.Provider,
 	}
 
 	return ct, nil
@@ -96,41 +102,43 @@ func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 
 	for _, cl := range list.Items {
 		cl := cl // dereferencing pointer value into new scope
-
-		cr := ct.newCommonClusterObjectFunc()
-		{
-			err := ct.k8sClient.CtrlClient().Get(
-				ctx,
-				key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)),
-				cr,
-			)
-			if apierrors.IsNotFound(err) {
-				ct.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("could not find object reference %#q", cl.GetName()))
-				continue
-			} else if err != nil {
-				return microerror.Mask(err)
-			}
-		}
-		{
-			created, createTime := getCreateMetrics(cr.GetCommonClusterStatus())
-			if created {
-				ch <- prometheus.MustNewConstMetric(
-					clusterTransitionCreateDesc,
-					prometheus.GaugeValue,
-					createTime,
-					key.ClusterID(cr),
-					key.ReleaseVersion(cr),
+		switch ct.provider {
+		case label.ProviderAWS:
+			cr := ct.newCommonClusterObjectFunc()
+			{
+				err := ct.k8sClient.CtrlClient().Get(
+					ctx,
+					key.ObjRefToNamespacedName(key.ObjRefFromCluster(cl)),
+					cr,
 				)
+				if apierrors.IsNotFound(err) {
+					ct.logger.LogCtx(ctx, "level", "warning", "message", fmt.Sprintf("could not find object reference %#q", cl.GetName()))
+					continue
+				} else if err != nil {
+					return microerror.Mask(err)
+				}
 			}
-			updated, updateTime := getUpdateMetrics(cr.GetCommonClusterStatus())
-			if updated {
-				ch <- prometheus.MustNewConstMetric(
-					clusterTransitionUpdateDesc,
-					prometheus.GaugeValue,
-					updateTime,
-					key.ClusterID(cr),
-					key.ReleaseVersion(cr),
-				)
+			{
+				created, createTime := getCreateMetrics(cr.GetCommonClusterStatus())
+				if created {
+					ch <- prometheus.MustNewConstMetric(
+						clusterTransitionCreateDesc,
+						prometheus.GaugeValue,
+						createTime,
+						key.ClusterID(cr),
+						key.ReleaseVersion(cr),
+					)
+				}
+				updated, updateTime := getUpdateMetrics(cr.GetCommonClusterStatus())
+				if updated {
+					ch <- prometheus.MustNewConstMetric(
+						clusterTransitionUpdateDesc,
+						prometheus.GaugeValue,
+						updateTime,
+						key.ClusterID(cr),
+						key.ReleaseVersion(cr),
+					)
+				}
 			}
 		}
 	}

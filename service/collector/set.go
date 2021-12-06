@@ -15,6 +15,7 @@ type SetConfig struct {
 	Logger       micrologger.Logger
 
 	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
+	Provider                   string
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
@@ -34,6 +35,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterCollector, err = NewCluster(c)
@@ -62,6 +64,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterTransitionCollector, err = NewClusterTransition(c)

@@ -111,6 +111,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			Provider: config.Provider,
 			ToObjRef: toG8sControlPlaneObjRef,
 		}
 

@@ -114,6 +114,18 @@ rules:
       - kvmclusterconfigs
     verbs:
       - "*"
+  - apiGroups:
+      - provider.giantswarm.io
+    resources:
+      - azureconfigs
+    verbs:
+      - "list"
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - azureclusters
+    verbs:
+      - "get"
   - nonResourceURLs:
       - "/"
       - "/healthz"

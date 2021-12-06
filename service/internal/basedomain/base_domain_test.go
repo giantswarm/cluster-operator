@@ -47,6 +47,7 @@ func Test_BaseDomain_Cache(t *testing.T) {
 			{
 				c := Config{
 					K8sClient: unittest.FakeK8sClient(),
+					Provider:  "aws",
 				}
 
 				bd, err = New(c)

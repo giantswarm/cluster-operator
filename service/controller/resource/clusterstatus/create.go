@@ -8,10 +8,17 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
+	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	if r.provider != label.ProviderAWS {
+		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	// Fetch the latest version of the CAPI Cluster CR first so that we can check
 	// if it has its status already updated.
 	var cr apiv1alpha3.Cluster

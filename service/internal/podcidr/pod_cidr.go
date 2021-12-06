@@ -2,8 +2,10 @@ package podcidr
 
 import (
 	"context"
+	"reflect"
 
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
+	providerv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -19,6 +21,7 @@ type Config struct {
 	K8sClient k8sclient.Interface
 
 	InstallationCIDR string
+	Provider         string
 }
 
 type PodCIDR struct {
@@ -27,6 +30,7 @@ type PodCIDR struct {
 	clusterCache *cache.Cluster
 
 	installationCIDR string
+	provider         string
 }
 
 func New(c Config) (*PodCIDR, error) {
@@ -37,6 +41,9 @@ func New(c Config) (*PodCIDR, error) {
 	if c.InstallationCIDR == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.InstallationCIDR must not be empty", c)
 	}
+	if c.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", c)
+	}
 
 	p := &PodCIDR{
 		k8sClient: c.K8sClient,
@@ -44,6 +51,7 @@ func New(c Config) (*PodCIDR, error) {
 		clusterCache: cache.NewCluster(),
 
 		installationCIDR: c.InstallationCIDR,
+		provider:         c.Provider,
 	}
 
 	return p, nil
@@ -60,35 +68,42 @@ func (p *PodCIDR) PodCIDR(ctx context.Context, obj interface{}) (string, error) 
 		return "", microerror.Mask(err)
 	}
 
-	var podCIDR string
-	if cl.Spec.Provider.Pods.CIDRBlock == "" {
-		podCIDR = p.installationCIDR
-	} else {
-		podCIDR = cl.Spec.Provider.Pods.CIDRBlock
+	aws, ok := cl.(infrastructurev1alpha3.AWSCluster)
+	if ok {
+		if aws.Spec.Provider.Pods.CIDRBlock == "" {
+			return p.installationCIDR, nil
+		} else {
+			return aws.Spec.Provider.Pods.CIDRBlock, nil
+		}
 	}
 
-	return podCIDR, nil
+	azure, ok := cl.(providerv1alpha1.AzureConfig)
+	if ok {
+		return azure.Spec.Cluster.Calico.Subnet, nil
+	}
+
+	return "", microerror.Maskf(invalidTypeError, "Cached object was of invalid type %q", reflect.TypeOf(cl))
 }
 
-func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha3.AWSCluster, error) {
+func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (interface{}, error) {
 	var err error
 	var ok bool
 
-	var cluster infrastructurev1alpha3.AWSCluster
+	var cluster interface{}
 	{
 		ck := p.clusterCache.Key(ctx, cr)
 
 		if ck == "" {
 			cluster, err = p.lookupCluster(ctx, cr)
 			if err != nil {
-				return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
+				return nil, microerror.Mask(err)
 			}
 		} else {
 			cluster, ok = p.clusterCache.Get(ctx, ck)
 			if !ok {
 				cluster, err = p.lookupCluster(ctx, cr)
 				if err != nil {
-					return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
+					return nil, microerror.Mask(err)
 				}
 
 				p.clusterCache.Set(ctx, ck, cluster)
@@ -99,25 +114,51 @@ func (p *PodCIDR) cachedCluster(ctx context.Context, cr metav1.Object) (infrastr
 	return cluster, nil
 }
 
-func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (infrastructurev1alpha3.AWSCluster, error) {
-	var list infrastructurev1alpha3.AWSClusterList
+func (p *PodCIDR) lookupCluster(ctx context.Context, cr metav1.Object) (interface{}, error) {
+	switch p.provider {
+	case label.ProviderAWS:
+		var list infrastructurev1alpha3.AWSClusterList
 
-	err := p.k8sClient.CtrlClient().List(
-		ctx,
-		&list,
-		client.InNamespace(cr.GetNamespace()),
-		client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
-	)
-	if err != nil {
-		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(err)
+		err := p.k8sClient.CtrlClient().List(
+			ctx,
+			&list,
+			client.InNamespace(cr.GetNamespace()),
+			client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
+		)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if len(list.Items) == 1 {
+			return list.Items[0], nil
+		}
+
+		if len(list.Items) > 1 {
+			return nil, microerror.Mask(tooManyCRsError)
+		}
+	case label.ProviderAzure:
+		var list providerv1alpha1.AzureConfigList
+
+		err := p.k8sClient.CtrlClient().List(
+			ctx,
+			&list,
+			client.InNamespace("default"),
+			client.MatchingLabels{label.Cluster: key.ClusterID(cr)},
+		)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if len(list.Items) == 1 {
+			return list.Items[0], nil
+		}
+
+		if len(list.Items) > 1 {
+			return nil, microerror.Mask(tooManyCRsError)
+		}
+	default:
+		return nil, microerror.Maskf(unsupportedProviderError, "Provider %q is unsupported", p.provider)
 	}
 
-	if len(list.Items) == 0 {
-		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(notFoundError)
-	}
-	if len(list.Items) > 1 {
-		return infrastructurev1alpha3.AWSCluster{}, microerror.Mask(tooManyCRsError)
-	}
-
-	return list.Items[0], nil
+	return nil, microerror.Mask(notFoundError)
 }
