@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Added support for Azure by selectively disabling features that are AWS specific.
+
 ## [3.11.0] - 2021-11-08
 
 ### Added
