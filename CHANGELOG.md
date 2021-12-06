@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.12.0] - 2021-12-06
+
 ### Changed
 
 - Added support for Azure by selectively disabling features that are AWS specific.
@@ -263,7 +265,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.11.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.12.0...HEAD
+[3.12.0]: https://github.com/giantswarm/cluster-operator/compare/v3.11.0...v3.12.0
 [3.11.0]: https://github.com/giantswarm/cluster-operator/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/giantswarm/cluster-operator/compare/v3.9.0...v3.10.0
 [3.9.0]: https://github.com/giantswarm/cluster-operator/compare/v3.8.0...v3.9.0
