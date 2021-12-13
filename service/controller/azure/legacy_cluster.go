@@ -11,8 +11,11 @@ import (
 	"github.com/giantswarm/operatorkit/controller"
 	"github.com/giantswarm/tenantcluster/v2/pkg/tenantcluster"
 	"github.com/spf13/afero"
+	"k8s.io/apimachinery/pkg/labels"
 	pkgruntime "k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/giantswarm/cluster-operator/pkg/label"
+	"github.com/giantswarm/cluster-operator/pkg/project"
 	"github.com/giantswarm/cluster-operator/service/internal/cluster"
 )
 
@@ -87,8 +90,10 @@ func NewLegacyCluster(config LegacyClusterConfig) (*LegacyCluster, error) {
 			NewRuntimeObjectFunc: func() pkgruntime.Object {
 				return new(v1alpha1.AzureClusterConfig)
 			},
-
 			Name: config.ProjectName,
+			Selector: labels.SelectorFromSet(map[string]string{
+				label.OperatorVersion: project.Version(),
+			}),
 		}
 
 		clusterController, err = controller.New(c)
