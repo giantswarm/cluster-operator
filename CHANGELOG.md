@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add selector to operatorkit Controller for AzureClusterConfig to avoid reconciling CRs not owned by this operator.
+
 ## [0.27.1] - 2021-04-21
 
 ### Changed
