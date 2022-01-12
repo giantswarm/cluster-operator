@@ -170,7 +170,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha3.Cluster, app
 
 	// Add cluster ID prefix for app CRs in organization namespace.
 	if !appSpec.InCluster {
-		appName = fmt.Sprintf("%s=%s", key.ClusterID(&cr), appName)
+		appName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), appName)
 	}
 
 	var appNamespace string
