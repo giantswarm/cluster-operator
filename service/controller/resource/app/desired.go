@@ -168,6 +168,19 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha3.Cluster, app
 		appName = appSpec.App
 	}
 
+	// Add cluster ID prefix for app CRs in organization namespace.
+	if !appSpec.InCluster {
+		appName = fmt.Sprintf("%s=%s", key.ClusterID(&cr), appName)
+	}
+
+	var appNamespace string
+
+	if appSpec.InCluster {
+		appNamespace = key.ClusterID(&cr)
+	} else {
+		appNamespace = cr.GetNamespace()
+	}
+
 	var config g8sv1alpha1.AppSpecConfig
 
 	if appSpec.InCluster {
@@ -217,7 +230,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha3.Cluster, app
 				pkglabel.ServiceType:     pkglabel.ServiceTypeManaged,
 			},
 			Name:      appName,
-			Namespace: key.ClusterID(&cr),
+			Namespace: appNamespace,
 		},
 		Spec: g8sv1alpha1.AppSpec{
 			Catalog:    appSpec.Catalog,
