@@ -93,6 +93,22 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				},
 			},
 		},
+		{
+			Name:      fmt.Sprintf("%s-app-operator-values", key.ClusterID(&cr)),
+			Namespace: key.ClusterID(&cr),
+			Values: map[string]interface{}{
+				"app": map[string]interface{}{
+					"watchNamespace":    cr.GetNamespace(),
+					"workloadClusterID": key.ClusterID(&cr),
+				},
+				"provider": map[string]interface{}{
+					"kind": "aws",
+				},
+				"registry": map[string]interface{}{
+					"domain": "quay.io",
+				},
+			},
+		},
 	}
 
 	var configMaps []*corev1.ConfigMap
