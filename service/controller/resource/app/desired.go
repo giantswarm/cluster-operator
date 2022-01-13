@@ -176,17 +176,11 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha3.Cluster, app
 		appNamespace = cr.GetNamespace()
 	}
 
-	var config g8sv1alpha1.AppSpecConfig
-
-	if appSpec.InCluster {
-		config = g8sv1alpha1.AppSpecConfig{}
-	} else {
-		config = g8sv1alpha1.AppSpecConfig{
-			ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
-				Name:      configMapName,
-				Namespace: key.ClusterID(&cr),
-			},
-		}
+	config := g8sv1alpha1.AppSpecConfig{
+		ConfigMap: g8sv1alpha1.AppSpecConfigConfigMap{
+			Name:      configMapName,
+			Namespace: key.ClusterID(&cr),
+		},
 	}
 
 	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
