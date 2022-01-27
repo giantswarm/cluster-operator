@@ -35,7 +35,6 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/cpnamespace"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/deletecrs"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/deleteinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/encryptionkey"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/keepforcrs"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/keepforinfrarefs"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/kubeconfig"
@@ -394,40 +393,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		}
 	}
 
-	var encryptionKeyGetter secretresource.StateGetter
-	{
-		c := encryptionkey.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-		}
-
-		encryptionKeyGetter, err = encryptionkey.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var encryptionKeyResource resource.Interface
-	{
-		c := secretresource.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-
-			Name:        encryptionkey.Name,
-			StateGetter: encryptionKeyGetter,
-		}
-
-		ops, err := secretresource.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
 	var keepForG8sControlPlaneCRsResource resource.Interface
 	{
 		c := keepforcrs.Config{
@@ -597,7 +562,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	resources := []resource.Interface{
 		// Following resources manage resources in the control plane.
 		cpNamespaceResource,
-		encryptionKeyResource,
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,
