@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.0] - 2022-01-27
+
 ### Changed
 
 - Removed encryption key creation. Encryption keys will be managed by `encryption-provider-operator`.
@@ -269,7 +271,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.12.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.13.0...HEAD
+[3.13.0]: https://github.com/giantswarm/cluster-operator/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/giantswarm/cluster-operator/compare/v3.11.0...v3.12.0
 [3.11.0]: https://github.com/giantswarm/cluster-operator/compare/v3.10.0...v3.11.0
 [3.10.0]: https://github.com/giantswarm/cluster-operator/compare/v3.9.0...v3.10.0
