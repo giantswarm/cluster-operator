@@ -98,7 +98,7 @@ require (
 	gopkg.in/resty.v1 v1.12.0 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.0.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29 // indirect
+	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6 // indirect
 	k8s.io/utils v0.0.0-20200619165400-6e3d28b6ed19 // indirect
 	sigs.k8s.io/structured-merge-diff/v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
