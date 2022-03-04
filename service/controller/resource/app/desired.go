@@ -290,10 +290,8 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 			// add IRSA app to the list
 			apps[key.IRSAAppName] = releaseversion.ReleaseApp{Catalog: key.IRSAAppCatalog, Version: key.IRSAAppVersion}
 			r.logger.Debugf(ctx, "installing IRSA app")
-
 		} else {
 			r.logger.Debugf(ctx, "missing annotation for IRSA feature, not installing app")
-
 		}
 	} else {
 		r.logger.Debugf(ctx, "not aws provider, skipping AWS IRSA check")
