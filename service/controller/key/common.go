@@ -6,6 +6,12 @@ import (
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 )
 
+const (
+	IRSAAppName    = "aws-pod-identity-webhook"
+	IRSAAppCatalog = "default-catalog"
+	IRSAAppVersion = "0.3.1"
+)
+
 func APISecretName(getter LabelsGetter) string {
 	return fmt.Sprintf("%s-api", ClusterID(getter))
 }

@@ -14,6 +14,7 @@ import (
 	g8sv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
 	"github.com/giantswarm/apiextensions/v3/pkg/label"
 	"github.com/giantswarm/backoff"
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -278,6 +279,17 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 	apps, err := r.releaseVersion.Apps(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	if r.provider == "aws" {
+		awsCluster, err := r.g8sClient.InfrastructureV1alpha3().AWSClusters(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+			// add IRSA app to the list
+			apps[key.IRSAAppName] = releaseversion.ReleaseApp{Catalog: key.IRSAAppCatalog, Version: key.IRSAAppVersion}
+		}
 	}
 
 	var specs []key.AppSpec
