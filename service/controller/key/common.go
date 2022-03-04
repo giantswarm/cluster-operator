@@ -8,7 +8,7 @@ import (
 
 const (
 	IRSAAppName    = "aws-pod-identity-webhook"
-	IRSAAppCatalog = "default-catalog"
+	IRSAAppCatalog = "default"
 	IRSAAppVersion = "0.3.1"
 )
 
