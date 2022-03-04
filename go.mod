@@ -10,6 +10,7 @@ require (
 	github.com/giantswarm/errors v0.3.0
 	github.com/giantswarm/exporterkit v1.0.0
 	github.com/giantswarm/k8sclient/v5 v5.12.0
+	github.com/giantswarm/k8smetadata v0.9.4
 	github.com/giantswarm/kubeconfig/v4 v4.1.0
 	github.com/giantswarm/microendpoint v1.0.0
 	github.com/giantswarm/microerror v0.4.0
@@ -43,7 +44,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/getsentry/sentry-go v0.10.0 // indirect
 	github.com/giantswarm/app/v5 v5.2.3 // indirect
-	github.com/giantswarm/k8smetadata v0.3.0 // indirect
 	github.com/giantswarm/to v0.3.0 // indirect
 	github.com/giantswarm/versionbundle v1.0.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect

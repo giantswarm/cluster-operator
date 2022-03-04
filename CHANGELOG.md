@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add IAM Roles for Service Accounts feature support for AWS.
+
 ## [3.13.0] - 2022-01-27
 
 ### Changed
