@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -19,7 +20,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	pkglabel "github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -288,7 +291,11 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 		}
 		if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
 			// add IRSA app to the list
-			apps[key.IRSAAppName] = releaseversion.ReleaseApp{Catalog: key.IRSAAppCatalog, Version: key.IRSAAppVersion}
+			version, err := getLatestVersion(ctx, r.g8sClient, key.IRSAAppName, "default")
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			apps[key.IRSAAppName] = releaseversion.ReleaseApp{Catalog: key.IRSAAppCatalog, Version: version}
 			r.logger.Debugf(ctx, "installing IRSA app")
 		} else {
 			r.logger.Debugf(ctx, "missing annotation for IRSA feature, not installing app")
@@ -447,4 +454,23 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 	}
 
 	return body, nil
+}
+
+func getLatestVersion(ctx context.Context, g8sClient versioned.Interface, app, catalog string) (string, error) {
+	catalogEntryList, err := g8sClient.ApplicationV1alpha1().AppCatalogEntries("giantswarm").List(ctx, metav1.ListOptions{
+		LabelSelector: labels.SelectorFromSet(map[string]string{
+			"app.kubernetes.io/name":            app,
+			"application.giantswarm.io/catalog": catalog,
+			"latest":                            "true",
+		}).String(),
+	})
+
+	if err != nil {
+		return "", microerror.Mask(err)
+	} else if len(catalogEntryList.Items) != 1 {
+		// return default
+		return key.IRSAAppVersion, nil
+	}
+
+	return catalogEntryList.Items[0].Spec.Version, nil
 }
