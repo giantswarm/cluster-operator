@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.1] - 2022-03-11
+
 ### Changed
 
 - Update `aws-pod-identity-webhook` app version.
@@ -281,7 +283,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v3.14.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.14.1...HEAD
+[3.14.1]: https://github.com/giantswarm/cluster-operator/compare/v3.14.0...v3.14.1
 [3.14.0]: https://github.com/giantswarm/giantswarm/compare/v3.13.0...v3.14.0
 [3.13.0]: https://github.com/giantswarm/cluster-operator/compare/v3.12.0...v3.13.0
 [3.12.0]: https://github.com/giantswarm/cluster-operator/compare/v3.11.0...v3.12.0
