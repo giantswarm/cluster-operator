@@ -66,6 +66,13 @@ rules:
     verbs:
       - get
   - apiGroups:
+      - application.giantswarm.io
+    resources:
+      - appcatalogentries
+    verbs:
+      - get
+      - list
+  - apiGroups:
       - "networking.k8s.io"
     resources:
       - networkpolicies
