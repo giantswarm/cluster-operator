@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -88,7 +88,7 @@ func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, e
 func (ct *ClusterTransition) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	var list apiv1alpha3.ClusterList
+	var list apiv1beta1.ClusterList
 	{
 		err := ct.k8sClient.CtrlClient().List(
 			ctx,

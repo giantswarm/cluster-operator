@@ -6,7 +6,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
@@ -21,7 +21,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 
 	// Fetch the latest version of the CAPI Cluster CR first so that we can check
 	// if it has its status already updated.
-	var cr apiv1alpha3.Cluster
+	var cr apiv1beta1.Cluster
 	{
 		r.logger.Debugf(ctx, "finding cluster")
 

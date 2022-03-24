@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -41,7 +41,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "found latest cluster")
 	}
 
-	var cl apiv1alpha3.Cluster
+	var cl apiv1beta1.Cluster
 	{
 		r.logger.Debugf(ctx, "finding cluster")
 
@@ -100,7 +100,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "found %d G8sControlplane for tenant cluster", len(cpList.Items))
 	}
 
-	mdList := &apiv1alpha3.MachineDeploymentList{}
+	mdList := &apiv1beta1.MachineDeploymentList{}
 	{
 		r.logger.Debugf(ctx, "finding MachineDeployments for tenant cluster")
 
@@ -141,7 +141,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1alpha3.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha3.G8sControlPlane, machineDeployments []apiv1alpha3.MachineDeployment) error {
+func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1beta1.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodes []corev1.Node, controlPlanes []infrastructurev1alpha3.G8sControlPlane, machineDeployments []apiv1beta1.MachineDeployment) error {
 	var desiredVersion string
 	var nodesReady bool
 
@@ -161,7 +161,7 @@ func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1a
 	return r.writeClusterStatusConditions(ctx, cl, cr, nodesReady, desiredVersion)
 }
 
-func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alpha3.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodesReady bool, desiredVersion string) error {
+func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1beta1.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodesReady bool, desiredVersion string) error {
 	status := cr.GetCommonClusterStatus()
 
 	// After initialization the most likely implication is the tenant cluster
@@ -245,7 +245,7 @@ func allMasterNodesReady(controlPlanes []infrastructurev1alpha3.G8sControlPlane)
 	return readyMasterReplicas == desiredMasterReplicas
 }
 
-func allWorkerNodesReady(machineDeployments []apiv1alpha3.MachineDeployment) bool {
+func allWorkerNodesReady(machineDeployments []apiv1beta1.MachineDeployment) bool {
 	// Count total number of all workers and number of Ready workers that
 	// belong to this cluster.
 	var desiredWorkerReplicas int

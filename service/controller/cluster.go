@@ -20,7 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
@@ -96,8 +97,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		c := controller.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha3.Cluster)
+			NewRuntimeObjectFunc: func() ctrlClient.Object {
+				return new(apiv1beta1.Cluster)
 			},
 			Resources: resources,
 
@@ -157,7 +158,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient:      config.K8sClient.G8sClient(),
+			CtrlClient:     config.K8sClient.CtrlClient(),
 			K8sClient:      config.K8sClient.K8sClient(),
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
@@ -177,8 +178,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appResource resource.Interface
 	{
 		c := appresource.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 
 			Name:        app.Name,
 			StateGetter: appGetter,
@@ -203,8 +204,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appFinalizerResource resource.Interface
 	{
 		c := appfinalizer.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 		}
 
 		appFinalizerResource, err = appfinalizer.New(c)
@@ -216,7 +217,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appVersionLabelResource resource.Interface
 	{
 		c := appversionlabel.Config{
-			G8sClient:      config.K8sClient.G8sClient(),
+			CtrlClient:     config.K8sClient.CtrlClient(),
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
 		}
@@ -231,7 +232,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	{
 		c := certconfig.Config{
 			BaseDomain:     config.BaseDomain,
-			G8sClient:      config.K8sClient.G8sClient(),
+			CtrlClient:     config.K8sClient.CtrlClient(),
 			HAMaster:       haMaster,
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
@@ -366,7 +367,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &apiv1alpha3.MachineDeployment{}
+				return &apiv1beta1.MachineDeployment{}
 			},
 			Provider: config.Provider,
 		}
@@ -418,7 +419,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &apiv1alpha3.MachineDeployment{}
+				return &apiv1beta1.MachineDeployment{}
 			},
 			Provider: config.Provider,
 		}

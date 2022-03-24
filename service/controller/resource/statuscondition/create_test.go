@@ -8,7 +8,7 @@ import (
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
@@ -226,12 +226,12 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 
 			// The cluster is created
 			var cluster infrastructurev1alpha3.AWSCluster
-			var cl apiv1alpha3.Cluster
+			var cl apiv1beta1.Cluster
 			{
 				cluster = unittest.DefaultCluster()
 				cluster.Status.Cluster.Conditions = tc.conditions
 				cluster.Status.Cluster.Versions = tc.versions
-				cl = apiv1alpha3.Cluster{}
+				cl = apiv1beta1.Cluster{}
 			}
 
 			var e recorder.Interface

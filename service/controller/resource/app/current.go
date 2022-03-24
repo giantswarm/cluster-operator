@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/pkg/project"
@@ -33,10 +34,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 		r.logger.Debugf(ctx, "finding apps for tenant cluster %#q", key.ClusterID(&cr))
 
 		o := metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
+			LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.Cluster, key.ClusterID(&cr), label.ManagedBy, project.Name()),
 		}
 
-		list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(ctx, o)
+		list := &v1alpha1.AppList{}
+
+		err := r.ctrlClient.List(ctx, list, &client.ListOptions{Raw: &o})
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}

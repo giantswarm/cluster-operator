@@ -11,7 +11,7 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/prometheus/client_golang/prometheus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -78,7 +78,7 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 	ctx := context.Background()
 
-	var list apiv1alpha3.ClusterList
+	var list apiv1beta1.ClusterList
 	{
 		err := c.k8sClient.CtrlClient().List(
 			ctx,
@@ -165,7 +165,7 @@ func (c *Cluster) Collect(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(
 				clusterStatus,
 				prometheus.GaugeValue,
-				boolToFloat64(conditions.IsTrue(&cl, apiv1alpha3.ReadyCondition)),
+				boolToFloat64(conditions.IsTrue(&cl, apiv1beta1.ReadyCondition)),
 				key.ClusterID(&cl),
 				key.ReleaseVersion(&cl),
 				infrastructurev1alpha3.ClusterStatusConditionCreated,

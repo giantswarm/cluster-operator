@@ -10,7 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -109,7 +109,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	return configMaps, nil
 }
 
-func newConfigMap(cr apiv1alpha3.Cluster, configMapSpec configMapSpec) (*corev1.ConfigMap, error) {
+func newConfigMap(cr apiv1beta1.Cluster, configMapSpec configMapSpec) (*corev1.ConfigMap, error) {
 	yamlValues, err := yaml.Marshal(configMapSpec.Values)
 	if err != nil {
 		return nil, microerror.Mask(err)

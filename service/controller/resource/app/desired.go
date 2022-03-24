@@ -12,6 +12,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/backoff"
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
@@ -19,8 +20,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	"k8s.io/apimachinery/pkg/types"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
@@ -91,7 +93,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	return apps, nil
 }
 
-func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha3.Cluster) (map[string]corev1.ConfigMap, error) {
+func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1beta1.Cluster) (map[string]corev1.ConfigMap, error) {
 	configMaps := map[string]corev1.ConfigMap{}
 
 	r.logger.Debugf(ctx, "finding configMaps in namespace %#q", key.ClusterID(&cr))
@@ -110,7 +112,7 @@ func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1alpha3.Cluster) (m
 	return configMaps, nil
 }
 
-func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha3.Cluster) (map[string]corev1.Secret, error) {
+func (r *Resource) getSecrets(ctx context.Context, cr apiv1beta1.Cluster) (map[string]corev1.Secret, error) {
 	secrets := map[string]corev1.Secret{}
 
 	r.logger.Debugf(ctx, "finding secrets in namespace %#q", key.ClusterID(&cr))
@@ -129,7 +131,7 @@ func (r *Resource) getSecrets(ctx context.Context, cr apiv1alpha3.Cluster) (map[
 	return secrets, nil
 }
 
-func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha3.Cluster) (userOverrideConfig, error) {
+func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1beta1.Cluster) (userOverrideConfig, error) {
 	userConfig, err := r.k8sClient.CoreV1().ConfigMaps(key.ClusterID(&cr)).Get(ctx, "user-override-apps", metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// fall through
@@ -155,7 +157,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1alpha3.Clu
 	return u, nil
 }
 
-func (r *Resource) newApp(appOperatorVersion string, cr apiv1alpha3.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
 	// Override config map name when specified.
@@ -272,7 +274,7 @@ func (r *Resource) chartName(ctx context.Context, appName, catalog, version stri
 	return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
 }
 
-func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]key.AppSpec, error) {
+func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]key.AppSpec, error) {
 	userOverrideConfigs, err := r.getUserOverrideConfig(ctx, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -284,7 +286,8 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 	}
 
 	if r.provider == "aws" {
-		awsCluster, err := r.g8sClient.InfrastructureV1alpha3().AWSClusters(cr.Namespace).Get(ctx, cr.Name, metav1.GetOptions{})
+		awsCluster := &v1alpha3.AWSCluster{}
+		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -362,7 +365,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 	return specs, nil
 }
 
-func newAppOperatorAppSpec(cr apiv1alpha3.Cluster, component releaseversion.ReleaseComponent) key.AppSpec {
+func newAppOperatorAppSpec(cr apiv1beta1.Cluster, component releaseversion.ReleaseComponent) key.AppSpec {
 	var operatorAppVersion string
 
 	// Setting the reference allows us to deploy from a test catalog.
@@ -385,7 +388,7 @@ func newAppOperatorAppSpec(cr apiv1alpha3.Cluster, component releaseversion.Rele
 	}
 }
 
-func newUserConfig(cr apiv1alpha3.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
+func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
 	userConfig := g8sv1alpha1.AppSpecUserConfig{}
 
 	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]
@@ -417,7 +420,8 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 	var err error
 	var catalog *g8sv1alpha1.AppCatalog
 	{
-		catalog, err = r.g8sClient.ApplicationV1alpha1().AppCatalogs().Get(ctx, catalogName, metav1.GetOptions{})
+		catalog := &g8sv1alpha1.AppCatalog{}
+		err = r.ctrlClient.Get(ctx, types.NamespacedName{Name: catalogName}, catalog)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -456,14 +460,12 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 }
 
 func getLatestVersion(ctx context.Context, ctrlClient ctrlClient.Client, app, catalog string) (string, error) {
-	catalogEntryList, err := g8sClient.ApplicationV1alpha1().AppCatalogEntries("giantswarm").List(ctx, metav1.ListOptions{
-		LabelSelector: labels.SelectorFromSet(map[string]string{
-			"app.kubernetes.io/name":            app,
-			"application.giantswarm.io/catalog": catalog,
-			"latest":                            "true",
-		}).String(),
+	catalogEntryList := &g8sv1alpha1.AppCatalogEntryList{}
+	err := ctrlClient.List(ctx, catalogEntryList, client.MatchingLabels{
+		"app.kubernetes.io/name":            app,
+		"application.giantswarm.io/catalog": catalog,
+		"latest":                            "true",
 	})
-
 	if err != nil {
 		return "", microerror.Mask(err)
 	} else if len(catalogEntryList.Items) != 1 {
