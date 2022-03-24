@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )

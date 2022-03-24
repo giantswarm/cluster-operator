@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclienttest"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
 	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 

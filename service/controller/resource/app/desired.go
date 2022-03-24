@@ -11,17 +11,17 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	g8sv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/backoff"
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	apiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
 	pkglabel "github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -290,7 +290,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1alpha3.Cluster) ([]k
 		}
 		if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
 			// add IRSA app to the list
-			version, err := getLatestVersion(ctx, r.g8sClient, key.IRSAAppName, "default")
+			version, err := getLatestVersion(ctx, r.ctrlClient, key.IRSAAppName, "default")
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
@@ -455,7 +455,7 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 	return body, nil
 }
 
-func getLatestVersion(ctx context.Context, g8sClient versioned.Interface, app, catalog string) (string, error) {
+func getLatestVersion(ctx context.Context, ctrlClient ctrlClient.Client, app, catalog string) (string, error) {
 	catalogEntryList, err := g8sClient.ApplicationV1alpha1().AppCatalogEntries("giantswarm").List(ctx, metav1.ListOptions{
 		LabelSelector: labels.SelectorFromSet(map[string]string{
 			"app.kubernetes.io/name":            app,

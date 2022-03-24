@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"reflect"
 
-	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/errors/tenant"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -21,12 +21,6 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	if r.provider != label.ProviderAWS {
-		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
-		r.logger.Debugf(ctx, "canceling resource")
-		return nil
-	}
-
 	cr := r.newCommonClusterObjectFunc()
 	var uc infrastructurev1alpha3.CommonClusterObject
 	{
@@ -169,6 +163,7 @@ func (r *Resource) computeClusterStatusConditions(ctx context.Context, cl apiv1a
 
 func (r *Resource) writeClusterStatusConditions(ctx context.Context, cl apiv1alpha3.Cluster, cr infrastructurev1alpha3.CommonClusterObject, nodesReady bool, desiredVersion string) error {
 	status := cr.GetCommonClusterStatus()
+
 	// After initialization the most likely implication is the tenant cluster
 	// being in a creation status. In case no other conditions are given and no
 	// versions are set, we set the tenant cluster status to a creating

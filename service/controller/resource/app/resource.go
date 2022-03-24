@@ -2,10 +2,10 @@ package app
 
 import (
 	"github.com/ghodss/yaml"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
 )
@@ -19,7 +19,7 @@ const (
 
 // Config represents the configuration used to create a new chartconfig service.
 type Config struct {
-	G8sClient      versioned.Interface
+	CtrlClient     ctrlClient.Client
 	K8sClient      kubernetes.Interface
 	Logger         micrologger.Logger
 	ReleaseVersion releaseversion.Interface
@@ -32,7 +32,7 @@ type Config struct {
 
 // Resource provides shared functionality for managing chartconfigs.
 type Resource struct {
-	g8sClient      versioned.Interface
+	ctrlClient     ctrlClient.Client
 	k8sClient      kubernetes.Interface
 	logger         micrologger.Logger
 	releaseVersion releaseversion.Interface
@@ -59,8 +59,8 @@ type overrideConfig map[string]overrideProperties
 
 // New creates a new chartconfig service.
 func New(config Config) (*Resource, error) {
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	if config.CtrlClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -95,7 +95,7 @@ func New(config Config) (*Resource, error) {
 	}
 
 	r := &Resource{
-		g8sClient:      config.G8sClient,
+		ctrlClient:     config.CtrlClient,
 		k8sClient:      config.K8sClient,
 		logger:         config.Logger,
 		releaseVersion: config.ReleaseVersion,
