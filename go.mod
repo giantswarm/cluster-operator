@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/ghodss/yaml v1.0.0
+	github.com/giantswarm/apiextensions-application v0.3.0
 	github.com/giantswarm/apiextensions/v6 v6.0.0
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/certs/v3 v3.1.1
@@ -18,6 +19,7 @@ require (
 	github.com/giantswarm/micrologger v0.6.0
 	github.com/giantswarm/operatorkit/v7 v7.0.1
 	github.com/giantswarm/release-operator/v3 v3.2.0
+	github.com/giantswarm/resource/v5 v5.0.0
 	github.com/giantswarm/tenantcluster/v4 v4.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.12.1
@@ -33,11 +35,6 @@ require (
 )
 
 require (
-	github.com/giantswarm/apiextensions-application v0.3.0
-	github.com/giantswarm/resource/v4 v4.0.0
-)
-
-require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
@@ -47,7 +44,7 @@ require (
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
-	github.com/giantswarm/app/v6 v6.0.0 // indirect
+	github.com/giantswarm/app/v6 v6.6.1 // indirect
 	github.com/giantswarm/k8sclient/v5 v5.11.0 // indirect
 	github.com/giantswarm/operatorkit/v6 v6.0.0 // indirect
 	github.com/giantswarm/to v0.4.0 // indirect

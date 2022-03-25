@@ -14,7 +14,7 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/k8s/secretresource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
 	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
-	"github.com/giantswarm/resource/v4/appresource"
+	"github.com/giantswarm/resource/v5/appresource"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
@@ -178,8 +178,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appResource resource.Interface
 	{
 		c := appresource.Config{
-			CtrlClient: config.K8sClient.CtrlClient(),
-			Logger:     config.Logger,
+			G8sClient: config.K8sClient.CtrlClient(),
+			Logger:    config.Logger,
 
 			Name:        app.Name,
 			StateGetter: appGetter,
