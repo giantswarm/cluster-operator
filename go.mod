@@ -46,7 +46,6 @@ require (
 	github.com/getsentry/sentry-go v0.12.0 // indirect
 	github.com/giantswarm/app/v6 v6.6.1 // indirect
 	github.com/giantswarm/k8sclient/v5 v5.11.0 // indirect
-	github.com/giantswarm/operatorkit/v6 v6.0.0 // indirect
 	github.com/giantswarm/to v0.4.0 // indirect
 	github.com/giantswarm/versionbundle v1.0.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
