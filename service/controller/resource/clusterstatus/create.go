@@ -7,6 +7,7 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/util/conditions"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
@@ -38,7 +39,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "found cluster")
 	}
 
-	if cr.Status.ControlPlaneInitialized && cr.Status.InfrastructureReady {
+	if conditions.IsTrue(&cr, apiv1beta1.ControlPlaneInitializedCondition) && cr.Status.InfrastructureReady {
 		return nil
 	}
 
@@ -65,7 +66,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.Debugf(ctx, "updating cluster status")
 
-		cr.Status.ControlPlaneInitialized = true
+		conditions.MarkTrue(&cr, apiv1beta1.ControlPlaneInitializedCondition)
 		cr.Status.InfrastructureReady = true
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, &cr)
