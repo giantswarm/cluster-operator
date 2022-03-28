@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
@@ -427,8 +426,6 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 			return nil, microerror.Mask(err)
 		}
 	}
-	spew.Dump(catalogName)
-	spew.Dump(catalog)
 
 	url := strings.TrimRight(catalog.Spec.Storage.URL, "/") + "/index.yaml"
 	body := []byte{}
