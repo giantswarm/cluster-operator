@@ -8,6 +8,7 @@ import (
 	"time"
 
 	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	corev1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	providerv1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/certs/v3/pkg/certs"
@@ -114,6 +115,7 @@ func New(config Config) (*Service, error) {
 		schemeBuilder = append(schemeBuilder, releasev1alpha1.AddToScheme)
 		schemeBuilder = append(schemeBuilder, providerv1alpha1.AddToScheme)
 		schemeBuilder = append(schemeBuilder, g8sv1alpha1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, corev1alpha1.AddToScheme)
 		switch provider {
 		case label.ProviderAWS:
 			schemeBuilder = append(schemeBuilder, infrastructurev1alpha3.AddToScheme)
