@@ -40,7 +40,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 
 	r.logger.Debugf(ctx, "found %d apps to remove finalizers for", len(list.Items))
 
-	for _, app := range list.Items {
+	for i, app := range list.Items {
 		r.logger.Debugf(ctx, "removing finalizer for app %#q", app.Name)
 
 		index := getFinalizerIndex(app.Finalizers)
@@ -56,7 +56,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			err = r.ctrlClient.Patch(ctx, &app, client.RawPatch(types.JSONPatchType, bytes), &client.PatchOptions{Raw: &metav1.PatchOptions{}})
+			err = r.ctrlClient.Patch(ctx, &list.Items[i], client.RawPatch(types.JSONPatchType, bytes), &client.PatchOptions{Raw: &metav1.PatchOptions{}})
 			if err != nil {
 				return microerror.Mask(err)
 			}
