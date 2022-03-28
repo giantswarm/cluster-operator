@@ -3,6 +3,7 @@ module github.com/giantswarm/cluster-operator/v3
 go 1.17
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/giantswarm/apiextensions-application v0.3.0
 	github.com/giantswarm/apiextensions/v6 v6.0.0
@@ -40,7 +41,6 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
