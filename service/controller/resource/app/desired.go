@@ -21,6 +21,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -463,11 +464,12 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 
 func getLatestVersion(ctx context.Context, ctrlClient ctrlClient.Client, app, catalog string) (string, error) {
 	catalogEntryList := &g8sv1alpha1.AppCatalogEntryList{}
-	err := ctrlClient.List(ctx, catalogEntryList, client.MatchingLabels{
-		"app.kubernetes.io/name":            app,
-		"application.giantswarm.io/catalog": catalog,
-		"latest":                            "true",
-	})
+	err := ctrlClient.List(ctx, catalogEntryList, &client.ListOptions{
+		LabelSelector: labels.SelectorFromSet(labels.Set{
+			"app.kubernetes.io/name":            app,
+			"application.giantswarm.io/catalog": catalog,
+			"latest":                            "true",
+		}), Namespace: "giantswarm"})
 	if err != nil {
 		return "", microerror.Mask(err)
 	} else if len(catalogEntryList.Items) != 1 {
