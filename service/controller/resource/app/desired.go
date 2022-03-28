@@ -422,7 +422,6 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 	var err error
 	catalog := &g8sv1alpha1.AppCatalog{}
 	{
-		catalog := &g8sv1alpha1.AppCatalog{}
 		err = r.ctrlClient.Get(ctx, types.NamespacedName{Name: catalogName}, catalog)
 		if err != nil {
 			return nil, microerror.Mask(err)
