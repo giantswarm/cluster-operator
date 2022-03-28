@@ -418,7 +418,7 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 	client := &http.Client{}
 
 	var err error
-	var catalog *g8sv1alpha1.AppCatalog
+	catalog := &g8sv1alpha1.AppCatalog{}
 	{
 		catalog := &g8sv1alpha1.AppCatalog{}
 		err = r.ctrlClient.Get(ctx, types.NamespacedName{Name: catalogName}, catalog)
