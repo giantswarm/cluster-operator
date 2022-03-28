@@ -428,6 +428,7 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 			return nil, microerror.Mask(err)
 		}
 	}
+	spew.Dump(catalogName)
 	spew.Dump(catalog)
 
 	url := strings.TrimRight(catalog.Spec.Storage.URL, "/") + "/index.yaml"
