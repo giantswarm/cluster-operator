@@ -8,7 +8,7 @@ import (
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v4/service/internal/unittest"
 )
 
 func Test_BaseDomain_Cache(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v4/pkg/label"
 )
 
 const (
