@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
-	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
-	"github.com/giantswarm/operatorkit/v5/pkg/controller/context/cachekeycontext"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v3/api/v1alpha1"
 
 	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
 )

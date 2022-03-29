@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
 	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
@@ -32,7 +33,8 @@ func (r *Resource) getCurrentState(ctx context.Context, obj interface{}) (interf
 		}
 
 		for {
-			list, err := r.g8sClient.CoreV1alpha1().CertConfigs(cr.Namespace).List(ctx, o)
+			list := &v1alpha1.CertConfigList{}
+			err := r.ctrlClient.List(ctx, list, &client.ListOptions{Raw: &o})
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}

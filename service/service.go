@@ -7,20 +7,22 @@ import (
 	"sync"
 	"time"
 
-	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha3"
-	providerv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/provider/v1alpha1"
-	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
+	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	corev1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	providerv1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/certs/v3/pkg/certs"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v3/api/v1alpha1"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/giantswarm/cluster-operator/v3/flag"
 	"github.com/giantswarm/cluster-operator/v3/pkg/label"
@@ -109,9 +111,11 @@ func New(config Config) (*Service, error) {
 	var k8sClient *k8sclient.Clients
 	{
 		schemeBuilder := k8sclient.SchemeBuilder{}
-		schemeBuilder = append(schemeBuilder, capiv1alpha3.AddToScheme)
+		schemeBuilder = append(schemeBuilder, capiv1beta1.AddToScheme)
 		schemeBuilder = append(schemeBuilder, releasev1alpha1.AddToScheme)
 		schemeBuilder = append(schemeBuilder, providerv1alpha1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, g8sv1alpha1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, corev1alpha1.AddToScheme)
 		switch provider {
 		case label.ProviderAWS:
 			schemeBuilder = append(schemeBuilder, infrastructurev1alpha3.AddToScheme)
