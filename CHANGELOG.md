@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.1] - 2022-03-29
+
 ### Fixed
 
 - Only list apps from cluster namespace.
@@ -293,7 +295,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.0.1...HEAD
+[4.0.1]: https://github.com/giantswarm/cluster-operator/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/giantswarm/cluster-operator/compare/v3.14.1...v4.0.0
 [3.14.1]: https://github.com/giantswarm/cluster-operator/compare/v3.14.0...v3.14.1
 [3.14.0]: https://github.com/giantswarm/giantswarm/compare/v3.13.0...v3.14.0
