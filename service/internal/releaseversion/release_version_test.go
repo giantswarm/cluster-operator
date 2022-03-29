@@ -9,7 +9,7 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
 	releasev1alpha1 "github.com/giantswarm/release-operator/v3/api/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v4/service/internal/unittest"
 )
 
 func Test_Release_Cache(t *testing.T) {
