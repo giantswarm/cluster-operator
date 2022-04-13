@@ -34,12 +34,12 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 		r.logger.Debugf(ctx, "finding apps for tenant cluster %#q", key.ClusterID(&cr))
 
 		o := metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s=%s,%s=%s", label.Cluster, key.ClusterID(&cr), label.ManagedBy, project.Name()),
+			LabelSelector: fmt.Sprintf("%s=%s", label.ManagedBy, project.Name()),
 		}
 
 		list := &v1alpha1.AppList{}
 
-		err := r.ctrlClient.List(ctx, list, &client.ListOptions{Raw: &o, Namespace: key.ClusterID(&cr)})
+		err := r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cr), Raw: &o})
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
