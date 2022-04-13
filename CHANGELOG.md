@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Delete apps by namespace.
+- List apps by namespace.
 
 ## [4.0.1] - 2022-03-29
 
