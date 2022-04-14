@@ -26,14 +26,14 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	// We keep the finalizer for the app-operator app CR so the resources in
 	// the management cluster are deleted.
 	o := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s,%s!=%s", label.Cluster, key.ClusterID(&cr), label.AppKubernetesName, "app-operator"),
+		LabelSelector: fmt.Sprintf("%s!=%s", label.AppKubernetesName, "app-operator"),
 	}
 
 	r.logger.Debugf(ctx, "finding apps to remove finalizers for")
 
 	list := &v1alpha1.AppList{}
 
-	err = r.ctrlClient.List(ctx, list, &client.ListOptions{Raw: &o})
+	err = r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cr), Raw: &o})
 	if err != nil {
 		return microerror.Mask(err)
 	}

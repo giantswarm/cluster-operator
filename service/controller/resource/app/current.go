@@ -39,7 +39,7 @@ func (r *Resource) GetCurrentState(ctx context.Context, obj interface{}) ([]*v1a
 
 		list := &v1alpha1.AppList{}
 
-		err := r.ctrlClient.List(ctx, list, &client.ListOptions{Raw: &o, Namespace: key.ClusterID(&cr)})
+		err := r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cr), Raw: &o})
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
