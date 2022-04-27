@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2022-04-27
+
 ### Changed
 
 - Store kubeconfig copy in `.data.value` field of the Secret.
@@ -305,7 +307,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.0.2...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.1.0...HEAD
+[4.1.0]: https://github.com/giantswarm/cluster-operator/compare/v4.0.2...v4.1.0
 [4.0.2]: https://github.com/giantswarm/cluster-operator/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/giantswarm/cluster-operator/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/giantswarm/cluster-operator/compare/v3.14.1...v4.0.0
