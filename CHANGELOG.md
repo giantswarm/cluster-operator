@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Store kubeconfig copy in `.data.value` field of the Secret.
+
 ## [4.0.2] - 2022-04-14
 
 ### Fixed
