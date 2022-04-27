@@ -56,7 +56,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				},
 			},
 			Data: map[string][]byte{
+				// used by legacy Giant Swarm operators
 				"kubeConfig": b,
+				// used by Flux; de-facto industry standard
+				"value": b,
 			},
 		}
 	}
