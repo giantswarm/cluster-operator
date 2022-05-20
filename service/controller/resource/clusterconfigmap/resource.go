@@ -4,6 +4,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v4/service/internal/basedomain"
 	"github.com/giantswarm/cluster-operator/v4/service/internal/podcidr"
@@ -18,6 +19,7 @@ const (
 // resource.
 type Config struct {
 	BaseDomain basedomain.Interface
+	CtrlClient ctrlClient.Client
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 	PodCIDR    podcidr.Interface
@@ -30,6 +32,7 @@ type Config struct {
 // Resource implements the clusterConfigMap resource.
 type Resource struct {
 	baseDomain basedomain.Interface
+	ctrlClient ctrlClient.Client
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 	podCIDR    podcidr.Interface
@@ -46,7 +49,10 @@ type Resource struct {
 //
 func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
+	}
+	if config.CtrlClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -70,6 +76,7 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		baseDomain: config.BaseDomain,
+		ctrlClient: config.CtrlClient,
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 		podCIDR:    config.PodCIDR,

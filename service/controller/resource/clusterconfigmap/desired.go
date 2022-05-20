@@ -3,13 +3,17 @@ package clusterconfigmap
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/giantswarm/cluster-operator/v4/pkg/annotation"
@@ -58,11 +62,46 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
+	var irsa bool
+	var accountID string
+	{
+		if r.provider == "aws" {
+
+			awsCluster := &v1alpha3.AWSCluster{}
+			err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+				irsa = true
+			}
+
+			secret, err := r.k8sClient.CoreV1().Secrets(awsCluster.Spec.Provider.CredentialSecret.Namespace).Get(ctx, awsCluster.Spec.Provider.CredentialSecret.Name, metav1.GetOptions{})
+			if apierrors.IsNotFound(err) {
+				r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set accountID", cr.Namespace, key.APISecretName(&cr))
+			} else if err != nil {
+				return nil, microerror.Mask(err)
+			}
+			arn := string(secret.Data["aws.awsoperator.arn"])
+
+			re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
+			accountID = re.FindAllString(arn, 1)[0]
+
+		} else {
+			r.logger.Debugf(ctx, "not aws provider, skipping AWS IRSA check")
+		}
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
+				"aws": map[string]interface{}{
+					"accountID": accountID,
+					"irsa":      strconv.FormatBool(irsa),
+				},
 				"baseDomain": key.TenantEndpoint(&cr, bd),
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
