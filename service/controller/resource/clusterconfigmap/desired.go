@@ -80,16 +80,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			secret, err := r.k8sClient.CoreV1().Secrets(awsCluster.Spec.Provider.CredentialSecret.Namespace).Get(ctx, awsCluster.Spec.Provider.CredentialSecret.Name, metav1.GetOptions{})
 			if apierrors.IsNotFound(err) {
 				r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set accountID", cr.Namespace, key.APISecretName(&cr))
+				return nil, nil
 			} else if err != nil {
 				return nil, microerror.Mask(err)
 			}
 			arn := string(secret.Data["aws.awsoperator.arn"])
+			if arn == "" {
+				return nil, microerror.Mask(fmt.Errorf("Unable to find ARN from secret %s/%s", secret.Namespace, secret.Name))
+			}
 
 			re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
 			accountID = re.FindAllString(arn, 1)[0]
-
-		} else {
-			r.logger.Debugf(ctx, "not aws provider, skipping AWS IRSA check")
 		}
 	}
 
