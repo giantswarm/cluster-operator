@@ -14,3 +14,7 @@ CVE-2022-21221 until=2022-06-30
 CVE-2021-42576 until=2022-06-30
 # github.com/urfave/negroni
 sonatype-2021-1485 until=2022-06-30
+
+CVE-2021-20329 until=2022-06-30
+CVE-2021-3127 until=2022-06-30
+CVE-2020-26892 until=2022-06-30
