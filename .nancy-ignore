@@ -3,8 +3,14 @@
 CVE-2019-10743 until=2021-10-17
 
 # Unresolved as of 2022/05/25
-CVE-2022-29153 until=2022-06-25
-CVE-2022-24687 until=2022-06-25
-CVE-2021-23772 until=2022-06-25
-sonatype-2021-1485 until=2022-06-25
-CVE-2022-21221 until=2022-06-25
+# Nancy found vulns for consul api 1.12.0 -> no new version
+CVE-2022-29153 until=2022-06-30
+CVE-2022-24687 until=2022-06-30
+# kataras/iris/v12@v12.1.8 -> no new version
+CVE-2021-23772 until=2022-06-30
+# github.com/valyala/fasthttp
+CVE-2022-21221 until=2022-06-30
+# github.com/microcosm-cc/bluemonday
+CVE-2021-42576 until=2022-06-30
+# github.com/urfave/negroni
+sonatype-2021-1485 until=2022-06-30
