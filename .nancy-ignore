@@ -1,3 +1,20 @@
 # Affects all versions of archiver which is required by vault.
 # Taken from: https://github.com/giantswarm/opsctl/pull/1072/files#diff-bbe4a7fb12c43622bce7c6840c770e9995be614626a219942ca138403629cb69R1
 CVE-2019-10743 until=2021-10-17
+
+# Unresolved as of 2022/05/25
+# Nancy found vulns for consul api 1.12.0 -> no new version
+CVE-2022-29153 until=2022-06-30
+CVE-2022-24687 until=2022-06-30
+# kataras/iris/v12@v12.1.8 -> no new version
+CVE-2021-23772 until=2022-06-30
+# github.com/valyala/fasthttp
+CVE-2022-21221 until=2022-06-30
+# github.com/microcosm-cc/bluemonday
+CVE-2021-42576 until=2022-06-30
+# github.com/urfave/negroni
+sonatype-2021-1485 until=2022-06-30
+
+CVE-2021-20329 until=2022-06-30
+CVE-2021-3127 until=2022-06-30
+CVE-2020-26892 until=2022-06-30

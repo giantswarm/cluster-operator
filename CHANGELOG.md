@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.0] - 2022-05-25
+
 ### Added
 
 - Add cluster values for IRSA.
@@ -311,7 +313,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.1.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.2.0...HEAD
+[4.2.0]: https://github.com/giantswarm/cluster-operator/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/giantswarm/cluster-operator/compare/v4.0.2...v4.1.0
 [4.0.2]: https://github.com/giantswarm/cluster-operator/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/giantswarm/cluster-operator/compare/v4.0.0...v4.0.1
