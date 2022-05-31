@@ -2,8 +2,11 @@
 *.swp
 
 # build result
-cluster-operator
+/cluster-operator*
 !helm/cluster-operator
 
 # don't apply earlier restrictions under vendor
 !vendor/**
+
+.idea
+
