@@ -13,6 +13,7 @@ import (
 
 	"github.com/giantswarm/cluster-operator/v4/pkg/project"
 	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
+	appResource "github.com/giantswarm/cluster-operator/v4/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/v4/service/internal/releaseversion"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -65,8 +66,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			for _, app := range apps {
 				currentVersion := app.Labels[label.AppOperatorVersion]
 
-				if currentVersion != appOperatorVersion {
-					patches := []patch{}
+				if currentVersion != appResource.UniqueOperatorVersion && currentVersion != appOperatorVersion {
+					var patches []patch
 
 					if len(app.Labels) == 0 {
 						patches = append(patches, patch{
