@@ -76,7 +76,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	// Define app CR for app-operator in the management cluster namespace.
 	appOperatorAppSpec := newAppOperatorAppSpec(cr, appOperatorComponent)
-	apps = append(apps, r.newApp(uniqueOperatorVersion, cr, appOperatorAppSpec, g8sv1alpha1.AppSpecUserConfig{
+	apps = append(apps, r.newApp(key.UniqueOperatorVersion, cr, appOperatorAppSpec, g8sv1alpha1.AppSpecUserConfig{
 		ConfigMap: g8sv1alpha1.AppSpecUserConfigConfigMap{
 			Name:      "app-operator-konfigure",
 			Namespace: "giantswarm",

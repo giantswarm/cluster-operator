@@ -65,8 +65,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			for _, app := range apps {
 				currentVersion := app.Labels[label.AppOperatorVersion]
 
-				if currentVersion != appOperatorVersion {
-					patches := []patch{}
+				if shouldUpdateAppOperatorVersionLabel(currentVersion, appOperatorVersion) {
+					var patches []patch
 
 					if len(app.Labels) == 0 {
 						patches = append(patches, patch{
@@ -101,4 +101,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+// shouldUpdateAppOperatorVersionLabel When the current version is 0.0.0  aka they are reconciled by the management
+// cluster app-operator. This is a use-case for App Bundles  for example, because the App CRs they contain should be
+// created in the management cluster so should be reconciled by the management cluster app-operator.
+func shouldUpdateAppOperatorVersionLabel(currentVersion string, componentVersion string) bool {
+	if currentVersion == key.UniqueOperatorVersion {
+		return false
+	}
+
+	return currentVersion != componentVersion
 }
