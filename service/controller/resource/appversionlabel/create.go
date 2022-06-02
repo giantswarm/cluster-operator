@@ -66,6 +66,10 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			for _, app := range apps {
 				currentVersion := app.Labels[label.AppOperatorVersion]
 
+				// Do not update "app-operator.giantswarm.io/version" label on app-operators when their value is 0.0.0
+				// (aka they are reconciled by the management cluster app-operator). This is a use-case for App Bundles
+				// for example, because the App CRs they contain should be created in the management cluster so should
+				// be reconciled by the management cluster app-operator.
 				if currentVersion != appResource.UniqueOperatorVersion && currentVersion != appOperatorVersion {
 					var patches []patch
 
