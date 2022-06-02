@@ -13,7 +13,6 @@ import (
 
 	"github.com/giantswarm/cluster-operator/v4/pkg/project"
 	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
-	appResource "github.com/giantswarm/cluster-operator/v4/service/controller/resource/app"
 	"github.com/giantswarm/cluster-operator/v4/service/internal/releaseversion"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -104,11 +103,11 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-//shouldUpdateAppOperatorVersionLabel When the current version is 0.0.0  aka they are reconciled by the management
-//cluster app-operator. This is a use-case for App Bundles  for example, because the App CRs they contain should be
-//created in the management cluster so should be reconciled by the management cluster app-operator.
+// shouldUpdateAppOperatorVersionLabel When the current version is 0.0.0  aka they are reconciled by the management
+// cluster app-operator. This is a use-case for App Bundles  for example, because the App CRs they contain should be
+// created in the management cluster so should be reconciled by the management cluster app-operator.
 func shouldUpdateAppOperatorVersionLabel(currentVersion string, componentVersion string) bool {
-	if currentVersion == appResource.UniqueOperatorVersion {
+	if currentVersion == key.UniqueOperatorVersion {
 		return false
 	}
 
