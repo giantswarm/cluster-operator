@@ -37,6 +37,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-app-catalog:
+          context: architect
           name: push-cluster-operator-to-control-plane-app-catalog
           app_catalog: "control-plane-catalog"
           app_catalog_test: "control-plane-test-catalog"
