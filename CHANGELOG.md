@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Set `chartOperator.cni.install` to true to allow installing CNI as app.
+- Set `bootstrapMode.enabled` to true to allow installing CNI as app.
 
 ## [4.3.0] - 2022-06-02
 

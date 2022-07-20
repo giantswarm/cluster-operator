@@ -104,10 +104,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					"irsa":      strconv.FormatBool(irsa),
 				},
 				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"chartOperator": map[string]interface{}{
-					"cni": map[string]interface{}{
-						"install": true,
-					},
+				// For Chart-operator to run before CNI and kube-proxy are enabled.
+				"bootstrapMode": map[string]interface{}{
+					"enabled": true,
 				},
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
