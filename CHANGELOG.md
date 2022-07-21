@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.0] - 2022-07-21
+
 ### Changed
 
 - Set `chartOperator.cni.install` to true to allow installing CNI as app.
@@ -323,7 +325,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.3.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.4.0...HEAD
+[4.4.0]: https://github.com/giantswarm/cluster-operator/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/giantswarm/cluster-operator/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/giantswarm/cluster-operator/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/giantswarm/cluster-operator/compare/v4.0.2...v4.1.0
