@@ -42,7 +42,6 @@ func NewWorkerNode() corev1.Node {
 				"giantswarm.io/machine-deployment":   "",
 				"aws-operator.giantswarm.io/version": "8.7.5",
 			},
-			ClusterName: "",
 		},
 		Spec: corev1.NodeSpec{
 			ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
@@ -80,7 +79,6 @@ func NewMasterNode() corev1.Node {
 				"giantswarm.io/control-plane":        "",
 				"aws-operator.giantswarm.io/version": "8.7.5",
 			},
-			ClusterName: "",
 		},
 		Spec: corev1.NodeSpec{
 			ProviderID: "aws:///eu-central-1b/i-0448c486fa2eda084",
