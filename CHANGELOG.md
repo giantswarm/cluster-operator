@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add cilium app config map.
+
 ## [4.4.0] - 2022-07-21
 
 ### Changed
