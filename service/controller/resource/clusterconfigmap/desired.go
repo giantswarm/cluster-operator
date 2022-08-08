@@ -138,6 +138,18 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				},
 			},
 		},
+		{
+			Name:      "cilium-user-values",
+			Namespace: key.ClusterID(&cr),
+			Values: map[string]interface{}{
+				"defaultPolicies": map[string]interface{}{
+					"enabled": "true",
+				},
+				"ipam": map[string]interface{}{
+					"mode": "kubernetes",
+				},
+			},
+		},
 	}
 
 	var configMaps []*corev1.ConfigMap
