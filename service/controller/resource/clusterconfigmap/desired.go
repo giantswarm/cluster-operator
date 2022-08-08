@@ -143,7 +143,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Namespace: key.ClusterID(&cr),
 			Values: map[string]interface{}{
 				"defaultPolicies": map[string]interface{}{
-					"enabled": "true",
+					"enabled": true,
 				},
 				"ipam": map[string]interface{}{
 					"mode": "kubernetes",
