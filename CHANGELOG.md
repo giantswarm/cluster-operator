@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add `CNI_CONF_NAME` env to cilium app config.
+
 ## [4.5.0] - 2022-08-08
 
 ### Added
