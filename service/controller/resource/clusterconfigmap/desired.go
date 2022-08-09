@@ -148,6 +148,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"ipam": map[string]interface{}{
 					"mode": "kubernetes",
 				},
+				"cni": map[string]interface{}{
+					"exclusive": false,
+				},
 				"extraEnv": []map[string]string{
 					{
 						"name":  "CNI_CONF_NAME",
