@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.5.1] - 2022-08-09
+
 ### Changed
 
 - Add `CNI_CONF_NAME` env to cilium app config.
@@ -335,7 +337,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.5.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.5.1...HEAD
+[4.5.1]: https://github.com/giantswarm/cluster-operator/compare/v4.5.0...v4.5.1
 [4.5.0]: https://github.com/giantswarm/cluster-operator/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/giantswarm/cluster-operator/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/giantswarm/cluster-operator/compare/v4.2.0...v4.3.0
