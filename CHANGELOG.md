@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Set `cni.exclusive` to `false` in cilium app config.
+
 ## [4.5.1] - 2022-08-09
 
 ### Changed
