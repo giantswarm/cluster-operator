@@ -253,26 +253,32 @@ func (r *Resource) chartName(ctx context.Context, appName, catalog, version stri
 
 	appNameWithoutAppSuffix := strings.TrimSuffix(appName, "-app")
 	appNameWithAppSuffix := fmt.Sprintf("%s-app", appNameWithoutAppSuffix)
-	chartName := ""
 
 	entries, ok := index.Entries[appNameWithAppSuffix]
-	if !ok || len(entries) == 0 {
-		entries, ok = index.Entries[appNameWithoutAppSuffix]
-		if !ok || len(entries) == 0 {
-			return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
-		}
-		chartName = appNameWithoutAppSuffix
-	} else {
-		chartName = appNameWithAppSuffix
-	}
-
-	for _, entry := range entries {
-		if entry.Version == version && entry.Name == chartName {
+	if ok && len(entries) > 0 {
+		entry := findEntryByNameAndVersion(entries, appNameWithAppSuffix, version)
+		if entry != nil {
 			return entry.Name, nil
 		}
 	}
 
+	entries, ok = index.Entries[appNameWithoutAppSuffix]
+	if ok && len(entries) > 0 {
+		entry := findEntryByNameAndVersion(entries, appNameWithoutAppSuffix, version)
+		if entry != nil {
+			return entry.Name, nil
+		}
+	}
 	return "", microerror.Mask(fmt.Errorf("Could not find chart %s in %s catalog", appName, catalog))
+}
+
+func findEntryByNameAndVersion(entries []IndexEntry, appName string, appVersion string) *IndexEntry {
+	for _, entry := range entries {
+		if entry.Version == appVersion && entry.Name == appName {
+			return &entry
+		}
+	}
+	return nil
 }
 
 func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]key.AppSpec, error) {
