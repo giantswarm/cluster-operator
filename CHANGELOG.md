@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.6.0] - 2022-08-31
+
 ### Fixed
 
 - Fixed finding of apps with and without the -app suffix in catalogs.
@@ -347,7 +349,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.5.2...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.6.0...HEAD
+[4.6.0]: https://github.com/giantswarm/cluster-operator/compare/v4.5.2...v4.6.0
 [4.5.2]: https://github.com/giantswarm/cluster-operator/compare/v4.5.1...v4.5.2
 [4.5.1]: https://github.com/giantswarm/cluster-operator/compare/v4.5.0...v4.5.1
 [4.5.0]: https://github.com/giantswarm/cluster-operator/compare/v4.4.0...v4.5.0
