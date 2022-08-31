@@ -22,3 +22,5 @@ CVE-2021-20329 until=2022-08-31
 # pkg:golang/github.com/nats-io/jwt@v0.3.2
 CVE-2020-26892 until=2022-08-31
 CVE-2021-3127 until=2022-08-31
+
+CVE-2021-20329
