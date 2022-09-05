@@ -254,8 +254,8 @@ github.com/giantswarm/apiextensions-application v0.5.1/go.mod h1:O6mg+EdXC9CyTLg
 github.com/giantswarm/apiextensions/v3 v3.18.1/go.mod h1:N4SS083wjVR3GEL/pqWycva4yUtYrlU5lUKhRtZJ7EY=
 github.com/giantswarm/apiextensions/v6 v6.3.1 h1:zegs6tWEEs6Nlvcq/VDaD+e5KZrZQ6SsqinlyDTLJYA=
 github.com/giantswarm/apiextensions/v6 v6.3.1/go.mod h1:Wgc2Rx8YAYF2HidjabEvhsj5ADL+RteIC86ofulY+YE=
-github.com/giantswarm/app/v6 v6.6.1 h1:pYFzdEtG6OvDaspa9R7mMMc+1XGordttbn/BoE1hHFk=
-github.com/giantswarm/app/v6 v6.6.1/go.mod h1:WVHFcc2MeNtKz1gGNFigbajERelg7ppivsvFu7CvLDY=
+github.com/giantswarm/app/v6 v6.13.0 h1:KC/duHT3Dp6VVslc7PRCL/kaSaDt1e8fAY4/mdlizQg=
+github.com/giantswarm/app/v6 v6.13.0/go.mod h1:ZU2PSxarYJNK53JtdsPJhexseyL595it8AjBCOB9SuA=
 github.com/giantswarm/backoff v0.2.0/go.mod h1:Z3WRsFilSJ5H5VlFa4XhraoPr+9pmZgYasoY2OSfNOk=
 github.com/giantswarm/backoff v1.0.0 h1:1oeTvyPsm1tJrHlSmfxbIWuoCNWPOkWJCb8kfLvE2T0=
 github.com/giantswarm/backoff v1.0.0/go.mod h1:l/WqbggvG5Ndxxws0LUgVEvP5E82Qj5/PF8SMip/1QM=
@@ -289,8 +289,8 @@ github.com/giantswarm/operatorkit/v7 v7.1.0 h1:yRUwj9ZUqBd+UV0C5n784+Qe6y/olILtg
 github.com/giantswarm/operatorkit/v7 v7.1.0/go.mod h1:5enwhyIjd4xKrYXV9+enqttcmB9BE2Ocl1V12IwJIuw=
 github.com/giantswarm/release-operator/v3 v3.2.0 h1:bZFiVGuEdx73222C+4m8sRGqpaNQR7ZCqsWGSwNDJkE=
 github.com/giantswarm/release-operator/v3 v3.2.0/go.mod h1:joFBezcw9qe089tVAfqhRTVMDtYBsfQ98mJ6tKau2sY=
-github.com/giantswarm/resource/v5 v5.0.0 h1:avYtJYkfzP75dahCggFINTMgKB9TKWB5IOUsZ24fWr0=
-github.com/giantswarm/resource/v5 v5.0.0/go.mod h1:XqwyvPbirQYs/fPKk10gEla48rL2SqVV6W3XO//P/Tg=
+github.com/giantswarm/resource/v5 v5.1.0 h1:WpaWW8yfwJsaV2Hb+Hz2wroMOzlYQIRl6dgX3ja/QJk=
+github.com/giantswarm/resource/v5 v5.1.0/go.mod h1:MscxRsdPx56+FswKMbS7okkGaQwfbdGhB4t1lS9lF5w=
 github.com/giantswarm/tenantcluster/v4 v4.1.0 h1:5f4xVlpuRMXAfRmsZbl7P2gidqcegcYE8yA2DmGMAg4=
 github.com/giantswarm/tenantcluster/v4 v4.1.0/go.mod h1:hjmQz20Zklato8CB36ucZtJxTmZ+nxiFn3lp8AD0Odo=
 github.com/giantswarm/to v0.4.0 h1:x0GjbI94/nxcHztJiRtJzihCjgmUlEOto8RD98VA7WI=
