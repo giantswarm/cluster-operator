@@ -429,17 +429,15 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 
 	for name, cm := range configMaps {
 		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserConfigMapName(appSpec) {
-			var priority int
+			priority := 25
 			{
 				priorityStr, found := cm.Annotations[annotation.AppConfigPriority]
-				if !found {
-					priority = 25
-				}
-
-				priority, err = strconv.Atoi(priorityStr)
-				if err != nil || priority <= 0 {
-					r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, cm.Name)
-					priority = 25
+				if found {
+					priority, err = strconv.Atoi(priorityStr)
+					if err != nil || priority <= 0 {
+						r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, cm.Name)
+						priority = 25
+					}
 				}
 			}
 
@@ -455,17 +453,15 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 
 	for name, secret := range secrets {
 		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserSecretName(appSpec) {
-			var priority int
+			priority := 25
 			{
 				priorityStr, found := secret.Annotations[annotation.AppConfigPriority]
-				if !found {
-					priority = 25
-				}
-
-				priority, err = strconv.Atoi(priorityStr)
-				if err != nil || priority <= 0 {
-					r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, secret.Name)
-					priority = 25
+				if found {
+					priority, err = strconv.Atoi(priorityStr)
+					if err != nil || priority <= 0 {
+						r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, secret.Name)
+						priority = 25
+					}
 				}
 			}
 
