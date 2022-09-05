@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add support for extraConfigs field in App CR.
+
 ## [4.6.1] - 2022-08-31
 
 ## [4.6.0] - 2022-08-31

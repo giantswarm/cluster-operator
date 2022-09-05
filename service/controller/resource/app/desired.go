@@ -81,13 +81,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 			Name:      "app-operator-konfigure",
 			Namespace: "giantswarm",
 		},
-	}))
+	}, nil))
 
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
+		extraConfigs := getAppExtraConfigs(cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
-			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig))
+			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig, extraConfigs))
 		}
 	}
 
@@ -158,7 +159,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1beta1.Clus
 	return u, nil
 }
 
-func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig, extraConfigs []g8sv1alpha1.AppExtraConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
 	// Override config map name when specified.
@@ -226,13 +227,14 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 			Namespace: key.ClusterID(&cr),
 		},
 		Spec: g8sv1alpha1.AppSpec{
-			Catalog:    appSpec.Catalog,
-			Name:       appSpec.Chart,
-			Namespace:  appSpec.Namespace,
-			Version:    appSpec.Version,
-			Config:     config,
-			KubeConfig: kubeConfig,
-			UserConfig: userConfig,
+			Catalog:      appSpec.Catalog,
+			Name:         appSpec.Chart,
+			Namespace:    appSpec.Namespace,
+			Version:      appSpec.Version,
+			Config:       config,
+			ExtraConfigs: extraConfigs,
+			KubeConfig:   kubeConfig,
+			UserConfig:   userConfig,
 		},
 	}
 }
@@ -419,6 +421,36 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 	}
 
 	return userConfig
+}
+
+func getAppExtraConfigs(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) []g8sv1alpha1.AppExtraConfig {
+	var ret []g8sv1alpha1.AppExtraConfig
+
+	for name, cm := range configMaps {
+		if strings.HasPrefix(name, appSpec.AppName) && name != key.AppUserConfigMapName(appSpec) {
+			ret = append(ret, g8sv1alpha1.AppExtraConfig{
+				Kind:      "configMap",
+				Name:      cm.Name,
+				Namespace: cm.Namespace,
+				// TODO make configurable
+				Priority: 25,
+			})
+		}
+	}
+
+	for name, secret := range secrets {
+		if strings.HasPrefix(name, appSpec.AppName) && name != key.AppUserSecretName(appSpec) {
+			ret = append(ret, g8sv1alpha1.AppExtraConfig{
+				Kind:      "secret",
+				Name:      secret.Name,
+				Namespace: secret.Namespace,
+				// TODO make configurable
+				Priority: 25,
+			})
+		}
+	}
+
+	return ret
 }
 
 func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]byte, error) {
