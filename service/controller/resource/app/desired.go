@@ -424,6 +424,7 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 }
 
 func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) []g8sv1alpha1.AppExtraConfig {
+	var err error
 	var ret []g8sv1alpha1.AppExtraConfig
 
 	for name, cm := range configMaps {
@@ -435,7 +436,7 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 					priority = 25
 				}
 
-				priority, err := strconv.Atoi(priorityStr)
+				priority, err = strconv.Atoi(priorityStr)
 				if err != nil || priority <= 0 {
 					r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, cm.Name)
 					priority = 25
@@ -461,7 +462,7 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 					priority = 25
 				}
 
-				priority, err := strconv.Atoi(priorityStr)
+				priority, err = strconv.Atoi(priorityStr)
 				if err != nil || priority <= 0 {
 					r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, secret.Name)
 					priority = 25
