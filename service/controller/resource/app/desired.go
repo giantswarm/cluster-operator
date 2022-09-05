@@ -85,7 +85,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
-		extraConfigs := getAppExtraConfigs(cr, appSpec, configMaps, secrets)
+		extraConfigs := r.getAppExtraConfigs(ctx, cr, appSpec, configMaps, secrets)
 
 		if !appSpec.LegacyOnly {
 			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig, extraConfigs))
@@ -423,11 +423,12 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 	return userConfig
 }
 
-func getAppExtraConfigs(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) []g8sv1alpha1.AppExtraConfig {
+func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) []g8sv1alpha1.AppExtraConfig {
 	var ret []g8sv1alpha1.AppExtraConfig
 
 	for name, cm := range configMaps {
-		if strings.HasPrefix(name, appSpec.AppName) && name != key.AppUserConfigMapName(appSpec) {
+		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserConfigMapName(appSpec) {
+			r.logger.Debugf(ctx, "Using configMap %q as extraConfig for app %q", appSpec.App)
 			ret = append(ret, g8sv1alpha1.AppExtraConfig{
 				Kind:      "configMap",
 				Name:      cm.Name,
@@ -439,7 +440,8 @@ func getAppExtraConfigs(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps m
 	}
 
 	for name, secret := range secrets {
-		if strings.HasPrefix(name, appSpec.AppName) && name != key.AppUserSecretName(appSpec) {
+		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserSecretName(appSpec) {
+			r.logger.Debugf(ctx, "Using secret %q as extraConfig for app %q", appSpec.App)
 			ret = append(ret, g8sv1alpha1.AppExtraConfig{
 				Kind:      "secret",
 				Name:      secret.Name,
