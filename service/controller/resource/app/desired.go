@@ -428,26 +428,52 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 
 	for name, cm := range configMaps {
 		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserConfigMapName(appSpec) {
-			r.logger.Debugf(ctx, "Using configMap %q as extraConfig for app %q", appSpec.App)
+			var priority int
+			{
+				priorityStr, found := cm.Annotations[annotation.AppConfigPriority]
+				if !found {
+					priority = 25
+				}
+
+				priority, err := strconv.Atoi(priorityStr)
+				if err != nil || priority <= 0 {
+					r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, cm.Name)
+					priority = 25
+				}
+			}
+
+			r.logger.Debugf(ctx, "Using configMap %q as extraConfig with priority %d for app %q", cm.Name, priority, appSpec.App)
 			ret = append(ret, g8sv1alpha1.AppExtraConfig{
 				Kind:      "configMap",
 				Name:      cm.Name,
 				Namespace: cm.Namespace,
-				// TODO make configurable
-				Priority: 25,
+				Priority:  priority,
 			})
 		}
 	}
 
 	for name, secret := range secrets {
 		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserSecretName(appSpec) {
-			r.logger.Debugf(ctx, "Using secret %q as extraConfig for app %q", appSpec.App)
+			var priority int
+			{
+				priorityStr, found := secret.Annotations[annotation.AppConfigPriority]
+				if !found {
+					priority = 25
+				}
+
+				priority, err := strconv.Atoi(priorityStr)
+				if err != nil || priority <= 0 {
+					r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, secret.Name)
+					priority = 25
+				}
+			}
+
+			r.logger.Debugf(ctx, "Using secret %q as extraConfig for app %q", secret.Name, appSpec.App)
 			ret = append(ret, g8sv1alpha1.AppExtraConfig{
 				Kind:      "secret",
 				Name:      secret.Name,
 				Namespace: secret.Namespace,
-				// TODO make configurable
-				Priority: 25,
+				Priority:  priority,
 			})
 		}
 	}
