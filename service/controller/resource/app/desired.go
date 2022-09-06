@@ -33,6 +33,10 @@ import (
 	"github.com/giantswarm/cluster-operator/v4/service/internal/releaseversion"
 )
 
+const (
+	DefaultAppExtraConfigPriority = 25
+)
+
 type appConfig struct {
 	Catalog string `json:"catalog"`
 	Version string `json:"version"`
@@ -429,14 +433,14 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 
 	for name, cm := range configMaps {
 		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserConfigMapName(appSpec) {
-			priority := 25
+			priority := DefaultAppExtraConfigPriority
 			{
 				priorityStr, found := cm.Annotations[annotation.AppConfigPriority]
 				if found {
 					priority, err = strconv.Atoi(priorityStr)
 					if err != nil || priority <= 0 {
-						r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, cm.Name)
-						priority = 25
+						r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, cm.Name, DefaultAppExtraConfigPriority)
+						priority = DefaultAppExtraConfigPriority
 					}
 				}
 			}
@@ -453,14 +457,14 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 
 	for name, secret := range secrets {
 		if strings.HasPrefix(name, appSpec.App) && name != key.AppUserSecretName(appSpec) {
-			priority := 25
+			priority := DefaultAppExtraConfigPriority
 			{
 				priorityStr, found := secret.Annotations[annotation.AppConfigPriority]
 				if found {
 					priority, err = strconv.Atoi(priorityStr)
 					if err != nil || priority <= 0 {
-						r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to 25", annotation.AppConfigPriority, secret.Name)
-						priority = 25
+						r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, secret.Name, DefaultAppExtraConfigPriority)
+						priority = DefaultAppExtraConfigPriority
 					}
 				}
 			}
