@@ -433,10 +433,9 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 			{
 				priorityStr, found := cm.Annotations[annotation.AppConfigPriority]
 				if found {
-					priority, err = strconv.Atoi(priorityStr)
+					priority, err = convertAndValidatePriority(priorityStr)
 					if err != nil || priority <= 0 {
-						r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, cm.Name, g8sv1alpha1.ConfigPriorityDefault)
-						priority = g8sv1alpha1.ConfigPriorityDefault
+						r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, cm.Name, priority)
 					}
 				}
 			}
@@ -457,10 +456,9 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 			{
 				priorityStr, found := secret.Annotations[annotation.AppConfigPriority]
 				if found {
-					priority, err = strconv.Atoi(priorityStr)
-					if err != nil || priority <= 0 {
-						r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, secret.Name, g8sv1alpha1.ConfigPriorityDefault)
-						priority = g8sv1alpha1.ConfigPriorityDefault
+					priority, err = convertAndValidatePriority(priorityStr)
+					if err != nil {
+						r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, secret.Name, priority)
 					}
 				}
 			}
@@ -476,6 +474,21 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 	}
 
 	return ret
+}
+
+// See: https://docs.giantswarm.io/app-platform/app-configuration/#extra-configs
+func convertAndValidatePriority(priorityStr string) (int, error) {
+	priority, err := strconv.Atoi(priorityStr)
+
+	if err != nil {
+		return g8sv1alpha1.ConfigPriorityDefault, err
+	}
+
+	if priority > g8sv1alpha1.ConfigPriorityCatalog && priority <= g8sv1alpha1.ConfigPriorityMaximum {
+		return priority, nil
+	}
+
+	return g8sv1alpha1.ConfigPriorityDefault, err
 }
 
 func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]byte, error) {
