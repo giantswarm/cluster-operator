@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Use `AzureConfig`'s `Spec.Azure.VirtualNetwork.CalicoSubnetCIDR` field for Calico CIDR rather than `Spec.Cluster.Calico.Subnet`.
+
 ## [4.6.1] - 2022-08-31
 
 ## [4.6.0] - 2022-08-31
