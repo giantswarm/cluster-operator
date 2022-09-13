@@ -125,6 +125,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"clusterCA":    clusterCA,
 				"clusterDNSIP": r.dnsIP,
 				"clusterID":    key.ClusterID(&cr),
+				"organization": key.OrganizationID(&cr),
+				"remoteWrite": []map[string]interface{}{{
+					"url": remoteWriteUrl(bd, key.ClusterID(&cr)),
+				}},
 			},
 		},
 		{
@@ -201,4 +205,8 @@ func newConfigMap(cr apiv1beta1.Cluster, configMapSpec configMapSpec) (*corev1.C
 	}
 
 	return cm, nil
+}
+
+func remoteWriteUrl(baseDomain, clusterID string) string {
+	return fmt.Sprintf("https://prometheus.g8s.%s/%s/api/v1/write", baseDomain, clusterID)
 }
