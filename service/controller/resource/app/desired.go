@@ -206,7 +206,9 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 	}
 
 	operatorVersion := appOperatorVersion
-	if appSpec.App == "observability-pack" {
+	// If the app is a bundle, we ensure the MC app operator deploys the apps
+	// so the cluster-operator for the wc deploys the apps to the WC.
+	if key.IsBundle(appSpec.App) {
 		operatorVersion = key.UniqueOperatorVersion
 	}
 
