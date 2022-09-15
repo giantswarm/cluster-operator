@@ -205,11 +205,13 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		}
 	}
 
+	appNamespace := appSpec.Namespace
 	operatorVersion := appOperatorVersion
 	// If the app is a bundle, we ensure the MC app operator deploys the apps
 	// so the cluster-operator for the wc deploys the apps to the WC.
 	if key.IsBundle(appSpec.App) {
 		operatorVersion = key.UniqueOperatorVersion
+		appNamespace = key.ClusterID(&cr)
 	}
 
 	return &g8sv1alpha1.App{
@@ -235,7 +237,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		Spec: g8sv1alpha1.AppSpec{
 			Catalog:    appSpec.Catalog,
 			Name:       appSpec.Chart,
-			Namespace:  appSpec.Namespace,
+			Namespace:  appNamespace,
 			Version:    appSpec.Version,
 			Config:     config,
 			KubeConfig: kubeConfig,
@@ -345,6 +347,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 			Chart:           chart,
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
+			InCluster:       key.IsBundle(appName),
 			Version:         app.Version,
 		}
 		// For some apps we can't use default settings. We check ConfigExceptions map
