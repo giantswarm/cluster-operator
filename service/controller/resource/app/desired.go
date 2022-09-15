@@ -175,7 +175,6 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 	}
 
 	var config g8sv1alpha1.AppSpecConfig
-
 	if appSpec.InCluster {
 		config = g8sv1alpha1.AppSpecConfig{}
 	} else {
@@ -186,12 +185,21 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 			},
 		}
 	}
-
 	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
-
 	if appSpec.InCluster {
 		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
 			InCluster: true,
+		}
+	} else if key.IsBundle(appName) {
+		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
+			InCluster: true,
+			Context: g8sv1alpha1.AppSpecKubeConfigContext{
+				Name: key.KubeConfigSecretName(&cr),
+			},
+			Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
+				Name:      key.KubeConfigSecretName(&cr),
+				Namespace: key.ClusterID(&cr),
+			},
 		}
 	} else {
 		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
@@ -209,7 +217,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 	operatorVersion := appOperatorVersion
 	// If the app is a bundle, we ensure the MC app operator deploys the apps
 	// so the cluster-operator for the wc deploys the apps to the WC.
-	if key.IsBundle(appSpec.App) {
+	if key.IsBundle(appName) {
 		operatorVersion = key.UniqueOperatorVersion
 		appNamespace = key.ClusterID(&cr)
 	}
@@ -347,7 +355,6 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 			Chart:           chart,
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
-			InCluster:       key.IsBundle(appName),
 			Version:         app.Version,
 		}
 		// For some apps we can't use default settings. We check ConfigExceptions map
