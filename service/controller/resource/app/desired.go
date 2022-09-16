@@ -189,20 +189,9 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 
 	var kubeConfig g8sv1alpha1.AppSpecKubeConfig
 
-	if appSpec.InCluster {
+	if appSpec.InCluster || key.IsBundle(appName) {
 		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
 			InCluster: true,
-		}
-	} else if key.IsBundle(appName) {
-		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
-			InCluster: true,
-			Context: g8sv1alpha1.AppSpecKubeConfigContext{
-				Name: key.KubeConfigSecretName(&cr),
-			},
-			Secret: g8sv1alpha1.AppSpecKubeConfigSecret{
-				Name:      key.KubeConfigSecretName(&cr),
-				Namespace: key.ClusterID(&cr),
-			},
 		}
 	} else {
 		kubeConfig = g8sv1alpha1.AppSpecKubeConfig{
