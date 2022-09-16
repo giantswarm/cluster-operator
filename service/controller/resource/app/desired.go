@@ -221,6 +221,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 	// so the cluster-operator for the wc deploys the apps to the WC.
 	desiredAppOperatorVersion := appOperatorVersion
 	if key.IsBundle(appName) {
+		appName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), appName)
 		desiredAppOperatorVersion = key.UniqueOperatorVersion
 		appNamespace = key.ClusterID(&cr)
 	}
