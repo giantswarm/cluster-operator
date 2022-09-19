@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Enable kube-proxy replacement mode in Cilium app.
+
 ### Added
 
 - Add `vpc ID` to WC configmap on AWS.

@@ -161,6 +161,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 						"value": "21-cilium.conf",
 					},
 				},
+				"kubeProxyReplacement": "strict",
+				"k8sServiceHost":       key.TenantEndpoint(&cr, bd),
+				"k8sServicePort":       "443",
 			},
 		},
 	}
