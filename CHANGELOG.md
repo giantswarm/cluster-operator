@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `vpc ID` to WC configmap on AWS.
+
 ## [4.6.2] - 2022-09-12
 
 ### Fixed
