@@ -108,10 +108,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					"vpcID":     vpcID,
 				},
 				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"chartOperator": map[string]interface{}{
-					"bootstrapMode": map[string]interface{}{
-						"enabled": true,
-					},
+				"bootstrapMode": map[string]interface{}{
+					"enabled": true,
 				},
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
