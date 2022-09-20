@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Enable kube-proxy replacement mode in Cilium app.
+- Enable bootstrap mode for chart operator.
 
 ### Added
 

@@ -109,8 +109,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				},
 				"baseDomain": key.TenantEndpoint(&cr, bd),
 				"chartOperator": map[string]interface{}{
-					"cni": map[string]interface{}{
-						"install": true,
+					"bootstrapMode": map[string]interface{}{
+						"enabled": true,
 					},
 				},
 				"cluster": map[string]interface{}{
