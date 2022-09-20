@@ -162,7 +162,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					},
 				},
 				"kubeProxyReplacement": "strict",
-				"k8sServiceHost":       key.TenantEndpoint(&cr, bd),
+				"k8sServiceHost":       key.APIEndpoint(&cr, bd),
 				"k8sServicePort":       "443",
 			},
 		},
