@@ -108,10 +108,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					"vpcID":     vpcID,
 				},
 				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"chartOperator": map[string]interface{}{
-					"cni": map[string]interface{}{
-						"install": true,
-					},
+				"bootstrapMode": map[string]interface{}{
+					"enabled": true,
 				},
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
@@ -161,6 +159,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 						"value": "21-cilium.conf",
 					},
 				},
+				"kubeProxyReplacement": "strict",
+				"k8sServiceHost":       key.APIEndpoint(&cr, bd),
+				"k8sServicePort":       "443",
 			},
 		},
 	}
