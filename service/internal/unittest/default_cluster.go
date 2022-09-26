@@ -6,7 +6,7 @@ import (
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
 
 const (

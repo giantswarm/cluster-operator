@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
 
 const (

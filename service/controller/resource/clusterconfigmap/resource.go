@@ -6,8 +6,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v4/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/podcidr"
 )
 
 const (

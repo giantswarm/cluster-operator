@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0] - 2022-09-26
+
+### Changed
+
+- Enable kube-proxy replacement mode in Cilium app.
+- Enable bootstrap mode for chart operator.
+
 ### Added
 
 - Support for App bundles in default apps.
 - Add `vpc ID` to WC configmap on AWS.
+- Add support for extraConfigs field in App CR.
 
 ## [4.6.2] - 2022-09-12
 
@@ -19,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `AzureConfig`'s `Spec.Azure.VirtualNetwork.CalicoSubnetCIDR` field for Calico CIDR rather than `Spec.Cluster.Calico.Subnet`.
 
 ## [4.6.1] - 2022-08-31
+
+### Changed
+
+- Empty release to fix broken automation.
 
 ## [4.6.0] - 2022-08-31
 
@@ -362,7 +374,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v4.6.2...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/giantswarm/cluster-operator/compare/v4.6.2...v5.0.0
 [4.6.2]: https://github.com/giantswarm/cluster-operator/compare/v4.6.1...v4.6.2
 [4.6.1]: https://github.com/giantswarm/cluster-operator/compare/v4.6.0...v4.6.1
 [4.6.0]: https://github.com/giantswarm/cluster-operator/compare/v4.5.2...v4.6.0
