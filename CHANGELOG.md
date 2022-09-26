@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Add support for extraConfigs field in App CR.
-
 ### Changed
 
 - Enable kube-proxy replacement mode in Cilium app.
