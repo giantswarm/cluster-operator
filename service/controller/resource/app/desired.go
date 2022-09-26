@@ -81,13 +81,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 			Name:      "app-operator-konfigure",
 			Namespace: "giantswarm",
 		},
-	}))
+	}, nil))
 
 	for _, appSpec := range appSpecs {
 		userConfig := newUserConfig(cr, appSpec, configMaps, secrets)
+		extraConfigs, err := r.getAppExtraConfigs(ctx, cr, appSpec)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
 		if !appSpec.LegacyOnly {
-			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig))
+			apps = append(apps, r.newApp(appOperatorVersion, cr, appSpec, userConfig, extraConfigs))
 		}
 	}
 
@@ -158,7 +162,7 @@ func (r *Resource) getUserOverrideConfig(ctx context.Context, cr apiv1beta1.Clus
 	return u, nil
 }
 
-func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig) *g8sv1alpha1.App {
+func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appSpec key.AppSpec, userConfig g8sv1alpha1.AppSpecUserConfig, extraConfigs []g8sv1alpha1.AppExtraConfig) *g8sv1alpha1.App {
 	configMapName := key.ClusterConfigMapName(&cr)
 
 	// Override config map name when specified.
@@ -226,13 +230,14 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 			Namespace: key.ClusterID(&cr),
 		},
 		Spec: g8sv1alpha1.AppSpec{
-			Catalog:    appSpec.Catalog,
-			Name:       appSpec.Chart,
-			Namespace:  appSpec.Namespace,
-			Version:    appSpec.Version,
-			Config:     config,
-			KubeConfig: kubeConfig,
-			UserConfig: userConfig,
+			Catalog:      appSpec.Catalog,
+			Name:         appSpec.Chart,
+			Namespace:    appSpec.Namespace,
+			Version:      appSpec.Version,
+			Config:       config,
+			ExtraConfigs: extraConfigs,
+			KubeConfig:   kubeConfig,
+			UserConfig:   userConfig,
 		},
 	}
 }
@@ -419,6 +424,88 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 	}
 
 	return userConfig
+}
+
+func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster, appSpec key.AppSpec) ([]g8sv1alpha1.AppExtraConfig, error) {
+	var err error
+	var ret []g8sv1alpha1.AppExtraConfig
+
+	r.logger.Debugf(ctx, "finding configMaps to be used as extraConfigs for app %q in namespace %#q", appSpec.App, key.ClusterID(&cr))
+
+	configMaps := corev1.ConfigMapList{}
+	err = r.ctrlClient.List(ctx, &configMaps, ctrlClient.MatchingLabels{label.AppKubernetesName: appSpec.App}, ctrlClient.InNamespace(key.ClusterID(&cr)))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	for _, cm := range configMaps.Items {
+		priority := g8sv1alpha1.ConfigPriorityDefault
+		{
+			priorityStr, found := cm.Annotations[annotation.AppConfigPriority]
+			if found {
+				priority, err = convertAndValidatePriority(priorityStr)
+				if err != nil || priority <= 0 {
+					r.logger.Debugf(ctx, "Invalid value for %q annotation in configMap %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, cm.Name, g8sv1alpha1.ConfigPriorityDefault)
+					priority = g8sv1alpha1.ConfigPriorityDefault
+				}
+			}
+		}
+
+		r.logger.Debugf(ctx, "Using configMap %q as extraConfig with priority %d for app %q", cm.Name, priority, appSpec.App)
+		ret = append(ret, g8sv1alpha1.AppExtraConfig{
+			Kind:      "configMap",
+			Name:      cm.Name,
+			Namespace: cm.Namespace,
+			Priority:  priority,
+		})
+	}
+
+	r.logger.Debugf(ctx, "finding secrets to be used as extraConfigs for app %q in namespace %#q", appSpec.App, key.ClusterID(&cr))
+
+	secrets := corev1.SecretList{}
+	err = r.ctrlClient.List(ctx, &secrets, ctrlClient.MatchingLabels{label.AppKubernetesName: appSpec.App}, ctrlClient.InNamespace(key.ClusterID(&cr)))
+
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+	for _, secret := range secrets.Items {
+		priority := g8sv1alpha1.ConfigPriorityDefault
+		{
+			priorityStr, found := secret.Annotations[annotation.AppConfigPriority]
+			if found {
+				priority, err = convertAndValidatePriority(priorityStr)
+				if err != nil || priority <= 0 {
+					r.logger.Debugf(ctx, "Invalid value for %q annotation in secret %q. Should be a positive number. Defaulting to %d", annotation.AppConfigPriority, secret.Name, g8sv1alpha1.ConfigPriorityDefault)
+					priority = g8sv1alpha1.ConfigPriorityDefault
+				}
+			}
+		}
+
+		r.logger.Debugf(ctx, "Using secret %q as extraConfig for app %q", secret.Name, appSpec.App)
+		ret = append(ret, g8sv1alpha1.AppExtraConfig{
+			Kind:      "secret",
+			Name:      secret.Name,
+			Namespace: secret.Namespace,
+			Priority:  priority,
+		})
+	}
+
+	return ret, nil
+}
+
+// See: https://docs.giantswarm.io/app-platform/app-configuration/#extra-configs
+func convertAndValidatePriority(priorityStr string) (int, error) {
+	priority, err := strconv.Atoi(priorityStr)
+
+	if err != nil {
+		return g8sv1alpha1.ConfigPriorityDefault, err
+	}
+
+	if priority > g8sv1alpha1.ConfigPriorityCatalog && priority <= g8sv1alpha1.ConfigPriorityMaximum {
+		return priority, nil
+	}
+
+	return g8sv1alpha1.ConfigPriorityDefault, err
 }
 
 func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]byte, error) {

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `vpc ID` to WC configmap on AWS.
+- Add support for extraConfigs field in App CR.
 
 ## [4.6.2] - 2022-09-12
 
@@ -23,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `AzureConfig`'s `Spec.Azure.VirtualNetwork.CalicoSubnetCIDR` field for Calico CIDR rather than `Spec.Cluster.Calico.Subnet`.
 
 ## [4.6.1] - 2022-08-31
+
+### Changed
+
+- Empty release to fix broken automation.
 
 ## [4.6.0] - 2022-08-31
 
