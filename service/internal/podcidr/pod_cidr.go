@@ -79,7 +79,7 @@ func (p *PodCIDR) PodCIDR(ctx context.Context, obj interface{}) (string, error) 
 
 	azure, ok := cl.(providerv1alpha1.AzureConfig)
 	if ok {
-		return azure.Spec.Cluster.Calico.Subnet, nil
+		return azure.Spec.Azure.VirtualNetwork.CalicoSubnetCIDR, nil
 	}
 
 	return "", microerror.Maskf(invalidTypeError, "Cached object was of invalid type %q", reflect.TypeOf(cl))

@@ -64,6 +64,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 
 	var irsa bool
 	var accountID string
+	var vpcID string
 	{
 		if r.provider == "aws" {
 
@@ -91,6 +92,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 
 			re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
 			accountID = re.FindAllString(arn, 1)[0]
+
+			vpcID = awsCluster.Status.Provider.Network.VPCID
 		}
 	}
 
@@ -102,12 +105,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				"aws": map[string]interface{}{
 					"accountID": accountID,
 					"irsa":      strconv.FormatBool(irsa),
+					"vpcID":     vpcID,
 				},
 				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"chartOperator": map[string]interface{}{
-					"cni": map[string]interface{}{
-						"install": true,
-					},
+				"bootstrapMode": map[string]interface{}{
+					"enabled": true,
 				},
 				"cluster": map[string]interface{}{
 					"calico": map[string]interface{}{
@@ -157,6 +159,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 						"value": "21-cilium.conf",
 					},
 				},
+				"kubeProxyReplacement": "strict",
+				"k8sServiceHost":       key.APIEndpoint(&cr, bd),
+				"k8sServicePort":       "443",
 			},
 		},
 	}
