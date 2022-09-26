@@ -434,10 +434,10 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 	var err error
 	var ret []g8sv1alpha1.AppExtraConfig
 
-	r.logger.Debugf(ctx, "finding extraconfigMaps for app %q in namespace %#q", appSpec.App, key.ClusterID(&cr))
+	r.logger.Debugf(ctx, "finding configMaps to be used as extraConfigs for app %q in namespace %#q", appSpec.App, key.ClusterID(&cr))
 
 	configMaps := corev1.ConfigMapList{}
-	err = r.ctrlClient.List(ctx, &configMaps, ctrlClient.MatchingLabels{label.AppKubernetesName: appSpec.App})
+	err = r.ctrlClient.List(ctx, &configMaps, ctrlClient.MatchingLabels{label.AppKubernetesName: appSpec.App}, ctrlClient.InNamespace(key.ClusterID(&cr)))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -464,10 +464,10 @@ func (r *Resource) getAppExtraConfigs(ctx context.Context, cr apiv1beta1.Cluster
 		})
 	}
 
-	r.logger.Debugf(ctx, "finding extraconfigMaps for app %q in namespace %#q", appSpec.App, key.ClusterID(&cr))
+	r.logger.Debugf(ctx, "finding secrets to be used as extraConfigs for app %q in namespace %#q", appSpec.App, key.ClusterID(&cr))
 
 	secrets := corev1.SecretList{}
-	err = r.ctrlClient.List(ctx, &secrets, ctrlClient.MatchingLabels{label.AppKubernetesName: appSpec.App})
+	err = r.ctrlClient.List(ctx, &secrets, ctrlClient.MatchingLabels{label.AppKubernetesName: appSpec.App}, ctrlClient.InNamespace(key.ClusterID(&cr)))
 
 	if err != nil {
 		return nil, microerror.Mask(err)
