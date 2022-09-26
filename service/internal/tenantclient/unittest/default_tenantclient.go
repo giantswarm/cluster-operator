@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 
-	"github.com/giantswarm/cluster-operator/v4/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient"
 )
 
 type fakeTenantClient struct {

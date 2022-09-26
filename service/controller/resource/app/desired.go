@@ -26,11 +26,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/annotation"
-	pkglabel "github.com/giantswarm/cluster-operator/v4/pkg/label"
-	"github.com/giantswarm/cluster-operator/v4/pkg/project"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/pkg/annotation"
+	pkglabel "github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 )
 
 type appConfig struct {

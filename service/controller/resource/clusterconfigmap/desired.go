@@ -16,10 +16,10 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/annotation"
-	"github.com/giantswarm/cluster-operator/v4/pkg/label"
-	"github.com/giantswarm/cluster-operator/v4/pkg/project"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/annotation"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {

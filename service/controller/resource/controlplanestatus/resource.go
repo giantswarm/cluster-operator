@@ -12,12 +12,12 @@ import (
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/label"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient"
 )
 
 const (

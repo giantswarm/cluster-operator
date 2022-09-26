@@ -1,7 +1,7 @@
 package vault
 
 import (
-	"github.com/giantswarm/cluster-operator/v4/flag/guest/cluster/vault/certificate"
+	"github.com/giantswarm/cluster-operator/v5/flag/guest/cluster/vault/certificate"
 )
 
 // Vault is a data structure to hold guest cluster vault related configuration.
