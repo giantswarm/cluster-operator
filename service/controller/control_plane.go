@@ -14,17 +14,17 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/label"
-	"github.com/giantswarm/cluster-operator/v4/pkg/project"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/resource/controlplanestatus"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/resource/deleteinfrarefs"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/resource/keepforinfrarefs"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/resource/updateinfrarefs"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/controlplanestatus"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/deleteinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 )
 
 // ControlPlaneConfig contains necessary dependencies and settings for the

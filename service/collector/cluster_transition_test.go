@@ -6,7 +6,7 @@ import (
 
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 
-	"github.com/giantswarm/cluster-operator/v4/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/unittest"
 )
 
 func TestCollectClusterTransition(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
 )
 
 type Config struct {

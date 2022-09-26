@@ -10,11 +10,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/giantswarm/cluster-operator/v4/pkg/label"
-	"github.com/giantswarm/cluster-operator/v4/pkg/project"
-	"github.com/giantswarm/cluster-operator/v4/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/hamaster"
-	"github.com/giantswarm/cluster-operator/v4/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 )
 
 // getDesiredState returns all desired CertConfigs for managed certificates.
