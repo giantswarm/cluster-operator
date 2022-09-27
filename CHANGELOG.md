@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support for App bundles in default apps.
 - Add `vpc ID` to WC configmap on AWS.
 - Add support for extraConfigs field in App CR.
 

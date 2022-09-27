@@ -2,6 +2,7 @@ package key
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
@@ -56,4 +57,8 @@ func ReleaseName(releaseVersion string) string {
 
 func ReleaseVersion(getter LabelsGetter) string {
 	return getter.GetLabels()[label.ReleaseVersion]
+}
+
+func IsBundle(appName string) bool {
+	return strings.HasSuffix(appName, "-bundle")
 }
