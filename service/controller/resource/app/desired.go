@@ -242,7 +242,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		Spec: g8sv1alpha1.AppSpec{
 			Catalog:      appSpec.Catalog,
 			Name:         appSpec.Chart,
-			Namespace:    appSpec.Namespace,
+			Namespace:    appNamespace,
 			Version:      appSpec.Version,
 			Config:       config,
 			ExtraConfigs: extraConfigs,
