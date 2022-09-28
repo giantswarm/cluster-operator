@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `apiextensions-application` to the `0.6.0` version.
+
 ## [5.0.0] - 2022-09-26
 
 ### Changed
