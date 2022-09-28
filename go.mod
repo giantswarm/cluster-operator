@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/ghodss/yaml v1.0.0
-	github.com/giantswarm/apiextensions-application v0.5.1
+	github.com/giantswarm/apiextensions-application v0.6.0
 	github.com/giantswarm/apiextensions/v6 v6.3.1
 	github.com/giantswarm/backoff v1.0.0
 	github.com/giantswarm/certs/v3 v3.1.1
