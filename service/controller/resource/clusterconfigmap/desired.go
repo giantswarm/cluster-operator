@@ -97,6 +97,32 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
+	ciliumValues := map[string]interface{}{
+		"defaultPolicies": map[string]interface{}{
+			"enabled": true,
+		},
+		"ipam": map[string]interface{}{
+			"mode": "kubernetes",
+		},
+		"cni": map[string]interface{}{
+			"exclusive": false,
+		},
+		"extraEnv": []map[string]string{
+			{
+				"name":  "CNI_CONF_NAME",
+				"value": "21-cilium.conf",
+			},
+		},
+	}
+
+	if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+		ciliumValues["kubeProxyReplacement"] = "disabled"
+	} else {
+		ciliumValues["kubeProxyReplacement"] = "strict"
+		ciliumValues["k8sServiceHost"] = key.APIEndpoint(&cr, bd)
+		ciliumValues["k8sServicePort"] = "443"
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(&cr),
@@ -143,26 +169,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		{
 			Name:      "cilium-user-values",
 			Namespace: key.ClusterID(&cr),
-			Values: map[string]interface{}{
-				"defaultPolicies": map[string]interface{}{
-					"enabled": true,
-				},
-				"ipam": map[string]interface{}{
-					"mode": "kubernetes",
-				},
-				"cni": map[string]interface{}{
-					"exclusive": false,
-				},
-				"extraEnv": []map[string]string{
-					{
-						"name":  "CNI_CONF_NAME",
-						"value": "21-cilium.conf",
-					},
-				},
-				"kubeProxyReplacement": "strict",
-				"k8sServiceHost":       key.APIEndpoint(&cr, bd),
-				"k8sServicePort":       "443",
-			},
+			Values:    ciliumValues,
 		},
 	}
 
