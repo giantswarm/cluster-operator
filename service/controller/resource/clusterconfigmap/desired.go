@@ -121,6 +121,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["kubeProxyReplacement"] = "strict"
 		ciliumValues["k8sServiceHost"] = key.APIEndpoint(&cr, bd)
 		ciliumValues["k8sServicePort"] = "443"
+		ciliumValues["cleanupKubeProxy"] = true
 	}
 
 	configMapSpecs := []configMapSpec{
