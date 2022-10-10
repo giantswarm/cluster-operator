@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.0] - 2022-10-10
+
 ### Added
 
 - Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR. 
@@ -387,7 +389,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.1.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.2.0...HEAD
+[5.2.0]: https://github.com/giantswarm/cluster-operator/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/giantswarm/cluster-operator/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/giantswarm/cluster-operator/compare/v4.6.2...v5.0.0
 [4.6.2]: https://github.com/giantswarm/cluster-operator/compare/v4.6.1...v4.6.2
