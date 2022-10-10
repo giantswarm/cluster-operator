@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR. 
+
 ## [5.1.0] - 2022-10-01
 
 ### Added
