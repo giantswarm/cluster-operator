@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/blang/semver"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
+
 	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
 
@@ -29,6 +33,22 @@ func ClusterID(getter LabelsGetter) string {
 
 func IsDeleted(getter DeletionTimestampGetter) bool {
 	return getter.GetDeletionTimestamp() != nil
+}
+
+func IRSAEnabled(awsCluster *v1alpha3.AWSCluster) bool {
+	if awsCluster == nil {
+		return false
+	}
+	if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+		return true
+	}
+
+	releaseVersion, err := semver.ParseTolerant(ReleaseVersion(awsCluster))
+	if err != nil {
+		return false
+	}
+
+	return releaseVersion.Major >= 19
 }
 
 func KubeConfigClusterName(getter LabelsGetter) string {

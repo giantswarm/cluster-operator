@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Enable IRSA by default on v19+ clusters.
+
 ## [5.2.0] - 2022-10-10
 
 ### Added

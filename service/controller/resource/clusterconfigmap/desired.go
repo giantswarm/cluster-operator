@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
-	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
@@ -74,7 +73,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				return nil, microerror.Mask(err)
 			}
 
-			if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+			if key.IRSAEnabled(awsCluster) {
 				irsa = true
 			}
 
