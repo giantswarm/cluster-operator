@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/blang/semver"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
 
 	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
@@ -34,7 +36,16 @@ func IsDeleted(getter DeletionTimestampGetter) bool {
 	return getter.GetDeletionTimestamp() != nil
 }
 
-func IsV19Release(releaseVersion *semver.Version) bool {
+func IRSAEnabled(awsCluster *v1alpha3.AWSCluster) bool {
+	if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+		return true
+	}
+
+	releaseVersion, err := semver.New(ReleaseVersion(awsCluster))
+	if err != nil {
+		return false
+	}
+
 	v19, _ := semver.New(V19AlphaRelease)
 	return releaseVersion.Major >= v19.Major
 }
