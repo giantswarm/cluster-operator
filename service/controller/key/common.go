@@ -12,10 +12,9 @@ import (
 )
 
 const (
-	IRSAAppName     = "aws-pod-identity-webhook"
-	IRSAAppCatalog  = "default"
-	IRSAAppVersion  = "0.3.1"
-	V19AlphaRelease = "19.0.0-alpha1"
+	IRSAAppName    = "aws-pod-identity-webhook"
+	IRSAAppCatalog = "default"
+	IRSAAppVersion = "0.3.1"
 )
 
 func APISecretName(getter LabelsGetter) string {
@@ -37,17 +36,19 @@ func IsDeleted(getter DeletionTimestampGetter) bool {
 }
 
 func IRSAEnabled(awsCluster *v1alpha3.AWSCluster) bool {
+	if awsCluster == nil {
+		return false
+	}
 	if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
 		return true
 	}
 
-	releaseVersion, err := semver.New(ReleaseVersion(awsCluster))
+	releaseVersion, err := semver.ParseTolerant(ReleaseVersion(awsCluster))
 	if err != nil {
 		return false
 	}
 
-	v19, _ := semver.New(V19AlphaRelease)
-	return releaseVersion.Major >= v19.Major
+	return releaseVersion.Major >= 19
 }
 
 func KubeConfigClusterName(getter LabelsGetter) string {
