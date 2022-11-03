@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/blang/semver"
 	"github.com/ghodss/yaml"
 	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
@@ -313,7 +314,16 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-		if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+
+		var releaseVersion *semver.Version
+		{
+			releaseVersion, err = semver.New(key.ReleaseVersion(awsCluster))
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+		}
+
+		if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok || key.IsV19Release(releaseVersion) {
 			// add IRSA app to the list
 			version, err := getLatestVersion(ctx, r.ctrlClient, key.IRSAAppName, "default")
 			if err != nil {
