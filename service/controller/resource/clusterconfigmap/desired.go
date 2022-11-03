@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/blang/semver"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	k8smetadata "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/microerror"
@@ -74,7 +75,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				return nil, microerror.Mask(err)
 			}
 
-			if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok {
+			var releaseVersion *semver.Version
+			{
+				releaseVersion, err = semver.New(key.ReleaseVersion(awsCluster))
+				if err != nil {
+					return nil, microerror.Mask(err)
+				}
+			}
+
+			if _, ok := awsCluster.Annotations[k8smetadata.AWSIRSA]; ok || key.IsV19Release(releaseVersion) {
 				irsa = true
 			}
 

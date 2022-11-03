@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/blang/semver"
+
 	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
 
 const (
-	IRSAAppName    = "aws-pod-identity-webhook"
-	IRSAAppCatalog = "default"
-	IRSAAppVersion = "0.3.1"
+	IRSAAppName     = "aws-pod-identity-webhook"
+	IRSAAppCatalog  = "default"
+	IRSAAppVersion  = "0.3.1"
+	V19AlphaRelease = "19.0.0-alpha1"
 )
 
 func APISecretName(getter LabelsGetter) string {
@@ -29,6 +32,11 @@ func ClusterID(getter LabelsGetter) string {
 
 func IsDeleted(getter DeletionTimestampGetter) bool {
 	return getter.GetDeletionTimestamp() != nil
+}
+
+func IsV19Release(releaseVersion *semver.Version) bool {
+	v19, _ := semver.New(V19AlphaRelease)
+	return releaseVersion.Major >= v19.Major
 }
 
 func KubeConfigClusterName(getter LabelsGetter) string {
