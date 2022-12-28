@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -544,7 +544,7 @@ func (r *Resource) getCatalogIndex(ctx context.Context, catalogName string) ([]b
 		}
 		defer response.Body.Close()
 
-		body, err = ioutil.ReadAll(response.Body)
+		body, err = io.ReadAll(response.Body)
 		if err != nil {
 			return microerror.Mask(err)
 		}

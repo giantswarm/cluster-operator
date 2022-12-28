@@ -26,8 +26,8 @@ type Config struct {
 // following version labels in our infrastructure CRs, e.g. AWSCluster
 // AWSMachineDeployments.
 //
-//     $PROVIDER-operator.giantswarm.io/version
-//     release.giantswarm.io/version
+//	$PROVIDER-operator.giantswarm.io/version
+//	release.giantswarm.io/version
 //
 // The release version label is taken from the Cluster CR and propagated. The
 // provider operator version label is set with the value taken from the
