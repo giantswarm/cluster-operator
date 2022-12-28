@@ -58,7 +58,7 @@ type ClusterTransition struct {
 	provider                   string
 }
 
-//NewClusterTransition initiates cluster transition metrics
+// NewClusterTransition initiates cluster transition metrics
 func NewClusterTransition(config ClusterTransitionConfig) (*ClusterTransition, error) {
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
