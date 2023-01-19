@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add user-vaules configmap for 'k8s-dns-node-cache' app in order to make it work with cilium.
+
 ## [5.3.0] - 2022-11-03
 
 ### Changed

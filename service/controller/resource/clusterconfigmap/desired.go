@@ -8,12 +8,14 @@ import (
 
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v3/api/v1alpha1"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/cluster-operator/v5/pkg/annotation"
 	"github.com/giantswarm/cluster-operator/v5/pkg/label"
@@ -61,6 +63,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
+	var release releasev1alpha1.Release
+	{
+		err = r.ctrlClient.Get(ctx, client.ObjectKey{Name: key.ReleaseName(key.ReleaseVersion(&cr))}, &release)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	var irsa bool
 	var accountID string
 	var vpcID string
@@ -94,33 +104,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 
 			vpcID = awsCluster.Status.Provider.Network.VPCID
 		}
-	}
-
-	ciliumValues := map[string]interface{}{
-		"defaultPolicies": map[string]interface{}{
-			"enabled": true,
-		},
-		"ipam": map[string]interface{}{
-			"mode": "kubernetes",
-		},
-		"cni": map[string]interface{}{
-			"exclusive": false,
-		},
-		"extraEnv": []map[string]string{
-			{
-				"name":  "CNI_CONF_NAME",
-				"value": "21-cilium.conf",
-			},
-		},
-	}
-
-	if key.ForceDisableCiliumKubeProxyReplacement(cr) {
-		ciliumValues["kubeProxyReplacement"] = "disabled"
-	} else {
-		ciliumValues["kubeProxyReplacement"] = "strict"
-		ciliumValues["k8sServiceHost"] = key.APIEndpoint(&cr, bd)
-		ciliumValues["k8sServicePort"] = "443"
-		ciliumValues["cleanupKubeProxy"] = true
 	}
 
 	configMapSpecs := []configMapSpec{
@@ -166,11 +149,52 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				},
 			},
 		},
-		{
-			Name:      "cilium-user-values",
-			Namespace: key.ClusterID(&cr),
-			Values:    ciliumValues,
-		},
+	}
+
+	if key.HasCilium(release) {
+		ciliumValues := map[string]interface{}{
+			"defaultPolicies": map[string]interface{}{
+				"enabled": true,
+			},
+			"ipam": map[string]interface{}{
+				"mode": "kubernetes",
+			},
+			"cni": map[string]interface{}{
+				"exclusive": false,
+			},
+			"extraEnv": []map[string]string{
+				{
+					"name":  "CNI_CONF_NAME",
+					"value": "21-cilium.conf",
+				},
+			},
+		}
+
+		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+			ciliumValues["kubeProxyReplacement"] = "disabled"
+		} else {
+			ciliumValues["kubeProxyReplacement"] = "strict"
+			ciliumValues["k8sServiceHost"] = key.APIEndpoint(&cr, bd)
+			ciliumValues["k8sServicePort"] = "443"
+			ciliumValues["cleanupKubeProxy"] = true
+		}
+		configMapSpecs = append(configMapSpecs,
+			configMapSpec{
+				Name:      "cilium-user-values",
+				Namespace: key.ClusterID(&cr),
+				Values:    ciliumValues,
+			})
+
+		configMapSpecs = append(configMapSpecs,
+			configMapSpec{
+				Name:      "k8s-dns-node-cache-user-values",
+				Namespace: key.ClusterID(&cr),
+				Values: map[string]interface{}{
+					"enableCiliumLocalRedirectPolicy": true,
+					// enable iptables rules only if kube proxy replacement cilium settings is not 'strict'.
+					"enableIptablesRules": ciliumValues["kubeProxyReplacement"] != "strict",
+				},
+			})
 	}
 
 	var configMaps []*corev1.ConfigMap
