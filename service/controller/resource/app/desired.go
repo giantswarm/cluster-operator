@@ -104,7 +104,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 
 // filterDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
 func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) ([]key.AppSpec, error) {
+	appList := g8sv1alpha1.AppList{}
+	err := r.ctrlClient.List(ctx, &appList, ctrlClient.InNamespace(r.defaultConfig.Namespace))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 	installedApps := map[string]bool{}
+	for _, app := range appList.Items {
+		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
+	}
 
 	appDependencies := map[string][]string{
 		"vertical-pod-autoscaler": []string{"vertical-pod-autoscaler-crd"},
