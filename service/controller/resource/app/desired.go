@@ -62,6 +62,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
+	appSpecs, err = r.filterDependencies(ctx, appSpecs)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -95,6 +100,36 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	}
 
 	return apps, nil
+}
+
+// filterDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
+func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) ([]key.AppSpec, error) {
+	installedApps := map[string]bool{}
+
+	appDependencies := map[string][]string{
+		"vertical-pod-autoscaler": []string{"vertical-pod-autoscaler-crd"},
+	}
+
+	globalDependencies := []string{"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"}
+
+	filtered := make([]key.AppSpec, 0)
+OUTER:
+	for _, app := range apps {
+		deps := globalDependencies
+		deps = append(deps, appDependencies[app.AppName]...)
+
+		for _, dep := range deps {
+			installed, found := installedApps[dep]
+			if !found || !installed {
+				r.logger.Debugf(ctx, "App %q that is a dependency of app %q is not installed, therefore skipping installation of app %q", dep, app, app)
+				continue OUTER
+			}
+		}
+
+		filtered = append(filtered, app)
+	}
+
+	return filtered, nil
 }
 
 func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1beta1.Cluster) (map[string]corev1.ConfigMap, error) {
