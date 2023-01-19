@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add user-vaules configmap for 'k8s-dns-node-cache' app in order to make it work with cilium.
+- Add user-values configmap for 'k8s-dns-node-cache' app in order to make it work with cilium.
+
+### Changed
+
+- Only create user values for cilium if cluster release contains cilium. 
 
 ## [5.3.0] - 2022-11-03
 
