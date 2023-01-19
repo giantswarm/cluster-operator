@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Only create user values for cilium if cluster release contains cilium. 
+- Only create user values for cilium if cluster release contains cilium.
+- Enable 'LocalRedirectPolicy' in cilium app.
 
 ## [5.3.0] - 2022-11-03
 

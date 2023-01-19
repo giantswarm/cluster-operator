@@ -168,6 +168,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					"value": "21-cilium.conf",
 				},
 			},
+			"localRedirectPolicy": true,
 		}
 
 		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
