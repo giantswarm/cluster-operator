@@ -14,6 +14,7 @@ import (
 	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/backoff"
+	k8smetadataannotation "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -118,8 +119,6 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec, c
 		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
 	}
 
-	fmt.Println(installedApps)
-
 	appDependencies := map[string][]string{
 		"azure-cloud-controller-manager":           nil,
 		"azure-cloud-node-manager":                 nil,
@@ -146,6 +145,8 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec, c
 	for _, app := range apps {
 		deps := appDependencies[app.App]
 
+		app.WaitingDependency = false
+
 		if len(deps) == 0 {
 			r.logger.Debugf(ctx, "App %q has no dependencies", app.App)
 		} else {
@@ -161,9 +162,10 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec, c
 			}
 			if len(dependenciesNotInstalled) > 0 {
 				r.logger.Debugf(ctx, "Skipping app %q: dependencies not satisfied %v", app.App, dependenciesNotInstalled)
-				continue
+				app.WaitingDependency = true
+			} else {
+				r.logger.Debugf(ctx, "Dependencies of App %q are satisfied", app.App)
 			}
-			r.logger.Debugf(ctx, "Dependencies of App %q are satisfied", app.App)
 		}
 
 		appsReadyToBeInstalled = append(appsReadyToBeInstalled, app)
@@ -293,15 +295,21 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		appNamespace = key.ClusterID(&cr)
 	}
 
+	annotations := map[string]string{
+		annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
+	}
+
+	if appSpec.WaitingDependency {
+		annotations[k8smetadataannotation.AppOperatorPaused] = "true"
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
 			APIVersion: "application.giantswarm.io",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: map[string]string{
-				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
-			},
+			Annotations: annotations,
 			Labels: map[string]string{
 				label.AppKubernetesName:  appSpec.App,
 				label.AppOperatorVersion: desiredAppOperatorVersion,
