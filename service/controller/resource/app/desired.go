@@ -136,30 +136,34 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) (
 		"k8s-dns-node-cache":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
 	}
 
-	filtered := make([]key.AppSpec, 0)
-OUTER:
+	appsReadyToBeInstalled := make([]key.AppSpec, 0)
 	for _, app := range apps {
 		deps := appDependencies[app.App]
 
 		if len(deps) == 0 {
 			r.logger.Debugf(ctx, "App %q has no dependencies", app.App)
 		} else {
+			dependenciesNotInstalled := make([]string, 0)
 			for _, dep := range deps {
+				// Avoid self dependencies, just a safety net.
 				if dep != app.AppName {
 					installed, found := installedApps[dep]
 					if !found || !installed {
-						r.logger.Debugf(ctx, "App %q that is a dependency of app %q is not installed, therefore skipping installation of app %q", dep, app.App, app.App)
-						continue OUTER
+						dependenciesNotInstalled = append(dependenciesNotInstalled, dep)
 					}
 				}
+			}
+			if len(dependenciesNotInstalled) > 0 {
+				r.logger.Debugf(ctx, "Skipping app %q: dependencies not satisfied %v", app.App, dependenciesNotInstalled)
+				continue
 			}
 			r.logger.Debugf(ctx, "Dependencies of App %q are satisfied", app.App)
 		}
 
-		filtered = append(filtered, app)
+		appsReadyToBeInstalled = append(appsReadyToBeInstalled, app)
 	}
 
-	return filtered, nil
+	return appsReadyToBeInstalled, nil
 }
 
 func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1beta1.Cluster) (map[string]corev1.ConfigMap, error) {
