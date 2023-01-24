@@ -139,16 +139,21 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) (
 	filtered := make([]key.AppSpec, 0)
 OUTER:
 	for _, app := range apps {
-		deps := appDependencies[app.AppName]
+		deps := appDependencies[app.App]
 
-		for _, dep := range deps {
-			if dep != app.AppName {
-				installed, found := installedApps[dep]
-				if !found || !installed {
-					r.logger.Debugf(ctx, "App %q that is a dependency of app %q is not installed, therefore skipping installation of app %q", dep, app.AppName, app.AppName)
-					continue OUTER
+		if len(deps) == 0 {
+			r.logger.Debugf(ctx, "App %q has no dependencies", app.App)
+		} else {
+			for _, dep := range deps {
+				if dep != app.AppName {
+					installed, found := installedApps[dep]
+					if !found || !installed {
+						r.logger.Debugf(ctx, "App %q that is a dependency of app %q is not installed, therefore skipping installation of app %q", dep, app.App, app.App)
+						continue OUTER
+					}
 				}
 			}
+			r.logger.Debugf(ctx, "Dependencies of App %q are satisfied", app.App)
 		}
 
 		filtered = append(filtered, app)
