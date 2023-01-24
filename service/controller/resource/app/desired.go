@@ -105,6 +105,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 // filterDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
 func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) ([]key.AppSpec, error) {
 	appList := g8sv1alpha1.AppList{}
+	fmt.Printf("Namespace: %s\n", r.defaultConfig.Namespace)
 	err := r.ctrlClient.List(ctx, &appList, ctrlClient.InNamespace(r.defaultConfig.Namespace))
 	if err != nil {
 		return nil, microerror.Mask(err)
