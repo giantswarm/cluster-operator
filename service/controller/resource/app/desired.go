@@ -62,7 +62,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
-	appSpecs, err = r.filterDependencies(ctx, appSpecs)
+	appSpecs, err = r.filterDependencies(ctx, appSpecs, cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
@@ -103,10 +103,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 }
 
 // filterDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
-func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) ([]key.AppSpec, error) {
+func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec, cr apiv1beta1.Cluster) ([]key.AppSpec, error) {
+	if len(apps) == 0 {
+		return apps, nil
+	}
+
 	appList := g8sv1alpha1.AppList{}
-	fmt.Printf("Namespace: %s\n", r.defaultConfig.Namespace)
-	err := r.ctrlClient.List(ctx, &appList, ctrlClient.InNamespace(r.defaultConfig.Namespace))
+	err := r.ctrlClient.List(ctx, &appList, ctrlClient.InNamespace(cr.Name))
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}
