@@ -15,6 +15,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-cluster-operator-to-quay
           image: "quay.io/giantswarm/cluster-operator"
           username_envar: "QUAY_USERNAME"
@@ -26,6 +27,7 @@ workflows:
               only: /^v.*/
 
       - architect/push-to-docker:
+          context: architect
           name: push-cluster-operator-to-aliyun
           image: "registry-intl.cn-shanghai.aliyuncs.com/giantswarm/cluster-operator"
           username_envar: "ALIYUN_USERNAME"
