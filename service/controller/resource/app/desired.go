@@ -114,6 +114,8 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) (
 		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
 	}
 
+	fmt.Println(installedApps)
+
 	appDependencies := map[string][]string{
 		"azure-cloud-controller-manager":           nil,
 		"azure-cloud-node-manager":                 nil,
