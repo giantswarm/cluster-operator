@@ -115,22 +115,39 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec) (
 	}
 
 	appDependencies := map[string][]string{
-		"vertical-pod-autoscaler": []string{"vertical-pod-autoscaler-crd"},
+		"azure-cloud-controller-manager":           nil,
+		"azure-cloud-node-manager":                 nil,
+		"azuredisk-csi-driver":                     nil,
+		"azurefile-csi-driver":                     nil,
+		"cert-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"chart-operator":                           nil,
+		"coredns":                                  {"azure-cloud-controller-manager", "azure-cloud-node-manager"},
+		"etcd-kubernetes-resources-count-exporter": {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"external-dns":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"kube-state-metrics":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"metrics-server":                           {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"net-exporter":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"node-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"cluster-autoscaler":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"},
+		"azure-scheduled-events":                   nil,
+		"vertical-pod-autoscaler":                  {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
+		"vertical-pod-autoscaler-crd":              nil,
+		"observability-bundle":                     nil,
+		"k8s-dns-node-cache":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
 	}
-
-	globalDependencies := []string{"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"}
 
 	filtered := make([]key.AppSpec, 0)
 OUTER:
 	for _, app := range apps {
-		deps := globalDependencies
-		deps = append(deps, appDependencies[app.AppName]...)
+		deps := appDependencies[app.AppName]
 
 		for _, dep := range deps {
-			installed, found := installedApps[dep]
-			if !found || !installed {
-				r.logger.Debugf(ctx, "App %q that is a dependency of app %q is not installed, therefore skipping installation of app %q", dep, app, app)
-				continue OUTER
+			if dep != app.AppName {
+				installed, found := installedApps[dep]
+				if !found || !installed {
+					r.logger.Debugf(ctx, "App %q that is a dependency of app %q is not installed, therefore skipping installation of app %q", dep, app.AppName, app.AppName)
+					continue OUTER
+				}
 			}
 		}
 
