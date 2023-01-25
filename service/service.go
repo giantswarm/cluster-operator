@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"sync"
@@ -260,6 +261,11 @@ func New(config Config) (*Service, error) {
 		eventRecorder = recorder.New(c)
 	}
 
+	appDependencies, err := parseAppDependencies(config.Viper.GetString(config.Flag.Service.Release.App.Config.Dependencies))
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
 	var controllers []operatorkitController
 	{
 		{
@@ -275,6 +281,7 @@ func New(config Config) (*Service, error) {
 				ReleaseVersion: rv,
 
 				APIIP:                      apiIP,
+				AppDependencies:            appDependencies,
 				CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
 				ClusterIPRange:             clusterIPRange,
 				DNSIP:                      dnsIP,
@@ -430,4 +437,21 @@ func parseClusterIPRange(ipRange string) (net.IP, net.IP, error) {
 	apiServerIP := net.IPv4(networkIP[0], networkIP[1], networkIP[2], apiServerIPLastOctet)
 
 	return networkIP, apiServerIP, nil
+}
+
+func parseAppDependencies(depsJson string) (map[string][]string, error) {
+	if depsJson == "" {
+		return make(map[string][]string), nil
+	}
+
+	type depsDefinition map[string][]string
+
+	deps := depsDefinition{}
+
+	err := json.Unmarshal([]byte(depsJson), &deps)
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
+
+	return deps, nil
 }
