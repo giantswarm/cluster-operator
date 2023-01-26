@@ -26,7 +26,6 @@ type Config struct {
 	Provider             string
 	RawAppDefaultConfig  string
 	RawAppOverrideConfig string
-	AppDependencies      map[string][]string
 }
 
 // Resource provides shared functionality for managing chartconfigs.
@@ -40,7 +39,6 @@ type Resource struct {
 	kiamWatchDogEnabled bool
 	overrideConfig      overrideConfig
 	provider            string
-	appDependencies     map[string][]string
 }
 
 type defaultConfig struct {
@@ -104,7 +102,6 @@ func New(config Config) (*Resource, error) {
 		kiamWatchDogEnabled: config.KiamWatchDogEnabled,
 		overrideConfig:      overrideConfig,
 		provider:            config.Provider,
-		appDependencies:     config.AppDependencies,
 	}
 
 	return r, nil

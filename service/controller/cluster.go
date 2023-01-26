@@ -65,7 +65,6 @@ type ClusterConfig struct {
 	ReleaseVersion releaseversion.Interface
 
 	APIIP                      string
-	AppDependencies            map[string][]string
 	CertTTL                    string
 	ClusterIPRange             string
 	DNSIP                      string
@@ -168,7 +167,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			KiamWatchDogEnabled:  config.KiamWatchDogEnabled,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
 			RawAppOverrideConfig: config.RawAppOverrideConfig,
-			AppDependencies:      config.AppDependencies,
 		}
 
 		appGetter, err = app.New(c)

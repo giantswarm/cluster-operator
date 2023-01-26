@@ -14,7 +14,6 @@ import (
 	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/backoff"
-	k8smetadataannotation "github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
@@ -63,11 +62,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 		return nil, microerror.Mask(err)
 	}
 
-	appSpecs, err = r.filterDependencies(ctx, appSpecs, cr)
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-
 	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
@@ -103,22 +97,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	return apps, nil
 }
 
-// filterDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
-func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec, cr apiv1beta1.Cluster) ([]key.AppSpec, error) {
-	if len(apps) == 0 {
-		return apps, nil
-	}
-
-	appList := g8sv1alpha1.AppList{}
-	err := r.ctrlClient.List(ctx, &appList, ctrlClient.InNamespace(cr.Name))
-	if err != nil {
-		return nil, microerror.Mask(err)
-	}
-	installedApps := map[string]bool{}
-	for _, app := range appList.Items {
-		installedApps[app.Name] = app.Status.Release.Status == "deployed" && app.Status.Version == app.Spec.Version
-	}
-
+// getDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
+func (r *Resource) getDependencies(app key.AppSpec) []string {
 	appDependencies := map[string][]string{
 		"azure-cloud-controller-manager":           nil,
 		"azure-cloud-node-manager":                 nil,
@@ -137,41 +117,11 @@ func (r *Resource) filterDependencies(ctx context.Context, apps []key.AppSpec, c
 		"azure-scheduled-events":                   nil,
 		"vertical-pod-autoscaler":                  {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
 		"vertical-pod-autoscaler-crd":              nil,
-		"observability-bundle":                     nil,
+		"observability-bundle":                     {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
 		"k8s-dns-node-cache":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
 	}
 
-	appsReadyToBeInstalled := make([]key.AppSpec, 0)
-	for _, app := range apps {
-		deps := appDependencies[app.App]
-
-		app.WaitingDependency = false
-
-		if len(deps) == 0 {
-			r.logger.Debugf(ctx, "App %q has no dependencies", app.App)
-		} else {
-			dependenciesNotInstalled := make([]string, 0)
-			for _, dep := range deps {
-				// Avoid self dependencies, just a safety net.
-				if dep != app.AppName {
-					installed, found := installedApps[dep]
-					if !found || !installed {
-						dependenciesNotInstalled = append(dependenciesNotInstalled, dep)
-					}
-				}
-			}
-			if len(dependenciesNotInstalled) > 0 {
-				r.logger.Debugf(ctx, "Skipping app %q: dependencies not satisfied %v", app.App, dependenciesNotInstalled)
-				app.WaitingDependency = true
-			} else {
-				r.logger.Debugf(ctx, "Dependencies of App %q are satisfied", app.App)
-			}
-		}
-
-		appsReadyToBeInstalled = append(appsReadyToBeInstalled, app)
-	}
-
-	return appsReadyToBeInstalled, nil
+	return appDependencies[app.App]
 }
 
 func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1beta1.Cluster) (map[string]corev1.ConfigMap, error) {
@@ -299,8 +249,9 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
 	}
 
-	if appSpec.WaitingDependency {
-		annotations[k8smetadataannotation.AppOperatorPaused] = "true"
+	deps := r.getDependencies(appSpec)
+	if len(deps) > 0 {
+		annotations["chart-operator.giantswarm.io/depends-on"] = strings.Join(deps, ",")
 	}
 
 	return &g8sv1alpha1.App{

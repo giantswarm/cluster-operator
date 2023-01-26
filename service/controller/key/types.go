@@ -15,9 +15,8 @@ type AppSpec struct {
 	// cluster kubeconfig is specified.
 	InCluster bool
 	// Whether app is installed for legacy clusters only.
-	LegacyOnly        bool
-	Namespace         string
-	UseUpgradeForce   bool
-	Version           string
-	WaitingDependency bool
+	LegacyOnly      bool
+	Namespace       string
+	UseUpgradeForce bool
+	Version         string
 }

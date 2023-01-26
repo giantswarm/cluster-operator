@@ -47,25 +47,3 @@ data:
             default: {{ toYaml .Values.release.app.config.default | indent 12 }}
             kiamWatchdogEnabled: {{ .Values.kiamWatchdogEnabled | quote }}
             override: {{ toYaml .Values.release.app.config.override | indent 12 }}
-            dependencies: |-
-              {
-                "azure-cloud-controller-manager": [],
-                "azure-cloud-node-manager": [],
-                "azuredisk-csi-driver": [],
-                "azurefile-csi-driver": [],
-                "cert-exporter": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "chart-operator": [],
-                "coredns": ["azure-cloud-controller-manager", "azure-cloud-node-manager"],
-                "etcd-kubernetes-resources-count-exporter": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "external-dns": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "kube-state-metrics": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "metrics-server": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "net-exporter": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "node-exporter": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "cluster-autoscaler": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler"],
-                "azure-scheduled-events": [],
-                "vertical-pod-autoscaler": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"],
-                "vertical-pod-autoscaler-crd": [],
-                "observability-bundle": [],
-                "k8s-dns-node-cache": ["azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"]
-              }
