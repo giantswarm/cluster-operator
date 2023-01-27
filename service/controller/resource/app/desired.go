@@ -251,7 +251,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 
 	deps := r.getDependencies(appSpec)
 	if len(deps) > 0 {
-		annotations["chart-operator.giantswarm.io/depends-on"] = strings.Join(deps, ",")
+		annotations["app-operator.giantswarm.io/depends-on"] = strings.Join(deps, ",")
 	}
 
 	return &g8sv1alpha1.App{
