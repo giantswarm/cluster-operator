@@ -61,38 +61,72 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
-	var irsa bool
-	var accountID string
-	var vpcID string
-	{
-		if r.provider == "aws" {
+	values := map[string]interface{}{
+		"baseDomain": key.TenantEndpoint(&cr, bd),
+		"bootstrapMode": map[string]interface{}{
+			"enabled": true,
+		},
+		"cluster": map[string]interface{}{
+			"calico": map[string]interface{}{
+				"CIDR": podCIDR,
+			},
+			"kubernetes": map[string]interface{}{
+				"API": map[string]interface{}{
+					"clusterIPRange": r.clusterIPRange,
+				},
+				"DNS": map[string]interface{}{
+					"IP": r.dnsIP,
+				},
+			},
+		},
+		"clusterCA":    clusterCA,
+		"clusterDNSIP": r.dnsIP,
+		"clusterID":    key.ClusterID(&cr),
+	}
 
-			awsCluster := &v1alpha3.AWSCluster{}
-			err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
-			if err != nil {
-				return nil, microerror.Mask(err)
-			}
+	if r.provider == "aws" {
+		var irsa bool
+		var accountID string
+		var vpcID string
 
-			if key.IRSAEnabled(awsCluster) {
-				irsa = true
-			}
+		awsCluster := &v1alpha3.AWSCluster{}
+		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
 
-			secret, err := r.k8sClient.CoreV1().Secrets(awsCluster.Spec.Provider.CredentialSecret.Namespace).Get(ctx, awsCluster.Spec.Provider.CredentialSecret.Name, metav1.GetOptions{})
-			if apierrors.IsNotFound(err) {
-				r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set accountID", cr.Namespace, key.APISecretName(&cr))
-				return nil, nil
-			} else if err != nil {
-				return nil, microerror.Mask(err)
-			}
-			arn := string(secret.Data["aws.awsoperator.arn"])
-			if arn == "" {
-				return nil, microerror.Mask(fmt.Errorf("Unable to find ARN from secret %s/%s", secret.Namespace, secret.Name))
-			}
+		if key.IRSAEnabled(awsCluster) {
+			irsa = true
+		}
 
-			re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
-			accountID = re.FindAllString(arn, 1)[0]
+		secret, err := r.k8sClient.CoreV1().Secrets(awsCluster.Spec.Provider.CredentialSecret.Namespace).Get(ctx, awsCluster.Spec.Provider.CredentialSecret.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set accountID", cr.Namespace, key.APISecretName(&cr))
+			return nil, nil
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		arn := string(secret.Data["aws.awsoperator.arn"])
+		if arn == "" {
+			return nil, microerror.Mask(fmt.Errorf("Unable to find ARN from secret %s/%s", secret.Namespace, secret.Name))
+		}
 
-			vpcID = awsCluster.Status.Provider.Network.VPCID
+		re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
+		accountID = re.FindAllString(arn, 1)[0]
+
+		vpcID = awsCluster.Status.Provider.Network.VPCID
+
+		values["aws"] = map[string]interface{}{
+			"accountID": accountID,
+			"irsa":      strconv.FormatBool(irsa),
+			"vpcID":     vpcID,
+		}
+
+		// Needed by aws-lb-controller app
+		values["awsLoadBalancerController"] = map[string]interface{}{
+			"vpcId":   vpcID,
+			"region":  awsCluster.Spec.Provider.Region,
+			"iamRole": fmt.Sprintf("gs-%s-ALBController-Role", key.ClusterID(awsCluster)),
 		}
 	}
 
@@ -127,33 +161,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		{
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
-			Values: map[string]interface{}{
-				"aws": map[string]interface{}{
-					"accountID": accountID,
-					"irsa":      strconv.FormatBool(irsa),
-					"vpcID":     vpcID,
-				},
-				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"bootstrapMode": map[string]interface{}{
-					"enabled": true,
-				},
-				"cluster": map[string]interface{}{
-					"calico": map[string]interface{}{
-						"CIDR": podCIDR,
-					},
-					"kubernetes": map[string]interface{}{
-						"API": map[string]interface{}{
-							"clusterIPRange": r.clusterIPRange,
-						},
-						"DNS": map[string]interface{}{
-							"IP": r.dnsIP,
-						},
-					},
-				},
-				"clusterCA":    clusterCA,
-				"clusterDNSIP": r.dnsIP,
-				"clusterID":    key.ClusterID(&cr),
-			},
+			Values:    values,
 		},
 		{
 			Name:      "ingress-controller-values",
