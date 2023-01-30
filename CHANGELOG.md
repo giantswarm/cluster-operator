@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add configmap fields for the `aws-lb-controller` app.
+- Add `aws.region` field in the cluster configmap.
+
+### Changed
+
+- Make the `aws` related fields only present on aws clusters' cluster configmap.
 
 ## [5.3.0] - 2022-11-03
 

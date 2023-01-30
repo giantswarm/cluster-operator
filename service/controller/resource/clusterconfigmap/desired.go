@@ -119,14 +119,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		values["aws"] = map[string]interface{}{
 			"accountID": accountID,
 			"irsa":      strconv.FormatBool(irsa),
+			"region":    awsCluster.Spec.Provider.Region,
 			"vpcID":     vpcID,
-		}
-
-		// Needed by aws-lb-controller app
-		values["awsLoadBalancerController"] = map[string]interface{}{
-			"vpcId":   vpcID,
-			"region":  awsCluster.Spec.Provider.Region,
-			"iamRole": fmt.Sprintf("gs-%s-ALBController-Role", key.ClusterID(awsCluster)),
 		}
 	}
 
