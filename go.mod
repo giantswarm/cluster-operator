@@ -46,12 +46,10 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
 	github.com/giantswarm/app/v6 v6.13.0 // indirect
-	github.com/giantswarm/config-controller v0.6.0 // indirect
 	github.com/giantswarm/k8sclient/v5 v5.11.0 // indirect
-	github.com/giantswarm/k8sclient/v6 v6.1.0 // indirect
-	github.com/giantswarm/operatorkit/v6 v6.1.0 // indirect
 	github.com/giantswarm/to v0.4.0 // indirect
 	github.com/giantswarm/versionbundle v1.0.0 // indirect
+	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
