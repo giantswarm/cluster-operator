@@ -97,33 +97,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*g8s
 	return apps, nil
 }
 
-// getDependencies removes from the list of desired apps the apps that have a dependency that is not currently installed.
-func (r *Resource) getDependencies(app key.AppSpec) []string {
-	appDependencies := map[string][]string{
-		"azure-cloud-controller-manager":           nil,
-		"azure-cloud-node-manager":                 nil,
-		"azuredisk-csi-driver":                     nil,
-		"azurefile-csi-driver":                     nil,
-		"cert-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"chart-operator":                           nil,
-		"coredns":                                  {"azure-cloud-controller-manager", "azure-cloud-node-manager"},
-		"etcd-kubernetes-resources-count-exporter": {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"external-dns":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"kube-state-metrics":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"metrics-server":                           {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"net-exporter":                             {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"node-exporter":                            {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"cluster-autoscaler":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"azure-scheduled-events":                   nil,
-		"vertical-pod-autoscaler":                  {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns", "vertical-pod-autoscaler-crd"},
-		"vertical-pod-autoscaler-crd":              nil,
-		"observability-bundle":                     {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
-		"k8s-dns-node-cache":                       {"azure-cloud-controller-manager", "azure-cloud-node-manager", "coredns"},
-	}
-
-	return appDependencies[app.App]
-}
-
 func (r *Resource) getConfigMaps(ctx context.Context, cr apiv1beta1.Cluster) (map[string]corev1.ConfigMap, error) {
 	configMaps := map[string]corev1.ConfigMap{}
 
@@ -249,9 +222,8 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
 	}
 
-	deps := r.getDependencies(appSpec)
-	if len(deps) > 0 {
-		annotations["app-operator.giantswarm.io/depends-on"] = strings.Join(deps, ",")
+	if len(appSpec.DependsOn) > 0 {
+		annotations["app-operator.giantswarm.io/depends-on"] = strings.Join(appSpec.DependsOn, ",")
 	}
 
 	return &g8sv1alpha1.App{
@@ -385,6 +357,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 			App:             appName,
 			Catalog:         catalog,
 			Chart:           chart,
+			DependsOn:       app.DependsOn,
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
 			Version:         app.Version,

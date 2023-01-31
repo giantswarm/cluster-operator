@@ -51,8 +51,9 @@ func (rv *ReleaseVersion) Apps(ctx context.Context, obj interface{}) (map[string
 	apps := make(map[string]ReleaseApp, len(release.Spec.Apps))
 	for _, v := range release.Spec.Apps {
 		apps[v.Name] = ReleaseApp{
-			Catalog: v.Catalog,
-			Version: v.Version,
+			Catalog:   v.Catalog,
+			Version:   v.Version,
+			DependsOn: v.DependsOn,
 		}
 	}
 	return apps, nil
