@@ -2,6 +2,7 @@ package releaseversion
 
 import (
 	"context"
+	"reflect"
 	"strconv"
 	"testing"
 
@@ -110,11 +111,11 @@ func Test_Release_Cache(t *testing.T) {
 				t.Fatalf("expected %#q to be equal to %#q", release1[tc.appName], tc.expectAppVersion)
 			}
 			if tc.expectCaching {
-				if release1[tc.appName] != release2[tc.appName] {
+				if !reflect.DeepEqual(release1[tc.appName], release2[tc.appName]) {
 					t.Fatalf("expected %#q to be equal to %#q", release1[tc.appName], release2[tc.appName])
 				}
 			} else {
-				if release1[tc.appName] == release2[tc.appName] {
+				if reflect.DeepEqual(release1[tc.appName], release2[tc.appName]) {
 					t.Fatalf("expected %#q to differ from %#q", release1[tc.appName], release1[tc.appName])
 				}
 			}
