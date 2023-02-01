@@ -19,7 +19,7 @@ require (
 	github.com/giantswarm/microkit v1.0.0
 	github.com/giantswarm/micrologger v1.0.0
 	github.com/giantswarm/operatorkit/v7 v7.1.0
-	github.com/giantswarm/release-operator/v3 v3.2.1-0.20230131144226-0b32ed20285a
+	github.com/giantswarm/release-operator/v4 v4.0.0
 	github.com/giantswarm/resource/v5 v5.1.0
 	github.com/giantswarm/tenantcluster/v4 v4.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
