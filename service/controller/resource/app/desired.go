@@ -218,15 +218,21 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		appNamespace = key.ClusterID(&cr)
 	}
 
+	annotations := map[string]string{
+		annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
+	}
+
+	if len(appSpec.DependsOn) > 0 {
+		annotations["app-operator.giantswarm.io/depends-on"] = strings.Join(appSpec.DependsOn, ",")
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
 			APIVersion: "application.giantswarm.io",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: map[string]string{
-				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
-			},
+			Annotations: annotations,
 			Labels: map[string]string{
 				label.AppKubernetesName:  appSpec.App,
 				label.AppOperatorVersion: desiredAppOperatorVersion,
@@ -351,6 +357,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 			App:             appName,
 			Catalog:         catalog,
 			Chart:           chart,
+			DependsOn:       app.DependsOn,
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
 			Version:         app.Version,
