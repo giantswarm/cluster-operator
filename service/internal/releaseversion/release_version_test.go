@@ -2,12 +2,13 @@ package releaseversion
 
 import (
 	"context"
+	"reflect"
 	"strconv"
 	"testing"
 
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
-	releasev1alpha1 "github.com/giantswarm/release-operator/v3/api/v1alpha1"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 
 	"github.com/giantswarm/cluster-operator/v5/service/internal/unittest"
 )
@@ -110,11 +111,11 @@ func Test_Release_Cache(t *testing.T) {
 				t.Fatalf("expected %#q to be equal to %#q", release1[tc.appName], tc.expectAppVersion)
 			}
 			if tc.expectCaching {
-				if release1[tc.appName] != release2[tc.appName] {
+				if !reflect.DeepEqual(release1[tc.appName], release2[tc.appName]) {
 					t.Fatalf("expected %#q to be equal to %#q", release1[tc.appName], release2[tc.appName])
 				}
 			} else {
-				if release1[tc.appName] == release2[tc.appName] {
+				if reflect.DeepEqual(release1[tc.appName], release2[tc.appName]) {
 					t.Fatalf("expected %#q to differ from %#q", release1[tc.appName], release1[tc.appName])
 				}
 			}
