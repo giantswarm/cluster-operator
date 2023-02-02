@@ -418,12 +418,26 @@ func newAppOperatorAppSpec(cr apiv1beta1.Cluster, component releaseversion.Relea
 }
 
 func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
-	userConfig := g8sv1alpha1.AppSpecUserConfig{}
+	// User config naming is different for bundle apps.
 
-	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]
+	configMapName := key.AppUserConfigMapName(appSpec)
+	{
+		var appName string
+		if appSpec.AppName != "" {
+			appName = appSpec.AppName
+		} else {
+			appName = appSpec.App
+		}
+		if key.IsBundle(appName) {
+			configMapName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), configMapName)
+		}
+	}
+
+	userConfig := g8sv1alpha1.AppSpecUserConfig{}
+	_, ok := configMaps[configMapName]
 	if ok {
 		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
-			Name:      key.AppUserConfigMapName(appSpec),
+			Name:      configMapName,
 			Namespace: key.ClusterID(&cr),
 		}
 
