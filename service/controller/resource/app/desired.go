@@ -218,15 +218,21 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		appNamespace = key.ClusterID(&cr)
 	}
 
+	annotations := map[string]string{
+		annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
+	}
+
+	if len(appSpec.DependsOn) > 0 {
+		annotations["app-operator.giantswarm.io/depends-on"] = strings.Join(appSpec.DependsOn, ",")
+	}
+
 	return &g8sv1alpha1.App{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "App",
 			APIVersion: "application.giantswarm.io",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: map[string]string{
-				annotation.ForceHelmUpgrade: strconv.FormatBool(appSpec.UseUpgradeForce),
-			},
+			Annotations: annotations,
 			Labels: map[string]string{
 				label.AppKubernetesName:  appSpec.App,
 				label.AppOperatorVersion: desiredAppOperatorVersion,
@@ -351,6 +357,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 			App:             appName,
 			Catalog:         catalog,
 			Chart:           chart,
+			DependsOn:       app.DependsOn,
 			Namespace:       r.defaultConfig.Namespace,
 			UseUpgradeForce: r.defaultConfig.UseUpgradeForce,
 			Version:         app.Version,
@@ -411,12 +418,26 @@ func newAppOperatorAppSpec(cr apiv1beta1.Cluster, component releaseversion.Relea
 }
 
 func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
-	userConfig := g8sv1alpha1.AppSpecUserConfig{}
+	// User config naming is different for bundle apps.
 
-	_, ok := configMaps[key.AppUserConfigMapName(appSpec)]
+	configMapName := key.AppUserConfigMapName(appSpec)
+	{
+		var appName string
+		if appSpec.AppName != "" {
+			appName = appSpec.AppName
+		} else {
+			appName = appSpec.App
+		}
+		if key.IsBundle(appName) {
+			configMapName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), configMapName)
+		}
+	}
+
+	userConfig := g8sv1alpha1.AppSpecUserConfig{}
+	_, ok := configMaps[configMapName]
 	if ok {
 		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
-			Name:      key.AppUserConfigMapName(appSpec),
+			Name:      configMapName,
 			Namespace: key.ClusterID(&cr),
 		}
 

@@ -11,6 +11,8 @@ type AppSpec struct {
 	// ConfigMapName overrides the name, otherwise the cluster values configmap
 	// is used.
 	ConfigMapName string
+	// DependsOn list of dependencies of this app.
+	DependsOn []string
 	// InCluster determines if the app CR should use in cluster. Otherwise the
 	// cluster kubeconfig is specified.
 	InCluster bool
