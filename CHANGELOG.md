@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.5.0] - 2023-02-02
+
 ### Fixed
 
 - Fix user config CM mapping for bundle apps.
@@ -413,7 +415,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.4.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.5.0...HEAD
+[5.5.0]: https://github.com/giantswarm/cluster-operator/compare/v5.4.0...v5.5.0
 [5.4.0]: https://github.com/giantswarm/cluster-operator/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/giantswarm/cluster-operator/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/giantswarm/cluster-operator/compare/v5.1.0...v5.2.0
