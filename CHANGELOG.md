@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix user config CM mapping for bundle apps.
 
+### Added
+
+- Read app dependencies from Release CR to avoid deadlock installing apps in new clusters.
+
 ## [5.4.0] - 2023-01-30
 
 ### Added
