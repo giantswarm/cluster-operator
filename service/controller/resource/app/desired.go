@@ -215,7 +215,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 	if key.IsBundle(appName) {
 		appName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), appName)
 		desiredAppOperatorVersion = key.UniqueOperatorVersion
-		appNamespace = key.ClusterID(&cr)
+		appNamespace = "giantswarm"
 	}
 
 	annotations := map[string]string{
@@ -242,7 +242,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 				pkglabel.ServiceType:     pkglabel.ServiceTypeManaged,
 			},
 			Name:      appName,
-			Namespace: key.ClusterID(&cr),
+			Namespace: appNamespace,
 		},
 		Spec: g8sv1alpha1.AppSpec{
 			Catalog:      appSpec.Catalog,

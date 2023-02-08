@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Deploy bundle apps to the `giantswarm` namespace to ensure the chart CR of the bundle is deleted when a cluster is deleted.
+
 ## [5.5.0] - 2023-02-02
 
 ### Fixed
