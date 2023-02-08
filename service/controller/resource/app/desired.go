@@ -416,13 +416,6 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 
 	userConfigNamespace := key.ClusterID(&cr)
 	configMapName := key.AppUserConfigMapName(appSpec)
-	{
-		if key.IsBundle(appSpec.GetAppName()) {
-			configMapName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), configMapName)
-			userConfigNamespace = "giantswarm"
-		}
-	}
-
 	userConfig := g8sv1alpha1.AppSpecUserConfig{}
 	_, ok := configMaps[configMapName]
 	if ok {
