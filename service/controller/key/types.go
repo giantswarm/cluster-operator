@@ -22,3 +22,10 @@ type AppSpec struct {
 	UseUpgradeForce bool
 	Version         string
 }
+
+func (a AppSpec) GetAppName() string {
+	if a.AppName != "" {
+		return a.AppName
+	}
+	return a.App
+}

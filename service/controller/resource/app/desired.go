@@ -169,13 +169,7 @@ func (r *Resource) newApp(appOperatorVersion string, cr apiv1beta1.Cluster, appS
 		configMapName = appSpec.ConfigMapName
 	}
 
-	var appName string
-
-	if appSpec.AppName != "" {
-		appName = appSpec.AppName
-	} else {
-		appName = appSpec.App
-	}
+	var appName string = appSpec.GetAppName()
 
 	var config g8sv1alpha1.AppSpecConfig
 
@@ -420,16 +414,12 @@ func newAppOperatorAppSpec(cr apiv1beta1.Cluster, component releaseversion.Relea
 func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[string]corev1.ConfigMap, secrets map[string]corev1.Secret) g8sv1alpha1.AppSpecUserConfig {
 	// User config naming is different for bundle apps.
 
+	userConfigNamespace := key.ClusterID(&cr)
 	configMapName := key.AppUserConfigMapName(appSpec)
 	{
-		var appName string
-		if appSpec.AppName != "" {
-			appName = appSpec.AppName
-		} else {
-			appName = appSpec.App
-		}
-		if key.IsBundle(appName) {
+		if key.IsBundle(appSpec.GetAppName()) {
 			configMapName = fmt.Sprintf("%s-%s", key.ClusterID(&cr), configMapName)
+			userConfigNamespace = "giantswarm"
 		}
 	}
 
@@ -438,7 +428,7 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 	if ok {
 		configMapSpec := g8sv1alpha1.AppSpecUserConfigConfigMap{
 			Name:      configMapName,
-			Namespace: key.ClusterID(&cr),
+			Namespace: userConfigNamespace,
 		}
 
 		userConfig.ConfigMap = configMapSpec
@@ -448,7 +438,7 @@ func newUserConfig(cr apiv1beta1.Cluster, appSpec key.AppSpec, configMaps map[st
 	if ok {
 		secretSpec := g8sv1alpha1.AppSpecUserConfigSecret{
 			Name:      key.AppUserSecretName(appSpec),
-			Namespace: key.ClusterID(&cr),
+			Namespace: userConfigNamespace,
 		}
 
 		userConfig.Secret = secretSpec
