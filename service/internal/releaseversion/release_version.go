@@ -5,7 +5,7 @@ import (
 
 	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
-	releasev1alpha1 "github.com/giantswarm/release-operator/v3/api/v1alpha1"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -51,8 +51,9 @@ func (rv *ReleaseVersion) Apps(ctx context.Context, obj interface{}) (map[string
 	apps := make(map[string]ReleaseApp, len(release.Spec.Apps))
 	for _, v := range release.Spec.Apps {
 		apps[v.Name] = ReleaseApp{
-			Catalog: v.Catalog,
-			Version: v.Version,
+			Catalog:   v.Catalog,
+			Version:   v.Version,
+			DependsOn: v.DependsOn,
 		}
 	}
 	return apps, nil
