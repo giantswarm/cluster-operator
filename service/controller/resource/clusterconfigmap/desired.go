@@ -82,6 +82,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"clusterCA":    clusterCA,
 		"clusterDNSIP": r.dnsIP,
 		"clusterID":    key.ClusterID(&cr),
+		"ciliumNetworkPolicy": map[string]interface{}{
+			"enabled": true,
+		},
 	}
 
 	if r.provider == "aws" {
