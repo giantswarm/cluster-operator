@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add use of runtime/default seccomp profile.
+
+### Fixed
+
+- Don't remove finalizer for in-cluster apps when cluster is being deleted.
+
 ## [5.5.0] - 2023-02-02
 
 ### Fixed
@@ -37,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR. 
+- Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR.
 
 ## [5.1.0] - 2022-10-01
 
