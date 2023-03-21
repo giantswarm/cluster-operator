@@ -24,7 +24,7 @@ require (
 	github.com/giantswarm/tenantcluster/v4 v4.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.14.0
-	github.com/spf13/afero v1.9.3
+	github.com/spf13/afero v1.9.5
 	github.com/spf13/viper v1.15.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.24.3
@@ -123,6 +123,6 @@ replace (
 	github.com/labstack/echo/v4 v4.5.0 => github.com/labstack/echo/v4 v4.9.0
 	github.com/microcosm-cc/bluemonday v1.0.2 => github.com/microcosm-cc/bluemonday v1.0.19
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.9.5
-	golang.org/x/text => golang.org/x/text v0.6.0
+	golang.org/x/text => golang.org/x/text v0.8.0
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.5
 )
