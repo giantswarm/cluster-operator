@@ -325,7 +325,7 @@ func (r *Resource) newAppSpecs(ctx context.Context, cr apiv1beta1.Cluster) ([]ke
 			if err != nil {
 				return nil, microerror.Mask(err)
 			}
-			apps[key.IRSAAppName] = releaseversion.ReleaseApp{Catalog: key.IRSAAppCatalog, Version: version}
+			apps[key.IRSAAppName] = releaseversion.ReleaseApp{Catalog: key.IRSAAppCatalog, Version: version, DependsOn: []string{"cert-manager"}}
 			r.logger.Debugf(ctx, "installing IRSA app")
 		} else {
 			r.logger.Debugf(ctx, "missing annotation for IRSA feature, not installing app")
