@@ -1,8 +1,8 @@
 package clusterid
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
@@ -15,14 +15,16 @@ type Config struct {
 	K8sClient k8sclient.Interface
 	Logger    micrologger.Logger
 
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
+	Provider                   string
 }
 
 type Resource struct {
 	k8sClient k8sclient.Interface
 	logger    micrologger.Logger
 
-	newCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	newCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
+	provider                   string
 }
 
 func New(config Config) (*Resource, error) {
@@ -36,12 +38,16 @@ func New(config Config) (*Resource, error) {
 	if config.NewCommonClusterObjectFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.NewCommonClusterObjectFunc must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	r := &Resource{
 		k8sClient: config.K8sClient,
 		logger:    config.Logger,
 
 		newCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+		provider:                   config.Provider,
 	}
 
 	return r, nil

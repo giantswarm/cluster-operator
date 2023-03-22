@@ -4,15 +4,15 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/unittest"
 )
 
 func TestCollectClusterTransition(t *testing.T) {
 	testCases := []struct {
 		name   string
-		status infrastructurev1alpha2.CommonClusterStatus
+		status infrastructurev1alpha3.CommonClusterStatus
 
 		expectCreated int
 		expectUpdated int
@@ -20,8 +20,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is creating
 		{
 			name: "case 0",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(20),
 				},
 			},
@@ -32,8 +32,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is created
 		{
 			name: "case 1",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatedCondition(0),
 					unittest.GetCreatingCondition(30),
 				},
@@ -45,8 +45,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is updating
 		{
 			name: "case 2",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
@@ -59,8 +59,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is updated
 		{
 			name: "case 3",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
@@ -74,8 +74,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is updating for the second time
 		{
 			name: "case 4",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(10),
 					unittest.GetUpdatedCondition(20),
 					unittest.GetUpdatingCondition(40),
@@ -89,8 +89,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is updated for the second time
 		{
 			name: "case 5",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(5),
 					unittest.GetUpdatingCondition(10),
 					unittest.GetUpdatedCondition(20),
@@ -106,8 +106,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// stuck creating
 		{
 			name: "case 6",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
 			},
@@ -118,8 +118,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// stuck updating
 		{
 			name: "case 7",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(200),
 					unittest.GetCreatedCondition(300),
 					unittest.GetCreatingCondition(330),
@@ -132,8 +132,8 @@ func TestCollectClusterTransition(t *testing.T) {
 		// the cluster is stuck updating for the second timne
 		{
 			name: "case 8",
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(180),
 					unittest.GetUpdatedCondition(200),
 					unittest.GetUpdatingCondition(220),

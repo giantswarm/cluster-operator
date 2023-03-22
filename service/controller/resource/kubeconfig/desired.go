@@ -3,16 +3,16 @@ package kubeconfig
 import (
 	"context"
 
-	"github.com/giantswarm/kubeconfig/v2"
+	"github.com/giantswarm/kubeconfig/v4"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.Secret, error) {
@@ -56,7 +56,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				},
 			},
 			Data: map[string][]byte{
+				// used by legacy Giant Swarm operators
 				"kubeConfig": b,
+				// used by Flux; de-facto industry standard
+				"value": b,
 			},
 		}
 	}

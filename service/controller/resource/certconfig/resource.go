@@ -1,15 +1,15 @@
 package certconfig
 
 import (
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/clientset/versioned"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/hamaster"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 // Config represents the configuration used to create a new cloud config resource.
 type Config struct {
 	BaseDomain     basedomain.Interface
-	G8sClient      versioned.Interface
+	CtrlClient     ctrlClient.Client
 	HAMaster       hamaster.Interface
 	Logger         micrologger.Logger
 	ReleaseVersion releaseversion.Interface
@@ -41,7 +41,7 @@ type Config struct {
 // Resource implements the cloud config resource.
 type Resource struct {
 	baseDomain     basedomain.Interface
-	g8sClient      versioned.Interface
+	ctrlClient     ctrlClient.Client
 	haMaster       hamaster.Interface
 	logger         micrologger.Logger
 	releaseVersion releaseversion.Interface
@@ -57,8 +57,8 @@ func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
 	}
-	if config.G8sClient == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.G8sClient must not be empty", config)
+	if config.CtrlClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.HAMaster == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.HAMaster must not be empty", config)
@@ -85,7 +85,7 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		baseDomain:     config.BaseDomain,
-		g8sClient:      config.G8sClient,
+		ctrlClient:     config.CtrlClient,
 		haMaster:       config.HAMaster,
 		logger:         config.Logger,
 		releaseVersion: config.ReleaseVersion,

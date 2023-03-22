@@ -3,18 +3,18 @@ package unittest
 import (
 	"time"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
 
 const (
 	DefaultClusterID = "8y5ck"
 )
 
-func DefaultCluster() infrastructurev1alpha2.AWSCluster {
-	cr := infrastructurev1alpha2.AWSCluster{
+func DefaultCluster() infrastructurev1alpha3.AWSCluster {
+	cr := infrastructurev1alpha3.AWSCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Labels: map[string]string{
 				label.Cluster:         DefaultClusterID,
@@ -24,28 +24,28 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 			Name:      DefaultClusterID,
 			Namespace: metav1.NamespaceDefault,
 		},
-		Spec: infrastructurev1alpha2.AWSClusterSpec{
-			Cluster: infrastructurev1alpha2.AWSClusterSpecCluster{
+		Spec: infrastructurev1alpha3.AWSClusterSpec{
+			Cluster: infrastructurev1alpha3.AWSClusterSpecCluster{
 				Description: "Test cluster for template rendering unit test.",
-				DNS: infrastructurev1alpha2.AWSClusterSpecClusterDNS{
+				DNS: infrastructurev1alpha3.AWSClusterSpecClusterDNS{
 					Domain: "gauss.eu-central-1.aws.gigantic.io",
 				},
 			},
-			Provider: infrastructurev1alpha2.AWSClusterSpecProvider{
-				CredentialSecret: infrastructurev1alpha2.AWSClusterSpecProviderCredentialSecret{
+			Provider: infrastructurev1alpha3.AWSClusterSpecProvider{
+				CredentialSecret: infrastructurev1alpha3.AWSClusterSpecProviderCredentialSecret{
 					Name:      "default-credential-secret",
 					Namespace: "default",
 				},
-				Master: infrastructurev1alpha2.AWSClusterSpecProviderMaster{
+				Master: infrastructurev1alpha3.AWSClusterSpecProviderMaster{
 					AvailabilityZone: "eu-central-1b",
 					InstanceType:     "m5.xlarge",
 				},
 				Region: "eu-central-1",
 			},
 		},
-		Status: infrastructurev1alpha2.AWSClusterStatus{
-			Cluster: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+		Status: infrastructurev1alpha3.AWSClusterStatus{
+			Cluster: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					{
 						LastTransitionTime: metav1.NewTime(time.Now().Add(-15 * time.Minute)),
 						Condition:          "Updating",
@@ -62,8 +62,8 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 				ID:       "yolo1",
 				Versions: nil,
 			},
-			Provider: infrastructurev1alpha2.AWSClusterStatusProvider{
-				Network: infrastructurev1alpha2.AWSClusterStatusProviderNetwork{
+			Provider: infrastructurev1alpha3.AWSClusterStatusProvider{
+				Network: infrastructurev1alpha3.AWSClusterStatusProviderNetwork{
 					CIDR: "10.0.0.0/24",
 				},
 			},
@@ -73,44 +73,44 @@ func DefaultCluster() infrastructurev1alpha2.AWSCluster {
 	return cr
 }
 
-func GetCreatingCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
-	return infrastructurev1alpha2.CommonClusterStatusCondition{
+func GetCreatingCondition(minutesAgo time.Duration) infrastructurev1alpha3.CommonClusterStatusCondition {
+	return infrastructurev1alpha3.CommonClusterStatusCondition{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
-		Condition:          infrastructurev1alpha2.ClusterStatusConditionCreating,
+		Condition:          infrastructurev1alpha3.ClusterStatusConditionCreating,
 	}
 }
-func GetCreatedCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
-	return infrastructurev1alpha2.CommonClusterStatusCondition{
+func GetCreatedCondition(minutesAgo time.Duration) infrastructurev1alpha3.CommonClusterStatusCondition {
+	return infrastructurev1alpha3.CommonClusterStatusCondition{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
-		Condition:          infrastructurev1alpha2.ClusterStatusConditionCreated,
+		Condition:          infrastructurev1alpha3.ClusterStatusConditionCreated,
 	}
 }
-func GetDeletedCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
-	return infrastructurev1alpha2.CommonClusterStatusCondition{
+func GetDeletedCondition(minutesAgo time.Duration) infrastructurev1alpha3.CommonClusterStatusCondition {
+	return infrastructurev1alpha3.CommonClusterStatusCondition{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
-		Condition:          infrastructurev1alpha2.ClusterStatusConditionDeleting,
+		Condition:          infrastructurev1alpha3.ClusterStatusConditionDeleting,
 	}
 }
-func GetDeletingCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
-	return infrastructurev1alpha2.CommonClusterStatusCondition{
+func GetDeletingCondition(minutesAgo time.Duration) infrastructurev1alpha3.CommonClusterStatusCondition {
+	return infrastructurev1alpha3.CommonClusterStatusCondition{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
-		Condition:          infrastructurev1alpha2.ClusterStatusConditionDeleted,
+		Condition:          infrastructurev1alpha3.ClusterStatusConditionDeleted,
 	}
 }
-func GetUpdatingCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
-	return infrastructurev1alpha2.CommonClusterStatusCondition{
+func GetUpdatingCondition(minutesAgo time.Duration) infrastructurev1alpha3.CommonClusterStatusCondition {
+	return infrastructurev1alpha3.CommonClusterStatusCondition{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
-		Condition:          infrastructurev1alpha2.ClusterStatusConditionUpdating,
+		Condition:          infrastructurev1alpha3.ClusterStatusConditionUpdating,
 	}
 }
-func GetUpdatedCondition(minutesAgo time.Duration) infrastructurev1alpha2.CommonClusterStatusCondition {
-	return infrastructurev1alpha2.CommonClusterStatusCondition{
+func GetUpdatedCondition(minutesAgo time.Duration) infrastructurev1alpha3.CommonClusterStatusCondition {
+	return infrastructurev1alpha3.CommonClusterStatusCondition{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
-		Condition:          infrastructurev1alpha2.ClusterStatusConditionUpdated,
+		Condition:          infrastructurev1alpha3.ClusterStatusConditionUpdated,
 	}
 }
-func GetVersion(minutesAgo time.Duration, version string) infrastructurev1alpha2.CommonClusterStatusVersion {
-	return infrastructurev1alpha2.CommonClusterStatusVersion{
+func GetVersion(minutesAgo time.Duration, version string) infrastructurev1alpha3.CommonClusterStatusVersion {
+	return infrastructurev1alpha3.CommonClusterStatusVersion{
 		LastTransitionTime: metav1.NewTime(time.Now().Add(-minutesAgo * time.Minute)),
 		Version:            version,
 	}

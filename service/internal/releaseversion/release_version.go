@@ -3,15 +3,15 @@ package releaseversion
 import (
 	"context"
 
-	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion/internal/cache"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion/internal/cache"
 )
 
 type Config struct {
@@ -51,8 +51,9 @@ func (rv *ReleaseVersion) Apps(ctx context.Context, obj interface{}) (map[string
 	apps := make(map[string]ReleaseApp, len(release.Spec.Apps))
 	for _, v := range release.Spec.Apps {
 		apps[v.Name] = ReleaseApp{
-			Catalog: v.Catalog,
-			Version: v.Version,
+			Catalog:   v.Catalog,
+			Version:   v.Version,
+			DependsOn: v.DependsOn,
 		}
 	}
 	return apps, nil

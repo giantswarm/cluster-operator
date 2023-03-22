@@ -4,17 +4,25 @@ import (
 	"context"
 
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/util/conditions"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	if r.provider != label.ProviderAWS {
+		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	// Fetch the latest version of the CAPI Cluster CR first so that we can check
 	// if it has its status already updated.
-	var cr apiv1alpha2.Cluster
+	var cr apiv1beta1.Cluster
 	{
 		r.logger.Debugf(ctx, "finding cluster")
 
@@ -31,7 +39,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		r.logger.Debugf(ctx, "found cluster")
 	}
 
-	if cr.Status.ControlPlaneInitialized && cr.Status.InfrastructureReady {
+	if conditions.IsTrue(&cr, apiv1beta1.ControlPlaneInitializedCondition) && cr.Status.InfrastructureReady {
 		return nil
 	}
 
@@ -58,7 +66,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	{
 		r.logger.Debugf(ctx, "updating cluster status")
 
-		cr.Status.ControlPlaneInitialized = true
+		conditions.MarkTrue(&cr, apiv1beta1.ControlPlaneInitializedCondition)
 		cr.Status.InfrastructureReady = true
 
 		err := r.k8sClient.CtrlClient().Status().Update(ctx, &cr)

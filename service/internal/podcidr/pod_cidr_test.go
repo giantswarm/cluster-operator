@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/cachekeycontext"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/unittest"
 )
 
 func Test_PodCIDR_Cache(t *testing.T) {
@@ -63,6 +63,7 @@ func Test_PodCIDR_Cache(t *testing.T) {
 					K8sClient: unittest.FakeK8sClient(),
 
 					InstallationCIDR: "installation-cidr",
+					Provider:         "aws",
 				}
 
 				pc, err = New(c)
@@ -71,7 +72,7 @@ func Test_PodCIDR_Cache(t *testing.T) {
 				}
 			}
 
-			var cl infrastructurev1alpha2.AWSCluster
+			var cl infrastructurev1alpha3.AWSCluster
 			{
 				cl = unittest.DefaultCluster()
 			}

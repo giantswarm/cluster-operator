@@ -5,13 +5,13 @@ import (
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclienttest"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclienttest"
 	"github.com/giantswarm/micrologger/microloggertest"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/unittest"
 )
 
 func TestComputeClusterStatusConditions(t *testing.T) {
@@ -19,8 +19,8 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 		name string
 
 		nodesReady      bool
-		conditions      []infrastructurev1alpha2.CommonClusterStatusCondition
-		versions        []infrastructurev1alpha2.CommonClusterStatusVersion
+		conditions      []infrastructurev1alpha3.CommonClusterStatusCondition
+		versions        []infrastructurev1alpha3.CommonClusterStatusVersion
 		operatorVersion string
 
 		expectCondition string
@@ -31,8 +31,8 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 0",
 
 			nodesReady:      false,
-			conditions:      []infrastructurev1alpha2.CommonClusterStatusCondition{},
-			versions:        []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			conditions:      []infrastructurev1alpha3.CommonClusterStatusCondition{},
+			versions:        []infrastructurev1alpha3.CommonClusterStatusVersion{},
 			operatorVersion: "8.7.5",
 
 			expectCondition: "Creating",
@@ -43,10 +43,10 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 1",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetCreatingCondition(90),
 			},
-			versions:        []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			versions:        []infrastructurev1alpha3.CommonClusterStatusVersion{},
 			operatorVersion: "8.7.5",
 
 			expectCondition: "Creating",
@@ -57,10 +57,10 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 2",
 
 			nodesReady: true,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetCreatingCondition(90),
 			},
-			versions:        []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			versions:        []infrastructurev1alpha3.CommonClusterStatusVersion{},
 			operatorVersion: "8.7.5",
 
 			expectCondition: "Created",
@@ -71,11 +71,11 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 3",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(60, "8.7.5"),
 			},
 			operatorVersion: "8.7.5",
@@ -88,11 +88,11 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 4",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(60, "8.7.5"),
 			},
 			operatorVersion: "8.7.6",
@@ -105,12 +105,12 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 5",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetUpdatingCondition(15),
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(60, "8.7.5"),
 			},
 			operatorVersion: "8.7.6",
@@ -123,12 +123,12 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 6",
 
 			nodesReady: true,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetUpdatingCondition(15),
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(60, "8.7.5"),
 			},
 			operatorVersion: "8.7.6",
@@ -141,13 +141,13 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 7",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetUpdatedCondition(5),
 				unittest.GetUpdatingCondition(15),
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(5, "8.7.6"),
 				unittest.GetVersion(60, "8.7.5"),
 			},
@@ -161,13 +161,13 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 8",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetUpdatedCondition(5),
 				unittest.GetUpdatingCondition(15),
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(5, "8.7.6"),
 				unittest.GetVersion(60, "8.7.5"),
 			},
@@ -181,13 +181,13 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 9",
 
 			nodesReady: false,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetUpdatedCondition(5),
 				unittest.GetUpdatingCondition(15),
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(5, "8.7.6"),
 				unittest.GetVersion(60, "8.7.5"),
 			},
@@ -201,14 +201,14 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			name: "case 10",
 
 			nodesReady: true,
-			conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 				unittest.GetUpdatingCondition(5),
 				unittest.GetUpdatedCondition(15),
 				unittest.GetUpdatingCondition(20),
 				unittest.GetCreatedCondition(60),
 				unittest.GetCreatingCondition(90),
 			},
-			versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 				unittest.GetVersion(15, "8.7.6"),
 				unittest.GetVersion(60, "8.7.5"),
 			},
@@ -225,13 +225,13 @@ func TestComputeClusterStatusConditions(t *testing.T) {
 			ctx := context.Background()
 
 			// The cluster is created
-			var cluster infrastructurev1alpha2.AWSCluster
-			var cl apiv1alpha2.Cluster
+			var cluster infrastructurev1alpha3.AWSCluster
+			var cl apiv1beta1.Cluster
 			{
 				cluster = unittest.DefaultCluster()
 				cluster.Status.Cluster.Conditions = tc.conditions
 				cluster.Status.Cluster.Versions = tc.versions
-				cl = apiv1alpha2.Cluster{}
+				cl = apiv1beta1.Cluster{}
 			}
 
 			var e recorder.Interface
@@ -270,16 +270,16 @@ func TestComputeCreatingCondition(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		status         infrastructurev1alpha2.CommonClusterStatus
+		status         infrastructurev1alpha3.CommonClusterStatus
 		expectedResult bool
 	}{
 		// There are no previous versions or conditions in the status
 		{
 			name: "case 0",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{},
-				Versions:   []infrastructurev1alpha2.CommonClusterStatusVersion{},
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{},
+				Versions:   []infrastructurev1alpha3.CommonClusterStatusVersion{},
 			},
 			expectedResult: true,
 		},
@@ -287,9 +287,9 @@ func TestComputeCreatingCondition(t *testing.T) {
 		{
 			name: "case 1",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{},
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(5, "8.7.6"),
 				},
 			},
@@ -299,11 +299,11 @@ func TestComputeCreatingCondition(t *testing.T) {
 		{
 			name: "case 2",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{},
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{},
 			},
 			expectedResult: false,
 		},
@@ -311,11 +311,11 @@ func TestComputeCreatingCondition(t *testing.T) {
 		{
 			name: "case 3",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.6"),
 				},
 			},
@@ -325,14 +325,14 @@ func TestComputeCreatingCondition(t *testing.T) {
 		{
 			name: "case 4",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.6"),
 					unittest.GetVersion(60, "8.7.5"),
 				},
@@ -355,7 +355,7 @@ func TestComputeCreatedCondition(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		status     infrastructurev1alpha2.CommonClusterStatus
+		status     infrastructurev1alpha3.CommonClusterStatus
 		nodesReady bool
 
 		expectedResult bool
@@ -364,8 +364,8 @@ func TestComputeCreatedCondition(t *testing.T) {
 		{
 			name: "case 0",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
 			},
@@ -377,8 +377,8 @@ func TestComputeCreatedCondition(t *testing.T) {
 		{
 			name: "case 1",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
 			},
@@ -390,8 +390,8 @@ func TestComputeCreatedCondition(t *testing.T) {
 		{
 			name: "case 2",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
@@ -416,7 +416,7 @@ func TestComputeUpdatingCondition(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		status         infrastructurev1alpha2.CommonClusterStatus
+		status         infrastructurev1alpha3.CommonClusterStatus
 		desiredVersion string
 
 		expectedResult bool
@@ -425,12 +425,12 @@ func TestComputeUpdatingCondition(t *testing.T) {
 		{
 			name: "case 0",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
@@ -442,11 +442,11 @@ func TestComputeUpdatingCondition(t *testing.T) {
 		{
 			name: "case 1",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
@@ -458,13 +458,13 @@ func TestComputeUpdatingCondition(t *testing.T) {
 		{
 			name: "case 2",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
@@ -476,12 +476,12 @@ func TestComputeUpdatingCondition(t *testing.T) {
 		{
 			name: "case 3",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.6"),
 				},
 			},
@@ -493,13 +493,13 @@ func TestComputeUpdatingCondition(t *testing.T) {
 		{
 			name: "case 4",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.6"),
 					unittest.GetVersion(60, "8.7.5"),
 				},
@@ -512,14 +512,14 @@ func TestComputeUpdatingCondition(t *testing.T) {
 		{
 			name: "case 5",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(10, "8.7.6"),
 					unittest.GetVersion(60, "8.7.5"),
 				},
@@ -544,7 +544,7 @@ func TestComputeUpdatedCondition(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		status     infrastructurev1alpha2.CommonClusterStatus
+		status     infrastructurev1alpha3.CommonClusterStatus
 		nodesReady bool
 
 		expectedResult bool
@@ -553,8 +553,8 @@ func TestComputeUpdatedCondition(t *testing.T) {
 		{
 			name: "case 0",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
@@ -568,8 +568,8 @@ func TestComputeUpdatedCondition(t *testing.T) {
 		{
 			name: "case 1",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
@@ -583,8 +583,8 @@ func TestComputeUpdatedCondition(t *testing.T) {
 		{
 			name: "case 2",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
@@ -599,8 +599,8 @@ func TestComputeUpdatedCondition(t *testing.T) {
 		{
 			name: "case 3",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(10),
 					unittest.GetUpdatedCondition(20),
 					unittest.GetUpdatingCondition(40),
@@ -628,7 +628,7 @@ func TestComputeVersionChange(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		status         infrastructurev1alpha2.CommonClusterStatus
+		status         infrastructurev1alpha3.CommonClusterStatus
 		nodesReady     bool
 		desiredVersion string
 
@@ -638,14 +638,14 @@ func TestComputeVersionChange(t *testing.T) {
 		{
 			name: "case 0",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
@@ -658,11 +658,11 @@ func TestComputeVersionChange(t *testing.T) {
 		{
 			name: "case 1",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{},
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{},
 			},
 			nodesReady:     true,
 			desiredVersion: "8.7.5",
@@ -673,14 +673,14 @@ func TestComputeVersionChange(t *testing.T) {
 		{
 			name: "case 2",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
@@ -693,14 +693,14 @@ func TestComputeVersionChange(t *testing.T) {
 		{
 			name: "case 3",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(10),
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(10, "8.7.6"),
 					unittest.GetVersion(60, "8.7.5"),
 				},
@@ -714,13 +714,13 @@ func TestComputeVersionChange(t *testing.T) {
 		{
 			name: "case 4",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatingCondition(30),
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(60, "8.7.5"),
 				},
 			},
@@ -733,8 +733,8 @@ func TestComputeVersionChange(t *testing.T) {
 		{
 			name: "case 5",
 
-			status: infrastructurev1alpha2.CommonClusterStatus{
-				Conditions: []infrastructurev1alpha2.CommonClusterStatusCondition{
+			status: infrastructurev1alpha3.CommonClusterStatus{
+				Conditions: []infrastructurev1alpha3.CommonClusterStatusCondition{
 					unittest.GetUpdatedCondition(5),
 					unittest.GetUpdatingCondition(15),
 					unittest.GetUpdatedCondition(20),
@@ -742,7 +742,7 @@ func TestComputeVersionChange(t *testing.T) {
 					unittest.GetCreatedCondition(60),
 					unittest.GetCreatingCondition(90),
 				},
-				Versions: []infrastructurev1alpha2.CommonClusterStatusVersion{
+				Versions: []infrastructurev1alpha3.CommonClusterStatusVersion{
 					unittest.GetVersion(20, "8.7.6"),
 					unittest.GetVersion(60, "8.7.5"),
 				},

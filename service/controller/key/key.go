@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
 )
 
 const (
 	// defaultDNSLastOctet is the last octect for the DNS service IP, the first
 	// 3 octets come from the cluster IP range.
 	defaultDNSLastOctet = 10
+
+	// UniqueOperatorVersion This is a special version used to indicate that the App CR
+	// should be reconciled by the workload cluster app-operator.
+	UniqueOperatorVersion = "0.0.0"
 )
 
 // AppUserConfigMapName returns the name of the user values configmap for the

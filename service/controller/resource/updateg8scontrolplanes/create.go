@@ -3,21 +3,27 @@ package updateg8scontrolplanes
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	if r.provider != label.ProviderAWS {
+		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	cr, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	cpList := &infrastructurev1alpha2.G8sControlPlaneList{}
+	cpList := &infrastructurev1alpha3.G8sControlPlaneList{}
 	{
 		r.logger.Debugf(ctx, "finding G8sControlPlanes for tenant cluster")
 

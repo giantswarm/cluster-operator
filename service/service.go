@@ -7,31 +7,35 @@ import (
 	"sync"
 	"time"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
+	g8sv1alpha1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	corev1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	providerv1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/provider/v1alpha1"
 	"github.com/giantswarm/certs/v3/pkg/certs"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8srestconfig"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8srestconfig"
 	"github.com/giantswarm/microendpoint/service/version"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/rest"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/giantswarm/cluster-operator/v3/flag"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/collector"
-	"github.com/giantswarm/cluster-operator/v3/service/controller"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v5/flag"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/collector"
+	"github.com/giantswarm/cluster-operator/v5/service/controller"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient"
 )
 
 const (
@@ -52,15 +56,18 @@ type Config struct {
 	Version     string
 }
 
+type operatorkitController interface {
+	Boot(ctx context.Context)
+}
+
 // Service is a type providing implementation of microkit service interface.
 type Service struct {
 	Version *version.Service
 
-	bootOnce                    sync.Once
-	clusterController           *controller.Cluster
-	controlPlaneController      *controller.ControlPlane
-	machineDeploymentController *controller.MachineDeployment
-	operatorCollector           *collector.Set
+	bootOnce sync.Once
+
+	controllers       []operatorkitController
+	operatorCollector *collector.Set
 }
 
 // New creates a new service with given configuration.
@@ -103,13 +110,20 @@ func New(config Config) (*Service, error) {
 
 	var k8sClient *k8sclient.Clients
 	{
+		schemeBuilder := k8sclient.SchemeBuilder{}
+		schemeBuilder = append(schemeBuilder, capiv1beta1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, releasev1alpha1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, providerv1alpha1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, g8sv1alpha1.AddToScheme)
+		schemeBuilder = append(schemeBuilder, corev1alpha1.AddToScheme)
+		switch provider {
+		case label.ProviderAWS:
+			schemeBuilder = append(schemeBuilder, infrastructurev1alpha3.AddToScheme)
+		}
+
 		c := k8sclient.ClientsConfig{
-			SchemeBuilder: k8sclient.SchemeBuilder{
-				apiv1alpha2.AddToScheme,
-				infrastructurev1alpha2.AddToScheme,
-				releasev1alpha1.AddToScheme,
-			},
-			Logger: config.Logger,
+			SchemeBuilder: schemeBuilder,
+			Logger:        config.Logger,
 
 			RestConfig: restConfig,
 		}
@@ -173,6 +187,7 @@ func New(config Config) (*Service, error) {
 			K8sClient: k8sClient,
 
 			InstallationCIDR: fmt.Sprintf("%s/%s", calicoSubnet, calicoCIDR),
+			Provider:         provider,
 		}
 
 		pc, err = podcidr.New(c)
@@ -185,6 +200,7 @@ func New(config Config) (*Service, error) {
 	{
 		c := basedomain.Config{
 			K8sClient: k8sClient,
+			Provider:  provider,
 		}
 
 		bd, err = basedomain.New(c)
@@ -244,74 +260,82 @@ func New(config Config) (*Service, error) {
 		eventRecorder = recorder.New(c)
 	}
 
-	var clusterController *controller.Cluster
+	var controllers []operatorkitController
 	{
-		c := controller.ClusterConfig{
-			BaseDomain:     bd,
-			CertsSearcher:  certsSearcher,
-			Event:          eventRecorder,
-			FileSystem:     afero.NewOsFs(),
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			PodCIDR:        pc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
+		{
+			c := controller.ClusterConfig{
+				BaseDomain:     bd,
+				CertsSearcher:  certsSearcher,
+				Event:          eventRecorder,
+				FileSystem:     afero.NewOsFs(),
+				K8sClient:      k8sClient,
+				Logger:         config.Logger,
+				PodCIDR:        pc,
+				Tenant:         tenantCluster,
+				ReleaseVersion: rv,
 
-			APIIP:                      apiIP,
-			CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
-			ClusterIPRange:             clusterIPRange,
-			DNSIP:                      dnsIP,
-			ClusterDomain:              config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
-			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
-			Provider:                   provider,
-			RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
-			RawAppOverrideConfig:       config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
-			RegistryDomain:             registryDomain,
+				APIIP:                      apiIP,
+				CertTTL:                    config.Viper.GetString(config.Flag.Guest.Cluster.Vault.Certificate.TTL),
+				ClusterIPRange:             clusterIPRange,
+				DNSIP:                      dnsIP,
+				ClusterDomain:              config.Viper.GetString(config.Flag.Guest.Cluster.Kubernetes.ClusterDomain),
+				KiamWatchDogEnabled:        config.Viper.GetBool(config.Flag.Service.Release.App.Config.KiamWatchDogEnabled),
+				NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
+				Provider:                   provider,
+				RawAppDefaultConfig:        config.Viper.GetString(config.Flag.Service.Release.App.Config.Default),
+				RawAppOverrideConfig:       config.Viper.GetString(config.Flag.Service.Release.App.Config.Override),
+				RegistryDomain:             registryDomain,
+			}
+
+			clusterController, err := controller.NewCluster(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			controllers = append(controllers, clusterController)
 		}
 
-		clusterController, err = controller.NewCluster(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
+		if provider == label.ProviderAWS {
+			c := controller.ControlPlaneConfig{
+				BaseDomain:     bd,
+				Event:          eventRecorder,
+				K8sClient:      k8sClient,
+				Logger:         config.Logger,
+				NodeCount:      nc,
+				Tenant:         tenantCluster,
+				ReleaseVersion: rv,
 
-	var controlPlaneController *controller.ControlPlane
-	{
-		c := controller.ControlPlaneConfig{
-			BaseDomain:     bd,
-			Event:          eventRecorder,
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			NodeCount:      nc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
+				Provider: provider,
+			}
 
-			Provider: provider,
-		}
+			controlPlaneController, err := controller.NewControlPlane(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
 
-		controlPlaneController, err = controller.NewControlPlane(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var machineDeploymentController *controller.MachineDeployment
-	{
-		c := controller.MachineDeploymentConfig{
-			BaseDomain:     bd,
-			Event:          eventRecorder,
-			K8sClient:      k8sClient,
-			Logger:         config.Logger,
-			NodeCount:      nc,
-			Tenant:         tenantCluster,
-			ReleaseVersion: rv,
-
-			Provider: provider,
+			controllers = append(controllers, controlPlaneController)
 		}
 
-		machineDeploymentController, err = controller.NewMachineDeployment(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
+		var machineDeploymentController *controller.MachineDeployment
+		{
+			c := controller.MachineDeploymentConfig{
+				BaseDomain:     bd,
+				Event:          eventRecorder,
+				K8sClient:      k8sClient,
+				Logger:         config.Logger,
+				NodeCount:      nc,
+				Tenant:         tenantCluster,
+				ReleaseVersion: rv,
+
+				Provider: provider,
+			}
+
+			machineDeploymentController, err = controller.NewMachineDeployment(c)
+			if err != nil {
+				return nil, microerror.Mask(err)
+			}
+
+			controllers = append(controllers, machineDeploymentController)
 		}
 	}
 
@@ -323,6 +347,7 @@ func New(config Config) (*Service, error) {
 			Logger:       config.Logger,
 
 			NewCommonClusterObjectFunc: newCommonClusterObjectFunc(provider),
+			Provider:                   provider,
 		}
 
 		operatorCollector, err = collector.NewSet(c)
@@ -350,11 +375,9 @@ func New(config Config) (*Service, error) {
 	s := &Service{
 		Version: versionService,
 
-		bootOnce:                    sync.Once{},
-		clusterController:           clusterController,
-		controlPlaneController:      controlPlaneController,
-		machineDeploymentController: machineDeploymentController,
-		operatorCollector:           operatorCollector,
+		bootOnce:          sync.Once{},
+		controllers:       controllers,
+		operatorCollector: operatorCollector,
 	}
 
 	return s, nil
@@ -371,16 +394,16 @@ func (s *Service) Boot(ctx context.Context) {
 		}()
 
 		// Start the controllers.
-		go s.clusterController.Boot(ctx)
-		go s.controlPlaneController.Boot(ctx)
-		go s.machineDeploymentController.Boot(ctx)
+		for _, c := range s.controllers {
+			go c.Boot(ctx)
+		}
 	})
 }
 
-func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha2.CommonClusterObject {
+func newCommonClusterObjectFunc(provider string) func() infrastructurev1alpha3.CommonClusterObject {
 	// Deal with different providers in here once they reach Cluster API.
-	return func() infrastructurev1alpha2.CommonClusterObject {
-		return new(infrastructurev1alpha2.AWSCluster)
+	return func() infrastructurev1alpha3.CommonClusterObject {
+		return new(infrastructurev1alpha3.AWSCluster)
 	}
 }
 

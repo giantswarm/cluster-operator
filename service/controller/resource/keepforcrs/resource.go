@@ -1,7 +1,7 @@
 package keepforcrs
 
 import (
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -17,10 +17,11 @@ type Config struct {
 	// NewObjFunc is to return an instance of a pointer for the CR type that
 	// should be considered for keeping finalizers.
 	//
-	//     &infrastructurev1alpha2.G8sControlPlane{}
-	//     &apiv1alpha2.MachineDeployment{}
+	//     &infrastructurev1alpha3.G8sControlPlane{}
+	//     &apiv1alpha3.MachineDeployment{}
 	//
 	NewObjFunc func() runtime.Object
+	Provider   string
 }
 
 // Resource receives the runtime object of the underlying controller it is wired
@@ -28,15 +29,15 @@ type Config struct {
 // runtime objects do still exist. This is to have a reliable deletion for the
 // following CRs.
 //
-//     watch      |    delete
-//     ---------------------------------
-//     Cluster    |    G8sControlPlane
-//     Cluster    |    MachineDeployment
-//
+//	watch      |    delete
+//	---------------------------------
+//	Cluster    |    G8sControlPlane
+//	Cluster    |    MachineDeployment
 type Resource struct {
 	k8sClient  k8sclient.Interface
 	logger     micrologger.Logger
 	newObjFunc func() runtime.Object
+	provider   string
 }
 
 func New(config Config) (*Resource, error) {
@@ -49,11 +50,15 @@ func New(config Config) (*Resource, error) {
 	if config.NewObjFunc == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.NewObjFunc must not be empty", config)
 	}
+	if config.Provider == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)
+	}
 
 	r := &Resource{
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 		newObjFunc: config.NewObjFunc,
+		provider:   config.Provider,
 	}
 
 	return r, nil

@@ -4,20 +4,20 @@ import (
 	"context"
 	"fmt"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/resourcecanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/resourcecanceledcontext"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient"
 )
 
 const (
@@ -67,7 +67,7 @@ func (r *Resource) Name() string {
 }
 
 func (r *Resource) ensure(ctx context.Context, obj interface{}) error {
-	cr := &infrastructurev1alpha2.G8sControlPlane{}
+	cr := &infrastructurev1alpha3.G8sControlPlane{}
 	{
 		cp, err := key.ToG8sControlPlane(obj)
 		if err != nil {

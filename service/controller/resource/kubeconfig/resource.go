@@ -7,7 +7,7 @@ import (
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
 )
 
 const (
@@ -36,8 +36,7 @@ type Resource struct {
 // New creates a new configured secret state getter resource managing kube
 // configs.
 //
-//     https://pkg.go.dev/github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/secretresource#StateGetter
-//
+//	https://pkg.go.dev/github.com/giantswarm/operatorkit/v7/pkg/resource/k8s/secretresource#StateGetter
 func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)

@@ -3,15 +3,15 @@ package tenantclient
 import (
 	"context"
 
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
 )
 
 type Config struct {

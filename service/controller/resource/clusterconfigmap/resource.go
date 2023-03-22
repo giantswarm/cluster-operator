@@ -4,9 +4,10 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"k8s.io/client-go/kubernetes"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/podcidr"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 // resource.
 type Config struct {
 	BaseDomain basedomain.Interface
+	CtrlClient ctrlClient.Client
 	K8sClient  kubernetes.Interface
 	Logger     micrologger.Logger
 	PodCIDR    podcidr.Interface
@@ -30,6 +32,7 @@ type Config struct {
 // Resource implements the clusterConfigMap resource.
 type Resource struct {
 	baseDomain basedomain.Interface
+	ctrlClient ctrlClient.Client
 	k8sClient  kubernetes.Interface
 	logger     micrologger.Logger
 	podCIDR    podcidr.Interface
@@ -42,11 +45,13 @@ type Resource struct {
 // New creates a new configured config map state getter resource managing
 // cluster config maps.
 //
-//     https://pkg.go.dev/github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/secretresource#StateGetter
-//
+//	https://pkg.go.dev/github.com/giantswarm/operatorkit/v7/pkg/resource/k8s/secretresource#StateGetter
 func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {
-		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
+		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
+	}
+	if config.CtrlClient == nil {
+		return nil, microerror.Maskf(invalidConfigError, "%T.CtrlClient must not be empty", config)
 	}
 	if config.K8sClient == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.K8sClient must not be empty", config)
@@ -70,6 +75,7 @@ func New(config Config) (*Resource, error) {
 
 	r := &Resource{
 		baseDomain: config.BaseDomain,
+		ctrlClient: config.CtrlClient,
 		k8sClient:  config.K8sClient,
 		logger:     config.Logger,
 		podCIDR:    config.PodCIDR,

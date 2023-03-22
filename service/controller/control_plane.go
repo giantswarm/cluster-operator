@@ -1,30 +1,30 @@
 package controller
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/controlplanestatus"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/deleteinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/keepforinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updateinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/nodecount"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/controlplanestatus"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/deleteinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/nodecount"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 )
 
 // ControlPlaneConfig contains necessary dependencies and settings for the
@@ -61,8 +61,8 @@ func NewControlPlane(config ControlPlaneConfig) (*ControlPlane, error) {
 		c := controller.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(infrastructurev1alpha2.G8sControlPlane)
+			NewRuntimeObjectFunc: func() ctrlClient.Object {
+				return new(infrastructurev1alpha3.G8sControlPlane)
 			},
 			Resources: resources,
 
@@ -111,6 +111,7 @@ func newControlPlaneResources(config ControlPlaneConfig) ([]resource.Interface, 
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			Provider: config.Provider,
 			ToObjRef: toG8sControlPlaneObjRef,
 		}
 

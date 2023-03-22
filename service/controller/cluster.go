@@ -1,54 +1,54 @@
 package controller
 
 import (
-	"github.com/giantswarm/apiextensions/v3/pkg/annotation"
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	"github.com/giantswarm/apiextensions/v6/pkg/annotation"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/certs/v3/pkg/certs"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/crud"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/configmapresource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/k8s/secretresource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/metricsresource"
-	"github.com/giantswarm/operatorkit/v4/pkg/resource/wrapper/retryresource"
-	"github.com/giantswarm/resource/v2/appresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/crud"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/k8s/configmapresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/k8s/secretresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/metricsresource"
+	"github.com/giantswarm/operatorkit/v7/pkg/resource/wrapper/retryresource"
+	"github.com/giantswarm/resource/v5/appresource"
 	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	ctrlClient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/app"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appfinalizer"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/appversionlabel"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/certconfig"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterconfigmap"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterid"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/clusterstatus"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/cpnamespace"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/deletecrs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/deleteinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/encryptionkey"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/keepforcrs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/keepforinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/kubeconfig"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/statuscondition"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updateg8scontrolplanes"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updateinfrarefs"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/resource/updatemachinedeployments"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/basedomain"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/hamaster"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/podcidr"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/recorder"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/tenantclient"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/app"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/appfinalizer"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/appversionlabel"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/certconfig"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/clusterconfigmap"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/clusterid"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/clusterstatus"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/cpnamespace"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/deletecrs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/deleteinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/keepforcrs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/keepforinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/kubeconfig"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/statuscondition"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/updateg8scontrolplanes"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/updateinfrarefs"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/resource/updatemachinedeployments"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/hamaster"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/podcidr"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/recorder"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient"
 )
 
 // ClusterConfig contains necessary dependencies and settings for CAPI's Cluster
@@ -69,7 +69,8 @@ type ClusterConfig struct {
 	ClusterIPRange             string
 	DNSIP                      string
 	ClusterDomain              string
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	KiamWatchDogEnabled        bool
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string
 	RawAppOverrideConfig       string
@@ -96,8 +97,8 @@ func NewCluster(config ClusterConfig) (*Cluster, error) {
 		c := controller.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
-			NewRuntimeObjectFunc: func() runtime.Object {
-				return new(apiv1alpha2.Cluster)
+			NewRuntimeObjectFunc: func() ctrlClient.Object {
+				return new(apiv1beta1.Cluster)
 			},
 			Resources: resources,
 
@@ -157,12 +158,13 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appGetter appresource.StateGetter
 	{
 		c := app.Config{
-			G8sClient:      config.K8sClient.G8sClient(),
+			CtrlClient:     config.K8sClient.CtrlClient(),
 			K8sClient:      config.K8sClient.K8sClient(),
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
 
 			Provider:             config.Provider,
+			KiamWatchDogEnabled:  config.KiamWatchDogEnabled,
 			RawAppDefaultConfig:  config.RawAppDefaultConfig,
 			RawAppOverrideConfig: config.RawAppOverrideConfig,
 		}
@@ -176,7 +178,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appResource resource.Interface
 	{
 		c := appresource.Config{
-			G8sClient: config.K8sClient.G8sClient(),
+			G8sClient: config.K8sClient.CtrlClient(),
 			Logger:    config.Logger,
 
 			Name:        app.Name,
@@ -202,8 +204,8 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appFinalizerResource resource.Interface
 	{
 		c := appfinalizer.Config{
-			G8sClient: config.K8sClient.G8sClient(),
-			Logger:    config.Logger,
+			CtrlClient: config.K8sClient.CtrlClient(),
+			Logger:     config.Logger,
 		}
 
 		appFinalizerResource, err = appfinalizer.New(c)
@@ -215,7 +217,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	var appVersionLabelResource resource.Interface
 	{
 		c := appversionlabel.Config{
-			G8sClient:      config.K8sClient.G8sClient(),
+			CtrlClient:     config.K8sClient.CtrlClient(),
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
 		}
@@ -230,7 +232,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	{
 		c := certconfig.Config{
 			BaseDomain:     config.BaseDomain,
-			G8sClient:      config.K8sClient.G8sClient(),
+			CtrlClient:     config.K8sClient.CtrlClient(),
 			HAMaster:       haMaster,
 			Logger:         config.Logger,
 			ReleaseVersion: config.ReleaseVersion,
@@ -251,6 +253,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	{
 		c := clusterconfigmap.Config{
 			BaseDomain: config.BaseDomain,
+			CtrlClient: config.K8sClient.CtrlClient(),
 			K8sClient:  config.K8sClient.K8sClient(),
 			Logger:     config.Logger,
 			PodCIDR:    config.PodCIDR,
@@ -297,6 +300,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterIDResource, err = clusterid.New(c)
@@ -312,6 +316,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterStatusResource, err = clusterstatus.New(c)
@@ -345,8 +350,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &infrastructurev1alpha2.G8sControlPlane{}
+				return &infrastructurev1alpha3.G8sControlPlane{}
 			},
+			Provider: config.Provider,
 		}
 
 		deleteG8sControlPlaneCRsResource, err = deletecrs.New(c)
@@ -362,8 +368,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &apiv1alpha2.MachineDeployment{}
+				return &apiv1beta1.MachineDeployment{}
 			},
+			Provider: config.Provider,
 		}
 
 		deleteMachineDeploymentCRsResource, err = deletecrs.New(c)
@@ -378,44 +385,11 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
 
+			Provider: config.Provider,
 			ToObjRef: toClusterObjRef,
 		}
 
 		deleteInfraRefsResource, err = deleteinfrarefs.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var encryptionKeyGetter secretresource.StateGetter
-	{
-		c := encryptionkey.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-		}
-
-		encryptionKeyGetter, err = encryptionkey.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-	}
-
-	var encryptionKeyResource resource.Interface
-	{
-		c := secretresource.Config{
-			K8sClient: config.K8sClient.K8sClient(),
-			Logger:    config.Logger,
-
-			Name:        encryptionkey.Name,
-			StateGetter: encryptionKeyGetter,
-		}
-
-		ops, err := secretresource.New(c)
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
-
-		encryptionKeyResource, err = toCRUDResource(config.Logger, ops)
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
@@ -428,8 +402,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &infrastructurev1alpha2.G8sControlPlane{}
+				return &infrastructurev1alpha3.G8sControlPlane{}
 			},
+			Provider: config.Provider,
 		}
 
 		keepForG8sControlPlaneCRsResource, err = keepforcrs.New(c)
@@ -445,8 +420,9 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 			Logger:    config.Logger,
 
 			NewObjFunc: func() runtime.Object {
-				return &apiv1alpha2.MachineDeployment{}
+				return &apiv1beta1.MachineDeployment{}
 			},
+			Provider: config.Provider,
 		}
 
 		keepForMachineDeploymentCRsResource, err = keepforcrs.New(c)
@@ -546,6 +522,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 		c := updateg8scontrolplanes.Config{
 			K8sClient: config.K8sClient,
 			Logger:    config.Logger,
+			Provider:  config.Provider,
 		}
 
 		updateG8sControlPlanesResource, err = updateg8scontrolplanes.New(c)
@@ -587,7 +564,6 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 	resources := []resource.Interface{
 		// Following resources manage resources in the control plane.
 		cpNamespaceResource,
-		encryptionKeyResource,
 		certConfigResource,
 		clusterConfigMapResource,
 		kubeConfigResource,

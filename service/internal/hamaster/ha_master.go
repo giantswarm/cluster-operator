@@ -3,13 +3,13 @@ package hamaster
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 type Config struct {
@@ -47,7 +47,7 @@ func (h *HAMaster) Enabled(ctx context.Context, cluster string) (bool, error) {
 		return false, nil
 	}
 
-	var list infrastructurev1alpha2.G8sControlPlaneList
+	var list infrastructurev1alpha3.G8sControlPlaneList
 
 	err := h.k8sClient.CtrlClient().List(
 		ctx,

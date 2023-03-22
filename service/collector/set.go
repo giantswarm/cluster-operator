@@ -1,10 +1,10 @@
 package collector
 
 import (
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/certs/v3/pkg/certs"
 	"github.com/giantswarm/exporterkit/collector"
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
@@ -14,7 +14,8 @@ type SetConfig struct {
 	K8sClient    k8sclient.Interface
 	Logger       micrologger.Logger
 
-	NewCommonClusterObjectFunc func() infrastructurev1alpha2.CommonClusterObject
+	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
+	Provider                   string
 }
 
 // Set is basically only a wrapper for the operator's collector implementations.
@@ -34,6 +35,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterCollector, err = NewCluster(c)
@@ -62,6 +64,7 @@ func NewSet(config SetConfig) (*Set, error) {
 			Logger:    config.Logger,
 
 			NewCommonClusterObjectFunc: config.NewCommonClusterObjectFunc,
+			Provider:                   config.Provider,
 		}
 
 		clusterTransitionCollector, err = NewClusterTransition(c)

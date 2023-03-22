@@ -3,18 +3,22 @@ package clusterconfigmap
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1alpha2 "sigs.k8s.io/cluster-api/api/v1alpha2"
+	"k8s.io/apimachinery/pkg/types"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/annotation"
-	"github.com/giantswarm/cluster-operator/v3/pkg/label"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/annotation"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
@@ -25,6 +29,20 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	bd, err := r.baseDomain.BaseDomain(ctx, &cr)
 	if err != nil {
 		return nil, microerror.Mask(err)
+	}
+
+	var clusterCA string
+	{
+		apiSecret, err := r.k8sClient.CoreV1().Secrets(cr.Namespace).Get(ctx, key.APISecretName(&cr), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// During cluster creation there may be a delay until the
+			// cert is issued.
+			r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set cluster CA", cr.Namespace, key.APISecretName(&cr))
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		clusterCA = string(apiSecret.Data["ca"])
 	}
 
 	var podCIDR string
@@ -43,28 +61,101 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
+	values := map[string]interface{}{
+		"baseDomain": key.TenantEndpoint(&cr, bd),
+		"bootstrapMode": map[string]interface{}{
+			"enabled": true,
+		},
+		"cluster": map[string]interface{}{
+			"calico": map[string]interface{}{
+				"CIDR": podCIDR,
+			},
+			"kubernetes": map[string]interface{}{
+				"API": map[string]interface{}{
+					"clusterIPRange": r.clusterIPRange,
+				},
+				"DNS": map[string]interface{}{
+					"IP": r.dnsIP,
+				},
+			},
+		},
+		"clusterCA":    clusterCA,
+		"clusterDNSIP": r.dnsIP,
+		"clusterID":    key.ClusterID(&cr),
+	}
+
+	if r.provider == "aws" {
+		var irsa bool
+		var accountID string
+		var vpcID string
+
+		awsCluster := &v1alpha3.AWSCluster{}
+		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if key.IRSAEnabled(awsCluster) {
+			irsa = true
+		}
+
+		secret, err := r.k8sClient.CoreV1().Secrets(awsCluster.Spec.Provider.CredentialSecret.Namespace).Get(ctx, awsCluster.Spec.Provider.CredentialSecret.Name, metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			r.logger.Debugf(ctx, "secret '%s/%s' not found cannot set accountID", cr.Namespace, key.APISecretName(&cr))
+			return nil, nil
+		} else if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		arn := string(secret.Data["aws.awsoperator.arn"])
+		if arn == "" {
+			return nil, microerror.Mask(fmt.Errorf("Unable to find ARN from secret %s/%s", secret.Namespace, secret.Name))
+		}
+
+		re := regexp.MustCompile(`[-]?\d[\d,]*[\.]?[\d{2}]*`)
+		accountID = re.FindAllString(arn, 1)[0]
+
+		vpcID = awsCluster.Status.Provider.Network.VPCID
+
+		values["aws"] = map[string]interface{}{
+			"accountID": accountID,
+			"irsa":      strconv.FormatBool(irsa),
+			"region":    awsCluster.Spec.Provider.Region,
+			"vpcID":     vpcID,
+		}
+	}
+
+	ciliumValues := map[string]interface{}{
+		"defaultPolicies": map[string]interface{}{
+			"enabled": true,
+		},
+		"ipam": map[string]interface{}{
+			"mode": "kubernetes",
+		},
+		"cni": map[string]interface{}{
+			"exclusive": false,
+		},
+		"extraEnv": []map[string]string{
+			{
+				"name":  "CNI_CONF_NAME",
+				"value": "21-cilium.conf",
+			},
+		},
+	}
+
+	if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+		ciliumValues["kubeProxyReplacement"] = "disabled"
+	} else {
+		ciliumValues["kubeProxyReplacement"] = "strict"
+		ciliumValues["k8sServiceHost"] = key.APIEndpoint(&cr, bd)
+		ciliumValues["k8sServicePort"] = "443"
+		ciliumValues["cleanupKubeProxy"] = true
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(&cr),
 			Namespace: key.ClusterID(&cr),
-			Values: map[string]interface{}{
-				"baseDomain": key.TenantEndpoint(&cr, bd),
-				"cluster": map[string]interface{}{
-					"calico": map[string]interface{}{
-						"CIDR": podCIDR,
-					},
-					"kubernetes": map[string]interface{}{
-						"API": map[string]interface{}{
-							"clusterIPRange": r.clusterIPRange,
-						},
-						"DNS": map[string]interface{}{
-							"IP": r.dnsIP,
-						},
-					},
-				},
-				"clusterDNSIP": r.dnsIP,
-				"clusterID":    key.ClusterID(&cr),
-			},
+			Values:    values,
 		},
 		{
 			Name:      "ingress-controller-values",
@@ -76,6 +167,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 					"use-proxy-protocol": strconv.FormatBool(useProxyProtocol),
 				},
 			},
+		},
+		{
+			Name:      "cilium-user-values",
+			Namespace: key.ClusterID(&cr),
+			Values:    ciliumValues,
 		},
 	}
 
@@ -93,7 +189,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	return configMaps, nil
 }
 
-func newConfigMap(cr apiv1alpha2.Cluster, configMapSpec configMapSpec) (*corev1.ConfigMap, error) {
+func newConfigMap(cr apiv1beta1.Cluster, configMapSpec configMapSpec) (*corev1.ConfigMap, error) {
 	yamlValues, err := yaml.Marshal(configMapSpec.Values)
 	if err != nil {
 		return nil, microerror.Mask(err)

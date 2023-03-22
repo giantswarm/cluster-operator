@@ -3,16 +3,23 @@ package clusterid
 import (
 	"context"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
+	if r.provider != label.ProviderAWS {
+		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	cr := r.newCommonClusterObjectFunc()
-	var status infrastructurev1alpha2.CommonClusterStatus
+	var status infrastructurev1alpha3.CommonClusterStatus
 	{
 		cl, err := key.ToCluster(obj)
 		if err != nil {

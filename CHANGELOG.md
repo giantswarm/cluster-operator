@@ -7,6 +7,184 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add use of runtime/default seccomp profile.
+
+### Fixed
+
+- Don't remove finalizer for in-cluster apps when cluster is being deleted.
+
+## [5.5.0] - 2023-02-02
+
+### Fixed
+
+- Fix user config CM mapping for bundle apps.
+
+### Added
+
+- Read app dependencies from Release CR to avoid deadlock installing apps in new clusters.
+
+## [5.4.0] - 2023-01-30
+
+### Added
+
+- Add `aws.region` field in the cluster configmap.
+
+### Changed
+
+- Make the `aws` related fields only present on aws clusters' cluster configmap.
+
+## [5.3.0] - 2022-11-03
+
+### Changed
+
+- Enable IRSA by default on v19+ clusters.
+
+## [5.2.0] - 2022-10-10
+
+### Added
+
+- Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR.
+
+## [5.1.0] - 2022-10-01
+
+### Added
+
+- Support for App bundles in default apps.
+
+### Changed
+
+- Bump `apiextensions-application` to the `0.6.0` version.
+
+## [5.0.0] - 2022-09-26
+
+### Changed
+
+- Enable kube-proxy replacement mode in Cilium app.
+- Enable bootstrap mode for chart operator.
+
+### Added
+
+- Add `vpc ID` to WC configmap on AWS.
+- Add support for extraConfigs field in App CR.
+
+## [4.6.2] - 2022-09-12
+
+### Fixed
+
+- Use `AzureConfig`'s `Spec.Azure.VirtualNetwork.CalicoSubnetCIDR` field for Calico CIDR rather than `Spec.Cluster.Calico.Subnet`.
+
+## [4.6.1] - 2022-08-31
+
+### Changed
+
+- Empty release to fix broken automation.
+
+## [4.6.0] - 2022-08-31
+
+### Fixed
+
+- Fixed finding of apps with and without the -app suffix in catalogs.
+
+## [4.5.2] - 2022-08-11
+
+### Changed
+
+- Set `cni.exclusive` to `false` in cilium app config.
+
+## [4.5.1] - 2022-08-09
+
+### Changed
+
+- Add `CNI_CONF_NAME` env to cilium app config.
+
+## [4.5.0] - 2022-08-08
+
+### Added
+
+- Add cilium app config map.
+
+## [4.4.0] - 2022-07-21
+
+### Changed
+
+- Set `chartOperator.cni.install` to true to allow installing CNI as app.
+
+## [4.3.0] - 2022-06-02
+
+### Changed
+
+- Do not update "app-operator.giantswarm.io/version" label on app-operators when their value is 0.0.0 (aka they are reconciled by the management cluster app-operator). This is a use-case for App Bundles for example, because the App CRs they contain should be created in the MC so should be reconciled by the MC app-operator.
+
+## [4.2.0] - 2022-05-25
+
+### Added
+
+- Add cluster values for IRSA.
+
+## [4.1.0] - 2022-04-27
+
+### Changed
+
+- Store kubeconfig copy in `.data.value` field of the Secret.
+
+## [4.0.2] - 2022-04-14
+
+### Fixed
+
+- List apps by namespace.
+
+## [4.0.1] - 2022-03-29
+
+### Fixed
+
+- Only list apps from cluster namespace.
+
+## [4.0.0] - 2022-03-29
+
+### Changed
+
+- Update ClusterAPI CR's to `v1beta1`.
+
+## [3.14.1] - 2022-03-11
+
+### Changed
+
+- Update `aws-pod-identity-webhook` app version.
+
+## [3.14.0] - 2022-03-04
+
+### Added
+
+- Add IAM Roles for Service Accounts feature support for AWS.
+
+## [3.13.0] - 2022-01-27
+
+### Changed
+
+- Removed encryption key creation. Encryption keys will be managed by `encryption-provider-operator`.
+
+## [3.12.0] - 2021-12-06
+
+### Changed
+
+- Added support for Azure by selectively disabling features that are AWS specific.
+
+## [3.11.0] - 2021-11-08
+
+### Added
+
+- Check if `kiam-watchdog` app has to be enabled.
+- Add cluster CA to cluster values configmap for apps like dex that need to
+verify it.
+
+## [3.10.0] - 2021-08-30
+
+### Changed
+
+- Introducing `v1alpha3` CR's.
+
 ## [3.9.0] - 2021-07-20
 
 ### Changed
@@ -245,7 +423,32 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v3.9.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.5.0...HEAD
+[5.5.0]: https://github.com/giantswarm/cluster-operator/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/giantswarm/cluster-operator/compare/v5.3.0...v5.4.0
+[5.3.0]: https://github.com/giantswarm/cluster-operator/compare/v5.2.0...v5.3.0
+[5.2.0]: https://github.com/giantswarm/cluster-operator/compare/v5.1.0...v5.2.0
+[5.1.0]: https://github.com/giantswarm/cluster-operator/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/giantswarm/cluster-operator/compare/v4.6.2...v5.0.0
+[4.6.2]: https://github.com/giantswarm/cluster-operator/compare/v4.6.1...v4.6.2
+[4.6.1]: https://github.com/giantswarm/cluster-operator/compare/v4.6.0...v4.6.1
+[4.6.0]: https://github.com/giantswarm/cluster-operator/compare/v4.5.2...v4.6.0
+[4.5.2]: https://github.com/giantswarm/cluster-operator/compare/v4.5.1...v4.5.2
+[4.5.1]: https://github.com/giantswarm/cluster-operator/compare/v4.5.0...v4.5.1
+[4.5.0]: https://github.com/giantswarm/cluster-operator/compare/v4.4.0...v4.5.0
+[4.4.0]: https://github.com/giantswarm/cluster-operator/compare/v4.3.0...v4.4.0
+[4.3.0]: https://github.com/giantswarm/cluster-operator/compare/v4.2.0...v4.3.0
+[4.2.0]: https://github.com/giantswarm/cluster-operator/compare/v4.1.0...v4.2.0
+[4.1.0]: https://github.com/giantswarm/cluster-operator/compare/v4.0.2...v4.1.0
+[4.0.2]: https://github.com/giantswarm/cluster-operator/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/giantswarm/cluster-operator/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/giantswarm/cluster-operator/compare/v3.14.1...v4.0.0
+[3.14.1]: https://github.com/giantswarm/cluster-operator/compare/v3.14.0...v3.14.1
+[3.14.0]: https://github.com/giantswarm/giantswarm/compare/v3.13.0...v3.14.0
+[3.13.0]: https://github.com/giantswarm/cluster-operator/compare/v3.12.0...v3.13.0
+[3.12.0]: https://github.com/giantswarm/cluster-operator/compare/v3.11.0...v3.12.0
+[3.11.0]: https://github.com/giantswarm/cluster-operator/compare/v3.10.0...v3.11.0
+[3.10.0]: https://github.com/giantswarm/cluster-operator/compare/v3.9.0...v3.10.0
 [3.9.0]: https://github.com/giantswarm/cluster-operator/compare/v3.8.0...v3.9.0
 [3.8.0]: https://github.com/giantswarm/cluster-operator/compare/v3.7.1...v3.8.0
 [3.7.1]: https://github.com/giantswarm/cluster-operator/compare/v3.7.0...v3.7.1

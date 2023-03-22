@@ -5,16 +5,23 @@ import (
 	"fmt"
 	"reflect"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/finalizerskeptcontext"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/reconciliationcanceledcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/finalizerskeptcontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/reconciliationcanceledcontext"
 	"k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/pkg/label"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
+	if r.provider != label.ProviderAWS {
+		r.logger.Debugf(ctx, "provider is %q, only supported provider for %q resource is aws", r.provider, r.Name())
+		r.logger.Debugf(ctx, "canceling resource")
+		return nil
+	}
+
 	cr := r.newCommonClusterObjectFunc()
 	{
 		cl, err := key.ToCluster(obj)
@@ -64,8 +71,8 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
-func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj infrastructurev1alpha2.CommonClusterObject) infrastructurev1alpha2.CommonClusterObject {
-	cr := (obj.DeepCopyObject()).(infrastructurev1alpha2.CommonClusterObject)
+func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj infrastructurev1alpha3.CommonClusterObject) infrastructurev1alpha3.CommonClusterObject {
+	cr := (obj.DeepCopyObject()).(infrastructurev1alpha3.CommonClusterObject)
 
 	status := cr.GetCommonClusterStatus()
 
@@ -76,7 +83,7 @@ func (r *Resource) computeDeleteClusterStatusConditions(ctx context.Context, obj
 		if notDeleting {
 			status.Conditions = status.WithDeletingCondition()
 			cr.SetCommonClusterStatus(status)
-			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha2.ClusterStatusConditionDeleting))
+			r.logger.LogCtx(ctx, "level", "info", "message", fmt.Sprintf("setting %#q status condition", infrastructurev1alpha3.ClusterStatusConditionDeleting))
 		}
 	}
 

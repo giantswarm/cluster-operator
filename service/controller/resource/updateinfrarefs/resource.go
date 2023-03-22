@@ -1,12 +1,12 @@
 package updateinfrarefs
 
 import (
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 )
 
 const (
@@ -26,8 +26,8 @@ type Config struct {
 // following version labels in our infrastructure CRs, e.g. AWSCluster
 // AWSMachineDeployments.
 //
-//     $PROVIDER-operator.giantswarm.io/version
-//     release.giantswarm.io/version
+//	$PROVIDER-operator.giantswarm.io/version
+//	release.giantswarm.io/version
 //
 // The release version label is taken from the Cluster CR and propagated. The
 // provider operator version label is set with the value taken from the

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/cachekeycontext"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 	gocache "github.com/patrickmn/go-cache"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 type Release struct {

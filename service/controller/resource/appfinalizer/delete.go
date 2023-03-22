@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/apiextensions/v6/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
 // EnsureDeleted removes finalizers for workload cluster app CRs. These are
@@ -22,21 +24,24 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 	}
 
 	// We keep the finalizer for the app-operator app CR so the resources in
-	// the management cluster are deleted.
+	// the management cluster are deleted. We also keep finalizer of the in-cluster
+	// App CRs for they need to be processed correctly by the unique App Operator.
 	o := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s!=%s", label.AppKubernetesName, "app-operator"),
+		LabelSelector: fmt.Sprintf("%s!=%s,%s!=%s", label.AppKubernetesName, "app-operator", label.AppOperatorVersion, "0.0.0"),
 	}
 
 	r.logger.Debugf(ctx, "finding apps to remove finalizers for")
 
-	list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(ctx, o)
+	list := &v1alpha1.AppList{}
+
+	err = r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cr), Raw: &o})
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
 	r.logger.Debugf(ctx, "found %d apps to remove finalizers for", len(list.Items))
 
-	for _, app := range list.Items {
+	for i, app := range list.Items {
 		r.logger.Debugf(ctx, "removing finalizer for app %#q", app.Name)
 
 		index := getFinalizerIndex(app.Finalizers)
@@ -52,7 +57,7 @@ func (r *Resource) EnsureDeleted(ctx context.Context, obj interface{}) error {
 				return microerror.Mask(err)
 			}
 
-			_, err = r.g8sClient.ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+			err = r.ctrlClient.Patch(ctx, &list.Items[i], client.RawPatch(types.JSONPatchType, bytes), &client.PatchOptions{Raw: &metav1.PatchOptions{}})
 			if err != nil {
 				return microerror.Mask(err)
 			}

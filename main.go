@@ -9,10 +9,10 @@ import (
 	"github.com/giantswarm/micrologger"
 	"github.com/spf13/viper"
 
-	"github.com/giantswarm/cluster-operator/v3/flag"
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/server"
-	"github.com/giantswarm/cluster-operator/v3/service"
+	"github.com/giantswarm/cluster-operator/v5/flag"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/server"
+	"github.com/giantswarm/cluster-operator/v5/service"
 )
 
 var (
@@ -127,6 +127,7 @@ func mainE() error {
 
 	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Default, "", "Default properties for app.")
 	daemonCommand.PersistentFlags().String(f.Service.Release.App.Config.Override, "", "Overriding properties for app.")
+	daemonCommand.PersistentFlags().Bool(f.Service.Release.App.Config.KiamWatchDogEnabled, true, "Enable Kiam Watchdog.")
 
 	err = newCommand.CobraCommand().Execute()
 	if err != nil {

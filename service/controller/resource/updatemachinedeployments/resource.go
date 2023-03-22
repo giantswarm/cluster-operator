@@ -1,7 +1,7 @@
 package updatemachinedeployments
 
 import (
-	"github.com/giantswarm/k8sclient/v5/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )
@@ -18,8 +18,8 @@ type Config struct {
 // Resource implements the operatorkit resource interface to propagate the
 // following version labels from Cluster CRs to MachineDeployment CRs.
 //
-//     cluster-operator.giantswarm.io/version
-//     release.giantswarm.io/version
+//	cluster-operator.giantswarm.io/version
+//	release.giantswarm.io/version
 //
 // This process ensures to distribute the right version labels among CAPI CRs
 // during Tenant Cluster upgrades.

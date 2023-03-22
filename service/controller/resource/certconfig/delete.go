@@ -3,10 +3,11 @@ package certconfig
 import (
 	"context"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/core/v1alpha1"
+	"github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
 	"github.com/giantswarm/microerror"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (r *Resource) applyDeleteChange(ctx context.Context, obj, deleteChange interface{}) error {
@@ -19,7 +20,7 @@ func (r *Resource) applyDeleteChange(ctx context.Context, obj, deleteChange inte
 		for _, certConfig := range certConfigs {
 			r.logger.Debugf(ctx, "deleting CertConfig CR %#q in namespace %#q", certConfig.Name, certConfig.Namespace)
 
-			err := r.g8sClient.CoreV1alpha1().CertConfigs(certConfig.Namespace).Delete(ctx, certConfig.Name, metav1.DeleteOptions{})
+			err := r.ctrlClient.Delete(ctx, certConfig, &client.DeleteOptions{Raw: &metav1.DeleteOptions{}})
 			if apierrors.IsNotFound(err) {
 				// fall through
 			} else if err != nil {

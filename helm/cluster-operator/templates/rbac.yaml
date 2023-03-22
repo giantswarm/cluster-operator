@@ -66,6 +66,13 @@ rules:
     verbs:
       - get
   - apiGroups:
+      - application.giantswarm.io
+    resources:
+      - appcatalogentries
+    verbs:
+      - get
+      - list
+  - apiGroups:
       - "networking.k8s.io"
     resources:
       - networkpolicies
@@ -114,6 +121,18 @@ rules:
       - kvmclusterconfigs
     verbs:
       - "*"
+  - apiGroups:
+      - provider.giantswarm.io
+    resources:
+      - azureconfigs
+    verbs:
+      - "list"
+  - apiGroups:
+      - infrastructure.cluster.x-k8s.io
+    resources:
+      - azureclusters
+    verbs:
+      - "get"
   - nonResourceURLs:
       - "/"
       - "/healthz"

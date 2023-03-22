@@ -2,14 +2,15 @@ package releaseversion
 
 import (
 	"context"
+	"reflect"
 	"strconv"
 	"testing"
 
-	infrastructurev1alpha2 "github.com/giantswarm/apiextensions/v3/pkg/apis/infrastructure/v1alpha2"
-	releasev1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/release/v1alpha1"
-	"github.com/giantswarm/operatorkit/v4/pkg/controller/context/cachekeycontext"
+	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
+	"github.com/giantswarm/operatorkit/v7/pkg/controller/context/cachekeycontext"
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 
-	"github.com/giantswarm/cluster-operator/v3/service/internal/unittest"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/unittest"
 )
 
 func Test_Release_Cache(t *testing.T) {
@@ -69,7 +70,7 @@ func Test_Release_Cache(t *testing.T) {
 				release = unittest.DefaultRelease()
 			}
 
-			var cl infrastructurev1alpha2.AWSCluster
+			var cl infrastructurev1alpha3.AWSCluster
 			{
 				cl = unittest.DefaultCluster()
 			}
@@ -110,11 +111,11 @@ func Test_Release_Cache(t *testing.T) {
 				t.Fatalf("expected %#q to be equal to %#q", release1[tc.appName], tc.expectAppVersion)
 			}
 			if tc.expectCaching {
-				if release1[tc.appName] != release2[tc.appName] {
+				if !reflect.DeepEqual(release1[tc.appName], release2[tc.appName]) {
 					t.Fatalf("expected %#q to be equal to %#q", release1[tc.appName], release2[tc.appName])
 				}
 			} else {
-				if release1[tc.appName] == release2[tc.appName] {
+				if reflect.DeepEqual(release1[tc.appName], release2[tc.appName]) {
 					t.Fatalf("expected %#q to differ from %#q", release1[tc.appName], release1[tc.appName])
 				}
 			}

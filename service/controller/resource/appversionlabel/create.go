@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/giantswarm/apiextensions/v3/pkg/apis/application/v1alpha1"
-	"github.com/giantswarm/apiextensions/v3/pkg/label"
+	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/apiextensions/v6/pkg/label"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/giantswarm/cluster-operator/v3/pkg/project"
-	"github.com/giantswarm/cluster-operator/v3/service/controller/key"
-	"github.com/giantswarm/cluster-operator/v3/service/internal/releaseversion"
+	"github.com/giantswarm/cluster-operator/v5/pkg/project"
+	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
+	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
@@ -29,7 +31,9 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 		o := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s!=%s", label.ManagedBy, project.Name()),
 		}
-		list, err := r.g8sClient.ApplicationV1alpha1().Apps(key.ClusterID(&cr)).List(ctx, o)
+
+		list := &v1alpha1.AppList{}
+		err = r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cr), Raw: &o})
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -61,8 +65,8 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 			for _, app := range apps {
 				currentVersion := app.Labels[label.AppOperatorVersion]
 
-				if currentVersion != appOperatorVersion {
-					patches := []patch{}
+				if shouldUpdateAppOperatorVersionLabel(currentVersion, appOperatorVersion) {
+					var patches []patch
 
 					if len(app.Labels) == 0 {
 						patches = append(patches, patch{
@@ -83,7 +87,7 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 						return microerror.Mask(err)
 					}
 
-					_, err = r.g8sClient.ApplicationV1alpha1().Apps(app.Namespace).Patch(ctx, app.Name, types.JSONPatchType, bytes, metav1.PatchOptions{})
+					err = r.ctrlClient.Patch(ctx, app, client.RawPatch(types.JSONPatchType, bytes), &client.PatchOptions{Raw: &metav1.PatchOptions{}})
 					if err != nil {
 						return microerror.Mask(err)
 					}
@@ -97,4 +101,15 @@ func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+// shouldUpdateAppOperatorVersionLabel When the current version is 0.0.0  aka they are reconciled by the management
+// cluster app-operator. This is a use-case for App Bundles  for example, because the App CRs they contain should be
+// created in the management cluster so should be reconciled by the management cluster app-operator.
+func shouldUpdateAppOperatorVersionLabel(currentVersion string, componentVersion string) bool {
+	if currentVersion == key.UniqueOperatorVersion {
+		return false
+	}
+
+	return currentVersion != componentVersion
 }
