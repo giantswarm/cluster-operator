@@ -85,6 +85,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"ciliumNetworkPolicy": map[string]interface{}{
 			"enabled": true,
 		},
+		"cert-manager-giantswarm-clusterissuer": map[string]interface{}{
+			"ciliumNetworkPolicy": map[string]interface{}{
+				"enabled": true,
+			},
+		},
 	}
 
 	if r.provider == "aws" {
