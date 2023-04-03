@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add use of runtime/default seccomp profile.
 
+### Changed
+
+- Disable `default policies` creation for Cilium App.
+- Add `cert-manager` as dependency for `aws-pod-identity-webhook` app.
+- Enable `ciliumNetworkPolicy.enabled` flag for all apps.
+
 ### Fixed
 
 - Don't remove finalizer for in-cluster apps when cluster is being deleted.

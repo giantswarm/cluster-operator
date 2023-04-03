@@ -82,6 +82,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"clusterCA":    clusterCA,
 		"clusterDNSIP": r.dnsIP,
 		"clusterID":    key.ClusterID(&cr),
+		"ciliumNetworkPolicy": map[string]interface{}{
+			"enabled": true,
+		},
 	}
 
 	if r.provider == "aws" {
@@ -125,9 +128,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	}
 
 	ciliumValues := map[string]interface{}{
-		"defaultPolicies": map[string]interface{}{
-			"enabled": true,
-		},
 		"ipam": map[string]interface{}{
 			"mode": "kubernetes",
 		},
