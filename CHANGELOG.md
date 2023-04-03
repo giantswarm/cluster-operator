@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Disable `default policies` creation for Cilium App.
 - Add `cert-manager` as dependency for `aws-pod-identity-webhook` app.
+- Enable `ciliumNetworkPolicy.enabled` flag for all apps.
 
 ### Fixed
 
