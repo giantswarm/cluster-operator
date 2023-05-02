@@ -1,10 +1,10 @@
 package kubeconfig
 
 import (
-	"github.com/giantswarm/certs/v3/pkg/certs"
+	"github.com/giantswarm/certs/v4/pkg/certs"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
-	"github.com/giantswarm/tenantcluster/v4/pkg/tenantcluster"
+	"github.com/giantswarm/tenantcluster/v6/pkg/tenantcluster"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/giantswarm/cluster-operator/v5/service/internal/basedomain"
@@ -36,7 +36,7 @@ type Resource struct {
 // New creates a new configured secret state getter resource managing kube
 // configs.
 //
-//	https://pkg.go.dev/github.com/giantswarm/operatorkit/v7/pkg/resource/k8s/secretresource#StateGetter
+//	https://pkg.go.dev/github.com/giantswarm/operatorkit/v8/pkg/resource/k8s/secretresource#StateGetter
 func New(config Config) (*Resource, error) {
 	if config.BaseDomain == nil {
 		return nil, microerror.Maskf(invalidConfigError, "%T.BaseDomain must not be empty", config)
