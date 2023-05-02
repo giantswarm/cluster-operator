@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	corev1alpha1 "github.com/giantswarm/apiextensions/v6/pkg/apis/core/v1alpha1"
-	"github.com/giantswarm/certs/v3/pkg/certs"
+	"github.com/giantswarm/certs/v4/pkg/certs"
 	"github.com/giantswarm/microerror"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
