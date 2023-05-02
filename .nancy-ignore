@@ -1,28 +1,5 @@
-# Unresolved as of 2022/05/25
-# pkg:golang/github.com/hashicorp/consul/api@v1.12.0 -> no new version
-# pkg:golang/github.com/hashicorp/consul/sdk@v0.8.0
-CVE-2022-29153 until=2022-08-31
-CVE-2022-24687 until=2022-08-31
-CVE-2021-41803 until=2022-12-01
-
-# pkg:golang/github.com/kataras/iris/v12@v12.1.8 -> no new version
-CVE-2021-23772 until=2022-08-31
-
-# github.com/valyala/fasthttp
-CVE-2022-21221 until=2022-08-31
-
-# pkg:golang/github.com/valyala/fasthttp@v1.6.0
-CVE-2021-42576 until=2022-08-31
-
-# pkg:golang/github.com/urfave/negroni@v1.0.0
-sonatype-2021-1485 until=2022-08-31
-
-# pkg:golang/go.mongodb.org/mongo-driver@v1.1.2
-CVE-2021-20329 until=2022-08-31
-
-# pkg:golang/github.com/nats-io/jwt@v0.3.2
-CVE-2020-26892 until=2022-08-31
-CVE-2021-3127 until=2022-08-31
+# pkg:golang/golang.org/x/net@v0.4.0 temp ignore for build
+CVE-2022-41723 until=2023-03-23
 
 CVE-2021-20329
 CVE-2022-29153
@@ -37,3 +14,4 @@ CVE-2022-21221
 sonatype-2022-5436
 CVE-2021-41803
 sonatype-2022-6522
+CVE-2020-8561

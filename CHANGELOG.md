@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.6.0] - 2023-04-03
+
+### Added
+
+- Add use of runtime/default seccomp profile.
+
+### Changed
+
+- Disable `default policies` creation for Cilium App.
+- Add `cert-manager` as dependency for `aws-pod-identity-webhook` app.
+- Enable `ciliumNetworkPolicy.enabled` flag for all apps.
+
+### Fixed
+
+- Don't remove finalizer for in-cluster apps when cluster is being deleted.
+
+## [5.5.0] - 2023-02-02
+
+### Fixed
+
+- Fix user config CM mapping for bundle apps.
+
+### Added
+
+- Read app dependencies from Release CR to avoid deadlock installing apps in new clusters.
+
+## [5.4.0] - 2023-01-30
+
+### Added
+
+- Add `aws.region` field in the cluster configmap.
+
+### Changed
+
+- Make the `aws` related fields only present on aws clusters' cluster configmap.
+
 ## [5.3.0] - 2022-11-03
 
 ### Changed
@@ -17,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR. 
+- Allow disabling cilium's kube-proxy replacement feature by adding an annotation to the Cluster CR.
 
 ## [5.1.0] - 2022-10-01
 
@@ -395,7 +431,10 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.3.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.6.0...HEAD
+[5.6.0]: https://github.com/giantswarm/cluster-operator/compare/v5.5.0...v5.6.0
+[5.5.0]: https://github.com/giantswarm/cluster-operator/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/giantswarm/cluster-operator/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/giantswarm/cluster-operator/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/giantswarm/cluster-operator/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/giantswarm/cluster-operator/compare/v5.0.0...v5.1.0
