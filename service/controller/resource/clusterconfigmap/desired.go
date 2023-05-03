@@ -8,7 +8,7 @@ import (
 
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -61,6 +61,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
+	// enableCiliumNetworkPolicy is only enabled by default for AWS clusters.
+	var enableCiliumNetworkPolicy bool
+	{
+		if r.provider == "aws" {
+			enableCiliumNetworkPolicy = true
+		}
+	}
+
 	values := map[string]interface{}{
 		"baseDomain": key.TenantEndpoint(&cr, bd),
 		"bootstrapMode": map[string]interface{}{
@@ -83,7 +91,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"clusterDNSIP": r.dnsIP,
 		"clusterID":    key.ClusterID(&cr),
 		"ciliumNetworkPolicy": map[string]interface{}{
-			"enabled": true,
+			"enabled": enableCiliumNetworkPolicy,
 		},
 	}
 
