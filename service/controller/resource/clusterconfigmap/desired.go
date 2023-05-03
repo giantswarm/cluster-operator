@@ -55,16 +55,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 
 	// useProxyProtocol is only enabled by default for AWS clusters.
 	var useProxyProtocol bool
-	{
-		if r.provider == "aws" {
-			useProxyProtocol = true
-		}
-	}
-
 	// enableCiliumNetworkPolicy is only enabled by default for AWS clusters.
 	var enableCiliumNetworkPolicy bool
 	{
 		if r.provider == "aws" {
+			useProxyProtocol = true
 			enableCiliumNetworkPolicy = true
 		}
 	}
