@@ -116,7 +116,7 @@ replace (
 	github.com/coreos/etcd v3.3.10+incompatible => github.com/coreos/etcd v3.3.25+incompatible
 	github.com/coreos/etcd v3.3.13+incompatible => github.com/coreos/etcd v3.3.25+incompatible
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.7.7
+	github.com/gin-gonic/gin v1.4.0 => github.com/gin-gonic/gin v1.9.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/consul/sdk v0.1.1 => github.com/hashicorp/consul/sdk v0.8.0
 	github.com/labstack/echo/v4 v4.5.0 => github.com/labstack/echo/v4 v4.9.0
