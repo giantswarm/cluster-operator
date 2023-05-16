@@ -15,3 +15,6 @@ sonatype-2022-5436
 CVE-2021-41803
 sonatype-2022-6522
 CVE-2020-8561
+
+# github.com/gin-gonic/gin@v1.9.0 - no new version available
+CVE-2023-29401
