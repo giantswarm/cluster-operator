@@ -64,7 +64,7 @@ vault:
 
 # Add seccomp to pod security context
 podSecurityContext:
-  runAsNonRoot: true 
+  runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
 
