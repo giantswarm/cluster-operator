@@ -10,3 +10,8 @@ func ForceDisableCiliumKubeProxyReplacement(cluster apiv1beta1.Cluster) bool {
 
 	return found && v == "true"
 }
+
+func AWSEniModeEnabled(cluster apiv1beta1.Cluster) bool {
+	// TODO detectl from cluster annotation.
+	return true
+}

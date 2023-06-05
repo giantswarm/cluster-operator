@@ -154,6 +154,33 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["cleanupKubeProxy"] = true
 	}
 
+	if key.AWSEniModeEnabled(cr) {
+		ciliumValues["eni"] = map[string]interface{}{
+			"enabled": true,
+		}
+		// ciliumValues["awsEnablePrefixDelegation"] = true
+		ciliumValues["subnetTagsFilter"] = []string{
+			"giantswarm.io/cluster=pp4a5,giantswarm.io/subnet-type=aws-cni",
+		}
+
+		ciliumValues["subnetTagsFilter"] = []string{
+			"giantswarm.io/installation=gaia",
+		}
+		ciliumValues["ipam"] = map[string]interface{}{
+			"mode": "eni",
+		}
+		ciliumValues["ipv4NativeRoutingCIDR"] = "10.0.0.0/8"
+		// https://docs.cilium.io/en/v1.13/network/concepts/routing/#id5
+		ciliumValues["endpointRoutes"] = map[string]interface{}{
+			"enabled": true,
+		}
+		ciliumValues["egressMasqueradeInterfaces"] = "eth+"
+		ciliumValues["tunnel"] = "disabled"
+		ciliumValues["cluster"] = map[string]interface{}{
+			"name": "enicni",
+		}
+	}
+
 	configMapSpecs := []configMapSpec{
 		{
 			Name:      key.ClusterConfigMapName(&cr),
