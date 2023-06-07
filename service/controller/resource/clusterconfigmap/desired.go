@@ -160,16 +160,16 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 		// ciliumValues["awsEnablePrefixDelegation"] = true
 		ciliumValues["subnetTagsFilter"] = []string{
-			"giantswarm.io/cluster=pp4a5,giantswarm.io/subnet-type=aws-cni",
+			fmt.Sprintf("giantswarm.io/cluster=%s,giantswarm.io/subnet-type=aws-cni", key.ClusterID(&cr)),
 		}
 
 		ciliumValues["subnetTagsFilter"] = []string{
-			"giantswarm.io/installation=gaia",
+			fmt.Sprintf("giantswarm.io/installation=%s", r.installation),
 		}
 		ciliumValues["ipam"] = map[string]interface{}{
 			"mode": "eni",
 		}
-		ciliumValues["ipv4NativeRoutingCIDR"] = "10.0.0.0/8"
+		ciliumValues["ipv4NativeRoutingCIDR"] = podCIDR
 		// https://docs.cilium.io/en/v1.13/network/concepts/routing/#id5
 		ciliumValues["endpointRoutes"] = map[string]interface{}{
 			"enabled": true,

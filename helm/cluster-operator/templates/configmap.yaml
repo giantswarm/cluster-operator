@@ -39,6 +39,8 @@ data:
           caFile: ''
           crtFile: ''
           keyFile: ''
+      installation:
+        name: '{{ .Values.installation.name }}'
       provider:
         kind: '{{ .Values.provider.kind }}'
       release:
