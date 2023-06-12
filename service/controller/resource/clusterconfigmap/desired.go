@@ -154,7 +154,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["cleanupKubeProxy"] = true
 	}
 
-	if key.AWSEniModeEnabled(cr) {
+	if r.provider == "aws" && key.AWSEniModeEnabled(cr) {
 		ciliumValues["eni"] = map[string]interface{}{
 			"enabled": true,
 		}
@@ -176,6 +176,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 		ciliumValues["egressMasqueradeInterfaces"] = "eth+"
 		ciliumValues["tunnel"] = "disabled"
+		// Used by cilium to tag ENIs it creates and be able to filter and clean them up.
 		ciliumValues["cluster"] = map[string]interface{}{
 			"name": "enicni",
 		}

@@ -12,6 +12,11 @@ func ForceDisableCiliumKubeProxyReplacement(cluster apiv1beta1.Cluster) bool {
 }
 
 func AWSEniModeEnabled(cluster apiv1beta1.Cluster) bool {
-	// TODO detectl from cluster annotation.
-	return true
+	mode, found := cluster.Annotations[annotation.CiliumIpamModeAnnotation]
+	if !found {
+		// we default to 'kubernetes' mode
+		return false
+	}
+
+	return mode == annotation.CiliumIpamModeENI
 }
