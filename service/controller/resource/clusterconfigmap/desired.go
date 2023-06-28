@@ -21,6 +21,8 @@ import (
 	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
+const providerAWS = "aws"
+
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
@@ -58,7 +60,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	// enableCiliumNetworkPolicy is only enabled by default for AWS clusters.
 	var enableCiliumNetworkPolicy bool
 	{
-		if r.provider == "aws" {
+		if key.IsAWS(r.provider) {
 			useProxyProtocol = true
 			enableCiliumNetworkPolicy = true
 		}
@@ -90,7 +92,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 	}
 
-	if r.provider == "aws" {
+	if key.IsAWS(r.provider) {
 		var irsa bool
 		var accountID string
 		var vpcID string
@@ -154,7 +156,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["cleanupKubeProxy"] = true
 	}
 
-	if r.provider == "aws" && key.AWSEniModeEnabled(cr) {
+	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
 		ciliumValues["eni"] = map[string]interface{}{
 			"enabled": true,
 		}
