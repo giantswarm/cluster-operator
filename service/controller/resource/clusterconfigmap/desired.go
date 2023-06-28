@@ -21,8 +21,6 @@ import (
 	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 )
 
-const providerAWS = "aws"
-
 func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*corev1.ConfigMap, error) {
 	cr, err := key.ToCluster(obj)
 	if err != nil {
