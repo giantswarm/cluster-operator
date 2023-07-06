@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add necessary values for PSS policy warnings.
+
 ## [5.6.1] - 2023-05-03
 
 ### Fixed
