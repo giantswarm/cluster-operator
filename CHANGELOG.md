@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add necessary values for PSS policy warnings.
 
+### Removed
+
+- Values: Remove release override for `nginx-ingress-controller`. ([#1625](https://github.com/giantswarm/cluster-operator/pull/1625))
+
 ## [5.6.1] - 2023-05-03
 
 ### Fixed
