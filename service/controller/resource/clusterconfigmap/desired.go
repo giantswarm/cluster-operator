@@ -128,6 +128,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"region":    awsCluster.Spec.Provider.Region,
 			"vpcID":     vpcID,
 		}
+
+		// cert-manager IRSA SA annotation
+		if key.IRSAEnabled(awsCluster) {
+			values["serviceAccount"] = map[string]interface{}{
+				"annotations": map[string]interface{}{
+					"eks.amazonaws.com/role-arn": fmt.Sprintf("arn:aws:iam::%s:role/%s-CertManager-Role", accountID, key.ClusterID(&cr)),
+				},
+			}
+		}
 	}
 
 	ciliumValues := map[string]interface{}{
