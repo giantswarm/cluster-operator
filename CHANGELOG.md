@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.6.1-patch1] - 2023-07-18
+
 ### Changed
 
 - Patch app operator version on all apps instead of just optional ones.
@@ -441,7 +443,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.6.1...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.6.1-patch1...HEAD
+[5.6.1-patch1]: https://github.com/giantswarm/cluster-operator/compare/v5.6.1...v5.6.1-patch1
 [5.6.1]: https://github.com/giantswarm/cluster-operator/compare/v5.6.0...v5.6.1
 [5.6.0]: https://github.com/giantswarm/cluster-operator/compare/v5.5.0...v5.6.0
 [5.5.0]: https://github.com/giantswarm/cluster-operator/compare/v5.4.0...v5.5.0
