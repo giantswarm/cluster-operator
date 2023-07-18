@@ -53,7 +53,7 @@ func (r *Resource) getApps(ctx context.Context, logger micrologger.Logger, clust
 		apps = append(apps, item.DeepCopy())
 	}
 
-	r.logger.Debugf(ctx, "found %d apps", len(apps))
+	logger.Debugf(ctx, "found %d apps", len(apps))
 
 	return apps, nil
 }
@@ -68,7 +68,7 @@ func (r *Resource) updateApps(ctx context.Context, logger micrologger.Logger, cl
 		return err
 	}
 
-	r.logger.Debugf(ctx, "updating app version labels")
+	logger.Debugf(ctx, "updating app version labels")
 
 	updatedAppCount := 0
 	for _, app := range apps {
@@ -86,7 +86,7 @@ func (r *Resource) updateApps(ctx context.Context, logger micrologger.Logger, cl
 		updatedAppCount++
 	}
 
-	r.logger.Debugf(ctx, "updated version label for %d apps", updatedAppCount)
+	logger.Debugf(ctx, "updated version label for %d apps", updatedAppCount)
 
 	return nil
 }
