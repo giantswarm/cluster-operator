@@ -8,10 +8,11 @@ import (
 	"github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/apiextensions/v6/pkg/label"
 	"github.com/giantswarm/microerror"
+	"github.com/giantswarm/micrologger"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	apiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/giantswarm/cluster-operator/v5/pkg/project"
 	"github.com/giantswarm/cluster-operator/v5/service/controller/key"
 	"github.com/giantswarm/cluster-operator/v5/service/internal/releaseversion"
 
@@ -19,85 +20,121 @@ import (
 )
 
 func (r *Resource) EnsureCreated(ctx context.Context, obj interface{}) error {
-	cr, err := key.ToCluster(obj)
+	cluster, err := key.ToCluster(obj)
 	if err != nil {
 		return microerror.Mask(err)
 	}
 
-	var apps []*v1alpha1.App
-	{
-		r.logger.Debugf(ctx, "finding optional apps for tenant cluster %#q", key.ClusterID(&cr))
+	logger := r.logger.With("cluster", key.ClusterID(&cluster))
 
-		o := metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s!=%s", label.ManagedBy, project.Name()),
-		}
-
-		list := &v1alpha1.AppList{}
-		err = r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cr), Raw: &o})
-		if err != nil {
-			return microerror.Mask(err)
-		}
-
-		for _, item := range list.Items {
-			apps = append(apps, item.DeepCopy())
-		}
-
-		r.logger.Debugf(ctx, "found %d optional apps for tenant cluster %#q", len(apps), key.ClusterID(&cr))
+	apps, err := r.getApps(ctx, logger, cluster)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
-	{
-		var updatedAppCount int
+	err = r.updateApps(ctx, logger, cluster, apps)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+	return nil
+}
 
-		if len(apps) > 0 {
-			componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cr)
-			if err != nil {
-				return microerror.Mask(err)
-			}
+func (r *Resource) getApps(ctx context.Context, logger micrologger.Logger, cluster apiv1beta1.Cluster) ([]*v1alpha1.App, error) {
+	logger.Debugf(ctx, "finding apps")
 
-			appOperatorComponent := componentVersions[releaseversion.AppOperator]
-			appOperatorVersion := appOperatorComponent.Version
-			if appOperatorVersion == "" {
-				return microerror.Maskf(notFoundError, "app-operator component version not found")
-			}
+	list := &v1alpha1.AppList{}
+	err := r.ctrlClient.List(ctx, list, &client.ListOptions{Namespace: key.ClusterID(&cluster), Raw: &metav1.ListOptions{}})
+	if err != nil {
+		return nil, microerror.Mask(err)
+	}
 
-			r.logger.Debugf(ctx, "updating version label for optional apps in tenant cluster %#q", key.ClusterID(&cr))
+	apps := []*v1alpha1.App{}
+	for _, item := range list.Items {
+		apps = append(apps, item.DeepCopy())
+	}
 
-			for _, app := range apps {
-				currentVersion := app.Labels[label.AppOperatorVersion]
+	logger.Debugf(ctx, "found %d apps", len(apps))
 
-				if shouldUpdateAppOperatorVersionLabel(currentVersion, appOperatorVersion) {
-					var patches []patch
+	return apps, nil
+}
 
-					if len(app.Labels) == 0 {
-						patches = append(patches, patch{
-							Op:    "add",
-							Path:  "/metadata/labels",
-							Value: map[string]string{},
-						})
-					}
+func (r *Resource) updateApps(ctx context.Context, logger micrologger.Logger, cluster apiv1beta1.Cluster, apps []*v1alpha1.App) error {
+	if len(apps) == 0 {
+		return nil
+	}
 
-					patches = append(patches, patch{
-						Op:    "add",
-						Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
-						Value: appOperatorVersion,
-					})
+	appOperatorVersion, err := r.getAppOperatorVersion(ctx, cluster)
+	if err != nil {
+		return err
+	}
 
-					bytes, err := json.Marshal(patches)
-					if err != nil {
-						return microerror.Mask(err)
-					}
+	logger.Debugf(ctx, "updating app version labels")
 
-					err = r.ctrlClient.Patch(ctx, app, client.RawPatch(types.JSONPatchType, bytes), &client.PatchOptions{Raw: &metav1.PatchOptions{}})
-					if err != nil {
-						return microerror.Mask(err)
-					}
+	updatedAppCount := 0
+	for _, app := range apps {
+		currentVersion := app.Labels[label.AppOperatorVersion]
 
-					updatedAppCount++
-				}
-			}
-
-			r.logger.Debugf(ctx, "updating version label for %d optional apps in tenant cluster %#q", updatedAppCount, key.ClusterID(&cr))
+		if !shouldUpdateAppOperatorVersionLabel(currentVersion, appOperatorVersion) {
+			continue
 		}
+
+		err = r.patchAppOperatorVersion(ctx, app, appOperatorVersion)
+		if err != nil {
+			return err
+		}
+
+		updatedAppCount++
+	}
+
+	logger.Debugf(ctx, "updated version label for %d apps", updatedAppCount)
+
+	return nil
+}
+
+func (r *Resource) getAppOperatorVersion(ctx context.Context, cluster apiv1beta1.Cluster) (string, error) {
+	componentVersions, err := r.releaseVersion.ComponentVersion(ctx, &cluster)
+	if err != nil {
+		return "", microerror.Mask(err)
+	}
+
+	appOperatorComponent := componentVersions[releaseversion.AppOperator]
+	appOperatorVersion := appOperatorComponent.Version
+	if appOperatorVersion == "" {
+		return "", microerror.Maskf(notFoundError, "app-operator component version not found")
+	}
+
+	return appOperatorVersion, nil
+}
+
+func (r *Resource) patchAppOperatorVersion(ctx context.Context, app *v1alpha1.App, appOperatorVersion string) error {
+	var patches []patch
+
+	if len(app.Labels) == 0 {
+		patches = append(patches, patch{
+			Op:    "add",
+			Path:  "/metadata/labels",
+			Value: map[string]string{},
+		})
+	}
+
+	patches = append(patches, patch{
+		Op:    "add",
+		Path:  fmt.Sprintf("/metadata/labels/%s", replaceToEscape(label.AppOperatorVersion)),
+		Value: appOperatorVersion,
+	})
+
+	bytes, err := json.Marshal(patches)
+	if err != nil {
+		return microerror.Mask(err)
+	}
+
+	err = r.ctrlClient.Patch(ctx,
+		app,
+		client.RawPatch(types.JSONPatchType, bytes),
+		&client.PatchOptions{Raw: &metav1.PatchOptions{}},
+	)
+	if err != nil {
+		return microerror.Mask(err)
 	}
 
 	return nil
