@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix rule names of PolicyException.
+
 ### Changed
 
 - Patch app operator version on all apps instead of just optional ones.
