@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.7.1] - 2023-08-03
+
 ### Fixed
 
 - Fix rule names of PolicyException.
@@ -455,7 +457,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.7.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.7.1...HEAD
+[5.7.1]: https://github.com/giantswarm/cluster-operator/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/giantswarm/cluster-operator/compare/v5.6.1...v5.7.0
 [5.6.1]: https://github.com/giantswarm/cluster-operator/compare/v5.6.0...v5.6.1
 [5.6.0]: https://github.com/giantswarm/cluster-operator/compare/v5.5.0...v5.6.0
