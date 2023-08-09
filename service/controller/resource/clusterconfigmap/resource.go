@@ -40,7 +40,6 @@ type Resource struct {
 
 	clusterIPRange string
 	dnsIP          string
-	installation   string
 	provider       string
 }
 
