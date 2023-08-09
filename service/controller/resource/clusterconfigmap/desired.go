@@ -181,7 +181,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"name": key.ClusterID(&cr),
 		}
 		ciliumValues["cni"] = map[string]interface{}{
-			"customConf": "true",
+			"customConf": true,
 			"configMap":  "cilium-cni-configuration",
 		}
 	}
