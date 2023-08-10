@@ -159,9 +159,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"enabled": true,
 		}
 		// ciliumValues["awsEnablePrefixDelegation"] = true
-		// ciliumValues["subnetTagsFilter"] = []string{
-		// 	fmt.Sprintf("giantswarm.io/cluster=%s,giantswarm.io/subnet-type=aws-cni", key.ClusterID(&cr)),
-		// }
+		ciliumValues["subnetTagsFilter"] = []string{
+			fmt.Sprintf("giantswarm.io/cluster=%s,giantswarm.io/subnet-type=aws-cni", key.ClusterID(&cr)),
+		}
 
 		// ciliumValues["subnetTagsFilter"] = []string{
 		// 	fmt.Sprintf("giantswarm.io/installation=%s", r.installation),
@@ -180,10 +180,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["cluster"] = map[string]interface{}{
 			"name": key.ClusterID(&cr),
 		}
-		ciliumValues["cni"] = map[string]interface{}{
-			"customConf": true,
-			"configMap":  "cilium-cni-configuration",
-		}
+		// ciliumValues["cni"] = map[string]interface{}{
+		// 	"customConf": true,
+		// 	"configMap":  "cilium-cni-configuration",
+		// }
 	}
 
 	configMapSpecs := []configMapSpec{
