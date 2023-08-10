@@ -156,16 +156,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 
 	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
 		ciliumValues["eni"] = map[string]interface{}{
-			"enabled": true,
-		}
-		// ciliumValues["awsEnablePrefixDelegation"] = true
-		ciliumValues["subnetTagsFilter"] = []string{
-			fmt.Sprintf("giantswarm.io/cluster=%s,giantswarm.io/subnet-type=aws-cni", key.ClusterID(&cr)),
+			"enabled":          true,
+			"subnetTagsFilter": fmt.Sprintf("giantswarm.io/cluster=%s,giantswarm.io/subnet-type=aws-cni", key.ClusterID(&cr)),
+			//"awsEnablePrefixDelegation": true,
 		}
 
-		// ciliumValues["subnetTagsFilter"] = []string{
-		// 	fmt.Sprintf("giantswarm.io/installation=%s", r.installation),
-		// }
 		ciliumValues["ipam"] = map[string]interface{}{
 			"mode": "eni",
 		}
