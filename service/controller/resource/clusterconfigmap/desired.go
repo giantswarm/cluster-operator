@@ -157,17 +157,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
 		ciliumValues["eni"] = map[string]interface{}{
 			"enabled": true,
-			"subnetTagsFilter": []string{
-				"giantswarm.io/subnet-type=aws-cni",
-				fmt.Sprintf("giantswarm.io/cluster=%s", key.ClusterID(&cr)),
-			},
 			//"awsEnablePrefixDelegation": true,
 		}
 
 		ciliumValues["ipam"] = map[string]interface{}{
 			"mode": "eni",
 		}
-		ciliumValues["ipv4NativeRoutingCIDR"] = podCIDR
+		// there is autodiscoverability on the VPC CIDrs
+		// ciliumValues["ipv4NativeRoutingCIDR"] = podCIDR
 		// https://docs.cilium.io/en/v1.13/network/concepts/routing/#id5
 		ciliumValues["endpointRoutes"] = map[string]interface{}{
 			"enabled": true,
@@ -178,10 +175,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["cluster"] = map[string]interface{}{
 			"name": key.ClusterID(&cr),
 		}
-		// ciliumValues["cni"] = map[string]interface{}{
-		// 	"customConf": true,
-		// 	"configMap":  "cilium-cni-configuration",
-		// }
+		ciliumValues["cni"] = map[string]interface{}{
+			"customConf": true,
+			"exclusive":  true,
+			"configMap":  "cilium-cni-configuration",
+		}
 	}
 
 	configMapSpecs := []configMapSpec{
