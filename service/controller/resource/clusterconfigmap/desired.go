@@ -177,6 +177,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 		ciliumValues["cni"] = map[string]interface{}{
 			"customConf": true,
+			"install":    true,
 			"exclusive":  true,
 			"configMap":  "cilium-cni-configuration",
 		}
