@@ -137,6 +137,12 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"cni": map[string]interface{}{
 			"exclusive": false,
 		},
+		"extraEnv": []map[string]string{
+			{
+				"name":  "CNI_CONF_NAME",
+				"value": "21-cilium.conflist",
+			},
+		},
 	}
 
 	if key.ForceDisableCiliumKubeProxyReplacement(cr) {
@@ -174,7 +180,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"exclusive":  true,
 			"configMap":  "cilium-cni-configuration",
 		}
-		ciliumValues["extraEnv"] = []map[string]string{}
 	}
 
 	configMapSpecs := []configMapSpec{
