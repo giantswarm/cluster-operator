@@ -140,7 +140,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"extraEnv": []map[string]string{
 			{
 				"name":  "CNI_CONF_NAME",
-				"value": "21-cilium.conflist",
+				"value": "21-cilium.conf",
 			},
 		},
 	}
