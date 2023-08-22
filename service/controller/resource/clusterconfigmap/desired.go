@@ -140,7 +140,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"extraEnv": []map[string]string{
 			{
 				"name":  "CNI_CONF_NAME",
-				"value": "21-cilium.conflist",
+				"value": "21-cilium.conf",
 			},
 		},
 	}
@@ -180,6 +180,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"exclusive":  true,
 			"configMap":  "cilium-cni-configuration",
 		}
+		ciliumValues["extraEnv"] = []map[string]string{
+			{
+				"name":  "CNI_CONF_NAME",
+				"value": "21-cilium.conflist",
+			},
+		}
+
 	}
 
 	configMapSpecs := []configMapSpec{
