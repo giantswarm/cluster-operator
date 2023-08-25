@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/blang/semver"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"gopkg.in/yaml.v3"
@@ -155,6 +156,22 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	}
 
 	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
+		awsCluster := &v1alpha3.AWSCluster{}
+		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+		releaseVersion, err := semver.ParseTolerant(key.ReleaseVersion(awsCluster))
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+			ciliumValues["nodeSelector"] = map[string]interface{}{
+				"aws-operator.giantswarm.io/version": releaseVersion,
+			}
+		}
+
 		ciliumValues["eni"] = map[string]interface{}{
 			"enabled": true,
 			//"awsEnablePrefixDelegation": true,
