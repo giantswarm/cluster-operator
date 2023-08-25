@@ -145,7 +145,8 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 	}
 
-	if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+	// We only need this if the cluster is in overlay mode during the upgrade
+	if key.ForceDisableCiliumKubeProxyReplacement(cr) && !key.AWSEniModeEnabled(cr) {
 		ciliumValues["kubeProxyReplacement"] = "disabled"
 	} else {
 		ciliumValues["kubeProxyReplacement"] = "strict"
@@ -161,6 +162,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
+		// This is a hack to only introduce the selector during the upgrade on the new nodes, old ones work with AWS CNI
 		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
 			ciliumValues["nodeSelector"] = map[string]interface{}{
 				"aws-operator.giantswarm.io/version": key.AWSOperatorReleaseVersion(awsCluster),
