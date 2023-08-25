@@ -156,6 +156,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	}
 
 	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
+		// Add selector to not interfere with nodes still running in AWS CNI
 		awsCluster := &v1alpha3.AWSCluster{}
 		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
 		if err != nil {
@@ -165,7 +166,6 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-
 		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
 			ciliumValues["nodeSelector"] = map[string]interface{}{
 				"aws-operator.giantswarm.io/version": releaseVersion,
