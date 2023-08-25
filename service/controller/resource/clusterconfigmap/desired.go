@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
+
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"gopkg.in/yaml.v3"
@@ -162,10 +164,34 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
+
+		var re releasev1alpha1.Release
+		err = r.ctrlClient.Get(
+			ctx,
+			types.NamespacedName{Name: key.ReleaseName(key.ReleaseVersion(&cr))},
+			&re,
+		)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		var awsOperatorRelease string
+		for _, v := range re.Spec.Components {
+			if v.Name == "aws-operator" {
+				awsOperatorRelease = v.Version
+			}
+		}
+		var releaseNotFound = &microerror.Error{
+			Kind: "awsOperatorReleaseNotFound",
+		}
+		if awsOperatorRelease == "" {
+			return nil, microerror.Mask(releaseNotFound)
+		}
+
 		// This is a hack to only introduce the selector during the upgrade on the new nodes, old ones work with AWS CNI
 		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
 			ciliumValues["nodeSelector"] = map[string]interface{}{
-				"aws-operator.giantswarm.io/version": key.AWSOperatorReleaseVersion(awsCluster),
+				"aws-operator.giantswarm.io/version": awsOperatorRelease,
 			}
 		}
 
