@@ -163,7 +163,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
 			ciliumValues["nodeSelector"] = map[string]interface{}{
-				"aws-operator.giantswarm.io/version": key.ReleaseVersion(awsCluster),
+				"aws-operator.giantswarm.io/version": key.AWSOperatorReleaseVersion(awsCluster),
 			}
 		}
 
