@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/blang/semver"
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"gopkg.in/yaml.v3"
@@ -162,13 +161,9 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		if err != nil {
 			return nil, microerror.Mask(err)
 		}
-		releaseVersion, err := semver.ParseTolerant(key.ReleaseVersion(awsCluster))
-		if err != nil {
-			return nil, microerror.Mask(err)
-		}
 		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
 			ciliumValues["nodeSelector"] = map[string]interface{}{
-				"aws-operator.giantswarm.io/version": releaseVersion,
+				"aws-operator.giantswarm.io/version": key.ReleaseVersion(awsCluster),
 			}
 		}
 
