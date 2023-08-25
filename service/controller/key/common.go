@@ -80,7 +80,7 @@ func ReleaseVersion(getter LabelsGetter) string {
 }
 
 func AWSOperatorReleaseVersion(getter LabelsGetter) string {
-	return getter.GetLabels()[label.ReleaseVersion]
+	return getter.GetLabels()[label.AWSReleaseVersion]
 }
 
 func IsBundle(appName string) bool {
