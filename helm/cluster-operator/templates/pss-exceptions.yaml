@@ -1,0 +1,36 @@
+apiVersion: kyverno.io/v2alpha1
+kind: PolicyException
+metadata:
+  name: {{ include "resource.default.name" . }}-exceptions
+  namespace: {{ include "resource.default.namespace" . }}
+spec:
+  exceptions:
+  - policyName: disallow-capabilities-strict
+    ruleNames:
+    - adding-capabilities-strict
+    - autogen-adding-capabilities-strict
+    - require-drop-all
+    - autogen-require-drop-all
+  - policyName: disallow-privilege-escalation
+    ruleNames:
+    - privilege-escalation
+    - autogen-privilege-escalation
+  - policyName: require-run-as-nonroot
+    ruleNames:
+    - run-as-non-root
+    - autogen-run-as-non-root
+  - policyName: restrict-seccomp-strict
+    ruleNames:
+    - check-seccomp-strict
+    - autogen-check-seccomp-strict
+  match:
+    any:
+    - resources:
+        kinds:
+        - Deployment
+        - ReplicaSet
+        - Pod
+        namespaces:
+        - {{ include "resource.default.namespace" . }}
+        names:
+        - {{ .Chart.Name }}*

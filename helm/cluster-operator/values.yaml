@@ -54,9 +54,6 @@ release:
           useUpgradeForce: false
         net-exporter:
           chart: "net-exporter"
-        # Upgrade force is disabled to avoid affecting customer workloads.
-        nginx-ingress-controller:
-          useUpgradeForce: false
 
 vault:
   certificate:
@@ -64,10 +61,15 @@ vault:
 
 # Add seccomp to pod security context
 podSecurityContext:
+  runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
 
 # Add seccomp to container security context
 securityContext:
+  allowPrivilegeEscalation: false
   seccompProfile:
     type: RuntimeDefault
+  capabilities:
+    drop:
+    - ALL

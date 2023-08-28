@@ -15,6 +15,8 @@ sonatype-2022-5436
 CVE-2021-41803
 sonatype-2022-6522
 CVE-2020-8561
-
-# github.com/gin-gonic/gin@v1.9.0 - no new version available
 CVE-2023-29401
+CVE-2023-26125
+
+# golang/google.golang.org/grpc@v1.52.0
+CVE-2023-32731 until=2023-08-30
