@@ -90,6 +90,11 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"ciliumNetworkPolicy": map[string]interface{}{
 			"enabled": enableCiliumNetworkPolicy,
 		},
+		"global": map[string]interface{}{
+			"podSecurityStandards": map[string]interface{}{
+				"enforced": true,
+			},
+		},
 	}
 
 	if key.IsAWS(r.provider) {

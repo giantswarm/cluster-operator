@@ -56,7 +56,7 @@ func (nc *NodeCount) MasterCount(ctx context.Context, obj interface{}) (map[stri
 
 	masterCount := make(map[string]Node)
 	for _, node := range nodes.Items {
-		if _, ok := node.Labels[label.MasterNodeRole]; ok {
+		if isMaster(node) {
 			id := node.Labels[label.ControlPlane]
 			{
 				val := masterCount[id]
@@ -74,6 +74,16 @@ func (nc *NodeCount) MasterCount(ctx context.Context, obj interface{}) (map[stri
 	}
 
 	return masterCount, nil
+}
+
+func isMaster(node corev1.Node) bool {
+	for _, role := range label.MasterNodeRoles {
+		if _, ok := node.Labels[role]; ok {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (nc *NodeCount) WorkerCount(ctx context.Context, obj interface{}) (map[string]Node, error) {

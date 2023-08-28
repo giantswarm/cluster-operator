@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/cachekeycontext"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	tcunittest "github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient/unittest"
@@ -119,4 +120,55 @@ func Test_NodeCount_Cache(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestIsMaster(t *testing.T) {
+	testCases := []struct {
+		name     string
+		node     v1.Node
+		expected bool
+	}{
+		{
+			name:     "case 0: unit test master node",
+			node:     unittest.NewMasterNode(),
+			expected: true,
+		},
+		{
+			name:     "case 1: unit test worker node",
+			node:     unittest.NewWorkerNode(),
+			expected: false,
+		},
+		{
+			name: "case 2: kubeadm version >=1.25",
+			node: v1.Node{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"node-role.kubernetes.io/control-plane": "",
+					},
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "case 3: kubeadm version <1.25",
+			node: v1.Node{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"node-role.kubernetes.io/master": "",
+					},
+				},
+			},
+			expected: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := isMaster(tc.node)
+			if actual != tc.expected {
+				t.Fatalf("expected %v to be equal to %v", actual, tc.expected)
+			}
+		})
+	}
+
 }
