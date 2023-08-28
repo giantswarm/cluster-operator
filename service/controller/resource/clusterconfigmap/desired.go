@@ -186,9 +186,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 				awsOperatorRelease = v.Version
 			}
 		}
-		var releaseNotFound = &microerror.Error{
-			Kind: "awsOperatorReleaseNotFound",
-		}
+
 		if awsOperatorRelease == "" {
 			return nil, microerror.Mask(releaseNotFound)
 		}

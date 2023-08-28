@@ -19,3 +19,11 @@ var wrongTypeError = &microerror.Error{
 func IsWrongType(err error) bool {
 	return microerror.Cause(err) == wrongTypeError
 }
+
+var releaseNotFound = &microerror.Error{
+	Kind: "releaseNotFound",
+}
+
+func IsReleaseNotFound(err error) bool {
+	return microerror.Cause(err) == releaseNotFound
+}
