@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### Added
+
+- Consider new control-plane label.
+
 ### Changed
 
 - Propagate `global.podSecurityStandards.enforced` value set to `true` for PSS migration
