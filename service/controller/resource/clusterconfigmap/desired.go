@@ -206,8 +206,10 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["ipam"] = map[string]interface{}{
 			"mode": "eni",
 		}
+
 		// there is autodiscoverability on the VPC CIDrs
-		// ciliumValues["ipv4NativeRoutingCIDR"] = podCIDR
+		ciliumValues["ipv4NativeRoutingCIDR"] = podCIDR
+
 		// https://docs.cilium.io/en/v1.13/network/concepts/routing/#id5
 		ciliumValues["endpointRoutes"] = map[string]interface{}{
 			"enabled": true,
