@@ -214,6 +214,13 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["endpointRoutes"] = map[string]interface{}{
 			"enabled": true,
 		}
+
+		ciliumValues["operator"] = map[string]interface{}{
+			"extraArgs": []string{
+				"--aws-release-excess-ips=true",
+			},
+		}
+
 		ciliumValues["egressMasqueradeInterfaces"] = "eth+"
 		ciliumValues["tunnel"] = "disabled"
 		// Used by cilium to tag ENIs it creates and be able to filter and clean them up.
