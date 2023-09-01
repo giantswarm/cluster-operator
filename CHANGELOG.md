@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Propagate `global.podSecurityStandards.enforced` value set to `true` for PSS migration
+- Rename function for better readbility.
 
 ## [5.7.1] - 2023-08-03
 

@@ -153,7 +153,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	}
 
 	// We only need this if the cluster is in overlay mode during the upgrade
-	if key.ForceDisableCiliumKubeProxyReplacement(cr) && !key.AWSEniModeEnabled(cr) {
+	if key.ForceDisableCiliumKubeProxyReplacement(cr) && !key.CiliumEniModeEnabled(cr) {
 		ciliumValues["kubeProxyReplacement"] = "disabled"
 	} else {
 		ciliumValues["kubeProxyReplacement"] = "strict"
@@ -162,7 +162,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		ciliumValues["cleanupKubeProxy"] = true
 	}
 
-	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
+	if key.IsAWS(r.provider) && key.CiliumEniModeEnabled(cr) {
 		// Add selector to not interfere with nodes still running in AWS CNI
 		awsCluster := &v1alpha3.AWSCluster{}
 		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
