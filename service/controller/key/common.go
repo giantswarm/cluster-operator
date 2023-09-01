@@ -79,6 +79,10 @@ func ReleaseVersion(getter LabelsGetter) string {
 	return getter.GetLabels()[label.ReleaseVersion]
 }
 
+func AWSOperatorReleaseVersion(getter LabelsGetter) string {
+	return getter.GetLabels()[label.AWSReleaseVersion]
+}
+
 func IsBundle(appName string) bool {
 	return strings.HasSuffix(appName, "-bundle")
 }

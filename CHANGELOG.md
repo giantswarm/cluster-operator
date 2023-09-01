@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
 ### Added
 
+- Add ENI mode for Cilium on AWS.
 - Consider new control-plane label.
 
 ### Changed

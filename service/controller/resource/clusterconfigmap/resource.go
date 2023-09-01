@@ -26,6 +26,7 @@ type Config struct {
 
 	ClusterIPRange string
 	DNSIP          string
+	Installation   string
 	Provider       string
 }
 
@@ -68,6 +69,9 @@ func New(config Config) (*Resource, error) {
 	}
 	if config.DNSIP == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.DNSIP must not be empty", config)
+	}
+	if config.Installation == "" {
+		return nil, microerror.Maskf(invalidConfigError, "%T.Installation must not be empty", config)
 	}
 	if config.Provider == "" {
 		return nil, microerror.Maskf(invalidConfigError, "%T.Provider must not be empty", config)

@@ -70,6 +70,7 @@ type ClusterConfig struct {
 	DNSIP                      string
 	ClusterDomain              string
 	KiamWatchDogEnabled        bool
+	Installation               string
 	NewCommonClusterObjectFunc func() infrastructurev1alpha3.CommonClusterObject
 	Provider                   string
 	RawAppDefaultConfig        string
@@ -260,6 +261,7 @@ func newClusterResources(config ClusterConfig) ([]resource.Interface, error) {
 
 			ClusterIPRange: config.ClusterIPRange,
 			DNSIP:          config.DNSIP,
+			Installation:   config.Installation,
 			Provider:       config.Provider,
 		}
 

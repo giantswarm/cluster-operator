@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 
+	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
+
 	"github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/microerror"
 	"gopkg.in/yaml.v3"
@@ -58,7 +60,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 	// enableCiliumNetworkPolicy is only enabled by default for AWS clusters.
 	var enableCiliumNetworkPolicy bool
 	{
-		if r.provider == "aws" {
+		if key.IsAWS(r.provider) {
 			useProxyProtocol = true
 			enableCiliumNetworkPolicy = true
 		}
@@ -95,7 +97,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 	}
 
-	if r.provider == "aws" {
+	if key.IsAWS(r.provider) {
 		var irsa bool
 		var accountID string
 		var vpcID string
@@ -150,13 +152,93 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 	}
 
-	if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+	// We only need this if the cluster is in overlay mode during the upgrade
+	if key.ForceDisableCiliumKubeProxyReplacement(cr) && !key.AWSEniModeEnabled(cr) {
 		ciliumValues["kubeProxyReplacement"] = "disabled"
 	} else {
 		ciliumValues["kubeProxyReplacement"] = "strict"
 		ciliumValues["k8sServiceHost"] = key.APIEndpoint(&cr, bd)
 		ciliumValues["k8sServicePort"] = "443"
 		ciliumValues["cleanupKubeProxy"] = true
+	}
+
+	if key.IsAWS(r.provider) && key.AWSEniModeEnabled(cr) {
+		// Add selector to not interfere with nodes still running in AWS CNI
+		awsCluster := &v1alpha3.AWSCluster{}
+		err := r.ctrlClient.Get(ctx, types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}, awsCluster)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		var re releasev1alpha1.Release
+		err = r.ctrlClient.Get(
+			ctx,
+			types.NamespacedName{Name: key.ReleaseName(key.ReleaseVersion(&cr))},
+			&re,
+		)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		var awsOperatorRelease string
+		for _, v := range re.Spec.Components {
+			if v.Name == "aws-operator" {
+				awsOperatorRelease = v.Version
+			}
+		}
+
+		if awsOperatorRelease == "" {
+			return nil, microerror.Mask(releaseNotFound)
+		}
+
+		// This is a hack to only introduce the selector during the upgrade on the new nodes, old ones work with AWS CNI
+		if key.ForceDisableCiliumKubeProxyReplacement(cr) {
+			ciliumValues["nodeSelector"] = map[string]interface{}{
+				"aws-operator.giantswarm.io/version": awsOperatorRelease,
+			}
+		}
+
+		ciliumValues["eni"] = map[string]interface{}{
+			"enabled": true,
+			//"awsEnablePrefixDelegation": true,
+		}
+
+		ciliumValues["ipam"] = map[string]interface{}{
+			"mode": "eni",
+		}
+
+		// there is autodiscoverability on the VPC CIDrs
+		ciliumValues["ipv4NativeRoutingCIDR"] = podCIDR
+
+		// https://docs.cilium.io/en/v1.13/network/concepts/routing/#id5
+		ciliumValues["endpointRoutes"] = map[string]interface{}{
+			"enabled": true,
+		}
+
+		ciliumValues["operator"] = map[string]interface{}{
+			"extraArgs": []string{
+				"--aws-release-excess-ips=true",
+			},
+		}
+
+		ciliumValues["egressMasqueradeInterfaces"] = "eth+"
+		ciliumValues["tunnel"] = "disabled"
+		// Used by cilium to tag ENIs it creates and be able to filter and clean them up.
+		ciliumValues["cluster"] = map[string]interface{}{
+			"name": key.ClusterID(&cr),
+		}
+		ciliumValues["cni"] = map[string]interface{}{
+			"customConf": true,
+			"exclusive":  true,
+			"configMap":  "cilium-cni-configuration",
+		}
+		ciliumValues["extraEnv"] = []map[string]string{
+			{
+				"name":  "CNI_CONF_NAME",
+				"value": "21-cilium.conflist",
+			},
+		}
+
 	}
 
 	configMapSpecs := []configMapSpec{
