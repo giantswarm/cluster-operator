@@ -149,7 +149,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"--aws-batch-change-interval=10s",
 		}
 		externalDnsValues["aws"] = map[string]interface{}{
-			"batchChangeInterval": "null",
+			"batchChangeInterval": nil,
 		}
 		externalDnsValues["serviceAccount"] = map[string]interface{}{
 			"annotations": map[string]interface{}{
