@@ -285,19 +285,29 @@ func newConfigMap(cr apiv1beta1.Cluster, configMapSpec configMapSpec) (*corev1.C
 		return nil, microerror.Mask(err)
 	}
 
+	annotations := map[string]string{
+		annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
+	}
+	for k, v := range configMapSpec.Annotations {
+		annotations[k] = v
+	}
+
+	labels := map[string]string{
+		label.Cluster:      key.ClusterID(&cr),
+		label.ManagedBy:    project.Name(),
+		label.Organization: key.OrganizationID(&cr),
+		label.ServiceType:  label.ServiceTypeManaged,
+	}
+	for k, v := range configMapSpec.Labels {
+		labels[k] = v
+	}
+
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      configMapSpec.Name,
-			Namespace: configMapSpec.Namespace,
-			Annotations: map[string]string{
-				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
-			},
-			Labels: map[string]string{
-				label.Cluster:      key.ClusterID(&cr),
-				label.ManagedBy:    project.Name(),
-				label.Organization: key.OrganizationID(&cr),
-				label.ServiceType:  label.ServiceTypeManaged,
-			},
+			Name:        configMapSpec.Name,
+			Namespace:   configMapSpec.Namespace,
+			Annotations: annotations,
+			Labels:      labels,
 		},
 		Data: map[string]string{
 			"values": string(yamlValues),
