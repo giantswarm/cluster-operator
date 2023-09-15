@@ -97,6 +97,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 	}
 
+	externalDnsValues := map[string]interface{}{
+		"txtOwnerId":       "giantswarm-io-external-dns",
+		"txtPrefix":        key.ClusterID(&cr),
+		"annotationFilter": "giantswarm.io/external-dns=managed",
+		"sources": []string{
+			"service",
+		},
+	}
+
 	if key.IsAWS(r.provider) {
 		var irsa bool
 		var accountID string
@@ -134,6 +143,21 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"irsa":      strconv.FormatBool(irsa),
 			"region":    awsCluster.Spec.Provider.Region,
 			"vpcID":     vpcID,
+		}
+
+		externalDnsValues["extraArgs"] = []string{
+			"--aws-batch-change-interval=10s",
+		}
+		externalDnsValues["aws"] = map[string]interface{}{
+			"batchChangeInterval": "null",
+		}
+		externalDnsValues["serviceAccount"] = map[string]interface{}{
+			"annotations": map[string]interface{}{
+				"eks.amazonaws.com/role-arn": fmt.Sprintf("arn:aws:iam::%s:role/%s-Route53Manager-Role", accountID, key.ClusterID(&cr)),
+			},
+		}
+		externalDnsValues["domainFilters"] = []string{
+			key.TenantEndpoint(&cr, bd),
 		}
 	}
 
@@ -262,6 +286,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Name:      "cilium-user-values",
 			Namespace: key.ClusterID(&cr),
 			Values:    ciliumValues,
+		},
+		{
+			Name:      "external-dns-cluster-values",
+			Namespace: key.ClusterID(&cr),
+			Values:    externalDnsValues,
+			Labels: map[string]string{
+				"app.kubernetes.io/name": "external-dns",
+			},
+			Annotations: map[string]string{
+				"cluster-operator.giantswarm.io/app-config-priority": "130",
+			},
 		},
 	}
 
