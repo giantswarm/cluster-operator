@@ -97,6 +97,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 	}
 
+	externalDnsValues := map[string]interface{}{
+		"txtOwnerId":       "giantswarm-io-external-dns",
+		"txtPrefix":        key.ClusterID(&cr),
+		"annotationFilter": "giantswarm.io/external-dns=managed",
+		"sources": []string{
+			"service",
+		},
+	}
+
 	if key.IsAWS(r.provider) {
 		var irsa bool
 		var accountID string
@@ -134,6 +143,23 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			"irsa":      strconv.FormatBool(irsa),
 			"region":    awsCluster.Spec.Provider.Region,
 			"vpcID":     vpcID,
+		}
+
+		externalDnsValues["extraArgs"] = []string{
+			"--aws-batch-change-interval=10s",
+		}
+		externalDnsValues["aws"] = map[string]interface{}{
+			"batchChangeInterval": nil,
+		}
+		externalDnsValues["domainFilters"] = []string{
+			key.TenantEndpoint(&cr, bd),
+		}
+		if !key.IsAWSChina(awsCluster.Spec.Provider.Region) {
+			externalDnsValues["serviceAccount"] = map[string]interface{}{
+				"annotations": map[string]interface{}{
+					"eks.amazonaws.com/role-arn": fmt.Sprintf("arn:aws:iam::%s:role/%s-Route53Manager-Role", accountID, key.ClusterID(&cr)),
+				},
+			}
 		}
 	}
 
@@ -263,6 +289,17 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			Namespace: key.ClusterID(&cr),
 			Values:    ciliumValues,
 		},
+		{
+			Name:      "external-dns-cluster-values",
+			Namespace: key.ClusterID(&cr),
+			Values:    externalDnsValues,
+			Labels: map[string]string{
+				"app.kubernetes.io/name": "external-dns",
+			},
+			Annotations: map[string]string{
+				"cluster-operator.giantswarm.io/app-config-priority": "130",
+			},
+		},
 	}
 
 	var configMaps []*corev1.ConfigMap
@@ -285,19 +322,29 @@ func newConfigMap(cr apiv1beta1.Cluster, configMapSpec configMapSpec) (*corev1.C
 		return nil, microerror.Mask(err)
 	}
 
+	annotations := map[string]string{
+		annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
+	}
+	for k, v := range configMapSpec.Annotations {
+		annotations[k] = v
+	}
+
+	labels := map[string]string{
+		label.Cluster:      key.ClusterID(&cr),
+		label.ManagedBy:    project.Name(),
+		label.Organization: key.OrganizationID(&cr),
+		label.ServiceType:  label.ServiceTypeManaged,
+	}
+	for k, v := range configMapSpec.Labels {
+		labels[k] = v
+	}
+
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      configMapSpec.Name,
-			Namespace: configMapSpec.Namespace,
-			Annotations: map[string]string{
-				annotation.Notes: fmt.Sprintf("DO NOT EDIT. Values managed by %s.", project.Name()),
-			},
-			Labels: map[string]string{
-				label.Cluster:      key.ClusterID(&cr),
-				label.ManagedBy:    project.Name(),
-				label.Organization: key.OrganizationID(&cr),
-				label.ServiceType:  label.ServiceTypeManaged,
-			},
+			Name:        configMapSpec.Name,
+			Namespace:   configMapSpec.Namespace,
+			Annotations: annotations,
+			Labels:      labels,
 		},
 		Data: map[string]string{
 			"values": string(yamlValues),
