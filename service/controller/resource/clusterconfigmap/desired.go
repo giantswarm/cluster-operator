@@ -151,13 +151,15 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		externalDnsValues["aws"] = map[string]interface{}{
 			"batchChangeInterval": nil,
 		}
-		externalDnsValues["serviceAccount"] = map[string]interface{}{
-			"annotations": map[string]interface{}{
-				"eks.amazonaws.com/role-arn": fmt.Sprintf("arn:aws:iam::%s:role/%s-Route53Manager-Role", accountID, key.ClusterID(&cr)),
-			},
-		}
 		externalDnsValues["domainFilters"] = []string{
 			key.TenantEndpoint(&cr, bd),
+		}
+		if !key.IsAWSChina(awsCluster.Spec.Provider.Region) {
+			externalDnsValues["serviceAccount"] = map[string]interface{}{
+				"annotations": map[string]interface{}{
+					"eks.amazonaws.com/role-arn": fmt.Sprintf("arn:aws:iam::%s:role/%s-Route53Manager-Role", accountID, key.ClusterID(&cr)),
+				},
+			}
 		}
 	}
 
