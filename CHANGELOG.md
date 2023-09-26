@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create `external-dns-cluster-values` configmap on cluster creation.
 
+### Changed
+
+- Set `global.podSecurityStandards.enforced` to `false` in cluster configmap.
+
 ## [5.8.0] - 2023-09-01
 
 ### Added

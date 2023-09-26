@@ -92,7 +92,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 		"global": map[string]interface{}{
 			"podSecurityStandards": map[string]interface{}{
-				"enforced": true,
+				"enforced": false,
 			},
 		},
 	}
