@@ -244,6 +244,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 			},
 		}
 
+		ciliumValues["egressMasqueradeInterfaces"] = "eth0"
 		ciliumValues["enableIPv4Masquerade"] = false
 		ciliumValues["tunnel"] = "disabled"
 		// Used by cilium to tag ENIs it creates and be able to filter and clean them up.
