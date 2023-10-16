@@ -66,6 +66,14 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		}
 	}
 
+	var pssEnforced bool
+	{
+		pssEnforced, err = key.IsPSSRelease(&cr)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+	}
+
 	values := map[string]interface{}{
 		"baseDomain": key.TenantEndpoint(&cr, bd),
 		"bootstrapMode": map[string]interface{}{
@@ -92,7 +100,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		},
 		"global": map[string]interface{}{
 			"podSecurityStandards": map[string]interface{}{
-				"enforced": false,
+				"enforced": pssEnforced,
 			},
 		},
 	}
