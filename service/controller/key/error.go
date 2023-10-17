@@ -20,6 +20,15 @@ func IsNotFound(err error) bool {
 	return microerror.Cause(err) == notFoundError
 }
 
+var unknownReleaseError = &microerror.Error{
+	Kind: "unknownReleaseError",
+}
+
+// IsUnknownRelease asserts unknownReleaseError.
+func IsUnknownRelease(err error) bool {
+	return microerror.Cause(err) == unknownReleaseError
+}
+
 var wrongTypeError = &microerror.Error{
 	Kind: "wrongTypeError",
 }

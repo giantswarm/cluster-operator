@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Automatically set `global.podSecurityStandards.enforced` to `true` for clusters >= 19.3.0.
+
 ## [5.9.0] - 2023-10-09
 
 ### Changed
