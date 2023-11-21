@@ -109,6 +109,7 @@ func (r *Resource) GetDesiredState(ctx context.Context, obj interface{}) ([]*cor
 		"txtOwnerId":       "giantswarm-io-external-dns",
 		"txtPrefix":        key.ClusterID(&cr),
 		"annotationFilter": "giantswarm.io/external-dns=managed",
+		"provider":         r.provider,
 		"sources": []string{
 			"service",
 		},

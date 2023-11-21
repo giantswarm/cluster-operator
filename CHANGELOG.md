@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add `provider` field to `external dns` configmap.
+
 ## [5.10.0] - 2023-10-17
 
 ### Changed
