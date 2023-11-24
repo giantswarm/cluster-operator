@@ -127,6 +127,6 @@ replace (
 	github.com/labstack/echo/v4 v4.5.0 => github.com/labstack/echo/v4 v4.9.0
 	github.com/microcosm-cc/bluemonday v1.0.2 => github.com/microcosm-cc/bluemonday v1.0.19
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.9.5
-	golang.org/x/text => golang.org/x/text v0.13.0
+	golang.org/x/text => golang.org/x/text v0.14.0
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.5
 )
