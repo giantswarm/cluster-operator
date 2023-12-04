@@ -12,9 +12,9 @@ project:
   commit: "[[ .SHA ]]"
 
 registry:
-  domain: docker.io
+  domain: gsoci.azurecr.io
   mirrors:
-  - giantswarm.azurecr.io
+    - giantswarm.azurecr.io
   pullSecret:
     dockerConfigJSON: ""
 
@@ -75,4 +75,4 @@ securityContext:
     type: RuntimeDefault
   capabilities:
     drop:
-    - ALL
+      - ALL
