@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Configure `gsoci.azurecr.io` as the default container image registry.
 
+### Added
+
+- Add team label in resources.
+
 ## [5.10.0] - 2023-10-17
 
 ### Changed
