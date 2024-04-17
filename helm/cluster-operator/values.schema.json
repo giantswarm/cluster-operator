@@ -192,6 +192,19 @@
                     }
                 }
             }
+        },
+        "global": {
+            "type": "object",
+            "properties": {
+                "podSecurityStandards": {
+                    "type": "object",
+                    "properties": {
+                        "enforced": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
         }
     }
 }
