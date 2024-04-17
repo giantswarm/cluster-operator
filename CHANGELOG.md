@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.10.0-patch1] - 2024-04-17
+
+### Added
+
+- Add global.podSecurityStandards.enforced value for PSS migration.
+
 ## [5.10.0] - 2023-10-17
 
 ### Changed
@@ -491,7 +497,8 @@ be edited by users.
 
 
 
-[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.10.0...HEAD
+[Unreleased]: https://github.com/giantswarm/cluster-operator/compare/v5.10.0-patch1...HEAD
+[5.10.0-patch1]: https://github.com/giantswarm/cluster-operator/compare/v5.10.0...v5.10.0-patch1
 [5.10.0]: https://github.com/giantswarm/cluster-operator/compare/v5.9.0...v5.10.0
 [5.9.0]: https://github.com/giantswarm/cluster-operator/compare/v5.8.0-patch1...v5.9.0
 [5.8.0-patch1]: https://github.com/giantswarm/cluster-operator/compare/v5.8.0...v5.8.0-patch1
