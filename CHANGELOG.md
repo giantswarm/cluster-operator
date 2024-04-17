@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add team label in resources.
+- Add `global.podSecurityStandards.enforced` value for PSS migration.
 
 ## [5.10.0] - 2023-10-17
 
