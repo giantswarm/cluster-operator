@@ -71,3 +71,7 @@ podSecurityContext:
 securityContext:
   seccompProfile:
     type: RuntimeDefault
+
+global:
+  podSecurityStandards:
+    enforced: false
