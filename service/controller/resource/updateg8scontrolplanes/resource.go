@@ -19,8 +19,8 @@ type Config struct {
 // Resource implements the operatorkit resource interface to propagate the
 // following version labels from Cluster CRs to G8sControlPlane CRs.
 //
-//     cluster-operator.giantswarm.io/version
-//     release.giantswarm.io/version
+// cluster-operator.giantswarm.io/version
+// release.giantswarm.io/version
 //
 // This process ensures to distribute the right version labels among CAPI CRs
 // during Tenant Cluster upgrades.
