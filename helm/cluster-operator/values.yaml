@@ -61,3 +61,7 @@ release:
 vault:
   certificate:
     ttl: 4320h
+
+global:
+  podSecurityStandards:
+    enforced: false
