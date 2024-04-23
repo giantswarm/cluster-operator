@@ -1,5 +1,5 @@
 {{- if not .Values.global.podSecurityStandards.enforced }}
-apiVersion: policy/v1beta10
+apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   name: {{ include "resource.psp.name" . }}
