@@ -40,6 +40,12 @@ func TestIsPSSRelease(t *testing.T) {
 			want:    true,
 			wantErr: false,
 		},
+		{
+			name:    "v20.0.0",
+			getter:  getClusterWithLabelVersion("20.0.0"),
+			want:    true,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

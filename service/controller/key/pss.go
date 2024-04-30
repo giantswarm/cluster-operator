@@ -18,5 +18,5 @@ func IsPSSRelease(getter LabelsGetter) (bool, error) {
 		return false, microerror.Mask(err)
 	}
 
-	return releaseVersion.Major >= 19 && releaseVersion.Minor >= 3, nil
+	return releaseVersion.Major >= 20 || (releaseVersion.Major >= 19 && releaseVersion.Minor >= 3), nil
 }
