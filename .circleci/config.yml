@@ -9,7 +9,7 @@ workflows:
       - architect/go-build:
           name: go-build
           binary: cluster-operator
-          resource_class: 2xlarge
+          resource_class: xlarge
           filters:
             tags:
               only: /^v.*/
