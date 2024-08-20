@@ -83,7 +83,7 @@ func (c *TenantClient) K8sClient(ctx context.Context, obj interface{}) (k8sclien
 
 		k8sClient, err = k8sclient.NewClients(c)
 		if err != nil {
-			return nil, microerror.Maskf(notAvailableError, err.Error())
+			return nil, microerror.Maskf(notAvailableError, err.Error()) //nolint:all
 		}
 	}
 
