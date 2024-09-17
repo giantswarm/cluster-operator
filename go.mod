@@ -25,7 +25,7 @@ require (
 	github.com/giantswarm/resource/v6 v6.0.1
 	github.com/giantswarm/tenantcluster/v6 v6.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/prometheus/client_golang v1.20.3
+	github.com/prometheus/client_golang v1.20.4
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/viper v1.19.0
 	gopkg.in/yaml.v3 v3.0.1
