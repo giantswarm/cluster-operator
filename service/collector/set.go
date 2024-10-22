@@ -4,7 +4,7 @@ import (
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
 	"github.com/giantswarm/certs/v4/pkg/certs"
 	"github.com/giantswarm/exporterkit/collector"
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 )

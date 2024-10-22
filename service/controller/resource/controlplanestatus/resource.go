@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	infrastructurev1alpha3 "github.com/giantswarm/apiextensions/v6/pkg/apis/infrastructure/v1alpha3"
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/operatorkit/v8/pkg/controller/context/reconciliationcanceledcontext"

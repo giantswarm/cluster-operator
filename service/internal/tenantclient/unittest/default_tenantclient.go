@@ -3,7 +3,7 @@ package unittest
 import (
 	"context"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 
 	"github.com/giantswarm/cluster-operator/v5/service/internal/tenantclient"
 )

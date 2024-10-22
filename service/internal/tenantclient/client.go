@@ -3,7 +3,7 @@ package tenantclient
 import (
 	"context"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	"github.com/giantswarm/micrologger"
 	"github.com/giantswarm/tenantcluster/v6/pkg/tenantcluster"

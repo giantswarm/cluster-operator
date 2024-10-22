@@ -3,7 +3,7 @@ package releaseversion
 import (
 	"context"
 
-	"github.com/giantswarm/k8sclient/v7/pkg/k8sclient"
+	"github.com/giantswarm/k8sclient/v8/pkg/k8sclient"
 	"github.com/giantswarm/microerror"
 	releasev1alpha1 "github.com/giantswarm/release-operator/v4/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/meta"
