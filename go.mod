@@ -19,7 +19,7 @@ require (
 	github.com/giantswarm/microendpoint v1.1.0
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.2
-	github.com/giantswarm/micrologger v1.1.1
+	github.com/giantswarm/micrologger v1.1.2
 	github.com/giantswarm/operatorkit/v8 v8.0.0
 	github.com/giantswarm/release-operator/v4 v4.1.0
 	github.com/giantswarm/resource/v6 v6.0.1
