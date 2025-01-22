@@ -1,3 +1,5 @@
+serviceType: managed
+
 image:
   name: "giantswarm/cluster-operator"
   tag: "[[ .Version ]]"

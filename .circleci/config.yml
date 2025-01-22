@@ -30,6 +30,7 @@ workflows:
       - architect/push-to-app-catalog:
           context: architect
           name: push-cluster-operator-to-control-plane-app-catalog
+          executor: app-build-suite
           app_catalog: control-plane-catalog
           app_catalog_test: control-plane-test-catalog
           chart: cluster-operator
@@ -39,6 +40,4 @@ workflows:
             tags:
               only: /^v.*/
             branches:
-              ignore:
-                - main
-                - master
+              only: /.*/

@@ -1,9 +1,15 @@
-apiVersion: v1
+apiVersion: v2
 name: cluster-operator
 description: The cluster-operator manages Kubernetes tenant cluster resources.
 home: https://github.com/giantswarm/cluster-operator
-version: [[ .Version ]]
-appVersion: [[ .AppVersion ]]
+version: 0.0.1-dev
+appVersion: 0.0.1-dev
+icon: https://s.giantswarm.io/app-icons/giantswarm/1/dark.svg
 annotations:
-  config.giantswarm.io/version: 1.x.x
   application.giantswarm.io/team: turtles
+  config.giantswarm.io/version: 1.x.x
+  ui.giantswarm.io/logo: https://s.giantswarm.io/app-icons/giantswarm/1/dark.svg
+restrictions:
+  clusterSingleton: true
+  fixedNamespace: kube-system
+  gpuInstances: false

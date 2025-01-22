@@ -1,0 +1,6 @@
+generate-metadata: true
+chart-dir: ./helm/cluster-operator
+destination: ./build
+catalog-base-url: https://giantswarm.github.io/control-plane-catalog/
+replace-chart-version-with-git: true
+replace-app-version-with-git: true
