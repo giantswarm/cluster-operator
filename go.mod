@@ -2,7 +2,7 @@ module github.com/giantswarm/cluster-operator/v5
 
 go 1.21
 
-toolchain go1.23.5
+toolchain go1.23.6
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
