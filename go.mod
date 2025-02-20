@@ -16,7 +16,7 @@ require (
 	github.com/giantswarm/k8sclient/v7 v7.0.1
 	github.com/giantswarm/k8smetadata v0.25.0
 	github.com/giantswarm/kubeconfig/v4 v4.1.1
-	github.com/giantswarm/microendpoint v1.1.1
+	github.com/giantswarm/microendpoint v1.1.2
 	github.com/giantswarm/microerror v0.4.1
 	github.com/giantswarm/microkit v1.0.2
 	github.com/giantswarm/micrologger v1.1.2
@@ -98,7 +98,7 @@ require (
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.25.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.27.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
