@@ -31,7 +31,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.24.3
 	k8s.io/apimachinery v0.24.3
 	k8s.io/client-go v0.24.3
-	sigs.k8s.io/cluster-api v1.1.4
+	sigs.k8s.io/cluster-api v1.11.0
 	sigs.k8s.io/controller-runtime v0.12.3
 )
 
@@ -120,5 +120,5 @@ replace (
 	github.com/microcosm-cc/bluemonday v1.0.2 => github.com/microcosm-cc/bluemonday v1.0.19
 	github.com/nats-io/nats-server/v2 v2.5.0 => github.com/nats-io/nats-server/v2 v2.9.5
 	golang.org/x/text => golang.org/x/text v0.28.0
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.5
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.11.0
 )
